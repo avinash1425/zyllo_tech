@@ -70,10 +70,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
+const defaultAuthValue: AuthContextValue = {
+  user: null,
+  isAuthenticated: false,
+  isAdmin: false,
+  isHydrated: false,
+  signUp: async () => { throw new Error("AuthProvider not mounted"); },
+  signIn: async () => { throw new Error("AuthProvider not mounted"); },
+  signOut: () => {},
+};
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
-  return context;
+  return context ?? defaultAuthValue;
 };

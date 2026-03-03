@@ -39,7 +39,7 @@ interface FormErrors {
 }
 
 interface ContactInfoItem {
-  icon: ComponentType<{ size?: number; className?: string; "aria-hidden"?: boolean }>;
+  icon: React.ElementType;
   label: string;
   value: string;
   description: string;
