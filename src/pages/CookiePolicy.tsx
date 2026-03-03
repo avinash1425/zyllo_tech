@@ -16,8 +16,6 @@ const CookiePolicy = () => {
 
       <section className="py-14">
         <div className="container mx-auto max-w-4xl px-4 sm:px-6 space-y-8">
-          <p className="text-sm text-muted-foreground">Last updated: March 3, 2026</p>
-
           <article>
             <h2 className="text-lg font-semibold text-foreground sm:text-xl">1. What Are Cookies</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
@@ -54,7 +52,7 @@ const CookiePolicy = () => {
           <article>
             <h2 className="text-lg font-semibold text-foreground sm:text-xl">5. Updates</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
-              We may update this Cookie Policy from time to time. Any changes are effective when posted here with an updated revision date.
+              We may update this Cookie Policy from time to time. Any changes are effective when posted here.
             </p>
           </article>
 

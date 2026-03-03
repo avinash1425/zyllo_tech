@@ -63,7 +63,6 @@ const TermsOfService = () => {
 
       <section className="py-14">
         <div className="container mx-auto max-w-4xl px-4 sm:px-6">
-          <p className="mb-8 text-sm text-muted-foreground">Last updated: March 3, 2026</p>
           <div className="space-y-7">
             {sections.map((section) => (
               <article key={section.title}>

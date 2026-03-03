@@ -42,7 +42,7 @@ const sections = [
   },
   {
     title: "10. Policy Updates",
-    body: "We may update this Privacy Policy periodically. Changes become effective when posted on this page. The Last Updated date reflects the latest revision.",
+    body: "We may update this Privacy Policy periodically. Changes become effective when posted on this page.",
   },
 ];
 
@@ -59,7 +59,6 @@ const PrivacyPolicy = () => {
 
       <section className="py-14">
         <div className="container mx-auto max-w-4xl px-4 sm:px-6">
-          <p className="mb-8 text-sm text-muted-foreground">Last updated: March 3, 2026</p>
           <div className="space-y-7">
             {sections.map((section) => (
               <article key={section.title}>
