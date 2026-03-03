@@ -64,15 +64,17 @@ export function TubesBackground({
           if (!canvas) return;
           const rect = canvas.getBoundingClientRect();
           const t = performance.now() / 1000;
-          const a = t * 0.95;
+          const a = t * 0.88;
           const cx = rect.width / 2;
           const cy = rect.height / 2;
-          const rx = Math.min(rect.width * 0.28, rect.height * 0.58);
-          const ry = Math.min(rect.height * 0.30, rect.width * 0.23);
+          const rx = Math.min(rect.width * 0.33, rect.height * 0.68);
+          const ry = Math.min(rect.height * 0.34, rect.width * 0.27);
 
           const dispatchOrbitPoint = (angle: number) => {
-            const x = cx + Math.sin(angle) * rx;
-            const y = cy + Math.sin(2 * angle) * ry;
+            // Bernoulli lemniscate gives a cleaner center crossover for infinity.
+            const denom = 1 + Math.sin(angle) ** 2;
+            const x = cx + (rx * Math.cos(angle)) / denom;
+            const y = cy + (ry * Math.sin(angle) * Math.cos(angle) * 2) / denom;
             const clientX = rect.left + x;
             const clientY = rect.top + y;
 
@@ -86,9 +88,10 @@ export function TubesBackground({
             window.dispatchEvent(evt);
           };
 
-          // Drive opposite sides together so infinity appears complete continuously.
-          dispatchOrbitPoint(a);
-          dispatchOrbitPoint(a + Math.PI);
+          // Multi-phase tracing keeps both lobes and center connection visibly complete.
+          for (let i = 0; i < 6; i += 1) {
+            dispatchOrbitPoint(a + (i * Math.PI) / 3);
+          }
           orbitRafId = requestAnimationFrame(runInfinityOrbit);
         };
 
