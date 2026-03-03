@@ -28,6 +28,13 @@ const defaultGlobeConfig = {
   positions: [{ top: "50%", left: "78%", scale: 1.25 }],
 };
 
+const heroSignals = ["AI Agents", "Automation", "Product Engineering", "Cloud Native", "Data Workflows"];
+const heroMetrics = [
+  { value: "24h", label: "Response Window" },
+  { value: "98%", label: "Client Satisfaction" },
+  { value: "100+", label: "Deliveries Completed" },
+];
+
 const parsePercent = (str: string): number => parseFloat(str.replace("%", ""));
 
 function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: ScrollGlobeProps) {
@@ -105,6 +112,19 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
         className
       )}
     >
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-24 left-[8%] h-64 w-64 rounded-full bg-primary/15 blur-3xl" />
+        <div className="absolute top-[30%] right-[6%] h-72 w-72 rounded-full bg-[hsl(195,55%,42%,0.12)] blur-3xl" />
+        <div
+          className="absolute inset-0 opacity-[0.08]"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, hsl(215 14% 87%) 1px, transparent 1px), linear-gradient(to bottom, hsl(215 14% 87%) 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+      </div>
+
       <div className="fixed top-0 left-0 w-full h-0.5 bg-gradient-to-r from-border/20 via-border/40 to-border/20 z-50">
         <div
           className="h-full bg-gradient-to-r from-primary via-blue-600 to-blue-900 will-change-transform shadow-sm"
@@ -188,10 +208,29 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
         >
           <div
             className={cn(
-              "w-full max-w-sm sm:max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl will-change-transform transition-all duration-700",
+              "w-full max-w-sm sm:max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl will-change-transform transition-all duration-700 rounded-2xl border border-border/50 p-6 sm:p-8 lg:p-10 backdrop-blur-[2px]",
               "opacity-100 translate-y-0"
             )}
+            style={{
+              background:
+                index === 0
+                  ? "linear-gradient(135deg, hsl(0 0% 100% / 0.9), hsl(24 95% 98% / 0.86))"
+                  : "linear-gradient(135deg, hsl(0 0% 100% / 0.78), hsl(210 12% 96% / 0.7))",
+            }}
           >
+            {index === 0 && (
+              <div className="mb-6 flex flex-wrap gap-2">
+                {heroSignals.map((signal) => (
+                  <span
+                    key={signal}
+                    className="rounded-full border border-primary/25 bg-gradient-to-r from-primary/10 to-[hsl(195,55%,42%,0.14)] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary"
+                  >
+                    {signal}
+                  </span>
+                ))}
+              </div>
+            )}
+
             <h1
               className={cn(
                 "font-bold mb-6 sm:mb-8 leading-[1.1] tracking-tight",
@@ -202,7 +241,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
             >
               {section.subtitle ? (
                 <div className="space-y-1 sm:space-y-2">
-                  <div className="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                  <div className="bg-gradient-to-r from-foreground via-foreground to-[hsl(195,55%,32%)] bg-clip-text text-transparent">
                     {section.title}
                   </div>
                   <div className="text-muted-foreground/90 text-[0.6em] sm:text-[0.7em] font-medium tracking-wider">
@@ -284,7 +323,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                       "group relative px-6 sm:px-8 py-3 sm:py-4 rounded-lg sm:rounded-xl font-medium transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base",
                       "hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/20 w-full sm:w-auto",
                       action.variant === "primary"
-                        ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30"
+                        ? "bg-gradient-orange text-primary-foreground shadow-lg shadow-primary/25 hover:opacity-90"
                         : "border-2 border-border/60 bg-background/50 backdrop-blur-sm hover:bg-accent/50 hover:border-primary/30 text-foreground"
                     )}
                     style={{ animationDelay: `${actionIndex * 0.1 + 0.2}s` }}
@@ -294,6 +333,20 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                       <div className="absolute inset-0 rounded-lg sm:rounded-xl bg-gradient-to-r from-primary to-primary/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     )}
                   </button>
+                ))}
+              </div>
+            )}
+
+            {index === 0 && (
+              <div className="mt-7 grid gap-3 sm:grid-cols-3">
+                {heroMetrics.map((metric) => (
+                  <div
+                    key={metric.label}
+                    className="rounded-xl border border-border/70 bg-background/70 px-4 py-3"
+                  >
+                    <p className="font-display text-2xl font-bold text-primary">{metric.value}</p>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground">{metric.label}</p>
+                  </div>
                 ))}
               </div>
             )}
