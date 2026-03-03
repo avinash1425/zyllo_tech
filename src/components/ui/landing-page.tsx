@@ -29,7 +29,7 @@ const defaultGlobeConfig = {
   positions: [{ top: "48%", left: "78%", scale: 1.2 }],
 };
 
-const heroSignals = ["AI Agents", "Automation", "Cloud Native", "Product Engineering"];
+const heroSignals = ["Agent", "Automation", "Cloud Native"];
 const parsePercent = (str: string): number => parseFloat(str.replace("%", ""));
 
 function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: ScrollGlobeProps) {
@@ -172,8 +172,9 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                 className="absolute inset-0 min-h-0 h-full"
                 enableClickInteraction={false}
               />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[hsl(215,45%,8%,0.72)] via-[hsl(215,45%,10%,0.48)] to-transparent" />
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_35%,hsl(24_95%_50%_/_0.22),transparent_48%)]" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[hsl(215,45%,10%,0.44)] via-[hsl(215,45%,12%,0.2)] to-transparent" />
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_35%,hsl(24_95%_50%_/_0.2),transparent_48%)]" />
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,hsl(0_0%_100%_/_0.06),transparent_42%)]" />
             </>
           )}
 
@@ -191,15 +192,10 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
             )}
 
             {index === 0 && (
-              <div className="mb-6 flex flex-wrap gap-2.5">
-                {heroSignals.map((signal) => (
-                  <span
-                    key={signal}
-                    className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/90 backdrop-blur-sm"
-                  >
-                    {signal}
-                  </span>
-                ))}
+              <div className="mb-6 flex w-full justify-center">
+                <span className="inline-flex items-center rounded-full border border-white/30 bg-white/12 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/92 backdrop-blur-sm">
+                  {heroSignals.join(" • ")}
+                </span>
               </div>
             )}
 
@@ -230,6 +226,12 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                 </span>
               )}
             </h1>
+
+            {index === 0 && (
+              <p className="mt-3 text-sm font-medium uppercase tracking-[0.2em] text-white/75 sm:text-base">
+                Zyllo Tech Powered Solutions
+              </p>
+            )}
 
             <p
               className={cn(
