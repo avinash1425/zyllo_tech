@@ -81,6 +81,25 @@
 }
 
 @layer utilities {
+  @keyframes fadeOutLabel {
+    0% {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+    70% {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(0.5rem) scale(0.95);
+    }
+  }
+
+  .animate-fadeOut {
+    animation: fadeOutLabel 2.6s ease forwards;
+  }
+
   .text-gradient {
     background: var(--gradient-hero);
     -webkit-background-clip: text;

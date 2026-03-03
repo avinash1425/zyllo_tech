@@ -1,5 +1,5 @@
-import Globe from "@/components/ui/globe";
+import Component from "@/components/ui/landing-page";
 
 export default function DemoOne() {
-  return <Globe fullHeight />;
+  return <Component />;
 }
