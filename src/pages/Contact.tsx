@@ -15,6 +15,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import PageHero from "@/components/PageHero";
+import Globe from "@/components/ui/globe";
 import { useToast } from "@/hooks/use-toast";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -300,6 +301,16 @@ const ContactPage = () => {
                     <p className="text-xs text-muted-foreground mt-1">{b.label}</p>
                   </div>
                 ))}
+              </div>
+
+              <div className="rounded-2xl border border-border bg-muted/30 p-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Global Delivery
+                </p>
+                <p className="mt-1 text-sm text-foreground">
+                  We build for clients across regions with a remote-first engineering workflow.
+                </p>
+                <Globe className="mt-2" size={210} />
               </div>
 
               {/* Google Map embed */}
