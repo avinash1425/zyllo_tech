@@ -64,25 +64,31 @@ export function TubesBackground({
           if (!canvas) return;
           const rect = canvas.getBoundingClientRect();
           const t = performance.now() / 1000;
-          const a = t * 1.15;
+          const a = t * 0.95;
           const cx = rect.width / 2;
           const cy = rect.height / 2;
-          const rx = Math.min(rect.width * 0.26, rect.height * 0.54);
-          const ry = Math.min(rect.height * 0.31, rect.width * 0.24);
-          // Lissajous figure-eight path gives a stronger infinity crossing.
-          const x = cx + Math.sin(a) * rx;
-          const y = cy + Math.sin(2 * a) * ry;
-          const clientX = rect.left + x;
-          const clientY = rect.top + y;
+          const rx = Math.min(rect.width * 0.28, rect.height * 0.58);
+          const ry = Math.min(rect.height * 0.30, rect.width * 0.23);
 
-          const evt = new PointerEvent("pointermove", {
-            clientX,
-            clientY,
-            pointerType: "mouse",
-            bubbles: true,
-          });
-          canvas.dispatchEvent(evt);
-          window.dispatchEvent(evt);
+          const dispatchOrbitPoint = (angle: number) => {
+            const x = cx + Math.sin(angle) * rx;
+            const y = cy + Math.sin(2 * angle) * ry;
+            const clientX = rect.left + x;
+            const clientY = rect.top + y;
+
+            const evt = new PointerEvent("pointermove", {
+              clientX,
+              clientY,
+              pointerType: "mouse",
+              bubbles: true,
+            });
+            canvas.dispatchEvent(evt);
+            window.dispatchEvent(evt);
+          };
+
+          // Drive opposite sides together so infinity appears complete continuously.
+          dispatchOrbitPoint(a);
+          dispatchOrbitPoint(a + Math.PI);
           orbitRafId = requestAnimationFrame(runInfinityOrbit);
         };
 
