@@ -101,12 +101,13 @@ const CookieConsent = () => {
           <div className="flex shrink-0 flex-wrap gap-2">
             <button
               onClick={() => setSettingsOpen((prev) => !prev)}
-              className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-foreground hover:bg-muted transition-colors"
               aria-expanded={settingsOpen}
               aria-controls="cookie-settings-panel"
+              aria-label="Cookie settings"
+              title="Cookie settings"
             >
               <Settings2 size={14} />
-              Settings
             </button>
             <button
               onClick={rejectAll}
