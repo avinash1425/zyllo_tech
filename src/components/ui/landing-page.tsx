@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Globe from "@/components/ui/globe";
 import TubesBackground from "@/components/ui/neon-flow";
 import { cn } from "@/lib/utils";
 
@@ -30,24 +29,11 @@ const defaultGlobeConfig = {
 };
 
 const heroSignals = ["Agent", "Automation", "Cloud Native"];
-const parsePercent = (str: string): number => parseFloat(str.replace("%", ""));
-
 function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: ScrollGlobeProps) {
   const [activeSection, setActiveSection] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [globeTransform, setGlobeTransform] = useState("");
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const animationFrameId = useRef<number>();
-
-  const calculatedPositions = useMemo(
-    () =>
-      globeConfig.positions.map((pos) => ({
-        top: parsePercent(pos.top),
-        left: parsePercent(pos.left),
-        scale: pos.scale,
-      })),
-    [globeConfig.positions]
-  );
 
   const updateScrollPosition = useCallback(() => {
     const scrollTop = window.pageYOffset;
@@ -90,14 +76,6 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
     };
   }, [updateScrollPosition]);
 
-  useEffect(() => {
-    const fixed = calculatedPositions[0];
-    if (!fixed) return;
-    setGlobeTransform(
-      `translate3d(${fixed.left}vw, ${fixed.top}vh, 0) translate3d(-50%, -50%, 0) scale3d(${fixed.scale}, ${fixed.scale}, 1)`
-    );
-  }, [calculatedPositions]);
-
   return (
     <div className={cn("relative min-h-screen w-full overflow-x-hidden bg-background text-foreground", className)}>
       <div className="pointer-events-none absolute inset-0">
@@ -139,19 +117,6 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
               aria-label={`Go to ${section.badge || `section ${index + 1}`}`}
             />
           ))}
-        </div>
-      </div>
-
-      <div
-        className="fixed z-10 pointer-events-none transition-opacity duration-700"
-        style={{
-          transform: globeTransform,
-          opacity: activeSection === 0 ? 0.86 : 0,
-          transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)",
-        }}
-      >
-        <div className="scale-75 sm:scale-90 lg:scale-100">
-          <Globe />
         </div>
       </div>
 
