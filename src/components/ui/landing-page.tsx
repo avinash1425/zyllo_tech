@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Globe from "@/components/ui/globe";
 import { cn } from "@/lib/utils";
@@ -25,16 +25,10 @@ interface ScrollGlobeProps {
 }
 
 const defaultGlobeConfig = {
-  positions: [{ top: "50%", left: "78%", scale: 1.25 }],
+  positions: [{ top: "48%", left: "78%", scale: 1.2 }],
 };
 
-const heroSignals = ["AI Agents", "Automation", "Product Engineering", "Cloud Native", "Data Workflows"];
-const heroMetrics = [
-  { value: "24h", label: "Response Window" },
-  { value: "98%", label: "Client Satisfaction" },
-  { value: "100+", label: "Deliveries Completed" },
-];
-
+const heroSignals = ["AI Agents", "Automation", "Cloud Native", "Product Engineering"];
 const parsePercent = (str: string): number => parseFloat(str.replace("%", ""));
 
 function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: ScrollGlobeProps) {
@@ -44,22 +38,23 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const animationFrameId = useRef<number>();
 
-  const calculatedPositions = useMemo(() => {
-    return globeConfig.positions.map((pos) => ({
-      top: parsePercent(pos.top),
-      left: parsePercent(pos.left),
-      scale: pos.scale,
-    }));
-  }, [globeConfig.positions]);
+  const calculatedPositions = useMemo(
+    () =>
+      globeConfig.positions.map((pos) => ({
+        top: parsePercent(pos.top),
+        left: parsePercent(pos.left),
+        scale: pos.scale,
+      })),
+    [globeConfig.positions]
+  );
 
   const updateScrollPosition = useCallback(() => {
     const scrollTop = window.pageYOffset;
     const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const progress = Math.min(Math.max(scrollTop / docHeight, 0), 1);
-    setScrollProgress(progress);
+    setScrollProgress(Math.min(Math.max(scrollTop / docHeight, 0), 1));
 
     const viewportCenter = window.innerHeight / 2;
-    let newActiveSection = 0;
+    let nextActive = 0;
     let minDistance = Number.POSITIVE_INFINITY;
 
     sectionRefs.current.forEach((ref, index) => {
@@ -69,123 +64,88 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
       const distance = Math.abs(sectionCenter - viewportCenter);
       if (distance < minDistance) {
         minDistance = distance;
-        newActiveSection = index;
+        nextActive = index;
       }
     });
-
-    setActiveSection(newActiveSection);
+    setActiveSection(nextActive);
   }, []);
 
   useEffect(() => {
     let ticking = false;
     const handleScroll = () => {
-      if (!ticking) {
-        animationFrameId.current = requestAnimationFrame(() => {
-          updateScrollPosition();
-          ticking = false;
-        });
-        ticking = true;
-      }
+      if (ticking) return;
+      animationFrameId.current = requestAnimationFrame(() => {
+        updateScrollPosition();
+        ticking = false;
+      });
+      ticking = true;
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     updateScrollPosition();
-
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      if (animationFrameId.current) {
-        cancelAnimationFrame(animationFrameId.current);
-      }
+      if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
     };
   }, [updateScrollPosition]);
 
   useEffect(() => {
-    const fixedPos = calculatedPositions[0];
-    const fixedTransform = `translate3d(${fixedPos.left}vw, ${fixedPos.top}vh, 0) translate3d(-50%, -50%, 0) scale3d(${fixedPos.scale}, ${fixedPos.scale}, 1)`;
-    setGlobeTransform(fixedTransform);
+    const fixed = calculatedPositions[0];
+    if (!fixed) return;
+    setGlobeTransform(
+      `translate3d(${fixed.left}vw, ${fixed.top}vh, 0) translate3d(-50%, -50%, 0) scale3d(${fixed.scale}, ${fixed.scale}, 1)`
+    );
   }, [calculatedPositions]);
 
   return (
-    <div
-      className={cn(
-        "relative w-full max-w-screen overflow-x-hidden min-h-screen bg-background text-foreground",
-        className
-      )}
-    >
+    <div className={cn("relative min-h-screen w-full overflow-x-hidden bg-background text-foreground", className)}>
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 left-[8%] h-64 w-64 rounded-full bg-primary/15 blur-3xl" />
-        <div className="absolute top-[30%] right-[6%] h-72 w-72 rounded-full bg-[hsl(195,55%,42%,0.12)] blur-3xl" />
+        <div className="absolute -top-28 left-[10%] h-72 w-72 rounded-full bg-primary/18 blur-3xl" />
+        <div className="absolute top-[32%] right-[4%] h-80 w-80 rounded-full bg-[hsl(195,55%,42%,0.15)] blur-3xl" />
         <div
-          className="absolute inset-0 opacity-[0.08]"
+          className="absolute inset-0 opacity-[0.06]"
           style={{
             backgroundImage:
               "linear-gradient(to right, hsl(215 14% 87%) 1px, transparent 1px), linear-gradient(to bottom, hsl(215 14% 87%) 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
+            backgroundSize: "48px 48px",
           }}
         />
       </div>
 
-      <div className="fixed top-0 left-0 w-full h-0.5 bg-gradient-to-r from-border/20 via-border/40 to-border/20 z-50">
+      <div className="fixed left-0 top-0 z-50 h-0.5 w-full bg-border/30">
         <div
-          className="h-full bg-gradient-to-r from-primary via-blue-600 to-blue-900 will-change-transform shadow-sm"
+          className="h-full bg-gradient-to-r from-primary via-[hsl(24,90%,58%)] to-[hsl(195,55%,42%)]"
           style={{
             transform: `scaleX(${scrollProgress})`,
             transformOrigin: "left center",
-            transition: "transform 0.15s ease-out",
-            filter: "drop-shadow(0 0 2px rgba(59, 130, 246, 0.3))",
+            transition: "transform 120ms ease-out",
           }}
         />
       </div>
 
-      <div className="hidden sm:flex fixed right-2 sm:right-4 lg:right-8 top-1/2 -translate-y-1/2 z-40">
-        <div className="space-y-3 sm:space-y-4 lg:space-y-6">
+      <div className="fixed right-3 top-1/2 z-40 hidden -translate-y-1/2 sm:flex lg:right-6">
+        <div className="space-y-4">
           {sections.map((section, index) => (
-            <div key={index} className="relative group">
-              <div
-                className={cn(
-                  "nav-label absolute right-5 sm:right-6 lg:right-8 top-1/2 -translate-y-1/2",
-                  "px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap",
-                  "bg-background/95 backdrop-blur-md border border-border/60 shadow-xl z-50",
-                  activeSection === index ? "animate-fadeOut" : "opacity-0"
-                )}
-              >
-                <div className="flex items-center gap-1 sm:gap-1.5 lg:gap-2">
-                  <div className="w-1 sm:w-1.5 lg:w-2 h-1 sm:h-1.5 lg:h-2 rounded-full bg-primary animate-pulse" />
-                  <span className="text-xs sm:text-sm lg:text-base">
-                    {section.badge || `Section ${index + 1}`}
-                  </span>
-                </div>
-              </div>
-
-              <button
-                onClick={() => {
-                  sectionRefs.current[index]?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center",
-                  });
-                }}
-                className={cn(
-                  "relative w-2 h-2 sm:w-2.5 sm:h-2.5 lg:w-3 lg:h-3 rounded-full border-2 transition-all duration-300 hover:scale-125",
-                  "before:absolute before:inset-0 before:rounded-full before:transition-all before:duration-300",
-                  activeSection === index
-                    ? "bg-primary border-primary shadow-lg before:animate-ping before:bg-primary/20"
-                    : "bg-transparent border-muted-foreground/40 hover:border-primary/60 hover:bg-primary/10"
-                )}
-                aria-label={`Go to ${section.badge || `section ${index + 1}`}`}
-              />
-            </div>
+            <button
+              key={section.id}
+              onClick={() => sectionRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "center" })}
+              className={cn(
+                "h-2.5 w-2.5 rounded-full border-2 transition-all duration-300 hover:scale-125",
+                activeSection === index
+                  ? "border-primary bg-primary shadow-[0_0_14px_hsl(24_95%_50%_/_0.45)]"
+                  : "border-muted-foreground/40 bg-transparent hover:border-primary/60 hover:bg-primary/10"
+              )}
+              aria-label={`Go to ${section.badge || `section ${index + 1}`}`}
+            />
           ))}
         </div>
-
-        <div className="absolute left-1/2 top-0 bottom-0 w-0.5 lg:w-px bg-gradient-to-b from-transparent via-primary/20 to-transparent -translate-x-1/2 -z-10" />
       </div>
 
       <div
-        className="fixed z-10 pointer-events-none will-change-transform transition-all"
+        className="fixed z-10 pointer-events-none transition-opacity duration-700"
         style={{
           transform: globeTransform,
-          opacity: activeSection === 0 ? 0.85 : 0,
-          transitionDuration: "800ms",
+          opacity: activeSection === 0 ? 0.86 : 0,
           transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)",
         }}
       >
@@ -199,27 +159,22 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
           key={section.id}
           ref={(el) => (sectionRefs.current[index] = el)}
           className={cn(
-            "relative min-h-screen flex flex-col justify-center px-4 sm:px-6 md:px-8 lg:px-12 z-20 py-12 sm:py-16 lg:py-20",
-            "w-full max-w-full overflow-hidden",
+            "relative z-20 flex min-h-screen flex-col justify-center px-4 py-16 sm:px-8 lg:px-16",
             section.align === "center" && "items-center text-center",
             section.align === "right" && "items-end text-right",
             section.align !== "center" && section.align !== "right" && "items-start text-left"
           )}
         >
-          <div
-            className={cn(
-              "w-full max-w-sm sm:max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl will-change-transform transition-all duration-700 rounded-2xl border border-border/50 p-6 sm:p-8 lg:p-10 backdrop-blur-[2px]",
-              "opacity-100 translate-y-0"
+          <div className="w-full max-w-5xl">
+            {section.badge && (
+              <p className="mb-5 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                {section.badge}
+              </p>
             )}
-            style={{
-              background:
-                index === 0
-                  ? "linear-gradient(135deg, hsl(0 0% 100% / 0.9), hsl(24 95% 98% / 0.86))"
-                  : "linear-gradient(135deg, hsl(0 0% 100% / 0.78), hsl(210 12% 96% / 0.7))",
-            }}
-          >
+
             {index === 0 && (
-              <div className="mb-6 flex flex-wrap gap-2">
+              <div className="mb-6 flex flex-wrap gap-2.5">
                 {heroSignals.map((signal) => (
                   <span
                     key={signal}
@@ -233,74 +188,35 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
 
             <h1
               className={cn(
-                "font-bold mb-6 sm:mb-8 leading-[1.1] tracking-tight",
-                index === 0
-                  ? "text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl"
-                  : "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl"
+                "font-display font-bold leading-[1.02] tracking-tight",
+                index === 0 ? "text-4xl sm:text-6xl lg:text-7xl xl:text-8xl" : "text-3xl sm:text-5xl lg:text-6xl"
               )}
             >
-              {section.subtitle ? (
-                <div className="space-y-1 sm:space-y-2">
-                  <div className="bg-gradient-to-r from-foreground via-foreground to-[hsl(195,55%,32%)] bg-clip-text text-transparent">
-                    {section.title}
-                  </div>
-                  <div className="text-muted-foreground/90 text-[0.6em] sm:text-[0.7em] font-medium tracking-wider">
-                    {section.subtitle}
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
-                  {section.title}
-                </div>
+              <span className="bg-gradient-to-r from-foreground via-foreground to-[hsl(195,55%,32%)] bg-clip-text text-transparent">
+                {section.title}
+              </span>
+              {section.subtitle && (
+                <span className="mt-3 block text-[0.36em] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                  {section.subtitle}
+                </span>
               )}
             </h1>
 
-            <div
-              className={cn(
-                "text-muted-foreground/80 leading-relaxed mb-8 sm:mb-10 text-base sm:text-lg lg:text-xl font-light",
-                section.align === "center" ? "max-w-full mx-auto text-center" : "max-w-full"
-              )}
-            >
-              <p className="mb-3 sm:mb-4">{section.description}</p>
-              {index === 0 && (
-                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground/60 mt-4 sm:mt-6">
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
-                    <span>Interactive Experience</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <div
-                      className="w-1 h-1 rounded-full bg-primary animate-pulse"
-                      style={{ animationDelay: "0.5s" }}
-                    />
-                    <span>Scroll to Explore</span>
-                  </div>
-                </div>
-              )}
-            </div>
+            <p className="mt-7 max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg lg:text-xl">
+              {section.description}
+            </p>
 
             {section.features && (
-              <div className="grid gap-3 sm:gap-4 mb-8 sm:mb-10">
+              <div className="mt-8 space-y-5">
                 {section.features.map((feature, featureIndex) => (
-                  <div
-                    key={feature.title}
-                    className={cn(
-                      "group p-4 sm:p-5 lg:p-6 rounded-lg sm:rounded-xl border bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5",
-                      "hover:border-primary/20 hover:-translate-y-1"
-                    )}
-                    style={{ animationDelay: `${featureIndex * 0.1}s` }}
-                  >
-                    <div className="flex items-start gap-3 sm:gap-4">
-                      <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-primary/60 mt-1.5 sm:mt-2 group-hover:bg-primary transition-colors flex-shrink-0" />
-                      <div className="flex-1 space-y-1.5 sm:space-y-2 min-w-0">
-                        <h3 className="font-semibold text-card-foreground text-base sm:text-lg">
-                          {feature.title}
-                        </h3>
-                        <p className="text-muted-foreground/80 leading-relaxed text-sm sm:text-base">
-                          {feature.description}
-                        </p>
-                      </div>
-                    </div>
+                  <div key={feature.title} className="relative pl-6">
+                    <span className="absolute left-0 top-1.5 h-10 w-[2px] bg-gradient-to-b from-primary to-[hsl(195,55%,42%)]" />
+                    <p className="text-sm font-semibold uppercase tracking-[0.1em] text-primary/85">
+                      0{featureIndex + 1} {feature.title}
+                    </p>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                      {feature.description}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -309,44 +225,24 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
             {section.actions && (
               <div
                 className={cn(
-                  "flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4",
+                  "mt-10 flex flex-col gap-3 sm:flex-row",
                   section.align === "center" && "justify-center",
-                  section.align === "right" && "justify-end",
-                  (!section.align || section.align === "left") && "justify-start"
+                  section.align === "right" && "justify-end"
                 )}
               >
-                {section.actions.map((action, actionIndex) => (
+                {section.actions.map((action) => (
                   <button
                     key={action.label}
                     onClick={action.onClick}
                     className={cn(
-                      "group relative px-6 sm:px-8 py-3 sm:py-4 rounded-lg sm:rounded-xl font-medium transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base",
-                      "hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/20 w-full sm:w-auto",
+                      "rounded-xl px-7 py-3.5 text-sm font-semibold transition-all sm:text-base",
                       action.variant === "primary"
-                        ? "bg-gradient-orange text-primary-foreground shadow-lg shadow-primary/25 hover:opacity-90"
-                        : "border-2 border-border/60 bg-background/50 backdrop-blur-sm hover:bg-accent/50 hover:border-primary/30 text-foreground"
+                        ? "bg-gradient-orange text-primary-foreground shadow-[0_8px_28px_hsl(24_95%_50%_/_0.32)] hover:opacity-90"
+                        : "text-foreground hover:text-primary"
                     )}
-                    style={{ animationDelay: `${actionIndex * 0.1 + 0.2}s` }}
                   >
-                    <span className="relative z-10">{action.label}</span>
-                    {action.variant === "primary" && (
-                      <div className="absolute inset-0 rounded-lg sm:rounded-xl bg-gradient-to-r from-primary to-primary/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    )}
+                    {action.label}
                   </button>
-                ))}
-              </div>
-            )}
-
-            {index === 0 && (
-              <div className="mt-7 grid gap-3 sm:grid-cols-3">
-                {heroMetrics.map((metric) => (
-                  <div
-                    key={metric.label}
-                    className="rounded-xl border border-border/70 bg-background/70 px-4 py-3"
-                  >
-                    <p className="font-display text-2xl font-bold text-primary">{metric.value}</p>
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground">{metric.label}</p>
-                  </div>
                 ))}
               </div>
             )}
@@ -380,9 +276,7 @@ export default function GlobeScrollDemo() {
       description:
         "From discovery to deployment, we work as one accountable team so your product quality and delivery velocity stay predictable.",
       align: "center" as const,
-      actions: [
-        { label: "Learn About Us", variant: "secondary" as const, onClick: () => navigate("/about") },
-      ],
+      actions: [{ label: "Learn About Us", variant: "secondary" as const, onClick: () => navigate("/about") }],
     },
     {
       id: "capabilities",
@@ -409,16 +303,9 @@ export default function GlobeScrollDemo() {
       description:
         "Tell us your goals and constraints. We will propose a practical execution plan with timeline, milestones, and outcomes.",
       align: "center" as const,
-      actions: [
-        { label: "Start Conversation", variant: "primary" as const, onClick: () => navigate("/contact") },
-      ]
+      actions: [{ label: "Start Conversation", variant: "primary" as const, onClick: () => navigate("/contact") }],
     },
   ];
 
-  return (
-    <ScrollGlobe
-      sections={demoSections}
-      className="bg-gradient-to-br from-background via-muted/20 to-background"
-    />
-  );
+  return <ScrollGlobe sections={demoSections} className="bg-gradient-to-b from-background via-muted/15 to-background" />;
 }
