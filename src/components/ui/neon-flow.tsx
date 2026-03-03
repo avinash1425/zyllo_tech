@@ -39,9 +39,9 @@ export function TubesBackground({
       if (!canvasRef.current) return;
 
       try {
-        const module = await import(
-          /* @vite-ignore */ "https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js"
-        );
+        const module = await (import(
+          /* @vite-ignore */ "https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js" as string
+        ) as Promise<{ default: any }>);
         const TubesCursor = module.default;
 
         if (!mounted || !canvasRef.current) return;

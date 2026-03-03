@@ -127,7 +127,7 @@ const CareersPage = () => {
       experience: "",
       linkedIn: "",
       coverLetter: "",
-      consent: false,
+      consent: undefined as unknown as true,
     },
   });
 

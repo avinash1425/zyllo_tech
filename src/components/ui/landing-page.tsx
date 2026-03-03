@@ -123,7 +123,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
       {sections.map((section, index) => (
         <section
           key={section.id}
-          ref={(el) => (sectionRefs.current[index] = el)}
+          ref={(el: HTMLElement | null) => { sectionRefs.current[index] = el as HTMLDivElement; }}
           className={cn(
             "relative z-20 flex min-h-screen flex-col justify-center px-4 py-16 sm:px-8 lg:px-16",
             section.align === "center" && "items-center text-center",
