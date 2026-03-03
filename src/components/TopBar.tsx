@@ -66,7 +66,7 @@ const TopBar = () => {
 
         <span className="w-px h-3.5 bg-white/15" />
 
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/35 bg-primary/10 px-2.5 py-0.5 text-primary">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/35 bg-gradient-to-r from-primary/15 to-[hsl(195,55%,42%,0.22)] px-2.5 py-0.5 text-primary">
           <Sparkles size={11} />
           AI-Powered
         </span>

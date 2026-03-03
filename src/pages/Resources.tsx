@@ -32,7 +32,7 @@ const resources = [
     title: "Case Stories",
     description: "Real examples of delivery outcomes from idea to production launch.",
     icon: BookOpen,
-    href: "/portfolio",
+    href: "/contact",
     tag: "Case Study",
   },
 ];

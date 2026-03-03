@@ -11,7 +11,6 @@ const ProcessSection = lazy(() => import("@/components/ProcessSection"));
 const WhyZylloSection = lazy(() => import("@/components/WhyZylloSection"));
 const TestimonialsSection = lazy(() => import("@/components/TestimonialsSection"));
 const TechStackSection = lazy(() => import("@/components/TechStackSection"));
-const CareersSection = lazy(() => import("@/components/CareersSection"));
 const CTASection = lazy(() => import("@/components/CTASection"));
 const ContactBanner = lazy(() => import("@/components/ContactBanner"));
 const FloatingButtons = lazy(() => import("@/components/FloatingButtons"));
@@ -49,9 +48,6 @@ const Index = () => {
           </div>
           <div className="border-t border-border">
             <TechStackSection />
-          </div>
-          <div className="border-t border-border">
-            <CareersSection />
           </div>
           <div className="border-t border-border">
             <CTASection />

@@ -8,11 +8,10 @@ import SearchDialog from "./SearchDialog";
 
 const navLinks = [
   { label: "Home", href: "/" },
+  { label: "About Us", href: "/about" },
   { label: "Services", href: "/services" },
   { label: "Industries", href: "/industries" },
   { label: "Resources", href: "/resources" },
-  { label: "Portfolio", href: "/portfolio" },
-  { label: "About Us", href: "/about" },
   { label: "Contact Us", href: "/contact" },
 ];
 
@@ -42,14 +41,14 @@ const Navbar = () => {
               to={link.href}
               className={`relative text-sm font-medium transition-colors duration-200 pb-1 ${
                 location.pathname === link.href
-                  ? "text-primary after:absolute after:bottom-[-14px] after:left-0 after:right-0 after:h-[2px] after:bg-primary"
+                  ? "text-transparent bg-clip-text bg-gradient-to-r from-[hsl(24,95%,50%)] to-[hsl(195,55%,42%)] after:absolute after:bottom-[-14px] after:left-0 after:right-0 after:h-[2px] after:bg-gradient-to-r after:from-[hsl(24,95%,50%)] after:to-[hsl(195,55%,42%)]"
                   : "text-foreground/70 hover:text-primary"
               }`}
                 >
               {link.label}
             </Link>
           ))}
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-gradient-to-r from-primary/15 to-[hsl(195,55%,42%,0.2)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary">
             <Sparkles size={12} />
             AI-Powered
           </span>
@@ -62,7 +61,7 @@ const Navbar = () => {
           </button>
           <Link
             to="/contact"
-            className="rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity glow"
+            className="rounded-lg bg-gradient-orange px-5 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity glow"
           >
             Get Started
           </Link>
@@ -102,7 +101,7 @@ const Navbar = () => {
               <Link
                 to="/contact"
                 onClick={() => setMobileOpen(false)}
-                className="rounded-lg bg-primary px-5 py-2.5 text-center text-sm font-medium text-primary-foreground"
+                className="rounded-lg bg-gradient-orange px-5 py-2.5 text-center text-sm font-medium text-primary-foreground"
               >
                 Get Started
               </Link>
