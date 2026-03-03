@@ -64,17 +64,16 @@ export function TubesBackground({
           if (!canvas) return;
           const rect = canvas.getBoundingClientRect();
           const t = performance.now() / 1000;
-          const a = t * 0.88;
+          const a = t * 0.76;
           const cx = rect.width / 2;
           const cy = rect.height / 2;
-          const rx = Math.min(rect.width * 0.33, rect.height * 0.68);
-          const ry = Math.min(rect.height * 0.34, rect.width * 0.27);
+          const rx = Math.min(rect.width * 0.42, rect.height * 0.88);
+          const ry = Math.min(rect.height * 0.26, rect.width * 0.24);
 
           const dispatchOrbitPoint = (angle: number) => {
-            // Bernoulli lemniscate gives a cleaner center crossover for infinity.
-            const denom = 1 + Math.sin(angle) ** 2;
-            const x = cx + (rx * Math.cos(angle)) / denom;
-            const y = cy + (ry * Math.sin(angle) * Math.cos(angle) * 2) / denom;
+            // Gerono lemniscate: stable, symmetric infinity with a clear center crossing.
+            const x = cx + Math.sin(angle) * rx;
+            const y = cy + Math.sin(angle) * Math.cos(angle) * (ry * 2);
             const clientX = rect.left + x;
             const clientY = rect.top + y;
 
@@ -88,9 +87,9 @@ export function TubesBackground({
             window.dispatchEvent(evt);
           };
 
-          // Multi-phase tracing keeps both lobes and center connection visibly complete.
-          for (let i = 0; i < 6; i += 1) {
-            dispatchOrbitPoint(a + (i * Math.PI) / 3);
+          // Dense phase sampling keeps both circles visible continuously.
+          for (let i = 0; i < 12; i += 1) {
+            dispatchOrbitPoint(a + (i * Math.PI) / 6);
           }
           orbitRafId = requestAnimationFrame(runInfinityOrbit);
         };
