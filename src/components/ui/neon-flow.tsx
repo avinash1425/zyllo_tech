@@ -64,15 +64,14 @@ export function TubesBackground({
           if (!canvas) return;
           const rect = canvas.getBoundingClientRect();
           const t = performance.now() / 1000;
-          const a = t * 1.1;
+          const a = t * 1.15;
           const cx = rect.width / 2;
           const cy = rect.height / 2;
-          const rx = Math.min(rect.width * 0.34, rect.height * 0.62);
-          const ry = Math.min(rect.height * 0.24, rect.width * 0.2);
-          const denom = 1 + Math.cos(a) ** 2;
-
-          const x = cx + (Math.sin(a) * rx * 2) / denom;
-          const y = cy + (Math.sin(a) * Math.cos(a) * ry * 2.2) / denom;
+          const rx = Math.min(rect.width * 0.26, rect.height * 0.54);
+          const ry = Math.min(rect.height * 0.31, rect.width * 0.24);
+          // Lissajous figure-eight path gives a stronger infinity crossing.
+          const x = cx + Math.sin(a) * rx;
+          const y = cy + Math.sin(2 * a) * ry;
           const clientX = rect.left + x;
           const clientY = rect.top + y;
 
