@@ -10,9 +10,9 @@ const points = [
 
 const GlobalPresenceSection = () => {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-[hsl(24,95%,97%)] via-background to-[hsl(195,55%,97%)] py-16 md:py-20">
-      <div className="pointer-events-none absolute -left-20 top-0 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
-      <div className="pointer-events-none absolute -right-12 bottom-0 h-48 w-48 rounded-full bg-[hsl(195,55%,42%,0.18)] blur-3xl" />
+    <section className="relative overflow-hidden bg-gradient-to-br from-[hsl(24,95%,97%)] via-background to-[hsl(195,55%,96%)] py-16 md:py-20">
+      <div className="pointer-events-none absolute -left-20 top-0 h-56 w-56 rounded-full bg-primary/12 blur-3xl" />
+      <div className="pointer-events-none absolute -right-12 bottom-0 h-56 w-56 rounded-full bg-[hsl(195,55%,42%,0.2)] blur-3xl" />
 
       <div className="container relative mx-auto px-6">
         <div className="grid items-center gap-10 lg:grid-cols-2">
@@ -56,9 +56,9 @@ const GlobalPresenceSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.08, duration: 0.5 }}
-            className="rounded-3xl border border-border/80 bg-white/65 p-4 md:p-6"
+            className="rounded-3xl border border-border/80 bg-white/85 p-5 shadow-[0_18px_40px_hsl(215_30%_16%_/_0.08)] md:p-7"
           >
-            <Globe size={280} toned="light" />
+            <Globe className="min-h-[320px]" size={296} />
           </motion.div>
         </div>
       </div>
