@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/zyllo-logo.png";
 
@@ -10,14 +10,20 @@ const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval);
-          setTimeout(onComplete, 400);
           return 100;
         }
         return prev + 2;
       });
     }, 30);
     return () => clearInterval(interval);
-  }, [onComplete]);
+  }, []);
+
+  useEffect(() => {
+    if (progress >= 100) {
+      const timer = setTimeout(onComplete, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [progress, onComplete]);
 
   return (
     <motion.div
@@ -72,10 +78,12 @@ const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
 const AppLoader = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
+  const handleComplete = useCallback(() => setLoading(false), []);
+
   return (
     <>
       <AnimatePresence mode="wait">
-        {loading && <LoadingScreen onComplete={() => setLoading(false)} />}
+        {loading && <LoadingScreen onComplete={handleComplete} />}
       </AnimatePresence>
       {!loading && (
         <motion.div
