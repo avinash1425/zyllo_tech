@@ -64,11 +64,11 @@ export function TubesBackground({
           if (!canvas) return;
           const rect = canvas.getBoundingClientRect();
           const t = performance.now() / 1000;
-          const a = t * 0.76;
+          const a = t * 0.62;
           const cx = rect.width / 2;
           const cy = rect.height / 2;
-          const rx = Math.min(rect.width * 0.5, rect.height * 1.02);
-          const ry = Math.min(rect.height * 0.29, rect.width * 0.27);
+          const rx = Math.min(rect.width * 0.54, rect.height * 1.08);
+          const ry = Math.min(rect.height * 0.31, rect.width * 0.29);
 
           const dispatchOrbitPoint = (angle: number) => {
             // Gerono lemniscate: stable, symmetric infinity with a clear center crossing.
@@ -87,9 +87,12 @@ export function TubesBackground({
             window.dispatchEvent(evt);
           };
 
-          // Denser phase sampling keeps both lobes continuously reinforced.
-          for (let i = 0; i < 16; i += 1) {
-            dispatchOrbitPoint(a + (i * Math.PI) / 8);
+          // Bidirectional sampling keeps both infinity circles equally reinforced.
+          const segments = 20;
+          for (let i = 0; i < segments; i += 1) {
+            const phase = (i * Math.PI * 2) / segments;
+            dispatchOrbitPoint(a + phase);
+            dispatchOrbitPoint(-a + phase + Math.PI / segments);
           }
           orbitRafId = requestAnimationFrame(runInfinityOrbit);
         };
