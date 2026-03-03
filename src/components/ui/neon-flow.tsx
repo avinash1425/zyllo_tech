@@ -67,8 +67,8 @@ export function TubesBackground({
           const a = t * 0.76;
           const cx = rect.width / 2;
           const cy = rect.height / 2;
-          const rx = Math.min(rect.width * 0.42, rect.height * 0.88);
-          const ry = Math.min(rect.height * 0.26, rect.width * 0.24);
+          const rx = Math.min(rect.width * 0.5, rect.height * 1.02);
+          const ry = Math.min(rect.height * 0.29, rect.width * 0.27);
 
           const dispatchOrbitPoint = (angle: number) => {
             // Gerono lemniscate: stable, symmetric infinity with a clear center crossing.
@@ -87,9 +87,9 @@ export function TubesBackground({
             window.dispatchEvent(evt);
           };
 
-          // Dense phase sampling keeps both circles visible continuously.
-          for (let i = 0; i < 12; i += 1) {
-            dispatchOrbitPoint(a + (i * Math.PI) / 6);
+          // Denser phase sampling keeps both lobes continuously reinforced.
+          for (let i = 0; i < 16; i += 1) {
+            dispatchOrbitPoint(a + (i * Math.PI) / 8);
           }
           orbitRafId = requestAnimationFrame(runInfinityOrbit);
         };
