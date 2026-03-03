@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Settings2, ShieldCheck } from "lucide-react";
+import { Settings, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 
 type ConsentMode = "accepted" | "declined" | "custom";
@@ -108,7 +108,7 @@ const CookieConsent = () => {
               aria-label="Cookie settings"
               title="Cookie settings"
             >
-              <Settings2 size={14} />
+              <Settings size={14} />
             </button>
             <button
               onClick={rejectAll}
