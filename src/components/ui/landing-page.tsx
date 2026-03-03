@@ -174,6 +174,11 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
               />
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[hsl(215,45%,10%,0.14)] via-transparent to-transparent" />
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_35%,hsl(24_95%_50%_/_0.12),transparent_52%)]" />
+              <div className="pointer-events-none absolute left-1/2 top-7 z-30 -translate-x-1/2">
+                <span className="inline-flex items-center rounded-full border border-white/35 bg-[hsl(215,30%,8%,0.35)] px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-sm">
+                  {heroSignals.join(" • ")}
+                </span>
+              </div>
             </>
           )}
 
@@ -193,14 +198,6 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                 {section.badge}
               </p>
-            )}
-
-            {index === 0 && (
-              <div className="mb-6 flex w-full justify-center">
-                <span className="inline-flex items-center rounded-full border border-white/35 bg-[hsl(215,30%,8%,0.35)] px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-sm">
-                  {heroSignals.join(" • ")}
-                </span>
-              </div>
             )}
 
             <h1
@@ -230,12 +227,6 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                 </span>
               )}
             </h1>
-
-            {index === 0 && (
-              <p className="mt-3 text-sm font-medium uppercase tracking-[0.2em] text-white/90 sm:text-base">
-                Zyllo Tech Powered Solutions
-              </p>
-            )}
 
             <p
               className={cn(
@@ -292,7 +283,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
             {index === 0 && (
               <div className="pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 text-center text-white/60">
                 <p className="text-[10px] uppercase tracking-[0.24em] sm:text-xs">
-                  Zyllo Tech AI Power Solutions
+                  Zyllo Tech AI Power Solution
                 </p>
               </div>
             )}
@@ -309,7 +300,7 @@ export default function GlobeScrollDemo() {
     {
       id: "hero",
       badge: "Zyllo Tech",
-      title: "Zyllo Tech AI Power Solutions",
+      title: "Zyllo Tech AI Power Solution",
       subtitle: "The Future Is Here",
       description:
         "We design and build modern digital products with strong engineering discipline, practical AI usage, and clear business outcomes.",
