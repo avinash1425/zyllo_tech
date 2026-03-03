@@ -1,6 +1,7 @@
 import { Suspense, lazy } from "react";
 import Navbar from "@/components/Navbar";
 import BannersSection from "@/components/BannersSection";
+import GlobalPresenceSection from "@/components/GlobalPresenceSection";
 import ServicesSection from "@/components/ServicesSection";
 import Footer from "@/components/Footer";
 
@@ -24,6 +25,9 @@ const Index = () => {
       <Navbar />
       <main className="pt-[100px]">
         <BannersSection />
+        <div className="border-t border-border">
+          <GlobalPresenceSection />
+        </div>
         <div className="border-t border-border">
           <ServicesSection />
         </div>

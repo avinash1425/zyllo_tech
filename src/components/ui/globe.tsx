@@ -5,10 +5,17 @@ type GlobeProps = {
   className?: string;
   size?: number;
   fullHeight?: boolean;
+  toned?: "light" | "dark";
 };
 
-const Globe: React.FC<GlobeProps> = ({ className, size = 220, fullHeight = false }) => {
+const Globe: React.FC<GlobeProps> = ({
+  className,
+  size = 220,
+  fullHeight = false,
+  toned = "light",
+}) => {
   const id = useId().replace(/:/g, "");
+  const isLight = toned === "light";
 
   return (
     <>
@@ -33,7 +40,12 @@ const Globe: React.FC<GlobeProps> = ({ className, size = 220, fullHeight = false
         )}
       >
         <div
-          className="relative rounded-full overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.18),-5px_0_8px_#c3f4ff_inset,15px_2px_25px_#000_inset,-24px_-2px_34px_#c3f4ff99_inset,250px_0_44px_#00000066_inset,150px_0_38px_#000000aa_inset]"
+          className={cn(
+            "relative rounded-full overflow-hidden",
+            isLight
+              ? "shadow-[0_8px_26px_hsl(24_95%_50%_/_0.22),0_0_0_10px_hsl(0_0%_100%_/_0.92),inset_-16px_-6px_24px_hsl(195_55%_42%_/_0.24),inset_10px_6px_20px_hsl(24_90%_58%_/_0.12)]"
+              : "shadow-[0_0_20px_rgba(255,255,255,0.18),-5px_0_8px_#c3f4ff_inset,15px_2px_25px_#000_inset,-24px_-2px_34px_#c3f4ff99_inset,250px_0_44px_#00000066_inset,150px_0_38px_#000000aa_inset]"
+          )}
           style={{
             width: size,
             height: size,
