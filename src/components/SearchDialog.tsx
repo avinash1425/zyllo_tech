@@ -16,12 +16,12 @@ const siteContent = [
   { title: "UI/UX Design", href: "/services", keywords: ["design", "ui", "ux", "user experience", "interface", "branding", "creative"] },
   { title: "Digital Marketing", href: "/services", keywords: ["marketing", "digital", "seo", "ads", "social media", "content"] },
   { title: "Industries", href: "/industries", keywords: ["industry", "healthcare", "finance", "education", "retail", "manufacturing"] },
+  { title: "Resources", href: "/resources", keywords: ["resources", "guides", "playbooks", "knowledge", "insights", "templates"] },
   { title: "About Zyllo Tech", href: "/about", keywords: ["about", "team", "company", "mission", "vision", "who we are", "history"] },
-  { title: "Careers", href: "/careers", keywords: ["careers", "jobs", "hiring", "work", "opportunities", "join", "employment"] },
   { title: "Contact Us", href: "/contact", keywords: ["contact", "email", "phone", "reach", "get in touch", "support", "help"] },
 ];
 
-const trendingSearches = ["AI Solutions", "Cloud Services", "Software Development", "Careers"];
+const trendingSearches = ["AI Solutions", "Cloud Services", "Software Development", "Resources"];
 
 const SearchDialog = ({ open, onOpenChange }: SearchDialogProps) => {
   const [query, setQuery] = useState("");
@@ -71,7 +71,7 @@ const SearchDialog = ({ open, onOpenChange }: SearchDialogProps) => {
       );
     } else {
       setAiResponse(
-        `I couldn't find specific content matching "${query}". Try searching for our services, industries, careers, or contact information.`
+        `I couldn't find specific content matching "${query}". Try searching for services, industries, resources, or contact information.`
       );
     }
     setIsSearching(false);

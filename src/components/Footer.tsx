@@ -61,9 +61,9 @@ const Footer = () => {
                 { label: "Home", to: "/" },
                 { label: "About Us", to: "/about" },
                 { label: "Portfolio", to: "/portfolio" },
+                { label: "Resources", to: "/resources" },
                 { label: "Blog & Insights", to: "/blog" },
-                { label: "Careers", to: "/careers" },
-                { label: "Contact", to: "/contact" },
+                { label: "Contact Us", to: "/contact" },
               ].map((link) => (
                 <Link
                   key={link.label}

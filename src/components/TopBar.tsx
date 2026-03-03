@@ -1,5 +1,4 @@
-import { Globe, Briefcase, LogIn } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Globe, MapPin, Sparkles } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 const languages = [
@@ -60,17 +59,17 @@ const TopBar = () => {
 
         <span className="w-px h-3.5 bg-white/15" />
 
-        <Link to="/careers" className="flex items-center gap-1.5 hover:text-white transition-colors">
-          <Briefcase size={12} />
-          Careers
-        </Link>
+        <span className="inline-flex items-center gap-1.5 text-white/70">
+          <MapPin size={12} />
+          Vizag, India
+        </span>
 
         <span className="w-px h-3.5 bg-white/15" />
 
-        <Link to="/login" className="flex items-center gap-1.5 hover:text-white transition-colors">
-          <LogIn size={12} />
-          Login
-        </Link>
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/35 bg-primary/10 px-2.5 py-0.5 text-primary">
+          <Sparkles size={11} />
+          AI-Powered
+        </span>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Search } from "lucide-react";
+import { Menu, X, Search, Sparkles } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "@/assets/zyllo-logo.png";
 import TopBar from "./TopBar";
@@ -10,11 +10,10 @@ const navLinks = [
   { label: "Home", href: "/" },
   { label: "Services", href: "/services" },
   { label: "Industries", href: "/industries" },
+  { label: "Resources", href: "/resources" },
   { label: "Portfolio", href: "/portfolio" },
-  { label: "Blog", href: "/blog" },
-  { label: "About", href: "/about" },
-  { label: "Careers", href: "/careers" },
-  { label: "Contact", href: "/contact" },
+  { label: "About Us", href: "/about" },
+  { label: "Contact Us", href: "/contact" },
 ];
 
 const Navbar = () => {
@@ -31,12 +30,12 @@ const Navbar = () => {
     >
       <TopBar />
       <nav className="bg-background/95 backdrop-blur-md border-b border-border">
-      <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 py-1">
+      <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 py-2">
         <Link to="/" className="flex items-center">
-          <img src={logo} alt="Zyllo Tech" className="h-24 w-auto object-contain" />
+          <img src={logo} alt="Zyllo Tech" className="h-14 md:h-16 w-auto object-contain" />
         </Link>
 
-        <div className="hidden lg:flex items-center gap-7">
+        <div className="hidden lg:flex items-center gap-6">
           {navLinks.map((link) => (
             <Link
               key={link.label}
@@ -46,10 +45,14 @@ const Navbar = () => {
                   ? "text-primary after:absolute after:bottom-[-14px] after:left-0 after:right-0 after:h-[2px] after:bg-primary"
                   : "text-foreground/70 hover:text-primary"
               }`}
-            >
+                >
               {link.label}
             </Link>
           ))}
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary">
+            <Sparkles size={12} />
+            AI-Powered
+          </span>
           <button
             onClick={() => setSearchOpen(true)}
             className="text-foreground/60 hover:text-primary transition-colors"
