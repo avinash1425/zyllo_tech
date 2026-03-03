@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/zyllo-logo.png";
+import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164 } from "@/lib/contact";
 
 const Footer = () => {
   const [email, setEmail] = useState("");
@@ -108,9 +109,9 @@ const Footer = () => {
                 <Mail size={14} className="text-primary shrink-0" />
                 info@zyllotech.com
               </a>
-              <a href="tel:+919999999999" className="flex items-center gap-2 text-sm text-white/60 hover:text-primary transition-colors">
+              <a href={`tel:${CONTACT_PHONE_E164}`} className="flex items-center gap-2 text-sm text-white/60 hover:text-primary transition-colors">
                 <Phone size={14} className="text-primary shrink-0" />
-                +91 99999 99999
+                {CONTACT_PHONE_DISPLAY}
               </a>
               <div className="flex items-center gap-2 text-sm text-white/60">
                 <MapPin size={14} className="text-primary shrink-0" />

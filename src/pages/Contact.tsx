@@ -17,6 +17,7 @@ import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import PageHero from "@/components/PageHero";
 import { useToast } from "@/hooks/use-toast";
+import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164 } from "@/lib/contact";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -71,8 +72,8 @@ const CONTACT_INFO: ContactInfoItem[] = [
   {
     icon: Phone,
     label: "Call Us",
-    value: "+91-705773680",
-    href: "tel:+91705773680",
+    value: CONTACT_PHONE_DISPLAY,
+    href: `tel:${CONTACT_PHONE_E164}`,
     description: "Mon – Fri, 9 AM – 6 PM IST",
   },
   {

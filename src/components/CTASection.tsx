@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
+import { CONTACT_PHONE_E164 } from "@/lib/contact";
 
 const CTASection = () => {
   return (
@@ -38,7 +39,7 @@ const CTASection = () => {
               <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <a
-              href="tel:+91705773680"
+              href={`tel:${CONTACT_PHONE_E164}`}
               className="rounded-lg border border-white/30 px-8 py-3.5 text-sm font-medium text-white hover:bg-white/10 transition-colors"
             >
               Call Us Today
