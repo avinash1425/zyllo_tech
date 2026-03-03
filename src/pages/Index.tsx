@@ -1,19 +1,22 @@
+import { Suspense, lazy } from "react";
 import Navbar from "@/components/Navbar";
-
 import BannersSection from "@/components/BannersSection";
 import ServicesSection from "@/components/ServicesSection";
-import IndustriesSection from "@/components/IndustriesSection";
-import AboutSection from "@/components/AboutSection";
-import ProcessSection from "@/components/ProcessSection";
-import WhyZylloSection from "@/components/WhyZylloSection";
-import TestimonialsSection from "@/components/TestimonialsSection";
-import TechStackSection from "@/components/TechStackSection";
-import CareersSection from "@/components/CareersSection";
-import ContactBanner from "@/components/ContactBanner";
-import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
-import FloatingButtons from "@/components/FloatingButtons";
-import CookieConsent from "@/components/CookieConsent";
+
+const IndustriesSection = lazy(() => import("@/components/IndustriesSection"));
+const AboutSection = lazy(() => import("@/components/AboutSection"));
+const ProcessSection = lazy(() => import("@/components/ProcessSection"));
+const WhyZylloSection = lazy(() => import("@/components/WhyZylloSection"));
+const TestimonialsSection = lazy(() => import("@/components/TestimonialsSection"));
+const TechStackSection = lazy(() => import("@/components/TechStackSection"));
+const CareersSection = lazy(() => import("@/components/CareersSection"));
+const CTASection = lazy(() => import("@/components/CTASection"));
+const ContactBanner = lazy(() => import("@/components/ContactBanner"));
+const FloatingButtons = lazy(() => import("@/components/FloatingButtons"));
+const CookieConsent = lazy(() => import("@/components/CookieConsent"));
+
+const SectionFallback = () => <div className="h-24 w-full border-t border-border bg-muted/20" aria-hidden="true" />;
 
 const Index = () => {
   return (
@@ -24,35 +27,39 @@ const Index = () => {
         <div className="border-t border-border">
           <ServicesSection />
         </div>
-        <div className="border-t border-border">
-          <IndustriesSection />
-        </div>
-        <div className="border-t border-border">
-          <AboutSection />
-        </div>
-        <div className="border-t border-border">
-          <ProcessSection />
-        </div>
-        <div className="border-t border-border">
-          <WhyZylloSection />
-        </div>
-        <div className="border-t border-border">
-          <TestimonialsSection />
-        </div>
-        <div className="border-t border-border">
-          <TechStackSection />
-        </div>
-        <div className="border-t border-border">
-          <CareersSection />
-        </div>
-        <div className="border-t border-border">
-          <CTASection />
-        </div>
-        <ContactBanner />
+        <Suspense fallback={<SectionFallback />}>
+          <div className="border-t border-border">
+            <IndustriesSection />
+          </div>
+          <div className="border-t border-border">
+            <AboutSection />
+          </div>
+          <div className="border-t border-border">
+            <ProcessSection />
+          </div>
+          <div className="border-t border-border">
+            <WhyZylloSection />
+          </div>
+          <div className="border-t border-border">
+            <TestimonialsSection />
+          </div>
+          <div className="border-t border-border">
+            <TechStackSection />
+          </div>
+          <div className="border-t border-border">
+            <CareersSection />
+          </div>
+          <div className="border-t border-border">
+            <CTASection />
+          </div>
+          <ContactBanner />
+        </Suspense>
       </main>
       <Footer />
-      <FloatingButtons />
-      <CookieConsent />
+      <Suspense fallback={null}>
+        <FloatingButtons />
+        <CookieConsent />
+      </Suspense>
     </div>
   );
 };

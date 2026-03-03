@@ -69,8 +69,8 @@ const CONTACT_INFO = [
   {
     icon: MapPin,
     label: "Our Office",
-    value: "Hyderabad, Telangana, India",
-    href: "https://maps.google.com/?q=Hyderabad,Telangana,India",
+    value: "Vizag, Andhra Pradesh, India",
+    href: "https://maps.google.com/?q=Vizag,Andhra+Pradesh,India",
     description: "Visit us by appointment",
   },
   {
@@ -306,14 +306,14 @@ const ContactPage = () => {
               <div className="rounded-2xl overflow-hidden border border-border shadow-sm h-64">
                 <iframe
                   title="Zyllo Tech Office Location"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d243647.35699497524!2d78.24323256562499!3d17.412281249999997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb99daeaebd2c7%3A0xae93b78392bafbc2!2sHyderabad%2C%20Telangana!5e0!3m2!1sen!2sin!4v1700000000000"
+                  src="https://www.google.com/maps?q=Visakhapatnam,Andhra+Pradesh,India&output=embed"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  aria-label="Map showing Zyllo Tech office in Hyderabad, Telangana"
+                  aria-label="Map showing Zyllo Tech office in Vizag, Andhra Pradesh"
                 />
               </div>
             </motion.div>
