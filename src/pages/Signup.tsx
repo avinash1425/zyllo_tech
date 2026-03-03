@@ -1,37 +1,44 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, UserPlus, User } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
-const Login = () => {
+const Signup = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
-  const { signIn, isAuthenticated, isHydrated } = useAuth();
+  const { signUp, isAuthenticated, isHydrated } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(true);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!isHydrated || !isAuthenticated) return;
-    const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname;
-    navigate(from || "/admin", { replace: true });
-  }, [isAuthenticated, isHydrated, location.state, navigate]);
+    if (isHydrated && isAuthenticated) {
+      navigate("/admin", { replace: true });
+    }
+  }, [isAuthenticated, isHydrated, navigate]);
 
   const validate = () => {
+    if (!name.trim() || name.trim().length < 2) return "Please enter your full name.";
     if (!email.trim()) return "Email is required.";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Please enter a valid email address.";
-    if (!password) return "Password is required.";
     if (password.length < 8) return "Password must be at least 8 characters.";
+    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
+      return "Password must include upper, lower, and numeric characters.";
+    }
+    if (password !== confirmPassword) return "Passwords do not match.";
+    if (!acceptTerms) return "Please accept the Terms of Service and Privacy Policy.";
     return "";
   };
 
@@ -46,14 +53,14 @@ const Login = () => {
     setError("");
     setIsSubmitting(true);
     try {
-      await signIn({ email, password, rememberMe });
+      await signUp({ name, email, password });
       toast({
-        title: "Signed in successfully",
-        description: "Welcome back.",
+        title: "Account created",
+        description: "Please sign in with your new credentials.",
       });
-      navigate("/admin", { replace: true });
-    } catch (authError) {
-      setError(authError instanceof Error ? authError.message : "Unable to sign in.");
+      navigate("/login", { replace: true });
+    } catch (signupError) {
+      setError(signupError instanceof Error ? signupError.message : "Unable to create account.");
     } finally {
       setIsSubmitting(false);
     }
@@ -71,15 +78,14 @@ const Login = () => {
             className="w-full max-w-md"
           >
             <div className="rounded-2xl border border-border bg-card p-8 shadow-xl relative overflow-hidden">
-              {/* Decorative accent */}
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-primary" />
 
               <div className="text-center mb-8">
                 <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 mb-4">
-                  <Shield size={28} className="text-primary" />
+                  <UserPlus size={28} className="text-primary" />
                 </div>
-                <h1 className="font-display text-2xl font-bold text-foreground mb-2">Welcome Back</h1>
-                <p className="text-sm text-muted-foreground">Sign in to your account to continue</p>
+                <h1 className="font-display text-2xl font-bold text-foreground mb-2">Create Account</h1>
+                <p className="text-sm text-muted-foreground">Set up your account to continue</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
@@ -88,6 +94,22 @@ const Login = () => {
                     {error}
                   </p>
                 )}
+
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">Full Name</label>
+                  <div className="relative">
+                    <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Your name"
+                      className="w-full rounded-lg border border-input bg-background px-10 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                      required
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">Email Address</label>
                   <div className="relative">
@@ -111,7 +133,7 @@ const Login = () => {
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
+                      placeholder="Minimum 8 characters"
                       className="w-full rounded-lg border border-input bg-background px-10 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                       required
                     />
@@ -125,40 +147,54 @@ const Login = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between text-sm">
-                  <label className="flex items-center gap-2 text-muted-foreground cursor-pointer">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1.5">Confirm Password</label>
+                  <div className="relative">
+                    <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                     <input
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                      className="rounded border-input accent-primary"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Re-enter password"
+                      className="w-full rounded-lg border border-input bg-background px-10 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                      required
                     />
-                    Remember me
-                  </label>
-                  <Link to="/contact" className="text-primary hover:underline font-medium">
-                    Need Help?
-                  </Link>
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
                 </div>
+
+                <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={acceptTerms}
+                    onChange={(e) => setAcceptTerms(e.target.checked)}
+                    className="mt-0.5 rounded border-input accent-primary"
+                  />
+                  I agree to the <Link to="/terms-of-service" className="underline">Terms of Service</Link> and{" "}
+                  <Link to="/privacy-policy" className="underline">Privacy Policy</Link>.
+                </label>
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
                   className="group flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-all shadow-lg glow"
                 >
-                  {isSubmitting ? "Signing In..." : "Sign In"}
+                  {isSubmitting ? "Creating Account..." : "Create Account"}
                   <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                 </button>
               </form>
 
               <p className="mt-6 text-center text-sm text-muted-foreground">
-                Don't have an account?{" "}
-                <Link to="/signup" className="text-primary font-medium hover:underline">
-                  Create Account
+                Already have an account?{" "}
+                <Link to="/login" className="text-primary font-medium hover:underline">
+                  Sign In
                 </Link>
-              </p>
-              <p className="mt-2 text-center text-xs text-muted-foreground">
-                Admin demo: <span className="font-medium">admin@zyllotech.com</span> /{" "}
-                <span className="font-medium">Admin@12345</span>
               </p>
             </div>
           </motion.div>
@@ -170,4 +206,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;

@@ -1,0 +1,79 @@
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
+import {
+  authenticateUser,
+  clearSession,
+  ensureDefaultAdmin,
+  getCurrentUser,
+  registerUser,
+  type AuthUser,
+} from "@/lib/auth";
+
+interface SignUpInput {
+  name: string;
+  email: string;
+  password: string;
+}
+
+interface SignInInput {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+}
+
+interface AuthContextValue {
+  user: AuthUser | null;
+  isAuthenticated: boolean;
+  isAdmin: boolean;
+  isHydrated: boolean;
+  signUp: (input: SignUpInput) => Promise<void>;
+  signIn: (input: SignInInput) => Promise<void>;
+  signOut: () => void;
+}
+
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    const init = async () => {
+      await ensureDefaultAdmin();
+      setUser(getCurrentUser());
+      setIsHydrated(true);
+    };
+    void init();
+  }, []);
+
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      user,
+      isAuthenticated: !!user,
+      isAdmin: user?.role === "admin",
+      isHydrated,
+      signUp: async (input) => {
+        await registerUser(input);
+      },
+      signIn: async (input) => {
+        const signedInUser = await authenticateUser(input.email, input.password, input.rememberMe);
+        setUser(signedInUser);
+      },
+      signOut: () => {
+        clearSession();
+        setUser(null);
+      },
+    }),
+    [isHydrated, user]
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
+  }
+  return context;
+};
