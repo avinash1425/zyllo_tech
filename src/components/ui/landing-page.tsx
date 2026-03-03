@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Globe from "@/components/ui/globe";
 import { cn } from "@/lib/utils";
@@ -25,12 +25,7 @@ interface ScrollGlobeProps {
 }
 
 const defaultGlobeConfig = {
-  positions: [
-    { top: "50%", left: "77%", scale: 1.25 },
-    { top: "32%", left: "56%", scale: 0.92 },
-    { top: "24%", left: "86%", scale: 1.25 },
-    { top: "50%", left: "50%", scale: 1.5 },
-  ],
+  positions: [{ top: "50%", left: "78%", scale: 1.25 }],
 };
 
 const parsePercent = (str: string): number => parseFloat(str.replace("%", ""));
@@ -71,95 +66,110 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
       }
     });
 
-    const currentPos = calculatedPositions[newActiveSection] ?? calculatedPositions[0];
-    setGlobeTransform(
-      `translate3d(${currentPos.left}vw, ${currentPos.top}vh, 0) translate3d(-50%, -50%, 0) scale3d(${currentPos.scale}, ${currentPos.scale}, 1)`
-    );
     setActiveSection(newActiveSection);
-  }, [calculatedPositions]);
+  }, []);
 
   useEffect(() => {
     let ticking = false;
     const handleScroll = () => {
-      if (ticking) return;
-      animationFrameId.current = requestAnimationFrame(() => {
-        updateScrollPosition();
-        ticking = false;
-      });
-      ticking = true;
+      if (!ticking) {
+        animationFrameId.current = requestAnimationFrame(() => {
+          updateScrollPosition();
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     updateScrollPosition();
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
     };
   }, [updateScrollPosition]);
 
   useEffect(() => {
-    const initialPos = calculatedPositions[0];
-    if (!initialPos) return;
-    setGlobeTransform(
-      `translate3d(${initialPos.left}vw, ${initialPos.top}vh, 0) translate3d(-50%, -50%, 0) scale3d(${initialPos.scale}, ${initialPos.scale}, 1)`
-    );
+    const fixedPos = calculatedPositions[0];
+    const fixedTransform = `translate3d(${fixedPos.left}vw, ${fixedPos.top}vh, 0) translate3d(-50%, -50%, 0) scale3d(${fixedPos.scale}, ${fixedPos.scale}, 1)`;
+    setGlobeTransform(fixedTransform);
   }, [calculatedPositions]);
 
   return (
     <div
       className={cn(
-        "relative min-h-screen w-full max-w-screen overflow-x-hidden bg-gradient-to-b from-background via-[hsl(24,95%,98%)] to-background text-foreground",
+        "relative w-full max-w-screen overflow-x-hidden min-h-screen bg-background text-foreground",
         className
       )}
     >
-      <div className="fixed left-0 top-0 z-40 h-0.5 w-full bg-gradient-to-r from-primary/20 via-primary/10 to-[hsl(195,55%,42%,0.2)]">
+      <div className="fixed top-0 left-0 w-full h-0.5 bg-gradient-to-r from-border/20 via-border/40 to-border/20 z-50">
         <div
-          className="h-full bg-gradient-to-r from-primary via-[hsl(24,90%,58%)] to-[hsl(195,55%,42%)]"
+          className="h-full bg-gradient-to-r from-primary via-blue-600 to-blue-900 will-change-transform shadow-sm"
           style={{
             transform: `scaleX(${scrollProgress})`,
             transformOrigin: "left center",
-            transition: "transform 120ms ease-out",
+            transition: "transform 0.15s ease-out",
+            filter: "drop-shadow(0 0 2px rgba(59, 130, 246, 0.3))",
           }}
         />
       </div>
 
-      <div className="fixed right-3 top-1/2 z-30 hidden -translate-y-1/2 sm:flex lg:right-6">
-        <div className="space-y-4">
+      <div className="hidden sm:flex fixed right-2 sm:right-4 lg:right-8 top-1/2 -translate-y-1/2 z-40">
+        <div className="space-y-3 sm:space-y-4 lg:space-y-6">
           {sections.map((section, index) => (
-            <div key={section.id} className="relative group">
+            <div key={index} className="relative group">
               <div
                 className={cn(
-                  "absolute right-7 top-1/2 -translate-y-1/2 rounded-md border border-border/60 bg-background/95 px-3 py-1.5 text-xs shadow-lg backdrop-blur-md",
-                  activeSection === index ? "animate-fadeOut text-foreground" : "opacity-0"
+                  "nav-label absolute right-5 sm:right-6 lg:right-8 top-1/2 -translate-y-1/2",
+                  "px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap",
+                  "bg-background/95 backdrop-blur-md border border-border/60 shadow-xl z-50",
+                  activeSection === index ? "animate-fadeOut" : "opacity-0"
                 )}
               >
-                {section.badge || `Section ${index + 1}`}
+                <div className="flex items-center gap-1 sm:gap-1.5 lg:gap-2">
+                  <div className="w-1 sm:w-1.5 lg:w-2 h-1 sm:h-1.5 lg:h-2 rounded-full bg-primary animate-pulse" />
+                  <span className="text-xs sm:text-sm lg:text-base">
+                    {section.badge || `Section ${index + 1}`}
+                  </span>
+                </div>
               </div>
+
               <button
-                onClick={() => sectionRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "center" })}
+                onClick={() => {
+                  sectionRefs.current[index]?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                  });
+                }}
                 className={cn(
-                  "h-2.5 w-2.5 rounded-full border-2 transition-all duration-300 hover:scale-125",
+                  "relative w-2 h-2 sm:w-2.5 sm:h-2.5 lg:w-3 lg:h-3 rounded-full border-2 transition-all duration-300 hover:scale-125",
+                  "before:absolute before:inset-0 before:rounded-full before:transition-all before:duration-300",
                   activeSection === index
-                    ? "border-primary bg-primary shadow-[0_0_14px_hsl(24_95%_50%_/_0.45)]"
-                    : "border-muted-foreground/40 bg-transparent hover:border-primary/60 hover:bg-primary/10"
+                    ? "bg-primary border-primary shadow-lg before:animate-ping before:bg-primary/20"
+                    : "bg-transparent border-muted-foreground/40 hover:border-primary/60 hover:bg-primary/10"
                 )}
                 aria-label={`Go to ${section.badge || `section ${index + 1}`}`}
               />
             </div>
           ))}
         </div>
+
+        <div className="absolute left-1/2 top-0 bottom-0 w-0.5 lg:w-px bg-gradient-to-b from-transparent via-primary/20 to-transparent -translate-x-1/2 -z-10" />
       </div>
 
       <div
-        className="pointer-events-none fixed z-10 hidden transition-all md:block"
+        className="fixed z-10 pointer-events-none will-change-transform transition-all duration-[1400ms] ease-[cubic-bezier(0.23,1,0.32,1)]"
         style={{
           transform: globeTransform,
-          filter: `opacity(${activeSection === 3 ? 0.35 : 0.82})`,
-          transitionDuration: "1100ms",
-          transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)",
+          filter: "opacity(0.85)",
         }}
       >
-        <Globe className="min-h-0" size={240} />
+        <div className="scale-75 sm:scale-90 lg:scale-100">
+          <Globe />
+        </div>
       </div>
 
       {sections.map((section, index) => (
@@ -167,48 +177,89 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
           key={section.id}
           ref={(el) => (sectionRefs.current[index] = el)}
           className={cn(
-            "relative z-20 flex min-h-screen w-full max-w-full flex-col justify-center overflow-hidden px-4 py-16 sm:px-6 lg:px-12",
+            "relative min-h-screen flex flex-col justify-center px-4 sm:px-6 md:px-8 lg:px-12 z-20 py-12 sm:py-16 lg:py-20",
+            "w-full max-w-full overflow-hidden",
             section.align === "center" && "items-center text-center",
             section.align === "right" && "items-end text-right",
             section.align !== "center" && section.align !== "right" && "items-start text-left"
           )}
         >
-          <div className="w-full max-w-sm sm:max-w-xl lg:max-w-3xl">
-            {section.badge && (
-              <p className="mb-4 inline-flex rounded-full border border-primary/35 bg-gradient-to-r from-primary/10 to-[hsl(195,55%,42%,0.12)] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
-                {section.badge}
-              </p>
+          <div
+            className={cn(
+              "w-full max-w-sm sm:max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl will-change-transform transition-all duration-700",
+              "opacity-100 translate-y-0"
             )}
-
+          >
             <h1
               className={cn(
-                "mb-6 font-display font-bold leading-[1.06] tracking-tight text-foreground",
-                index === 0 ? "text-4xl sm:text-5xl lg:text-6xl" : "text-3xl sm:text-4xl lg:text-5xl"
+                "font-bold mb-6 sm:mb-8 leading-[1.1] tracking-tight",
+                index === 0
+                  ? "text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl"
+                  : "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl"
               )}
             >
-              <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
-                {section.title}
-              </span>
-              {section.subtitle && (
-                <span className="mt-1 block text-[0.58em] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                  {section.subtitle}
-                </span>
+              {section.subtitle ? (
+                <div className="space-y-1 sm:space-y-2">
+                  <div className="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                    {section.title}
+                  </div>
+                  <div className="text-muted-foreground/90 text-[0.6em] sm:text-[0.7em] font-medium tracking-wider">
+                    {section.subtitle}
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
+                  {section.title}
+                </div>
               )}
             </h1>
 
-            <p className="mb-8 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              {section.description}
-            </p>
+            <div
+              className={cn(
+                "text-muted-foreground/80 leading-relaxed mb-8 sm:mb-10 text-base sm:text-lg lg:text-xl font-light",
+                section.align === "center" ? "max-w-full mx-auto text-center" : "max-w-full"
+              )}
+            >
+              <p className="mb-3 sm:mb-4">{section.description}</p>
+              {index === 0 && (
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground/60 mt-4 sm:mt-6">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
+                    <span>Interactive Experience</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <div
+                      className="w-1 h-1 rounded-full bg-primary animate-pulse"
+                      style={{ animationDelay: "0.5s" }}
+                    />
+                    <span>Scroll to Explore</span>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {section.features && (
-              <div className="mb-8 grid gap-3">
-                {section.features.map((feature) => (
+              <div className="grid gap-3 sm:gap-4 mb-8 sm:mb-10">
+                {section.features.map((feature, featureIndex) => (
                   <div
                     key={feature.title}
-                    className="rounded-xl border border-border/80 bg-card/75 p-4 backdrop-blur-sm transition-all hover:border-primary/30"
+                    className={cn(
+                      "group p-4 sm:p-5 lg:p-6 rounded-lg sm:rounded-xl border bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5",
+                      "hover:border-primary/20 hover:-translate-y-1"
+                    )}
+                    style={{ animationDelay: `${featureIndex * 0.1}s` }}
                   >
-                    <h3 className="font-semibold text-card-foreground">{feature.title}</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">{feature.description}</p>
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-primary/60 mt-1.5 sm:mt-2 group-hover:bg-primary transition-colors flex-shrink-0" />
+                      <div className="flex-1 space-y-1.5 sm:space-y-2 min-w-0">
+                        <h3 className="font-semibold text-card-foreground text-base sm:text-lg">
+                          {feature.title}
+                        </h3>
+                        <p className="text-muted-foreground/80 leading-relaxed text-sm sm:text-base">
+                          {feature.description}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -217,23 +268,29 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
             {section.actions && (
               <div
                 className={cn(
-                  "flex flex-col gap-3 sm:flex-row",
+                  "flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4",
                   section.align === "center" && "justify-center",
-                  section.align === "right" && "justify-end"
+                  section.align === "right" && "justify-end",
+                  (!section.align || section.align === "left") && "justify-start"
                 )}
               >
-                {section.actions.map((action) => (
+                {section.actions.map((action, actionIndex) => (
                   <button
                     key={action.label}
                     onClick={action.onClick}
                     className={cn(
-                      "rounded-xl px-6 py-3 text-sm font-semibold transition-all sm:text-base",
+                      "group relative px-6 sm:px-8 py-3 sm:py-4 rounded-lg sm:rounded-xl font-medium transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base",
+                      "hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary/20 w-full sm:w-auto",
                       action.variant === "primary"
-                        ? "bg-gradient-orange text-primary-foreground hover:opacity-90"
-                        : "border border-border bg-background/70 text-foreground hover:border-primary/30"
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 hover:shadow-primary/30"
+                        : "border-2 border-border/60 bg-background/50 backdrop-blur-sm hover:bg-accent/50 hover:border-primary/30 text-foreground"
                     )}
+                    style={{ animationDelay: `${actionIndex * 0.1 + 0.2}s` }}
                   >
-                    {action.label}
+                    <span className="relative z-10">{action.label}</span>
+                    {action.variant === "primary" && (
+                      <div className="absolute inset-0 rounded-lg sm:rounded-xl bg-gradient-to-r from-primary to-primary/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    )}
                   </button>
                 ))}
               </div>
@@ -247,58 +304,61 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
 
 export default function GlobeScrollDemo() {
   const navigate = useNavigate();
-
-  const sections = [
+  const demoSections = [
     {
       id: "hero",
-      badge: "Zyllo Tech",
-      title: "Build Faster. Scale Smarter.",
-      subtitle: "AI-Powered Software Delivery",
+      badge: "Welcome",
+      title: "Explore",
+      subtitle: "Our World",
       description:
-        "We design and build modern digital products with strong engineering discipline, practical AI usage, and clear business outcomes.",
+        "Journey through an immersive experience where technology meets innovation. Watch as perspectives shift and possibilities unfold with every interaction, creating a symphony of digital artistry.",
       align: "left" as const,
       actions: [
-        { label: "Contact Us", variant: "primary" as const, onClick: () => navigate("/contact") },
-        { label: "Explore Services", variant: "secondary" as const, onClick: () => navigate("/services") },
+        { label: "Begin Journey", variant: "primary" as const, onClick: () => navigate("/contact") },
+        { label: "Learn More", variant: "secondary" as const, onClick: () => navigate("/about") },
       ],
     },
     {
-      id: "about",
-      badge: "About Us",
-      title: "One Team for Product, Design, and Engineering",
+      id: "innovation",
+      badge: "Innovation",
+      title: "Connected Worldwide",
       description:
-        "From discovery to deployment, we work as one accountable team so your product quality and delivery velocity stay predictable.",
+        "From every corner of the globe, we witness the interconnected web of human achievement. Each connection represents progress, every interaction drives innovation forward into uncharted territories.",
       align: "center" as const,
-      actions: [{ label: "Learn About Us", variant: "secondary" as const, onClick: () => navigate("/about") }],
     },
     {
-      id: "capabilities",
-      badge: "Capabilities",
-      title: "Services and Industry Expertise That Ship",
-      subtitle: "From Idea to Production",
+      id: "discovery",
+      badge: "Discovery",
+      title: "Expanding",
+      subtitle: "Possibilities",
       description:
-        "We deliver across web, mobile, cloud, AI, and automation for industries where reliability and speed both matter.",
+        "As we push beyond familiar boundaries, new worlds of opportunity emerge from the horizon. What seemed impossible yesterday becomes tomorrow's foundation for extraordinary achievements.",
       align: "left" as const,
       features: [
-        { title: "Services", description: "Product engineering, AI solutions, cloud, design, and growth enablement." },
-        { title: "Industries", description: "Domain-aware solutions for real workflows, compliance, and scale." },
-        { title: "Resources", description: "Playbooks and practical insights your team can apply immediately." },
-      ],
-      actions: [
-        { label: "View Industries", variant: "secondary" as const, onClick: () => navigate("/industries") },
-        { label: "Open Resources", variant: "primary" as const, onClick: () => navigate("/resources") },
+        { title: "Limitless Exploration", description: "Discover new dimensions of possibility and innovation" },
+        { title: "Seamless Integration", description: "Where cutting-edge technology meets human intuition" },
+        { title: "Future-Ready Solutions", description: "Built for tomorrow's challenges and opportunities" },
       ],
     },
     {
-      id: "cta",
-      badge: "Next Step",
-      title: "Let’s Build Your Next Product",
+      id: "future",
+      badge: "Future",
+      title: "Our Shared",
+      subtitle: "Tomorrow",
       description:
-        "Tell us your goals and constraints. We will propose a practical execution plan with timeline, milestones, and outcomes.",
+        "In this moment of unity, we see not just a planet, but a canvas of infinite human potential. Every connection represents hope, every innovation builds bridges to our collective future of endless possibilities.",
       align: "center" as const,
-      actions: [{ label: "Start Conversation", variant: "primary" as const, onClick: () => navigate("/contact") }],
+      actions: [
+        { label: "Join the Movement", variant: "primary" as const, onClick: () => navigate("/contact") },
+        { label: "Explore More", variant: "secondary" as const, onClick: () => navigate("/services") },
+      ],
     },
   ];
 
-  return <ScrollGlobe sections={sections} className="bg-gradient-to-b from-background via-muted/20 to-background" />;
+  return (
+    <ScrollGlobe
+      sections={demoSections}
+      className="bg-gradient-to-br from-background via-muted/20 to-background"
+    />
+  );
 }

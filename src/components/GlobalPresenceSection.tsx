@@ -58,7 +58,9 @@ const GlobalPresenceSection = () => {
             transition={{ delay: 0.08, duration: 0.5 }}
             className="rounded-3xl border border-border/80 bg-white/85 p-5 shadow-[0_18px_40px_hsl(215_30%_16%_/_0.08)] md:p-7"
           >
-            <Globe className="min-h-[320px]" size={296} />
+            <div className="scale-90">
+              <Globe />
+            </div>
           </motion.div>
         </div>
       </div>
