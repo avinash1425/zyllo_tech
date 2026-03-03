@@ -61,7 +61,7 @@ const TopBar = () => {
 
         <span className="inline-flex items-center gap-1.5 text-white/70">
           <MapPin size={12} />
-          Vizag, India
+          Bengaluru, India
         </span>
 
         <span className="w-px h-3.5 bg-white/15" />

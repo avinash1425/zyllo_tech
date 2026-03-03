@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, type ComponentType } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Mail,
@@ -36,6 +36,14 @@ interface FormErrors {
   message?: string;
 }
 
+interface ContactInfoItem {
+  icon: ComponentType<{ size?: number; className?: string; "aria-hidden"?: boolean }>;
+  label: string;
+  value: string;
+  description: string;
+  href?: string;
+}
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const SERVICES = [
@@ -51,7 +59,7 @@ const SERVICES = [
 
 const MAX_MESSAGE_LENGTH = 1000;
 
-const CONTACT_INFO = [
+const CONTACT_INFO: ContactInfoItem[] = [
   {
     icon: Mail,
     label: "Email Us",
@@ -69,15 +77,14 @@ const CONTACT_INFO = [
   {
     icon: MapPin,
     label: "Our Office",
-    value: "Vizag, Andhra Pradesh, India",
-    href: "https://maps.google.com/?q=Vizag,Andhra+Pradesh,India",
+    value: "Bengaluru, India",
+    href: "https://maps.google.com/?q=Bengaluru,India",
     description: "Visit us by appointment",
   },
   {
     icon: Clock,
     label: "Working Hours",
     value: "Mon – Sat: 9:00 AM – 7:00 PM IST",
-    href: "#",
     description: "Closed on Sundays & public holidays",
   },
 ];
@@ -110,7 +117,7 @@ function validate(form: FormState): FormErrors {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-const FieldError = ({ message }: { message?: string }) => (
+const FieldError = ({ id, message }: { id: string; message?: string }) => (
   <AnimatePresence>
     {message && (
       <motion.p
@@ -120,6 +127,7 @@ const FieldError = ({ message }: { message?: string }) => (
         exit={{ opacity: 0, y: -4 }}
         transition={{ duration: 0.2 }}
         className="mt-1 flex items-center gap-1 text-xs text-destructive"
+        id={id}
         role="alert"
         aria-live="polite"
       >
@@ -232,31 +240,56 @@ const ContactPage = () => {
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {CONTACT_INFO.map((item, i) => (
-              <motion.a
-                key={item.label}
-                href={item.href}
-                target={item.href.startsWith("http") ? "_blank" : undefined}
-                rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                className="group flex flex-col gap-3 rounded-2xl border border-border bg-background p-6 hover:border-primary/40 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition-all"
-                aria-label={`${item.label}: ${item.value}`}
-              >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                  <item.icon size={22} aria-hidden="true" />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">
-                    {item.label}
-                  </p>
-                  <p className="font-display font-semibold text-foreground text-sm leading-snug">
-                    {item.value}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
-                </div>
-              </motion.a>
+              item.href ? (
+                <motion.a
+                  key={item.label}
+                  href={item.href}
+                  target={item.href.startsWith("http") ? "_blank" : undefined}
+                  rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                  className="group flex flex-col gap-3 rounded-2xl border border-border bg-background p-6 hover:border-primary/40 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition-all"
+                  aria-label={`${item.label}: ${item.value}`}
+                >
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <item.icon size={22} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">
+                      {item.label}
+                    </p>
+                    <p className="font-display font-semibold text-foreground text-sm leading-snug">
+                      {item.value}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
+                  </div>
+                </motion.a>
+              ) : (
+                <motion.div
+                  key={item.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                  className="group flex flex-col gap-3 rounded-2xl border border-border bg-background p-6"
+                  aria-label={`${item.label}: ${item.value}`}
+                >
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors">
+                    <item.icon size={22} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">
+                      {item.label}
+                    </p>
+                    <p className="font-display font-semibold text-foreground text-sm leading-snug">
+                      {item.value}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
+                  </div>
+                </motion.div>
+              )
             ))}
           </div>
         </div>
@@ -306,14 +339,14 @@ const ContactPage = () => {
               <div className="rounded-2xl overflow-hidden border border-border shadow-sm h-64">
                 <iframe
                   title="Zyllo Tech Office Location"
-                  src="https://www.google.com/maps?q=Visakhapatnam,Andhra+Pradesh,India&output=embed"
+                  src="https://www.google.com/maps?q=Bengaluru,India&output=embed"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  aria-label="Map showing Zyllo Tech office in Vizag, Andhra Pradesh"
+                  aria-label="Map showing Zyllo Tech office in Bengaluru, India"
                 />
               </div>
             </motion.div>
@@ -397,7 +430,7 @@ const ContactPage = () => {
                           aria-invalid={!!(touched.name && errors.name)}
                           aria-describedby={errors.name ? "name-error" : undefined}
                         />
-                        <FieldError message={touched.name ? errors.name : undefined} />
+                        <FieldError id="name-error" message={touched.name ? errors.name : undefined} />
                       </div>
 
                       <div>
@@ -416,8 +449,9 @@ const ContactPage = () => {
                           placeholder="jane@company.com"
                           aria-required="true"
                           aria-invalid={!!(touched.email && errors.email)}
+                          aria-describedby={errors.email ? "email-error" : undefined}
                         />
-                        <FieldError message={touched.email ? errors.email : undefined} />
+                        <FieldError id="email-error" message={touched.email ? errors.email : undefined} />
                       </div>
                     </div>
 
@@ -438,8 +472,9 @@ const ContactPage = () => {
                           className={getInputClass("phone")}
                           placeholder="+91 XXXXX XXXXX"
                           aria-invalid={!!(touched.phone && errors.phone)}
+                          aria-describedby={errors.phone ? "phone-error" : undefined}
                         />
-                        <FieldError message={touched.phone ? errors.phone : undefined} />
+                        <FieldError id="phone-error" message={touched.phone ? errors.phone : undefined} />
                       </div>
 
                       <div>
@@ -485,8 +520,9 @@ const ContactPage = () => {
                         placeholder="eg: Project inquiry for e-commerce platform"
                         aria-required="true"
                         aria-invalid={!!(touched.subject && errors.subject)}
+                        aria-describedby={errors.subject ? "subject-error" : undefined}
                       />
-                      <FieldError message={touched.subject ? errors.subject : undefined} />
+                      <FieldError id="subject-error" message={touched.subject ? errors.subject : undefined} />
                     </div>
 
                     {/* Message */}
@@ -518,14 +554,15 @@ const ContactPage = () => {
                         placeholder="Tell us about your project — goals, timeline, budget range..."
                         aria-required="true"
                         aria-invalid={!!(touched.message && errors.message)}
+                        aria-describedby={errors.message ? "message-error" : undefined}
                       />
-                      <FieldError message={touched.message ? errors.message : undefined} />
+                      <FieldError id="message-error" message={touched.message ? errors.message : undefined} />
                     </div>
 
                     {/* Privacy note */}
                     <p className="text-xs text-muted-foreground">
                       By submitting this form you agree to our{" "}
-                      <a href="#" className="underline underline-offset-2 hover:text-foreground transition-colors">
+                      <a href="/resources" className="underline underline-offset-2 hover:text-foreground transition-colors">
                         Privacy Policy
                       </a>
                       . We'll never share your information with third parties.

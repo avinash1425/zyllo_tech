@@ -27,7 +27,7 @@ const GlobalPresenceSection = () => {
               Global Delivery
             </p>
             <h2 className="mt-4 font-display text-3xl font-bold text-foreground md:text-4xl">
-              Built in Vizag, Delivered Worldwide
+              Built in Bengaluru, Delivered Worldwide
             </h2>
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground md:text-base">
               We collaborate with startups and enterprises across regions, while keeping delivery
@@ -47,7 +47,7 @@ const GlobalPresenceSection = () => {
 
             <div className="mt-5 inline-flex items-center gap-2 text-sm text-muted-foreground">
               <MapPin size={16} className="text-primary" />
-              Vizag, Andhra Pradesh, India
+              Bengaluru, India
             </div>
           </motion.div>
 
