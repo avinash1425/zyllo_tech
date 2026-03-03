@@ -64,7 +64,7 @@ export function TubesBackground({
           if (!canvas) return;
           const rect = canvas.getBoundingClientRect();
           const t = performance.now() / 1000;
-          const scale = Math.min(rect.width, rect.height) * 0.2;
+          const scale = Math.min(rect.width, rect.height) * 0.27;
           const a = t * 1.25;
 
           const x = rect.width / 2 + (Math.sin(a) * scale * 2) / (1 + Math.cos(a) ** 2);
