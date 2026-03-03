@@ -64,11 +64,15 @@ export function TubesBackground({
           if (!canvas) return;
           const rect = canvas.getBoundingClientRect();
           const t = performance.now() / 1000;
-          const scale = Math.min(rect.width, rect.height) * 0.27;
-          const a = t * 1.25;
+          const a = t * 1.1;
+          const cx = rect.width / 2;
+          const cy = rect.height / 2;
+          const rx = Math.min(rect.width * 0.34, rect.height * 0.62);
+          const ry = Math.min(rect.height * 0.24, rect.width * 0.2);
+          const denom = 1 + Math.cos(a) ** 2;
 
-          const x = rect.width / 2 + (Math.sin(a) * scale * 2) / (1 + Math.cos(a) ** 2);
-          const y = rect.height / 2 + (Math.sin(a) * Math.cos(a) * scale) / (1 + Math.cos(a) ** 2);
+          const x = cx + (Math.sin(a) * rx * 2) / denom;
+          const y = cy + (Math.sin(a) * Math.cos(a) * ry * 2.2) / denom;
           const clientX = rect.left + x;
           const clientY = rect.top + y;
 
