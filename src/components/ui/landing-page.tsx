@@ -313,7 +313,7 @@ export default function GlobeScrollDemo() {
       title: "Build Faster. Scale Smarter.",
       subtitle: "AI-Powered Software Delivery",
       description:
-        "We design and build modern digital products with strong engineering discipline, practical AI capabilities, and measurable business outcomes.",
+        "We design and build modern digital products with strong engineering discipline, practical AI usage, and clear business outcomes.",
       align: "left" as const,
       actions: [
         { label: "Contact Us", variant: "primary" as const, onClick: () => navigate("/contact") },
@@ -325,7 +325,7 @@ export default function GlobeScrollDemo() {
       badge: "About Us",
       title: "One Team for Product, Design, and Engineering",
       description:
-        "From discovery to deployment, we work as one accountable team so product quality, speed, and execution stay aligned with your goals.",
+        "From discovery to deployment, we work as one accountable team so your product quality and delivery velocity stay predictable.",
       align: "center" as const,
       actions: [
         { label: "Learn About Us", variant: "secondary" as const, onClick: () => navigate("/about") },
@@ -354,7 +354,7 @@ export default function GlobeScrollDemo() {
       badge: "Next Step",
       title: "Let’s Build Your Next Product",
       description:
-        "Tell us your goals and constraints. We will propose a practical execution plan with timeline, milestones, and expected outcomes.",
+        "Tell us your goals and constraints. We will propose a practical execution plan with timeline, milestones, and outcomes.",
       align: "center" as const,
       actions: [
         { label: "Start Conversation", variant: "primary" as const, onClick: () => navigate("/contact") },
