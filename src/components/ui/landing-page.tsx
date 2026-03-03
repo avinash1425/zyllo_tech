@@ -172,9 +172,8 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                 className="absolute inset-0 min-h-0 h-full"
                 enableClickInteraction={false}
               />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[hsl(0,0%,100%,0.5)] via-[hsl(0,0%,100%,0.2)] to-transparent" />
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_35%,hsl(24_95%_50%_/_0.12),transparent_50%)]" />
-              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,hsl(0_0%_100%_/_0.12),transparent_42%)]" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[hsl(0,0%,100%,0.24)] via-[hsl(0,0%,100%,0.08)] to-transparent" />
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_35%,hsl(24_95%_50%_/_0.08),transparent_52%)]" />
             </>
           )}
 
@@ -182,7 +181,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
             className={cn(
               "w-full max-w-5xl",
               index === 0 &&
-                "rounded-3xl border border-white/65 bg-[hsl(0,0%,100%,0.68)] px-6 py-7 shadow-[0_24px_50px_hsl(215_30%_16%_/_0.16)] backdrop-blur-md sm:px-8 sm:py-9"
+                "max-w-3xl rounded-2xl border border-white/30 bg-[hsl(0,0%,100%,0.32)] px-5 py-6 shadow-[0_16px_34px_hsl(215_30%_16%_/_0.12)] backdrop-blur-[2px] sm:px-7 sm:py-8"
             )}
           >
             {section.badge && (
