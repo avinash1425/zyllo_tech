@@ -114,7 +114,7 @@ const Footer = () => {
               </a>
               <div className="flex items-center gap-2 text-sm text-white/60">
                 <MapPin size={14} className="text-primary shrink-0" />
-                Hyderabad, India
+                Vizag, Andhra Pradesh, India
               </div>
             </div>
 
