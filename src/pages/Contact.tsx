@@ -72,20 +72,20 @@ const CONTACT_INFO: ContactInfoItem[] = [
     label: "Call Us",
     value: "+91-705773680",
     href: "tel:+91705773680",
-    description: "Mon – Sat, 9 AM – 7 PM IST",
+    description: "Mon – Fri, 9 AM – 6 PM IST",
   },
   {
     icon: MapPin,
     label: "Our Office",
-    value: "Bengaluru, India",
-    href: "https://maps.google.com/?q=Bengaluru,India",
+    value: "India",
+    href: "https://maps.google.com/?q=India",
     description: "Visit us by appointment",
   },
   {
     icon: Clock,
     label: "Working Hours",
-    value: "Mon – Sat: 9:00 AM – 7:00 PM IST",
-    description: "Closed on Sundays & public holidays",
+    value: "Mon – Fri: 9:00 AM – 6:00 PM IST",
+    description: "Closed on weekends & public holidays",
   },
 ];
 
@@ -339,14 +339,14 @@ const ContactPage = () => {
               <div className="rounded-2xl overflow-hidden border border-border shadow-sm h-64">
                 <iframe
                   title="Zyllo Tech Office Location"
-                  src="https://www.google.com/maps?q=Bengaluru,India&output=embed"
+                  src="https://www.google.com/maps?q=India&output=embed"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  aria-label="Map showing Zyllo Tech office in Bengaluru, India"
+                  aria-label="Map showing Zyllo Tech office location in India"
                 />
               </div>
             </motion.div>

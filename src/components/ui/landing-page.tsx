@@ -207,6 +207,14 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
               {section.description}
             </p>
 
+            {index === 0 && (
+              <div className="mt-7 flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.15em] text-white/80 sm:text-sm">
+                <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">AI Agents in Production</span>
+                <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Cloud Native Delivery</span>
+                <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Outcome-Focused Execution</span>
+              </div>
+            )}
+
             {section.features && (
               <div className="mt-8 space-y-5">
                 {section.features.map((feature, featureIndex) => (
@@ -250,13 +258,6 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
               </div>
             )}
 
-            {index === 0 && (
-              <div className="pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 text-center text-white/60">
-                <p className="text-[10px] uppercase tracking-[0.24em] sm:text-xs">
-                  Zyllo Tech AI Power Solution
-                </p>
-              </div>
-            )}
           </div>
         </section>
       ))}
@@ -270,10 +271,10 @@ export default function GlobeScrollDemo() {
     {
       id: "hero",
       badge: "Zyllo Tech",
-      title: "Zyllo Tech AI Power Solution",
+      title: "Zyllo Tech AI Powered Solutions",
       subtitle: "The Future Is Here",
       description:
-        "We design and build modern digital products with strong engineering discipline, practical AI usage, and clear business outcomes.",
+        "We architect and scale AI-powered products, automation systems, and cloud-native platforms that help global teams move faster with confidence.",
       align: "left" as const,
       actions: [
         { label: "Contact Us", variant: "primary" as const, onClick: () => navigate("/contact") },
@@ -283,24 +284,24 @@ export default function GlobeScrollDemo() {
     {
       id: "about",
       badge: "About Us",
-      title: "One Team for Product, Design, and Engineering",
+      title: "A Unified Team Across Product, Design, and Engineering",
       description:
-        "From discovery to deployment, we work as one accountable team so your product quality and delivery velocity stay predictable.",
+        "From strategy to release, one accountable team drives architecture, UX, engineering, and QA so delivery stays predictable and quality remains high.",
       align: "center" as const,
       actions: [{ label: "Learn About Us", variant: "secondary" as const, onClick: () => navigate("/about") }],
     },
     {
       id: "capabilities",
       badge: "Capabilities",
-      title: "Services and Industry Expertise That Ship",
-      subtitle: "From Idea to Production",
+      title: "Execution Depth Across Services and Industries",
+      subtitle: "From Vision to Scaled Delivery",
       description:
-        "We deliver across web, mobile, cloud, AI, and automation for industries where reliability and speed both matter.",
+        "We deliver across AI, web, mobile, automation, and cloud for teams that need measurable outcomes, secure delivery, and long-term scalability.",
       align: "left" as const,
       features: [
-        { title: "Services", description: "Product engineering, AI solutions, cloud, design, and growth enablement." },
-        { title: "Industries", description: "Domain-aware solutions for real workflows, compliance, and scale." },
-        { title: "Resources", description: "Playbooks and practical insights your team can apply immediately." },
+        { title: "Services", description: "Product engineering, AI implementation, platform modernization, and automation." },
+        { title: "Industries", description: "Domain-aligned delivery for real workflows, governance, and operational scale." },
+        { title: "Resources", description: "Practical playbooks and implementation insights your teams can execute quickly." },
       ],
       actions: [
         { label: "View Industries", variant: "secondary" as const, onClick: () => navigate("/industries") },
@@ -310,9 +311,9 @@ export default function GlobeScrollDemo() {
     {
       id: "cta",
       badge: "Next Step",
-      title: "Let’s Build Your Next Product",
+      title: "Build Your Next AI-Ready Platform",
       description:
-        "Tell us your goals and constraints. We will propose a practical execution plan with timeline, milestones, and outcomes.",
+        "Share your product goals and constraints. We will map a practical roadmap with architecture, milestones, and delivery outcomes.",
       align: "center" as const,
       actions: [{ label: "Start Conversation", variant: "primary" as const, onClick: () => navigate("/contact") }],
     },
