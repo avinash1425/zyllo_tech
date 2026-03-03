@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Code2, Brain, Palette, Megaphone, Globe, Smartphone } from "lucide-react";
+import { Code2, Brain, Palette, Megaphone, Globe, Smartphone, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const services = [
   { icon: Code2, title: "Software Development", description: "Custom web and enterprise applications built with modern technologies for scalability and performance." },
@@ -48,6 +49,22 @@ const ServicesSection = () => {
             </motion.div>
           ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="mt-10 text-center"
+        >
+          <Link
+            to="/services"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-all shadow-md"
+          >
+            View All Services
+            <ArrowRight size={16} />
+          </Link>
+        </motion.div>
       </div>
     </section>
   );
