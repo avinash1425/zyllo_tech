@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const CTASection = () => {
@@ -13,11 +13,20 @@ const CTASection = () => {
           transition={{ duration: 0.7 }}
           className="relative overflow-hidden rounded-2xl bg-[hsl(215,25%,15%)] p-10 md:p-16 text-center shadow-lg"
         >
+          {/* Decorative background blobs */}
+          <div className="pointer-events-none absolute -top-16 -left-16 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-16 -right-16 h-56 w-56 rounded-full bg-[hsl(195,55%,42%)]/10 blur-3xl" />
+
+          <div className="relative inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary mb-5">
+            <Sparkles size={12} />
+            Free Consultation Available
+          </div>
+
           <h2 className="relative font-display text-3xl md:text-4xl font-bold mb-4 text-white">
             Ready to <span className="text-primary">Get Started?</span>
           </h2>
           <p className="relative mx-auto max-w-lg text-white/70 mb-8">
-            Let's discuss how Zyllo Tech can help bring your vision to life. 
+            Let's discuss how Zyllo Tech can help bring your vision to life.
             Get in touch today for a free consultation.
           </p>
           <div className="relative flex flex-col sm:flex-row items-center justify-center gap-4">
