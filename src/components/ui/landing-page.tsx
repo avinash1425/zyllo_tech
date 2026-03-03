@@ -233,7 +233,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
 
             {index === 0 && (
               <p className="mt-3 text-sm font-medium uppercase tracking-[0.2em] text-white/90 sm:text-base">
-                Zyllo Tech KI Power Solution
+                Zyllo Tech Powered Solutions
               </p>
             )}
 
@@ -292,7 +292,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
             {index === 0 && (
               <div className="pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 text-center text-white/60">
                 <p className="text-[10px] uppercase tracking-[0.24em] sm:text-xs">
-                  Zyllo Tech KI Power Solution
+                  Zyllo Tech AI Power Solutions
                 </p>
               </div>
             )}
@@ -309,7 +309,7 @@ export default function GlobeScrollDemo() {
     {
       id: "hero",
       badge: "Zyllo Tech",
-      title: "Zyllo Tech KI Power Solution",
+      title: "Zyllo Tech AI Power Solutions",
       subtitle: "The Future Is Here",
       description:
         "We design and build modern digital products with strong engineering discipline, practical AI usage, and clear business outcomes.",
