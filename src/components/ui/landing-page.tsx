@@ -172,18 +172,24 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                 className="absolute inset-0 min-h-0 h-full"
                 enableClickInteraction={false}
               />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[hsl(215,45%,10%,0.44)] via-[hsl(215,45%,12%,0.2)] to-transparent" />
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_35%,hsl(24_95%_50%_/_0.2),transparent_48%)]" />
-              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,hsl(0_0%_100%_/_0.06),transparent_42%)]" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[hsl(0,0%,100%,0.5)] via-[hsl(0,0%,100%,0.2)] to-transparent" />
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_35%,hsl(24_95%_50%_/_0.12),transparent_50%)]" />
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,hsl(0_0%_100%_/_0.12),transparent_42%)]" />
             </>
           )}
 
-          <div className="w-full max-w-5xl">
+          <div
+            className={cn(
+              "w-full max-w-5xl",
+              index === 0 &&
+                "rounded-3xl border border-white/65 bg-[hsl(0,0%,100%,0.68)] px-6 py-7 shadow-[0_24px_50px_hsl(215_30%_16%_/_0.16)] backdrop-blur-md sm:px-8 sm:py-9"
+            )}
+          >
             {section.badge && (
               <p
                 className={cn(
                   "mb-5 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em]",
-                  index === 0 ? "text-white/90" : "text-primary"
+                  index === 0 ? "text-primary" : "text-primary"
                 )}
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
@@ -193,7 +199,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
 
             {index === 0 && (
               <div className="mb-6 flex w-full justify-center">
-                <span className="inline-flex items-center rounded-full border border-white/30 bg-white/12 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/92 backdrop-blur-sm">
+                <span className="inline-flex items-center rounded-full border border-primary/30 bg-white/78 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground backdrop-blur-sm">
                   {heroSignals.join(" • ")}
                 </span>
               </div>
@@ -209,7 +215,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                 className={cn(
                   "bg-clip-text text-transparent",
                   index === 0
-                    ? "bg-gradient-to-r from-white via-white to-white/80"
+                    ? "bg-gradient-to-r from-foreground via-foreground to-[hsl(195,55%,32%)]"
                     : "bg-gradient-to-r from-foreground via-foreground to-[hsl(195,55%,32%)]"
                 )}
               >
@@ -219,7 +225,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                 <span
                   className={cn(
                     "mt-3 block text-[0.36em] font-semibold uppercase tracking-[0.22em]",
-                    index === 0 ? "text-white/70" : "text-muted-foreground"
+                    index === 0 ? "text-muted-foreground" : "text-muted-foreground"
                   )}
                 >
                   {section.subtitle}
@@ -228,7 +234,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
             </h1>
 
             {index === 0 && (
-              <p className="mt-3 text-sm font-medium uppercase tracking-[0.2em] text-white/75 sm:text-base">
+              <p className="mt-3 text-sm font-medium uppercase tracking-[0.2em] text-primary sm:text-base">
                 Zyllo Tech Powered Solutions
               </p>
             )}
@@ -236,7 +242,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
             <p
               className={cn(
                 "mt-7 max-w-3xl text-base leading-relaxed sm:text-lg lg:text-xl",
-                index === 0 ? "text-white/80" : "text-muted-foreground"
+                index === 0 ? "text-foreground/80" : "text-muted-foreground"
               )}
             >
               {section.description}
@@ -275,7 +281,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                       action.variant === "primary"
                         ? "bg-gradient-orange text-primary-foreground shadow-[0_8px_28px_hsl(24_95%_50%_/_0.32)] hover:opacity-90"
                         : index === 0
-                          ? "text-white hover:text-white/85"
+                          ? "text-foreground hover:text-primary"
                           : "text-foreground hover:text-primary"
                     )}
                   >
