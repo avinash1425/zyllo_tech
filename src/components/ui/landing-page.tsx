@@ -292,7 +292,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
             {index === 0 && (
               <div className="pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 text-center text-white/60">
                 <p className="text-[10px] uppercase tracking-[0.24em] sm:text-xs">
-                  Zyllo Tech AI Power Solutions
+                  Zyllo Tech AI Solutions
                 </p>
               </div>
             )}
