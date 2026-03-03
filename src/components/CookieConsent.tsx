@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Settings2, ShieldCheck } from "lucide-react";
+import { Link } from "react-router-dom";
 
 type ConsentMode = "accepted" | "declined" | "custom";
 
@@ -89,12 +90,12 @@ const CookieConsent = () => {
               <p className="text-xs text-muted-foreground">
                 Manage which cookies you allow. Essential cookies are always enabled.
               </p>
-              <a
-                href="/contact"
+              <Link
+                to="/cookie-policy"
                 className="mt-1 inline-block text-xs text-primary underline underline-offset-2"
               >
                 Cookie policy
-              </a>
+              </Link>
             </div>
           </div>
 

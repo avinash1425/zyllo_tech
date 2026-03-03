@@ -1,5 +1,6 @@
 import { useState, useRef, type ComponentType } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
 import {
   Mail,
   Phone,
@@ -562,9 +563,9 @@ const ContactPage = () => {
                     {/* Privacy note */}
                     <p className="text-xs text-muted-foreground">
                       By submitting this form you agree to our{" "}
-                      <a href="/resources" className="underline underline-offset-2 hover:text-foreground transition-colors">
+                      <Link to="/privacy-policy" className="underline underline-offset-2 hover:text-foreground transition-colors">
                         Privacy Policy
-                      </a>
+                      </Link>
                       . We'll never share your information with third parties.
                     </p>
 
