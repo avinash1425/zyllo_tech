@@ -175,9 +175,14 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[hsl(215,45%,10%,0.14)] via-transparent to-transparent" />
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_35%,hsl(24_95%_50%_/_0.12),transparent_52%)]" />
               <div className="pointer-events-none absolute left-1/2 top-7 z-30 -translate-x-1/2">
-                <span className="inline-flex items-center rounded-full border border-white/35 bg-[hsl(215,30%,8%,0.35)] px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-sm">
-                  {heroSignals.join(" • ")}
-                </span>
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/90 sm:text-xs">
+                    Zyllo AI Tech Power Solution
+                  </p>
+                  <span className="inline-flex items-center rounded-full border border-white/35 bg-[hsl(215,30%,8%,0.35)] px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-sm">
+                    {heroSignals.join(" • ")}
+                  </span>
+                </div>
               </div>
             </>
           )}
