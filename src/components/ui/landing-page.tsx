@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Globe from "@/components/ui/globe";
+import TubesBackground from "@/components/ui/neon-flow";
 import { cn } from "@/lib/utils";
 
 interface ScrollGlobeProps {
@@ -165,9 +166,25 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
             section.align !== "center" && section.align !== "right" && "items-start text-left"
           )}
         >
+          {index === 0 && (
+            <>
+              <TubesBackground
+                className="absolute inset-0 min-h-0 h-full"
+                enableClickInteraction={false}
+              />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[hsl(215,45%,8%,0.72)] via-[hsl(215,45%,10%,0.48)] to-transparent" />
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_35%,hsl(24_95%_50%_/_0.22),transparent_48%)]" />
+            </>
+          )}
+
           <div className="w-full max-w-5xl">
             {section.badge && (
-              <p className="mb-5 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              <p
+                className={cn(
+                  "mb-5 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em]",
+                  index === 0 ? "text-white/90" : "text-primary"
+                )}
+              >
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                 {section.badge}
               </p>
@@ -178,7 +195,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                 {heroSignals.map((signal) => (
                   <span
                     key={signal}
-                    className="rounded-full border border-primary/25 bg-gradient-to-r from-primary/10 to-[hsl(195,55%,42%,0.14)] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary"
+                    className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/90 backdrop-blur-sm"
                   >
                     {signal}
                   </span>
@@ -192,17 +209,34 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                 index === 0 ? "text-4xl sm:text-6xl lg:text-7xl xl:text-8xl" : "text-3xl sm:text-5xl lg:text-6xl"
               )}
             >
-              <span className="bg-gradient-to-r from-foreground via-foreground to-[hsl(195,55%,32%)] bg-clip-text text-transparent">
+              <span
+                className={cn(
+                  "bg-clip-text text-transparent",
+                  index === 0
+                    ? "bg-gradient-to-r from-white via-white to-white/80"
+                    : "bg-gradient-to-r from-foreground via-foreground to-[hsl(195,55%,32%)]"
+                )}
+              >
                 {section.title}
               </span>
               {section.subtitle && (
-                <span className="mt-3 block text-[0.36em] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                <span
+                  className={cn(
+                    "mt-3 block text-[0.36em] font-semibold uppercase tracking-[0.22em]",
+                    index === 0 ? "text-white/70" : "text-muted-foreground"
+                  )}
+                >
                   {section.subtitle}
                 </span>
               )}
             </h1>
 
-            <p className="mt-7 max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg lg:text-xl">
+            <p
+              className={cn(
+                "mt-7 max-w-3xl text-base leading-relaxed sm:text-lg lg:text-xl",
+                index === 0 ? "text-white/80" : "text-muted-foreground"
+              )}
+            >
               {section.description}
             </p>
 
@@ -238,7 +272,9 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                       "rounded-xl px-7 py-3.5 text-sm font-semibold transition-all sm:text-base",
                       action.variant === "primary"
                         ? "bg-gradient-orange text-primary-foreground shadow-[0_8px_28px_hsl(24_95%_50%_/_0.32)] hover:opacity-90"
-                        : "text-foreground hover:text-primary"
+                        : index === 0
+                          ? "text-white hover:text-white/85"
+                          : "text-foreground hover:text-primary"
                     )}
                   >
                     {action.label}
@@ -259,8 +295,8 @@ export default function GlobeScrollDemo() {
     {
       id: "hero",
       badge: "Zyllo Tech",
-      title: "Build Faster. Scale Smarter.",
-      subtitle: "AI-Powered Software Delivery",
+      title: "Zyllo Tech AI Power Solutions",
+      subtitle: "The Future Is Here",
       description:
         "We design and build modern digital products with strong engineering discipline, practical AI usage, and clear business outcomes.",
       align: "left" as const,
