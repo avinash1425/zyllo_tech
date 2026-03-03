@@ -156,10 +156,6 @@ const Login = () => {
                   Create Account
                 </Link>
               </p>
-              <p className="mt-2 text-center text-xs text-muted-foreground">
-                Admin demo: <span className="font-medium">admin@zyllotech.com</span> /{" "}
-                <span className="font-medium">Admin@12345</span>
-              </p>
             </div>
           </motion.div>
         </div>

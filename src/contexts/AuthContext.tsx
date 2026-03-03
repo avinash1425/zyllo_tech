@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import {
   authenticateUser,
   clearSession,
-  ensureDefaultAdmin,
   getCurrentUser,
   registerUser,
   type AuthUser,
@@ -38,12 +37,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    const init = async () => {
-      await ensureDefaultAdmin();
-      setUser(getCurrentUser());
-      setIsHydrated(true);
-    };
-    void init();
+    setUser(getCurrentUser());
+    setIsHydrated(true);
   }, []);
 
   const value = useMemo<AuthContextValue>(

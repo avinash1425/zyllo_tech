@@ -19,9 +19,6 @@ interface StoredSession {
 const USERS_KEY = "zyllo.auth.users";
 const SESSION_KEY = "zyllo.auth.session";
 
-const DEFAULT_ADMIN_EMAIL = "admin@zyllotech.com";
-const DEFAULT_ADMIN_PASSWORD = "Admin@12345";
-
 const toHex = (buffer: ArrayBuffer) =>
   Array.from(new Uint8Array(buffer))
     .map((b) => b.toString(16).padStart(2, "0"))
@@ -69,23 +66,6 @@ export function clearSession() {
   sessionStorage.removeItem(SESSION_KEY);
 }
 
-export async function ensureDefaultAdmin() {
-  const users = readUsers();
-  const hasAdmin = users.some((u) => u.role === "admin");
-  if (hasAdmin) return;
-
-  const passwordHash = await hashPassword(DEFAULT_ADMIN_PASSWORD);
-  users.push({
-    id: crypto.randomUUID(),
-    name: "Admin",
-    email: DEFAULT_ADMIN_EMAIL,
-    role: "admin",
-    createdAt: new Date().toISOString(),
-    passwordHash,
-  });
-  writeUsers(users);
-}
-
 export function getCurrentUser(): AuthUser | null {
   const session = readSession();
   if (!session) return null;
@@ -109,11 +89,12 @@ export async function registerUser(input: {
   }
 
   const passwordHash = await hashPassword(input.password);
+  const isFirstUser = users.length === 0;
   const newUser: StoredUser = {
     id: crypto.randomUUID(),
     name: input.name.trim(),
     email: normalizedEmail,
-    role: "user",
+    role: isFirstUser ? "admin" : "user",
     createdAt: new Date().toISOString(),
     passwordHash,
   };
