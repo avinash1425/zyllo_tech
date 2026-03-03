@@ -172,16 +172,15 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                 className="absolute inset-0 min-h-0 h-full"
                 enableClickInteraction={false}
               />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[hsl(0,0%,100%,0.24)] via-[hsl(0,0%,100%,0.08)] to-transparent" />
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_35%,hsl(24_95%_50%_/_0.08),transparent_52%)]" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[hsl(215,45%,10%,0.14)] via-transparent to-transparent" />
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_35%,hsl(24_95%_50%_/_0.12),transparent_52%)]" />
             </>
           )}
 
           <div
             className={cn(
               "w-full max-w-5xl",
-              index === 0 &&
-                "max-w-3xl rounded-2xl border border-white/30 bg-[hsl(0,0%,100%,0.32)] px-5 py-6 shadow-[0_16px_34px_hsl(215_30%_16%_/_0.12)] backdrop-blur-[2px] sm:px-7 sm:py-8"
+              index === 0 && "px-1 sm:px-2"
             )}
           >
             {section.badge && (
@@ -198,7 +197,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
 
             {index === 0 && (
               <div className="mb-6 flex w-full justify-center">
-                <span className="inline-flex items-center rounded-full border border-primary/30 bg-white/78 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground backdrop-blur-sm">
+                <span className="inline-flex items-center rounded-full border border-white/35 bg-[hsl(215,30%,8%,0.35)] px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-sm">
                   {heroSignals.join(" • ")}
                 </span>
               </div>
@@ -214,7 +213,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                 className={cn(
                   "bg-clip-text text-transparent",
                   index === 0
-                    ? "bg-gradient-to-r from-foreground via-foreground to-[hsl(195,55%,32%)]"
+                    ? "bg-gradient-to-r from-white via-white to-white/85"
                     : "bg-gradient-to-r from-foreground via-foreground to-[hsl(195,55%,32%)]"
                 )}
               >
@@ -224,7 +223,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                 <span
                   className={cn(
                     "mt-3 block text-[0.36em] font-semibold uppercase tracking-[0.22em]",
-                    index === 0 ? "text-muted-foreground" : "text-muted-foreground"
+                    index === 0 ? "text-white/75" : "text-muted-foreground"
                   )}
                 >
                   {section.subtitle}
@@ -233,7 +232,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
             </h1>
 
             {index === 0 && (
-              <p className="mt-3 text-sm font-medium uppercase tracking-[0.2em] text-primary sm:text-base">
+              <p className="mt-3 text-sm font-medium uppercase tracking-[0.2em] text-white/90 sm:text-base">
                 Zyllo Tech Powered Solutions
               </p>
             )}
@@ -241,7 +240,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
             <p
               className={cn(
                 "mt-7 max-w-3xl text-base leading-relaxed sm:text-lg lg:text-xl",
-                index === 0 ? "text-foreground/80" : "text-muted-foreground"
+                index === 0 ? "text-white/82" : "text-muted-foreground"
               )}
             >
               {section.description}
@@ -280,13 +279,21 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                       action.variant === "primary"
                         ? "bg-gradient-orange text-primary-foreground shadow-[0_8px_28px_hsl(24_95%_50%_/_0.32)] hover:opacity-90"
                         : index === 0
-                          ? "text-foreground hover:text-primary"
+                          ? "text-white hover:text-white/85"
                           : "text-foreground hover:text-primary"
                     )}
                   >
                     {action.label}
                   </button>
                 ))}
+              </div>
+            )}
+
+            {index === 0 && (
+              <div className="pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 text-center text-white/60">
+                <p className="text-[10px] uppercase tracking-[0.24em] sm:text-xs">
+                  Zyllo Tech AI Power Solutions
+                </p>
               </div>
             )}
           </div>
