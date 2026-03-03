@@ -161,10 +161,12 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
       </div>
 
       <div
-        className="fixed z-10 pointer-events-none will-change-transform transition-all duration-[1400ms] ease-[cubic-bezier(0.23,1,0.32,1)]"
+        className="fixed z-10 pointer-events-none will-change-transform transition-all"
         style={{
           transform: globeTransform,
-          filter: "opacity(0.85)",
+          opacity: activeSection === 0 ? 0.85 : 0,
+          transitionDuration: "800ms",
+          transitionTimingFunction: "cubic-bezier(0.23,1,0.32,1)",
         }}
       >
         <div className="scale-75 sm:scale-90 lg:scale-100">
@@ -307,51 +309,56 @@ export default function GlobeScrollDemo() {
   const demoSections = [
     {
       id: "hero",
-      badge: "Welcome",
-      title: "Explore",
-      subtitle: "Our World",
+      badge: "Zyllo Tech",
+      title: "Build Faster. Scale Smarter.",
+      subtitle: "AI-Powered Software Delivery",
       description:
-        "Journey through an immersive experience where technology meets innovation. Watch as perspectives shift and possibilities unfold with every interaction, creating a symphony of digital artistry.",
+        "We design and build modern digital products with strong engineering discipline, practical AI capabilities, and measurable business outcomes.",
       align: "left" as const,
       actions: [
-        { label: "Begin Journey", variant: "primary" as const, onClick: () => navigate("/contact") },
-        { label: "Learn More", variant: "secondary" as const, onClick: () => navigate("/about") },
+        { label: "Contact Us", variant: "primary" as const, onClick: () => navigate("/contact") },
+        { label: "Explore Services", variant: "secondary" as const, onClick: () => navigate("/services") },
       ],
     },
     {
-      id: "innovation",
-      badge: "Innovation",
-      title: "Connected Worldwide",
+      id: "about",
+      badge: "About Us",
+      title: "One Team for Product, Design, and Engineering",
       description:
-        "From every corner of the globe, we witness the interconnected web of human achievement. Each connection represents progress, every interaction drives innovation forward into uncharted territories.",
+        "From discovery to deployment, we work as one accountable team so product quality, speed, and execution stay aligned with your goals.",
       align: "center" as const,
+      actions: [
+        { label: "Learn About Us", variant: "secondary" as const, onClick: () => navigate("/about") },
+      ],
     },
     {
-      id: "discovery",
-      badge: "Discovery",
-      title: "Expanding",
-      subtitle: "Possibilities",
+      id: "capabilities",
+      badge: "Capabilities",
+      title: "Services and Industry Expertise That Ship",
+      subtitle: "From Idea to Production",
       description:
-        "As we push beyond familiar boundaries, new worlds of opportunity emerge from the horizon. What seemed impossible yesterday becomes tomorrow's foundation for extraordinary achievements.",
+        "We deliver across web, mobile, cloud, AI, and automation for industries where reliability and speed both matter.",
       align: "left" as const,
       features: [
-        { title: "Limitless Exploration", description: "Discover new dimensions of possibility and innovation" },
-        { title: "Seamless Integration", description: "Where cutting-edge technology meets human intuition" },
-        { title: "Future-Ready Solutions", description: "Built for tomorrow's challenges and opportunities" },
+        { title: "Services", description: "Product engineering, AI solutions, cloud, design, and growth enablement." },
+        { title: "Industries", description: "Domain-aware solutions for real workflows, compliance, and scale." },
+        { title: "Resources", description: "Playbooks and practical insights your team can apply immediately." },
+      ],
+      actions: [
+        { label: "View Industries", variant: "secondary" as const, onClick: () => navigate("/industries") },
+        { label: "Open Resources", variant: "primary" as const, onClick: () => navigate("/resources") },
       ],
     },
     {
-      id: "future",
-      badge: "Future",
-      title: "Our Shared",
-      subtitle: "Tomorrow",
+      id: "cta",
+      badge: "Next Step",
+      title: "Let’s Build Your Next Product",
       description:
-        "In this moment of unity, we see not just a planet, but a canvas of infinite human potential. Every connection represents hope, every innovation builds bridges to our collective future of endless possibilities.",
+        "Tell us your goals and constraints. We will propose a practical execution plan with timeline, milestones, and expected outcomes.",
       align: "center" as const,
       actions: [
-        { label: "Join the Movement", variant: "primary" as const, onClick: () => navigate("/contact") },
-        { label: "Explore More", variant: "secondary" as const, onClick: () => navigate("/services") },
-      ],
+        { label: "Start Conversation", variant: "primary" as const, onClick: () => navigate("/contact") },
+      ]
     },
   ];
 
