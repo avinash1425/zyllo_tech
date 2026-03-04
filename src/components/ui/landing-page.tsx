@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TubesBackground from "@/components/ui/neon-flow";
+import { DottedSurface } from "@/components/ui/dotted-surface";
 import { cn } from "@/lib/utils";
 
 interface ScrollGlobeProps {
@@ -89,6 +90,10 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
             backgroundSize: "48px 48px",
           }}
         />
+      </div>
+
+      <div className="pointer-events-none absolute inset-0 z-10">
+        <DottedSurface className="[mask-image:linear-gradient(to_bottom,transparent_28vh,black_45vh)] opacity-85" />
       </div>
 
       <div className="fixed left-0 top-0 z-50 h-0.5 w-full bg-border/30">
@@ -299,8 +304,8 @@ export default function GlobeScrollDemo() {
         "We deliver across AI, web, mobile, automation, and cloud for teams that need measurable outcomes, secure delivery, and long-term scalability.",
       align: "left" as const,
       features: [
-        { title: "Services", description: "Product engineering, AI implementation, platform modernization, and automation." },
         { title: "Industries", description: "Domain-aligned delivery for real workflows, governance, and operational scale." },
+        { title: "Services", description: "Product engineering, AI implementation, platform modernization, and automation." },
         { title: "Resources", description: "Practical playbooks and implementation insights your teams can execute quickly." },
       ],
       actions: [
