@@ -27,8 +27,8 @@ export function TubesBackground({
   children,
   className,
   enableClickInteraction = true,
-  orbitSpeed = 0.72,
-  orbitScale = 1,
+  orbitSpeed = 0.66,
+  orbitScale = 0.9,
 }: TubesBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -71,8 +71,8 @@ export function TubesBackground({
           const a = t * orbitSpeed;
           const cx = rect.width / 2;
           const cy = rect.height / 2;
-          const rx = Math.min(rect.width * 0.36, rect.height * 1.2) * orbitScale;
-          const ry = Math.min(rect.height * 0.28, rect.width * 0.22) * orbitScale;
+          const rx = Math.min(rect.width * 0.24, rect.height * 0.7) * orbitScale;
+          const ry = Math.min(rect.height * 0.22, rect.width * 0.18) * orbitScale;
 
           const dispatchOrbitPoint = (angle: number) => {
             // Gerono lemniscate: clear infinity-loop path.
@@ -97,11 +97,9 @@ export function TubesBackground({
             }
           };
 
-          // Emit symmetric points each frame so both infinity lobes stay visible.
+          // Emit opposite points only to keep a compact, clear infinity shape.
           dispatchOrbitPoint(a);
           dispatchOrbitPoint(a + Math.PI);
-          dispatchOrbitPoint(a + Math.PI / 2);
-          dispatchOrbitPoint(a - Math.PI / 2);
           orbitRafId = requestAnimationFrame(runInfinityOrbit);
         };
 

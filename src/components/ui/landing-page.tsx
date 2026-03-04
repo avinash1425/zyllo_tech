@@ -141,8 +141,8 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
               <TubesBackground
                 className="absolute inset-0 min-h-0 h-full"
                 enableClickInteraction={false}
-                orbitScale={1.05}
-                orbitSpeed={0.58}
+                orbitScale={0.82}
+                orbitSpeed={0.62}
               />
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[hsl(215,45%,10%,0.14)] via-transparent to-transparent" />
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_35%,hsl(24_95%_50%_/_0.12),transparent_52%)]" />
