@@ -48,7 +48,7 @@ const LoadingScreen = ({ onComplete, quick = false }: { onComplete: () => void; 
         <motion.img
           src={infinityFavicon}
           alt="Zyllo Tech Infinity"
-          className="h-16 w-16 rounded-xl object-cover"
+          className="h-16 w-16 object-contain"
           animate={{
             scale: [1, 1.08, 1],
             rotate: [0, 12, 0, -12, 0],
