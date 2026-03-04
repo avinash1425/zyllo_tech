@@ -8,11 +8,11 @@ import SearchDialog from "./SearchDialog";
 
 const navLinks = [
   { label: "Home", href: "/" },
-  { label: "About Us", href: "/about" },
+  { label: "About", href: "/about" },
   { label: "Services", href: "/services" },
   { label: "Industries", href: "/industries" },
   { label: "Resources", href: "/resources" },
-  { label: "Contact Us", href: "/contact" },
+  { label: "Contact", href: "/contact" },
 ];
 
 const Navbar = () => {
@@ -37,15 +37,15 @@ const Navbar = () => {
       <nav className="bg-background/95 backdrop-blur-md border-b border-border">
       <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 py-2">
         <Link to="/" className="flex items-center">
-          <img src={logo} alt="Zyllo Tech" className="h-14 md:h-16 w-auto object-contain" />
+          <img src={logo} alt="Zyllo Tech" className="h-11 md:h-12 w-auto object-contain" />
         </Link>
 
-        <div className="hidden lg:flex items-center gap-6">
+        <div className="hidden lg:flex items-center gap-5">
           {navLinks.map((link) => (
             <Link
               key={link.label}
               to={link.href}
-              className={`relative text-[15px] font-semibold transition-colors duration-200 pb-1 ${
+              className={`relative text-[14px] font-semibold transition-colors duration-200 pb-1 ${
                 location.pathname === link.href
                   ? "text-transparent bg-clip-text bg-gradient-to-r from-[hsl(24,95%,50%)] to-[hsl(195,55%,42%)] after:absolute after:bottom-[-14px] after:left-0 after:right-0 after:h-[2px] after:bg-gradient-to-r after:from-[hsl(24,95%,50%)] after:to-[hsl(195,55%,42%)]"
                   : "text-foreground/70 hover:text-primary"
@@ -54,9 +54,9 @@ const Navbar = () => {
               {link.label}
             </Link>
           ))}
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-gradient-to-r from-primary/15 to-[hsl(195,55%,42%,0.2)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-gradient-to-r from-primary/15 to-[hsl(195,55%,42%,0.2)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-primary">
             <Sparkles size={12} />
-            AI-Powered
+            AI
           </span>
           <button
             onClick={() => setSearchOpen(true)}
