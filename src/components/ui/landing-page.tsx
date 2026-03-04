@@ -129,12 +129,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
         <section
           key={section.id}
           ref={(el: HTMLElement | null) => { sectionRefs.current[index] = el as HTMLDivElement; }}
-          className={cn(
-            "relative z-20 flex min-h-screen flex-col justify-center px-4 py-16 sm:px-8 lg:px-16",
-            section.align === "center" && "items-center text-center",
-            section.align === "right" && "items-end text-right",
-            section.align !== "center" && section.align !== "right" && "items-start text-left"
-          )}
+          className="relative z-20 flex min-h-screen flex-col justify-center px-4 py-16 sm:px-8 lg:px-16"
         >
           {index === 0 && (
             <>
@@ -159,114 +154,113 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
             </>
           )}
 
-          <div
-            className={cn(
-              "w-full max-w-5xl",
-              index === 0 && "px-1 sm:px-2"
-            )}
-          >
-            {section.badge && (
-              <p
-                className={cn(
-                  "mb-5 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em]",
-                  index === 0 ? "text-primary" : "text-primary"
-                )}
-              >
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                {section.badge}
-              </p>
-            )}
-
-            <h1
+          {/* Consistent max-width container — eliminates left/center zigzag */}
+          <div className="w-full max-w-6xl mx-auto">
+            <div
               className={cn(
-                "font-display font-bold leading-[1.02] tracking-tight",
-                index === 0 ? "text-4xl sm:text-6xl lg:text-7xl xl:text-8xl" : "text-3xl sm:text-5xl lg:text-6xl"
+                "w-full",
+                section.align === "center" && "max-w-3xl mx-auto text-center",
+                section.align === "right" && "ml-auto text-right",
+                index === 0 && "px-1 sm:px-2"
               )}
             >
-              <span
+              {section.badge && (
+                <p className="mb-5 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  {section.badge}
+                </p>
+              )}
+
+              <h1
                 className={cn(
-                  "bg-clip-text text-transparent",
-                  index === 0
-                    ? "bg-gradient-to-r from-white via-white to-white/85"
-                    : "bg-gradient-to-r from-foreground via-foreground to-[hsl(195,55%,32%)]"
+                  "font-display font-bold leading-[1.02] tracking-tight",
+                  index === 0 ? "text-4xl sm:text-6xl lg:text-7xl xl:text-8xl" : "text-3xl sm:text-5xl lg:text-6xl"
                 )}
               >
-                {section.title}
-              </span>
-              {section.subtitle && (
                 <span
                   className={cn(
-                    "mt-3 block text-[0.36em] font-semibold uppercase tracking-[0.22em]",
-                    index === 0 ? "text-white/75" : "text-muted-foreground"
+                    "bg-clip-text text-transparent",
+                    index === 0
+                      ? "bg-gradient-to-r from-white via-white to-white/85"
+                      : "bg-gradient-to-r from-foreground via-foreground to-[hsl(195,55%,32%)]"
                   )}
                 >
-                  {section.subtitle}
+                  {section.title}
                 </span>
-              )}
-            </h1>
-
-            <p
-              className={cn(
-                "mt-7 max-w-3xl text-base leading-relaxed sm:text-lg lg:text-xl",
-                index === 0 ? "text-white/82" : "text-muted-foreground"
-              )}
-            >
-              {section.description}
-            </p>
-
-            {index === 0 && (
-              <div className="mt-7 flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.15em] text-white/80 sm:text-sm">
-                <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Website Development</span>
-                <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Mobile App Engineering</span>
-                <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Cloud & DevOps</span>
-                <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Data & AI</span>
-                <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Cybersecurity & QA</span>
-              </div>
-            )}
-
-            {section.features && (
-              <div className="mt-8 space-y-5">
-                {section.features.map((feature, featureIndex) => (
-                  <div key={feature.title} className="relative pl-6">
-                    <span className="absolute left-0 top-1.5 h-10 w-[2px] bg-gradient-to-b from-primary to-[hsl(195,55%,42%)]" />
-                    <p className="text-sm font-semibold uppercase tracking-[0.1em] text-primary/85">
-                      0{featureIndex + 1} {feature.title}
-                    </p>
-                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground sm:text-base">
-                      {feature.description}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {section.actions && (
-              <div
-                className={cn(
-                  "mt-10 flex flex-col gap-3 sm:flex-row",
-                  section.align === "center" && "justify-center",
-                  section.align === "right" && "justify-end"
-                )}
-              >
-                {section.actions.map((action) => (
-                  <button
-                    key={action.label}
-                    onClick={action.onClick}
+                {section.subtitle && (
+                  <span
                     className={cn(
-                      "rounded-xl px-7 py-3.5 text-sm font-semibold transition-all sm:text-base",
-                      action.variant === "primary"
-                        ? "bg-gradient-orange text-primary-foreground shadow-[0_8px_28px_hsl(24_95%_50%_/_0.32)] hover:opacity-90"
-                        : index === 0
-                          ? "text-white hover:text-white/85"
-                          : "text-foreground hover:text-primary"
+                      "mt-3 block text-[0.36em] font-semibold uppercase tracking-[0.22em]",
+                      index === 0 ? "text-white/75" : "text-muted-foreground"
                     )}
                   >
-                    {action.label}
-                  </button>
-                ))}
-              </div>
-            )}
+                    {section.subtitle}
+                  </span>
+                )}
+              </h1>
 
+              <p
+                className={cn(
+                  "mt-7 text-base leading-relaxed sm:text-lg lg:text-xl",
+                  index === 0 ? "text-white/82 max-w-3xl" : "text-muted-foreground"
+                )}
+              >
+                {section.description}
+              </p>
+
+              {index === 0 && (
+                <div className="mt-7 flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.15em] text-white/80 sm:text-sm">
+                  <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Website Development</span>
+                  <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Mobile App Engineering</span>
+                  <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Cloud & DevOps</span>
+                  <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Data & AI</span>
+                  <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Cybersecurity & QA</span>
+                </div>
+              )}
+
+              {section.features && (
+                <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+                  {section.features.map((feature, featureIndex) => (
+                    <div key={feature.title} className="relative pl-5">
+                      <span className="absolute left-0 top-1 h-full w-[2px] bg-gradient-to-b from-primary to-[hsl(195,55%,42%)] opacity-70" />
+                      <p className="text-sm font-semibold uppercase tracking-[0.1em] text-primary/85">
+                        {String(featureIndex + 1).padStart(2, "0")} {feature.title}
+                      </p>
+                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                        {feature.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {section.actions && (
+                <div
+                  className={cn(
+                    "mt-10 flex flex-col gap-3 sm:flex-row",
+                    section.align === "center" && "justify-center",
+                    section.align === "right" && "justify-end"
+                  )}
+                >
+                  {section.actions.map((action) => (
+                    <button
+                      key={action.label}
+                      onClick={action.onClick}
+                      className={cn(
+                        "rounded-xl px-7 py-3.5 text-sm font-semibold transition-all sm:text-base",
+                        action.variant === "primary"
+                          ? "bg-gradient-orange text-primary-foreground shadow-[0_8px_28px_hsl(24_95%_50%_/_0.32)] hover:opacity-90"
+                          : index === 0
+                            ? "text-white hover:text-white/85"
+                            : "text-foreground hover:text-primary"
+                      )}
+                    >
+                      {action.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </section>
       ))}
@@ -295,7 +289,7 @@ export default function GlobeScrollDemo() {
       badge: "About Us",
       title: "A Software Partner Focused on Clarity, Quality, and Accountability",
       description:
-        "We combine strategy, architecture, UI/UX, engineering, QA, and support into one delivery model. Our teams work transparently, communicate clearly, and execute with a long-term product mindset.",
+        "We combine strategy, architecture, engineering, QA, cybersecurity, and support into one delivery model. Our teams work transparently, communicate clearly, and execute with a long-term product mindset.",
       align: "center" as const,
       actions: [{ label: "Know More About Us", variant: "secondary" as const, onClick: () => navigate("/about") }],
     },
