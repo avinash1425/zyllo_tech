@@ -189,8 +189,8 @@ export default function AboutUsSection() {
                   className="h-full w-full object-cover"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[hsl(215,30%,16%,0.7)] to-transparent p-4">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold text-[hsl(215,30%,16%)]">
-                    <Globe className="h-3.5 w-3.5" /> About Us
+                  <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold text-[hsl(215,30%,16%)] shadow-sm">
+                    <Globe className="h-4.5 w-4.5" strokeWidth={2.1} /> About Us
                   </span>
                 </div>
               </div>
