@@ -133,11 +133,11 @@ export function Header() {
     >
       <nav className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4">
         <div className="flex items-center gap-5">
-          <Link to="/" className="hover:bg-accent rounded-md p-0.5">
+          <Link to="/" className="rounded-md p-0 focus-visible:outline-none">
             <img
               src={logo}
               alt="Zyllo Tech"
-              className="h-12 w-auto max-w-none origin-left scale-[1.18] object-contain"
+              className="h-12 w-auto max-w-none origin-left scale-[1.26] object-contain"
             />
           </Link>
           <NavigationMenu className="hidden md:flex">
