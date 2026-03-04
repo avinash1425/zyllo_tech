@@ -44,29 +44,6 @@ const openings = [
   },
 ];
 
-const upcomingOpenings = [
-  {
-    title: "Cybersecurity Engineer",
-    domain: "Cybersecurity",
-    skills: ["VAPT", "OWASP", "SIEM / SOAR", "Network Security", "Compliance"],
-  },
-  {
-    title: "AI / ML Engineer",
-    domain: "Data & AI",
-    skills: ["Python", "PyTorch / TensorFlow", "LLMs", "RAG", "MLOps"],
-  },
-  {
-    title: "DevOps Engineer",
-    domain: "Cloud & DevOps",
-    skills: ["Docker", "Kubernetes", "CI/CD Pipelines", "AWS", "Terraform"],
-  },
-  {
-    title: "QA Automation Engineer",
-    domain: "Quality Engineering",
-    skills: ["Selenium", "Playwright", "Cypress", "Jest", "API Testing"],
-  },
-];
-
 const ACCEPTED_MIME_TYPES: Record<string, string> = {
   ".pdf": "application/pdf",
   ".doc": "application/msword",
@@ -331,33 +308,6 @@ const CareersPage = () => {
             ))}
           </div>
 
-          {/* Upcoming roles */}
-          <div className="mt-12">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground mb-5 text-center">Coming Soon — We're Hiring For These Next</p>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {upcomingOpenings.map((job, i) => (
-                <motion.div
-                  key={job.title}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.05 }}
-                  className="rounded-xl border border-dashed border-border bg-background/60 p-4 opacity-70"
-                >
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <p className="text-sm font-semibold text-foreground">{job.title}</p>
-                    <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{job.domain}</span>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {job.skills.slice(0, 3).map((skill) => (
-                      <span key={skill} className="rounded-md bg-muted/60 px-2 py-0.5 text-[10px] text-muted-foreground">{skill}</span>
-                    ))}
-                  </div>
-                  <p className="mt-3 text-xs text-muted-foreground/70 italic">Hiring soon — send an open application</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
 
