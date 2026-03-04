@@ -218,6 +218,11 @@ const ContactPage = () => {
 
       if (error) throw error;
 
+      // Send admin notification (fire and forget)
+      supabase.functions.invoke("notify-admin", {
+        body: { type: "contact", data: form },
+      }).catch(() => {});
+
       setIsSuccess(true);
       setForm(emptyForm);
       setTouched({});
