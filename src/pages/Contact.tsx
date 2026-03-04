@@ -51,12 +51,14 @@ interface ContactInfoItem {
 
 const SERVICES = [
   "Select a service...",
-  "Software Development",
-  "AI & Machine Learning",
-  "Cloud Solutions",
-  "UI/UX Design",
-  "Digital Marketing",
-  "IT Consulting",
+  "Website & Web Application Development",
+  "Mobile App Development",
+  "Cloud Solutions & DevOps",
+  "Cybersecurity Engineering",
+  "Quality Engineering & Test Automation",
+  "Application Support & Maintenance",
+  "Data Engineering & Applied AI",
+  "Dedicated Teams & Product Delivery",
   "Other",
 ];
 
