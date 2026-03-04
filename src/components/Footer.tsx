@@ -51,7 +51,7 @@ const Footer = () => {
           <div className="lg:col-span-2">
             <img src={logo} alt="Zyllo Tech" className="h-10 max-w-[180px] object-contain rounded-md bg-white/95 px-2 py-1 mb-4" />
             <p className="text-sm text-white/60 leading-relaxed mb-6">
-              Transforming businesses through innovative software, AI, cloud, design, and marketing solutions — end to end, globally.
+              Reliable software engineering for enterprises — web, mobile, cloud, AI, cybersecurity, and quality engineering. India-based, globally delivered.
             </p>
 
             {/* Newsletter */}
