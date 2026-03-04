@@ -126,14 +126,14 @@ const Footer = () => {
           <div>
             <h4 className="font-display font-semibold text-white mb-4">Get in Touch</h4>
             <div className="flex flex-col gap-3 mb-6">
-              <a href="mailto:hello@zyllotech.com" className="flex items-center gap-2 text-sm text-white/60 hover:text-primary transition-colors">
-                <Mail size={14} className="text-primary shrink-0" /> hello@zyllotech.com
+              <a href="mailto:info@zyllotech.com" className="flex items-center gap-2 text-sm text-white/60 hover:text-primary transition-colors">
+                <Mail size={14} className="text-primary shrink-0" /> info@zyllotech.com
               </a>
               <a href={`tel:${CONTACT_PHONE_E164}`} className="flex items-center gap-2 text-sm text-white/60 hover:text-primary transition-colors">
                 <Phone size={14} className="text-primary shrink-0" /> {CONTACT_PHONE_DISPLAY}
               </a>
               <div className="flex items-center gap-2 text-sm text-white/60">
-                <MapPin size={14} className="text-primary shrink-0" /> Hyderabad, Telangana, India
+                <MapPin size={14} className="text-primary shrink-0" /> India
               </div>
             </div>
 
