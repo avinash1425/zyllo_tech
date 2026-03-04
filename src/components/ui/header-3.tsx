@@ -163,15 +163,19 @@ export function Header() {
                       />
                     ))}
                   </div>
-                  <div className="space-y-3 rounded-xl border border-border/80 bg-muted/30 p-3">
-                    {companyLinks2.map((item) => (
-                      <HoveredLink key={item.title} to={item.href} className="inline-flex items-center gap-2 text-sm">
-                        <item.icon className="size-4 text-primary" />
-                        {item.title}
-                      </HoveredLink>
-                    ))}
+                    <div className="space-y-3 rounded-xl border border-border/80 bg-muted/30 p-3">
+                      {companyLinks2.map((item) => (
+                        <HoveredLink
+                          key={item.title}
+                          to={item.href}
+                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-background/70"
+                        >
+                          <item.icon className="size-4 text-primary" />
+                          {item.title}
+                        </HoveredLink>
+                      ))}
+                    </div>
                   </div>
-                </div>
               </MenuItem>
 
               <MenuItem
