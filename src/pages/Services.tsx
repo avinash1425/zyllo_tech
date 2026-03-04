@@ -77,7 +77,7 @@ const services: Service[] = [
     icon: Smartphone,
     title: "Mobile App Development",
     category: "Engineering",
-
+    summary:
       "App store rejection, poor crash rates, and performance degradation at scale are preventable — if you architect them out from the start. We build iOS and Android apps with real-world resilience: offline-first, biometric security, 99.5%+ crash-free sessions, and automated release pipelines.",
     outcomes: [
       "Store-approved apps with clean UX that users actually retain and return to",
