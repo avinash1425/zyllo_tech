@@ -67,41 +67,59 @@ const upcomingOpenings = [
   },
 ];
 
-const acceptedMimeTypes = [
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-];
+const ACCEPTED_MIME_TYPES: Record<string, string> = {
+  ".pdf": "application/pdf",
+  ".doc": "application/msword",
+  ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+};
 
-const acceptedFileExtensions = [".pdf", ".doc", ".docx"];
-const maxResumeSize = 5 * 1024 * 1024;
+const ALLOWED_EXTENSIONS = Object.keys(ACCEPTED_MIME_TYPES); // [".pdf", ".doc", ".docx"]
+const MAX_RESUME_SIZE = 5 * 1024 * 1024; // 5 MB
+const SAFE_FILENAME_RE = /^[a-zA-Z0-9_\-. ]+$/; // no path-traversal or shell chars
 
-const isSupportedResume = (file: File) => {
-  const byMime = acceptedMimeTypes.includes(file.type);
-  const byExtension = acceptedFileExtensions.some((ext) =>
-    file.name.toLowerCase().endsWith(ext),
-  );
-  return byMime || byExtension;
+/**
+ * Validates the uploaded resume file.
+ * Requires BOTH a whitelisted extension AND its matching MIME type to match
+ * (defense-in-depth — prevents renamed executables or spoofed extensions).
+ * Also rejects filenames containing path-traversal or unusual characters.
+ */
+const isSupportedResume = (file: File): boolean => {
+  const name = file.name;
+  if (!SAFE_FILENAME_RE.test(name)) return false;                  // suspicious chars
+  const ext = name.slice(name.lastIndexOf(".")).toLowerCase();     // take last extension
+  if (!ALLOWED_EXTENSIONS.includes(ext)) return false;             // unknown extension
+  const expectedMime = ACCEPTED_MIME_TYPES[ext];
+  return file.type === expectedMime;                               // MIME must match ext
 };
 
 const careerFormSchema = z.object({
-  fullName: z.string().trim().min(2, "Please enter your full name."),
-  email: z.string().trim().email("Please enter a valid email address."),
+  fullName: z
+    .string().trim()
+    .min(2, "Please enter your full name.")
+    .max(100, "Name must be 100 characters or less.")
+    .regex(/^[\p{L}\p{M}'\- ]+$/u, "Name contains invalid characters."),
+  email: z.string().trim().email("Please enter a valid email address.").max(254),
   phone: z
     .string()
     .trim()
     .regex(/^[+]?[-()\d\s]{8,20}$/, "Please enter a valid phone number."),
-  role: z.string().trim().min(2, "Please select a role."),
-  location: z.string().trim().min(2, "Please enter your current location."),
-  experience: z.string().trim().min(1, "Please enter your experience."),
+  role: z.string().trim().min(2, "Please select a role.").max(120),
+  location: z
+    .string().trim()
+    .min(2, "Please enter your current location.")
+    .max(100, "Location must be 100 characters or less."),
+  experience: z
+    .string().trim()
+    .min(1, "Please enter your experience.")
+    .max(50, "Experience must be 50 characters or less."),
   linkedIn: z
     .string()
     .trim()
     .optional()
     .or(z.literal(""))
     .refine(
-      (val) => !val || /^https?:\/\/.+/i.test(val),
-      "LinkedIn URL should start with http:// or https://",
+      (val) => !val || /^https:\/\/(www\.)?linkedin\.com\/.+/i.test(val),
+      "Please enter a valid LinkedIn profile URL (linkedin.com).",
     ),
   coverLetter: z
     .string()
@@ -111,8 +129,15 @@ const careerFormSchema = z.object({
   resume: z
     .custom<FileList>((files) => files instanceof FileList, "Please upload your resume.")
     .refine((files) => files.length === 1, "Please upload one resume file.")
-    .refine((files) => files[0].size <= maxResumeSize, "Resume must be 5MB or smaller.")
-    .refine((files) => isSupportedResume(files[0]), "Upload PDF, DOC, or DOCX only."),
+    .refine((files) => files[0].size <= MAX_RESUME_SIZE, "Resume must be 5 MB or smaller.")
+    .refine(
+      (files) => SAFE_FILENAME_RE.test(files[0].name),
+      "Filename contains invalid characters. Rename the file and try again.",
+    )
+    .refine(
+      (files) => isSupportedResume(files[0]),
+      "Only PDF, DOC, or DOCX files are accepted. Ensure the file type matches its extension.",
+    ),
   consent: z.literal(true, {
     errorMap: () => ({ message: "Please confirm the data consent checkbox." }),
   }),
@@ -158,8 +183,11 @@ const CareersPage = () => {
     try {
       // Upload resume
       const file = data.resume[0];
-      const fileExt = file.name.split(".").pop();
-      const filePath = `${crypto.randomUUID()}.${fileExt}`;
+      // Extract and whitelist the extension — never trust file.name blindly
+      const rawExt = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
+      const safeExt = ALLOWED_EXTENSIONS.includes(rawExt) ? rawExt.slice(1) : null;
+      if (!safeExt) throw new Error("Invalid file type.");
+      const filePath = `${crypto.randomUUID()}.${safeExt}`;
       const { error: uploadError } = await supabase.storage
         .from("resumes")
         .upload(filePath, file);
