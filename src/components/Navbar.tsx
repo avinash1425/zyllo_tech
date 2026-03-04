@@ -8,11 +8,11 @@ import SearchDialog from "./SearchDialog";
 
 const navLinks = [
   { label: "Home", href: "/" },
-  { label: "About", href: "/about" },
+  { label: "About Us", href: "/about" },
   { label: "Services", href: "/services" },
   { label: "Industries", href: "/industries" },
   { label: "Resources", href: "/resources" },
-  { label: "Contact", href: "/contact" },
+  { label: "Contact Us", href: "/contact" },
 ];
 
 const Navbar = () => {
@@ -35,17 +35,17 @@ const Navbar = () => {
     >
       <TopBar />
       <nav className="bg-background/95 backdrop-blur-md border-b border-border">
-      <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 py-2">
+      <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 py-1.5">
         <Link to="/" className="flex items-center">
-          <img src={logo} alt="Zyllo Tech" className="h-11 md:h-12 w-auto object-contain" />
+          <img src={logo} alt="Zyllo Tech" className="h-10 md:h-11 w-auto object-contain" />
         </Link>
 
-        <div className="hidden lg:flex items-center gap-5">
+        <div className="hidden lg:flex items-center gap-4">
           {navLinks.map((link) => (
             <Link
               key={link.label}
               to={link.href}
-              className={`relative text-[14px] font-semibold transition-colors duration-200 pb-1 ${
+              className={`relative text-[14px] font-semibold transition-colors duration-200 pb-0.5 ${
                 location.pathname === link.href
                   ? "text-transparent bg-clip-text bg-gradient-to-r from-[hsl(24,95%,50%)] to-[hsl(195,55%,42%)] after:absolute after:bottom-[-14px] after:left-0 after:right-0 after:h-[2px] after:bg-gradient-to-r after:from-[hsl(24,95%,50%)] after:to-[hsl(195,55%,42%)]"
                   : "text-foreground/70 hover:text-primary"
@@ -54,9 +54,9 @@ const Navbar = () => {
               {link.label}
             </Link>
           ))}
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-gradient-to-r from-primary/15 to-[hsl(195,55%,42%,0.2)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-primary">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-gradient-to-r from-primary/15 to-[hsl(195,55%,42%,0.2)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
             <Sparkles size={12} />
-            AI
+            AI-Powered
           </span>
           <button
             onClick={() => setSearchOpen(true)}
@@ -83,7 +83,7 @@ const Navbar = () => {
             exit={{ height: 0, opacity: 0 }}
             className="lg:hidden overflow-hidden border-t border-border bg-background"
           >
-            <div className="flex flex-col gap-4 px-6 py-6">
+            <div className="flex flex-col gap-3 px-6 py-4">
               {navLinks.map((link) => (
                 <Link
                   key={link.label}
