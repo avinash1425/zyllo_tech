@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
+  CheckCircle2,
   Cloud,
   Code2,
   Database,
@@ -9,8 +10,8 @@ import {
   Search,
   Shield,
   Smartphone,
-  Sparkles,
   Workflow,
+  Wrench,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -38,27 +39,27 @@ const services: Service[] = [
     title: "Website & Web Application Development",
     category: "Engineering",
     summary:
-      "Conversion-focused marketing websites, portals, and SaaS products with performance, accessibility, and SEO built-in from day one.",
+      "Marketing websites, customer portals, and SaaS applications built for speed, SEO, accessibility, and maintainable growth.",
     outcomes: [
-      "Faster launch cycles with reusable frontend and backend modules",
-      "High Lighthouse and Core Web Vitals targets for public pages",
-      "Clean analytics instrumentation for growth and product decisions",
+      "Faster launch cycles with reusable architecture",
+      "High-performance UX for conversion and retention",
+      "Clean analytics events for product and growth decisions",
     ],
     deliverables: [
-      "Information architecture, UX flows, and production-ready UI",
-      "Full-stack implementation with QA automation and CI/CD",
-      "Technical SEO setup, schema, and performance optimization",
+      "Discovery, UX flows, and solution architecture",
+      "Frontend and backend implementation with CI/CD",
+      "Technical SEO, schema, and performance hardening",
     ],
-    technologies: ["React", "Next.js", "Node.js", "TypeScript", "PostgreSQL"],
-    keywords: ["website", "web", "frontend", "backend", "seo", "landing", "portal", "saas"],
+    technologies: ["React", "Next.js", "TypeScript", "Node.js", "PostgreSQL"],
+    keywords: ["website", "web", "frontend", "backend", "seo", "portal", "saas"],
     faqs: [
       {
-        q: "Can you redesign and rebuild an existing website without hurting SEO?",
-        a: "Yes. We run a migration map for URLs, metadata, schema, redirects, and Core Web Vitals to preserve and improve search visibility.",
+        q: "Can you redesign our existing site without losing SEO?",
+        a: "Yes. We run URL mapping, redirect strategy, metadata parity, and Core Web Vitals checks before launch.",
       },
       {
-        q: "Do you support multilingual and multi-region websites?",
-        a: "Yes. We implement internationalization, localized content models, and region-specific performance and compliance requirements.",
+        q: "Do you build admin panels and customer dashboards too?",
+        a: "Yes. We design role-based dashboards, reporting views, and workflow-driven admin operations.",
       },
     ],
   },
@@ -68,210 +69,274 @@ const services: Service[] = [
     title: "Mobile App Development",
     category: "Engineering",
     summary:
-      "Native and cross-platform mobile products for iOS and Android with production observability, secure auth, and release governance.",
+      "iOS and Android apps with production-ready release engineering, app security, offline support, and observability.",
     outcomes: [
-      "Improved retention through user-centered flows and performance tuning",
-      "Reliable releases using staged rollout, crash monitoring, and QA gates",
-      "Scalable backend integration with offline-friendly app behavior",
+      "Reliable releases with crash and performance monitoring",
+      "Better user retention with fast, intuitive flows",
+      "Scalable integrations with existing business systems",
     ],
     deliverables: [
-      "Product discovery, app architecture, and UX prototypes",
-      "iOS/Android development with API integration and test automation",
-      "App Store and Play Store release pipeline with monitoring",
+      "Product discovery and app architecture",
+      "Native or cross-platform development",
+      "Store submission, release automation, and support",
     ],
     technologies: ["React Native", "Swift", "Kotlin", "Firebase", "Fastlane"],
-    keywords: ["mobile", "ios", "android", "app", "cross-platform", "react native", "swift", "kotlin"],
+    keywords: ["mobile", "ios", "android", "app", "react native", "swift", "kotlin"],
     faqs: [
       {
-        q: "Should we build native or cross-platform?",
-        a: "We recommend based on product complexity, expected scale, device-level features, and release velocity requirements.",
+        q: "Should we choose native or cross-platform?",
+        a: "We recommend based on required performance, device APIs, roadmap speed, and maintenance costs.",
       },
       {
-        q: "Can you modernize our old app while users stay active?",
-        a: "Yes. We use phased rollouts, feature flags, and backward-compatible APIs to reduce migration risk.",
+        q: "Can you modernize our app without downtime for users?",
+        a: "Yes. We use phased rollout, feature flags, and backward-compatible APIs for safer migration.",
       },
     ],
   },
   {
-    id: "cloud-solutions",
+    id: "cloud-platform",
     icon: Cloud,
     title: "Cloud Solutions & DevOps",
     category: "Platform",
     summary:
-      "Cloud architecture, migration, and operations with security, resilience, and cost controls aligned to modern Well-Architected practices.",
+      "Cloud architecture, migration, CI/CD, observability, and SRE support for resilient and cost-aware operations.",
     outcomes: [
-      "Lower downtime risk through resilient architecture patterns",
-      "Faster engineering throughput with automated pipelines",
-      "Cost visibility and optimization with right-sized infrastructure",
+      "Reduced outage risk through resilient architecture patterns",
+      "Faster deployments through automated delivery pipelines",
+      "Better cost control with usage visibility and optimization",
     ],
     deliverables: [
-      "Cloud readiness assessment and target architecture",
-      "Infrastructure as Code, CI/CD, observability, and SRE runbooks",
-      "Migration execution plan and post-go-live optimization",
+      "Cloud readiness assessment and migration blueprint",
+      "Infrastructure as Code and deployment automation",
+      "Monitoring, alerting, and incident response playbooks",
     ],
     technologies: ["AWS", "Azure", "GCP", "Terraform", "Kubernetes"],
-    keywords: ["cloud", "devops", "aws", "azure", "gcp", "migration", "kubernetes", "infra"],
+    keywords: ["cloud", "devops", "aws", "azure", "gcp", "migration", "infra"],
     faqs: [
       {
-        q: "Can you migrate from on-prem or legacy servers to cloud safely?",
-        a: "Yes. We define migration waves, rollback paths, and SLO/SLA checkpoints for each workload.",
+        q: "Can you migrate legacy systems to cloud with low risk?",
+        a: "Yes. We use phased migration waves, rollback paths, and pre/post cutover validation.",
       },
       {
-        q: "Do you provide ongoing managed cloud operations?",
-        a: "Yes. We can run monthly operations, incident response, security patching, and cost optimization.",
+        q: "Do you also provide ongoing cloud management?",
+        a: "Yes. We support ongoing patching, incident handling, optimization, and platform reliability.",
       },
     ],
   },
   {
-    id: "cyber-security",
+    id: "cybersecurity",
     icon: Shield,
     title: "Cybersecurity Engineering",
     category: "Security",
     summary:
-      "Application and cloud security services including threat modeling, secure SDLC, vulnerability management, and compliance readiness.",
+      "Security assessments, secure SDLC controls, vulnerability remediation, and compliance-ready implementation support.",
     outcomes: [
-      "Reduced security risk through prioritized remediation roadmaps",
-      "Faster security response with monitoring and incident workflows",
-      "Stronger trust posture for enterprise and regulated clients",
+      "Lower security risk via prioritized remediation roadmaps",
+      "Stronger delivery controls across code, infra, and operations",
+      "Higher enterprise trust with framework-aligned practices",
     ],
     deliverables: [
-      "Security posture assessment and risk register",
-      "Secure coding practices, SAST/DAST integration, and pen-test support",
-      "Policies and controls aligned to recognized frameworks",
+      "Threat modeling and security posture baseline",
+      "SAST/DAST integration and remediation management",
+      "Security standards aligned with OWASP and NIST practices",
     ],
     technologies: ["OWASP ASVS", "NIST CSF", "SIEM", "WAF", "Zero Trust"],
-    keywords: ["security", "cyber", "pentest", "vulnerability", "compliance", "owasp", "nist", "soc2"],
+    keywords: ["security", "cyber", "vulnerability", "compliance", "owasp", "nist"],
     faqs: [
       {
-        q: "Do you only audit, or can you help fix vulnerabilities too?",
-        a: "We do both. The engagement includes finding, prioritizing, and remediating issues with engineering teams.",
+        q: "Do you only audit, or do you fix vulnerabilities too?",
+        a: "We do both: assessment, prioritization, remediation, and verification with your engineering teams.",
       },
       {
-        q: "Can security be added without slowing delivery?",
-        a: "Yes. We embed security controls in CI/CD and define risk-based quality gates for speed with safety.",
+        q: "Can security be added without slowing releases?",
+        a: "Yes. We implement security checks directly in CI/CD with risk-based gates.",
+      },
+    ],
+  },
+  {
+    id: "qa-testing",
+    icon: Workflow,
+    title: "Quality Engineering & Test Automation",
+    category: "Engineering",
+    summary:
+      "Automated and manual testing strategy across web, mobile, API, performance, and regression quality gates.",
+    outcomes: [
+      "Lower production defects and better release confidence",
+      "Faster test cycles through automation",
+      "Improved user experience stability across devices",
+    ],
+    deliverables: [
+      "QA strategy and acceptance criteria framework",
+      "Automated test suites and regression pipelines",
+      "Performance and reliability benchmarking",
+    ],
+    technologies: ["Playwright", "Cypress", "Postman", "k6", "Jest"],
+    keywords: ["qa", "testing", "automation", "regression", "performance", "quality"],
+    faqs: [
+      {
+        q: "Can you build QA automation for an existing product?",
+        a: "Yes. We start from critical user flows, build coverage, and integrate tests into CI pipelines.",
+      },
+      {
+        q: "Do you support performance and load testing?",
+        a: "Yes. We benchmark system behavior under load and produce optimization recommendations.",
+      },
+    ],
+  },
+  {
+    id: "support-maintenance",
+    icon: Wrench,
+    title: "Application Support & Maintenance",
+    category: "Platform",
+    summary:
+      "Post-launch maintenance, incident management, version upgrades, and continuous optimization for business continuity.",
+    outcomes: [
+      "Stable systems with proactive issue prevention",
+      "Faster issue resolution with clear SLAs",
+      "Continuous technical debt reduction over time",
+    ],
+    deliverables: [
+      "Runbook-driven support operations",
+      "Security patching and dependency upgrades",
+      "Monthly health reports and improvement backlog",
+    ],
+    technologies: ["SLA/SLO", "Monitoring", "Incident Ops", "Patch Mgmt", "Runbooks"],
+    keywords: ["support", "maintenance", "bug fix", "upgrade", "incident", "sla"],
+    faqs: [
+      {
+        q: "Can you take over support from another vendor?",
+        a: "Yes. We run a structured transition with system audit, documentation, and stabilization phases.",
+      },
+      {
+        q: "Do you provide planned enhancement support too?",
+        a: "Yes. Support plans can include small feature releases and optimization work.",
       },
     ],
   },
   {
     id: "data-ai",
     icon: Database,
-    title: "Data & Applied AI",
+    title: "Data Engineering & Applied AI",
     category: "Platform",
     summary:
-      "Data platforms, analytics, and applied AI workflows that turn operational data into decision systems and automation.",
+      "Data pipelines, BI dashboards, and targeted AI use cases that improve decision-making and operational efficiency.",
     outcomes: [
-      "Reliable reporting with governed data pipelines",
-      "Operational efficiency through targeted AI-assisted workflows",
-      "Faster decision-making with trusted dashboards and KPIs",
+      "Trusted business reporting and KPI visibility",
+      "Automation of repetitive workflows",
+      "Faster and more consistent operational decisions",
     ],
     deliverables: [
-      "Data architecture, ingestion pipelines, and governance setup",
-      "BI dashboards, event tracking model, and KPI framework",
-      "Applied AI proofs of value with measurable business metrics",
+      "Data architecture and pipeline implementation",
+      "Dashboarding and analytics model setup",
+      "Applied AI feature prototyping with measurable KPIs",
     ],
     technologies: ["dbt", "BigQuery", "Snowflake", "Python", "LLM APIs"],
-    keywords: ["data", "analytics", "ai", "dashboards", "etl", "warehouse", "insights", "automation"],
+    keywords: ["data", "analytics", "dashboard", "etl", "ai", "automation"],
     faqs: [
       {
-        q: "Can you build AI features without exposing private data?",
-        a: "Yes. We design data controls, access boundaries, and provider-level security options for each workload.",
+        q: "Can AI features be implemented securely for enterprise data?",
+        a: "Yes. We define strict access control, data boundaries, and provider-level safeguards.",
       },
       {
-        q: "How quickly can we see value from analytics?",
-        a: "Usually in phases. Initial KPI visibility can be delivered quickly, then expanded into deeper reporting and automation.",
+        q: "How quickly can we get useful dashboards?",
+        a: "Initial KPI dashboards can be delivered quickly, then expanded in phases.",
       },
     ],
   },
   {
-    id: "product-delivery",
-    icon: Workflow,
-    title: "Product Delivery & Team Augmentation",
+    id: "dedicated-team",
+    icon: Code2,
+    title: "Dedicated Teams & Product Delivery",
     category: "Engineering",
     summary:
-      "Dedicated squads and specialist engineers integrated with your team to accelerate roadmap delivery while maintaining quality standards.",
+      "Dedicated engineering squads integrated with your team to accelerate roadmap delivery while preserving quality.",
     outcomes: [
-      "Reduced lead time from requirement to production",
-      "Predictable delivery using sprint governance and quality gates",
-      "Knowledge transfer through embedded collaboration",
+      "Faster sprint throughput and predictable releases",
+      "Stronger engineering governance with shared standards",
+      "Smoother collaboration across internal and external teams",
     ],
     deliverables: [
-      "Delivery plan with milestones, ownership model, and risk log",
-      "Dedicated engineers, tech leads, and QA support as needed",
-      "Documentation, handover, and scale-up plan",
+      "Team structure and delivery governance model",
+      "Sprint execution with transparent reporting",
+      "Knowledge transfer and scale-up plan",
     ],
-    technologies: ["Agile", "Jira", "GitHub", "CI/CD", "Testing Automation"],
-    keywords: ["team", "staffing", "augmentation", "delivery", "sprint", "engineering team", "project"],
+    technologies: ["Agile", "Jira", "GitHub", "CI/CD", "Code Review"],
+    keywords: ["dedicated team", "augmentation", "squad", "delivery", "engineering"],
     faqs: [
       {
-        q: "Can we start with one product squad and scale later?",
-        a: "Yes. The model is modular and can expand by capability, product line, or delivery phase.",
+        q: "Can we start with a small team and scale later?",
+        a: "Yes. The model is modular and scales by capability, domain, or delivery phase.",
       },
       {
-        q: "How do you ensure code quality across distributed teams?",
-        a: "We enforce shared standards, code review policies, testing gates, and release checklists.",
+        q: "How do you maintain engineering quality in distributed teams?",
+        a: "We enforce standards, mandatory reviews, testing gates, and release criteria.",
       },
     ],
   },
 ];
 
-const quickQuestions = [
-  "Need a high-converting website in 8 weeks",
-  "Want iOS and Android app with one codebase",
-  "Need cloud migration with zero-downtime plan",
-  "Need cybersecurity audit and remediation support",
-  "Need a dedicated engineering team this quarter",
+const bestPracticePillars = [
+  {
+    title: "Architecture First",
+    desc: "Clear architecture decisions, integration boundaries, and non-functional requirements before build.",
+  },
+  {
+    title: "Secure SDLC",
+    desc: "Security requirements and checks integrated in backlog, coding, testing, and release workflows.",
+  },
+  {
+    title: "Quality Gates",
+    desc: "Automated validation for code quality, test coverage, and release readiness on every change.",
+  },
+  {
+    title: "Observability",
+    desc: "Metrics, logs, traces, and alerting with clear ownership for rapid incident response.",
+  },
 ];
 
+const categories: Array<"All" | Service["category"]> = ["All", "Engineering", "Platform", "Security"];
+
 const ServicesPage = () => {
-  const [query, setQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<"All" | Service["category"]>("All");
-  const [activeService, setActiveService] = useState<Service>(services[0]);
+  const [expandedServiceId, setExpandedServiceId] = useState<string | null>(services[0].id);
+  const [serviceQuestion, setServiceQuestion] = useState<Record<string, string>>({});
+  const [serviceAnswer, setServiceAnswer] = useState<Record<string, string>>({});
 
-  const serviceResults = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
+  const filteredServices = useMemo(() => {
+    if (selectedCategory === "All") return services;
+    return services.filter((service) => service.category === selectedCategory);
+  }, [selectedCategory]);
 
-    return services
-      .map((service) => {
-        let score = 0;
-        if (!normalized) score = 1;
-        if (normalized && service.title.toLowerCase().includes(normalized)) score += 8;
-        if (normalized && service.summary.toLowerCase().includes(normalized)) score += 4;
-        if (normalized && service.keywords.some((k) => k.includes(normalized))) score += 3;
-        if (
-          normalized &&
-          service.faqs.some(
-            (faq) =>
-              faq.q.toLowerCase().includes(normalized) ||
-              faq.a.toLowerCase().includes(normalized),
-          )
-        ) {
-          score += 2;
-        }
-        if (selectedCategory !== "All" && service.category === selectedCategory) score += 2;
-        return { service, score };
-      })
-      .filter((entry) => entry.score > 0)
-      .sort((a, b) => b.score - a.score);
-  }, [query, selectedCategory]);
+  const handleServiceQuestion = (service: Service) => {
+    const query = (serviceQuestion[service.id] || "").trim().toLowerCase();
+    if (!query) {
+      setServiceAnswer((prev) => ({ ...prev, [service.id]: "Please type a question first." }));
+      return;
+    }
 
-  const faqResults = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    if (!normalized) return [];
+    const matchedFaq = service.faqs.find(
+      (faq) => faq.q.toLowerCase().includes(query) || faq.a.toLowerCase().includes(query),
+    );
 
-    return services
-      .flatMap((service) =>
-        service.faqs
-          .filter(
-            (faq) =>
-              faq.q.toLowerCase().includes(normalized) ||
-              faq.a.toLowerCase().includes(normalized),
-          )
-          .map((faq) => ({ ...faq, service })),
-      )
-      .slice(0, 4);
-  }, [query]);
+    if (matchedFaq) {
+      setServiceAnswer((prev) => ({ ...prev, [service.id]: matchedFaq.a }));
+      return;
+    }
 
-  const topMatch = serviceResults[0]?.service ?? null;
+    const matchedKeyword = service.keywords.some((keyword) => query.includes(keyword));
+    if (matchedKeyword) {
+      setServiceAnswer((prev) => ({
+        ...prev,
+        [service.id]: `Based on your question, this service fits. Recommended next step: book a consultation and we will share a tailored scope, timeline, and architecture options.`,
+      }));
+      return;
+    }
+
+    setServiceAnswer((prev) => ({
+      ...prev,
+      [service.id]: "We can answer this in detail during consultation. Share your use case and constraints, and we will propose the right solution path.",
+    }));
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -279,175 +344,154 @@ const ServicesPage = () => {
       <PageHero
         title="Software"
         highlight="Services"
-        description="Engineering-first solutions for websites, mobile apps, cloud platforms, and cybersecurity programs."
+        description="Website development, mobile apps, cloud platforms, cybersecurity, and end-to-end product engineering services."
         breadcrumb="Services"
       />
 
-      <section className="py-14 border-b border-border/70 bg-muted/30">
+      <section className="py-16 border-b border-border/70">
         <div className="container mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mx-auto max-w-4xl rounded-2xl border border-border bg-background p-6 md:p-8 shadow-sm"
+            className="text-center"
           >
-            <div className="mb-6 flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-primary">
-              <Sparkles size={14} />
-              Power Search
-            </div>
-            <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">
-              Ask your question, get the right service path
+            <span className="text-xs font-medium uppercase tracking-widest text-primary">
+              What We Provide
+            </span>
+            <h2 className="mt-3 font-display text-3xl md:text-4xl font-bold text-foreground">
+              Service Lines Built for a Software Company
             </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Search by business problem, technology, or outcome. Click a result to inspect scope,
-              deliverables, and FAQs.
+            <p className="mt-3 mx-auto max-w-3xl text-muted-foreground">
+              From product engineering to security and cloud operations, each service line is designed for measurable delivery outcomes and long-term maintainability.
             </p>
-
-            <div className="mt-6 rounded-xl border border-border bg-background">
-              <div className="flex items-center gap-3 px-4 py-3">
-                <Search size={16} className="text-muted-foreground shrink-0" />
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Example: secure cloud migration, android app performance, website SEO issues..."
-                  className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              {quickQuestions.map((question) => (
-                <button
-                  key={question}
-                  onClick={() => setQuery(question)}
-                  className="rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors"
-                >
-                  {question}
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              {(["All", "Engineering", "Platform", "Security"] as const).map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`rounded-full px-3 py-1.5 text-xs transition-colors ${
-                    selectedCategory === category
-                      ? "bg-primary text-primary-foreground"
-                      : "border border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-6 grid gap-4 lg:grid-cols-[1.2fr_1fr]">
-              <div className="rounded-xl border border-border p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-3">
-                  Recommended Services
-                </p>
-                {serviceResults.length > 0 ? (
-                  <div className="space-y-2">
-                    {serviceResults.slice(0, 4).map(({ service, score }) => (
-                      <button
-                        key={service.id}
-                        onClick={() => setActiveService(service)}
-                        className={`w-full rounded-lg border p-3 text-left transition-colors ${
-                          activeService.id === service.id
-                            ? "border-primary/60 bg-primary/5"
-                            : "border-border hover:border-primary/40"
-                        }`}
-                      >
-                        <p className="font-medium text-sm text-foreground">{service.title}</p>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {service.category} match score: {score}
-                        </p>
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    No exact match found. Try broader terms such as `web`, `mobile`, `cloud`, or `security`.
-                  </p>
-                )}
-              </div>
-
-              <div className="rounded-xl border border-border p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-3">
-                  FAQ Answers
-                </p>
-                {faqResults.length > 0 ? (
-                  <div className="space-y-3">
-                    {faqResults.map((faq) => (
-                      <button
-                        key={`${faq.service.id}-${faq.q}`}
-                        onClick={() => setActiveService(faq.service)}
-                        className="w-full rounded-lg border border-border p-3 text-left hover:border-primary/40 transition-colors"
-                      >
-                        <p className="text-xs text-primary font-medium">{faq.service.title}</p>
-                        <p className="mt-1 text-sm text-foreground">{faq.q}</p>
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    Start typing your question to see matching answers and recommended service tracks.
-                  </p>
-                )}
-              </div>
-            </div>
           </motion.div>
+
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`rounded-full px-4 py-1.5 text-xs transition-colors ${
+                  selectedCategory === category
+                    ? "bg-primary text-primary-foreground"
+                    : "border border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
       <section className="py-20">
         <div className="container mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-10"
-          >
-            <span className="text-xs font-medium uppercase tracking-widest text-primary">
-              Service Portfolio
-            </span>
-            <h2 className="mt-3 font-display text-3xl md:text-4xl font-bold text-foreground">
-              Built for software outcomes, not generic outsourcing
-            </h2>
-          </motion.div>
-
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map((service, i) => (
-              <motion.div
-                key={service.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.05 }}
-                className={`group rounded-xl border bg-background p-8 transition-all duration-300 ${
-                  activeService.id === service.id
-                    ? "border-primary/70 shadow-md"
-                    : "border-border hover:border-primary/40 hover:shadow-md"
-                }`}
-              >
-                <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                  <service.icon size={28} />
-                </div>
-                <div className="mb-2 inline-flex rounded-full border border-border px-2 py-0.5 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                  {service.category}
-                </div>
-                <h3 className="font-display text-xl font-semibold text-foreground mb-3">{service.title}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">{service.summary}</p>
-                <button
-                  onClick={() => setActiveService(service)}
-                  className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-primary hover:opacity-80"
+            {filteredServices.map((service, i) => {
+              const isExpanded = expandedServiceId === service.id;
+              return (
+                <motion.article
+                  key={service.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.45, delay: i * 0.04 }}
+                  className={`rounded-xl border bg-background p-6 transition-all duration-300 ${
+                    isExpanded
+                      ? "border-primary/60 shadow-md"
+                      : "border-border hover:border-primary/40 hover:shadow-md"
+                  }`}
                 >
-                  View scope <ArrowRight size={14} />
-                </button>
-              </motion.div>
-            ))}
+                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <service.icon size={24} />
+                  </div>
+                  <div className="mb-2 inline-flex rounded-full border border-border px-2.5 py-0.5 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                    {service.category}
+                  </div>
+                  <h3 className="font-display text-xl font-semibold text-foreground">{service.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{service.summary}</p>
+
+                  <button
+                    onClick={() => setExpandedServiceId((prev) => (prev === service.id ? null : service.id))}
+                    className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-primary hover:opacity-80"
+                  >
+                    {isExpanded ? "Hide scope" : "View scope"} <ArrowRight size={14} />
+                  </button>
+
+                  {isExpanded && (
+                    <div className="mt-6 rounded-lg border border-border p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+                        Enhanced Scope Tab
+                      </p>
+
+                      <div className="mt-4">
+                        <h4 className="text-sm font-semibold text-foreground">Outcomes</h4>
+                        <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                          {service.outcomes.map((outcome) => (
+                            <li key={outcome} className="flex items-start gap-2">
+                              <CheckCircle2 size={14} className="mt-0.5 text-primary shrink-0" />
+                              <span>{outcome}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="mt-4">
+                        <h4 className="text-sm font-semibold text-foreground">Deliverables</h4>
+                        <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                          {service.deliverables.map((item) => (
+                            <li key={item}>- {item}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="mt-4">
+                        <h4 className="text-sm font-semibold text-foreground">Typical Tech</h4>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {service.technologies.map((tech) => (
+                            <span
+                              key={tech}
+                              className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground"
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="mt-5 rounded-lg border border-border p-3">
+                        <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                          Ask about this service
+                        </p>
+                        <div className="mt-2 flex items-center gap-2">
+                          <input
+                            value={serviceQuestion[service.id] || ""}
+                            onChange={(e) =>
+                              setServiceQuestion((prev) => ({
+                                ...prev,
+                                [service.id]: e.target.value,
+                              }))
+                            }
+                            placeholder="Ask a specific question for this service"
+                            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50"
+                          />
+                          <button
+                            onClick={() => handleServiceQuestion(service)}
+                            className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:opacity-90"
+                          >
+                            <Search size={13} /> Search
+                          </button>
+                        </div>
+                        {serviceAnswer[service.id] && (
+                          <p className="mt-3 text-sm text-muted-foreground">{serviceAnswer[service.id]}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </motion.article>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -458,153 +502,45 @@ const ServicesPage = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-10"
+            className="text-center mb-14"
           >
             <span className="text-xs font-medium uppercase tracking-widest text-primary">
-              Selected Service Scope
-            </span>
-            <h2 className="mt-3 font-display text-3xl md:text-4xl font-bold text-foreground">
-              {activeService.title}
-            </h2>
-            <p className="mt-2 max-w-3xl text-muted-foreground">{activeService.summary}</p>
-          </motion.div>
-
-          <div className="grid gap-6 lg:grid-cols-3">
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="rounded-xl border border-border bg-background p-6"
-            >
-              <h3 className="font-display text-lg font-semibold text-foreground mb-3">
-                Business Outcomes
-              </h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                {activeService.outcomes.map((outcome) => (
-                  <li key={outcome}>- {outcome}</li>
-                ))}
-              </ul>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.05 }}
-              className="rounded-xl border border-border bg-background p-6"
-            >
-              <h3 className="font-display text-lg font-semibold text-foreground mb-3">
-                Delivery Scope
-              </h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                {activeService.deliverables.map((item) => (
-                  <li key={item}>- {item}</li>
-                ))}
-              </ul>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="rounded-xl border border-border bg-background p-6"
-            >
-              <h3 className="font-display text-lg font-semibold text-foreground mb-3">
-                Typical Tech Stack
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {activeService.technologies.map((tech) => (
-                  <span
-                    key={tech}
-                    className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-
-          <div className="mt-10 grid gap-6 lg:grid-cols-[1.2fr_auto] items-center rounded-2xl border border-border bg-background p-6">
-            <div>
-              <h3 className="font-display text-xl font-semibold text-foreground">
-                Next Step: solution workshop
-              </h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                We map your requirements, delivery timeline, and architecture decisions into an
-                actionable roadmap for the right service track.
-              </p>
-              {topMatch && (
-                <p className="mt-3 text-sm text-primary">
-                  Best current search match: {topMatch.title}
-                </p>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Link
-                to="/contact"
-                className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity"
-              >
-                Book Consultation
-              </Link>
-              <Link
-                to="/portfolio"
-                className="inline-flex items-center justify-center rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-foreground hover:border-primary/40 transition-colors"
-              >
-                View Case Studies
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20">
-        <div className="container mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <span className="text-xs font-medium uppercase tracking-widest text-primary">
-              Delivery Standards
+              Best Practices
             </span>
             <h2 className="mt-3 font-display text-4xl md:text-5xl font-bold text-foreground">
-              How We Run Execution
+              Engineering Standards We Follow
             </h2>
-            <p className="mt-4 mx-auto max-w-2xl text-muted-foreground">
-              Every service engagement follows measurable engineering, platform, and security gates.
-            </p>
           </motion.div>
 
-          <div className="grid gap-8 md:grid-cols-3">
-            {[
-              {
-                title: "Discovery to Delivery",
-                desc: "Structured discovery, technical architecture, sprint execution, QA gates, and release readiness with clear ownership.",
-              },
-              {
-                title: "Cloud-Native Operations",
-                desc: "Automated CI/CD, infrastructure-as-code, observability, and incident playbooks for dependable operations.",
-              },
-              {
-                title: "Security by Default",
-                desc: "Threat modeling, secure coding checks, vulnerability management, and compliance-aligned controls integrated into delivery.",
-              },
-            ].map((model, i) => (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {bestPracticePillars.map((pillar, i) => (
               <motion.div
-                key={model.title}
+                key={pillar.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="rounded-xl border border-border bg-background p-8 text-center hover:border-primary/40 hover:shadow-md transition-all"
+                transition={{ delay: i * 0.08 }}
+                className="rounded-xl border border-border bg-background p-6"
               >
-                <h3 className="font-display text-xl font-bold text-foreground mb-3">{model.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{model.desc}</p>
+                <h3 className="font-display text-lg font-semibold text-foreground">{pillar.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{pillar.desc}</p>
               </motion.div>
             ))}
+          </div>
+
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 justify-center">
+            <Link
+              to="/contact"
+              className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-3 text-sm font-medium text-primary-foreground hover:opacity-90"
+            >
+              Discuss Your Requirement
+            </Link>
+            <Link
+              to="/portfolio"
+              className="inline-flex items-center justify-center rounded-lg border border-border px-5 py-3 text-sm font-medium text-foreground hover:border-primary/40"
+            >
+              Explore Case Studies
+            </Link>
           </div>
         </div>
       </section>
