@@ -1,233 +1,270 @@
 import { motion } from "framer-motion";
-import { CheckCircle2, Target, Eye, Heart, Linkedin, Twitter, Github } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  Cloud,
+  Code2,
+  Cpu,
+  Globe,
+  Shield,
+  Sparkles,
+  Target,
+  Users,
+  Workflow,
+} from "lucide-react";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import PageHero from "@/components/PageHero";
 import aboutTeam from "@/assets/about-team.jpg";
 
-const team = [
+const impactStats = [
+  { value: "5+", label: "Years Building Products" },
+  { value: "30+", label: "Global Clients" },
+  { value: "50+", label: "Projects Delivered" },
+  { value: "6+", label: "Countries Served" },
+];
+
+const servicePillars = [
   {
-    name: "Vikram Sinha",
-    role: "CEO & Co-Founder",
-    bio: "15+ years in enterprise software. Previously led engineering at TCS and Infosys. Passionate about AI and building great teams.",
-    initials: "VS",
-    color: "bg-blue-600",
-    linkedin: "#",
-    twitter: "#",
+    icon: Globe,
+    title: "Web & Product Engineering",
+    desc: "Scalable websites, web applications, and product platforms built for performance and business outcomes.",
   },
   {
-    name: "Ananya Patel",
-    role: "CTO & Co-Founder",
-    bio: "Full-stack architect with deep expertise in cloud-native systems. Former principal engineer at Microsoft. Loves distributed systems and open source.",
-    initials: "AP",
-    color: "bg-teal-600",
-    linkedin: "#",
-    github: "#",
+    icon: Code2,
+    title: "Mobile App Development",
+    desc: "iOS and Android applications with reliable release pipelines, analytics, and long-term maintainability.",
   },
   {
-    name: "Meera Joshi",
-    role: "Head of Design",
-    bio: "Award-winning product designer with 10+ years crafting digital experiences. Believer in human-centered design and accessible interfaces.",
-    initials: "MJ",
-    color: "bg-purple-600",
-    linkedin: "#",
-    twitter: "#",
+    icon: Cloud,
+    title: "Cloud & DevOps",
+    desc: "Cloud-native architecture, automation, observability, and cost-aware operations for dependable systems.",
   },
   {
-    name: "Arun Sharma",
-    role: "AI/ML Lead",
-    bio: "PhD in Machine Learning from IIT Hyderabad. Published researcher in NLP and computer vision. Building AI products that actually work in production.",
-    initials: "AS",
-    color: "bg-orange-500",
-    linkedin: "#",
-    github: "#",
+    icon: Shield,
+    title: "Cybersecurity Engineering",
+    desc: "Secure SDLC, vulnerability management, and compliance-aligned controls embedded into delivery.",
   },
   {
-    name: "Priya Reddy",
-    role: "Cloud Architecture Lead",
-    bio: "AWS & GCP certified architect. Specializes in cloud migrations, DevOps transformation, and building infra that scales to millions of users.",
-    initials: "PR",
-    color: "bg-emerald-600",
-    linkedin: "#",
-    twitter: "#",
+    icon: Cpu,
+    title: "Data & Applied AI",
+    desc: "Data pipelines, analytics products, and AI-assisted workflows that improve operational decisions.",
   },
   {
-    name: "Kiran Babu",
-    role: "Head of Delivery",
-    bio: "PMP-certified project manager and full-stack developer. Ensures every project ships on time, on budget, and with exceptional quality.",
-    initials: "KB",
-    color: "bg-rose-500",
-    linkedin: "#",
-    github: "#",
+    icon: Workflow,
+    title: "Delivery & Support",
+    desc: "Dedicated teams, QA, and post-launch support models designed for continuous product improvement.",
   },
+];
+
+const executionModel = [
+  {
+    step: "01",
+    title: "Business Discovery",
+    details: "We define objectives, risk constraints, integration dependencies, and success metrics before build.",
+  },
+  {
+    step: "02",
+    title: "Solution Architecture",
+    details: "We map technical architecture, delivery scope, and release phases aligned with your timelines.",
+  },
+  {
+    step: "03",
+    title: "Agile Delivery",
+    details: "Cross-functional teams execute in sprints with demos, QA gates, and transparent reporting.",
+  },
+  {
+    step: "04",
+    title: "Operate & Evolve",
+    details: "Post-launch monitoring, security hardening, and ongoing optimization keep products reliable.",
+  },
+];
+
+const standards = [
+  "Architecture-first planning before implementation",
+  "Security and quality controls in every release cycle",
+  "Clear engineering governance and documentation",
+  "Data-driven decision making and measurable outcomes",
+  "Long-term maintainability over short-term shortcuts",
+  "Partnership mindset with transparent communication",
 ];
 
 const AboutPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <PageHero title="About" highlight="Zyllo Tech" description="We are a forward-thinking software company dedicated to empowering businesses through innovative technology solutions." breadcrumb="About Us" />
+      <PageHero
+        title="About"
+        highlight="Zyllo Tech"
+        description="A software engineering company helping businesses build, modernize, and scale digital products with clarity and confidence."
+        breadcrumb="About Us"
+      />
 
-      {/* Company Overview */}
-      <section className="py-24">
-        <div className="container mx-auto px-6">
-          <div className="grid gap-16 lg:grid-cols-2 items-center">
-            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-              <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-6">
-                Your Digital <span className="text-gradient">Transformation Partner</span>
-              </h2>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                Zyllo Tech Software Solutions Private Limited is a premier software company that provides end-to-end solutions for all kinds of business applications.
-              </p>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                Our team of expert developers, designers, and strategists work collaboratively to deliver cutting-edge solutions that drive real business impact.
-              </p>
-              <p className="text-muted-foreground leading-relaxed">
-                With a focus on quality, innovation, and client satisfaction, we have successfully delivered 50+ projects for clients across 6+ countries.
-              </p>
-            </motion.div>
-            <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="rounded-2xl overflow-hidden border border-border shadow-sm">
-              <img src={aboutTeam} alt="Zyllo Tech Team" className="w-full h-auto" />
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Mission / Vision / Values */}
-      <section className="py-20 bg-muted/50">
-        <div className="container mx-auto px-6">
-          <div className="grid gap-8 md:grid-cols-3">
-            {[
-              { icon: Target, title: "Our Mission", desc: "To empower businesses with innovative technology solutions that drive growth, efficiency, and competitive advantage in the digital era." },
-              { icon: Eye, title: "Our Vision", desc: "To be a globally recognized leader in software development and AI solutions, known for transforming businesses through cutting-edge technology." },
-              { icon: Heart, title: "Our Values", desc: "Innovation, integrity, collaboration, and excellence. We believe in building long-term partnerships and delivering beyond expectations." },
-            ].map((item, i) => (
-              <motion.div key={item.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="rounded-xl border border-border bg-background p-8 text-center shadow-sm">
-                <div className="mb-4 mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <item.icon size={28} />
-                </div>
-                <h3 className="font-display text-xl font-bold text-foreground mb-3">{item.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Why Choose Zyllo */}
       <section className="py-20">
         <div className="container mx-auto px-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-            <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground">
-              Why Choose <span className="text-gradient">Zyllo Tech?</span>
-            </h2>
-          </motion.div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              "Expert team of 50+ developers, designers & strategists",
-              "Agile development with transparent communication",
-              "Cutting-edge AI and ML integration capabilities",
-              "End-to-end project delivery from concept to launch",
-              "Scalable cloud-native architectures built for growth",
-              "Dedicated 24/7 post-launch support & maintenance",
-              "ISO-certified quality processes and security standards",
-              "Proven track record with 50+ successful projects",
-              "Cost-effective solutions without compromising quality",
-            ].map((item, i) => (
-              <motion.div key={i} initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="flex items-start gap-3 rounded-lg border border-border bg-background p-5 shadow-sm">
-                <CheckCircle2 size={20} className="mt-0.5 shrink-0 text-primary" />
-                <span className="text-sm text-foreground">{item}</span>
-              </motion.div>
-            ))}
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <motion.div
+              initial={{ opacity: 0, x: -24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <span className="text-xs font-medium uppercase tracking-widest text-primary">Who We Are</span>
+              <h2 className="mt-3 font-display text-3xl md:text-4xl font-bold text-foreground">
+                Engineering-Led Team Focused on Business Impact
+              </h2>
+              <p className="mt-4 text-muted-foreground leading-relaxed">
+                Zyllo Tech is a service-based software company delivering websites, mobile products,
+                cloud platforms, cybersecurity programs, and AI-enabled systems for growth-stage and
+                enterprise teams.
+              </p>
+              <p className="mt-3 text-muted-foreground leading-relaxed">
+                We combine product thinking with disciplined engineering so every project ships with
+                clear architecture, operational readiness, and measurable outcomes.
+              </p>
+
+              <div className="mt-6 grid grid-cols-2 gap-4">
+                {impactStats.map((stat) => (
+                  <div key={stat.label} className="rounded-lg border border-border bg-background p-4">
+                    <div className="font-display text-3xl font-bold text-primary">{stat.value}</div>
+                    <p className="mt-1 text-xs text-muted-foreground">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="overflow-hidden rounded-2xl border border-border shadow-sm"
+            >
+              <img src={aboutTeam} alt="Zyllo Tech team collaboration" className="w-full h-auto" />
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="py-16 bg-muted/50">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 text-center">
-            {[
-              { value: "5+", label: "Years of Experience" },
-              { value: "30+", label: "Global Clients" },
-              { value: "50+", label: "Projects Delivered" },
-              { value: "40+", label: "Expert Developers" },
-              { value: "6+", label: "Countries Served" },
-            ].map((stat) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
-              >
-                <div className="font-display text-4xl md:text-5xl font-bold text-primary">{stat.value}</div>
-                <div className="mt-2 text-sm text-muted-foreground">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Leadership Team */}
-      <section className="py-24">
+      <section className="py-20 bg-muted/50">
         <div className="container mx-auto px-6">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-14"
           >
-            <span className="text-xs font-medium uppercase tracking-widest text-primary">The People Behind the Magic</span>
+            <span className="text-xs font-medium uppercase tracking-widest text-primary">What We Deliver</span>
             <h2 className="mt-3 font-display text-4xl md:text-5xl font-bold text-foreground">
-              Meet Our <span className="text-gradient">Leadership Team</span>
+              Core Capability Areas
             </h2>
-            <p className="mt-4 mx-auto max-w-2xl text-muted-foreground">
-              A diverse group of technologists, designers, and business leaders united by a passion for building exceptional software.
-            </p>
           </motion.div>
 
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {team.map((member, i) => (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {servicePillars.map((pillar, i) => (
               <motion.div
-                key={member.name}
-                initial={{ opacity: 0, y: 24 }}
+                key={pillar.title}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="group rounded-2xl border border-border bg-background p-7 hover:border-primary/40 hover:shadow-md transition-all duration-300 text-center"
+                transition={{ delay: i * 0.06 }}
+                className="rounded-xl border border-border bg-background p-6 hover:border-primary/40 hover:shadow-sm transition-all"
               >
-                {/* Avatar */}
-                <div className={`mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full ${member.color} text-white font-bold text-xl shadow-md group-hover:scale-105 transition-transform`}>
-                  {member.initials}
+                <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <pillar.icon size={20} />
                 </div>
-
-                <h3 className="font-display text-lg font-bold text-foreground mb-0.5">{member.name}</h3>
-                <p className="text-sm font-medium text-primary mb-3">{member.role}</p>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-5">{member.bio}</p>
-
-                {/* Social Links */}
-                <div className="flex items-center justify-center gap-3">
-                  {member.linkedin && (
-                    <a href={member.linkedin} className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground hover:border-primary hover:text-primary transition-colors" aria-label="LinkedIn">
-                      <Linkedin size={15} />
-                    </a>
-                  )}
-                  {member.twitter && (
-                    <a href={member.twitter} className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground hover:border-primary hover:text-primary transition-colors" aria-label="Twitter">
-                      <Twitter size={15} />
-                    </a>
-                  )}
-                  {member.github && (
-                    <a href={member.github} className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground hover:border-primary hover:text-primary transition-colors" aria-label="GitHub">
-                      <Github size={15} />
-                    </a>
-                  )}
-                </div>
+                <h3 className="font-display text-lg font-semibold text-foreground">{pillar.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{pillar.desc}</p>
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="py-20">
+        <div className="container mx-auto px-6">
+          <div className="grid gap-8 lg:grid-cols-2">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="rounded-xl border border-border bg-background p-7"
+            >
+              <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Target size={20} />
+              </div>
+              <h3 className="font-display text-2xl font-bold text-foreground">Execution Model</h3>
+              <div className="mt-5 space-y-4">
+                {executionModel.map((item) => (
+                  <div key={item.step} className="rounded-lg border border-border p-4">
+                    <p className="text-xs font-semibold text-primary">STEP {item.step}</p>
+                    <p className="mt-1 text-sm font-semibold text-foreground">{item.title}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{item.details}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.05 }}
+              className="rounded-xl border border-border bg-background p-7"
+            >
+              <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Users size={20} />
+              </div>
+              <h3 className="font-display text-2xl font-bold text-foreground">How We Work</h3>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                Our team follows engineering and delivery practices designed to reduce risk, improve
+                release quality, and keep stakeholders aligned.
+              </p>
+
+              <div className="mt-5 space-y-3">
+                {standards.map((item) => (
+                  <div key={item} className="flex items-start gap-2 rounded-lg border border-border p-3">
+                    <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-primary" />
+                    <p className="text-sm text-foreground">{item}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 bg-muted/50">
+        <div className="container mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="rounded-2xl border border-border bg-background p-8 text-center"
+          >
+            <div className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Sparkles size={20} />
+            </div>
+            <h3 className="font-display text-3xl font-bold text-foreground">Build With a Reliable Technology Partner</h3>
+            <p className="mt-3 mx-auto max-w-2xl text-sm text-muted-foreground leading-relaxed">
+              If you are planning a new product, modernization initiative, or industry-specific
+              digital platform, we can help you define the roadmap and deliver it with confidence.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Link
+                to="/contact"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+              >
+                Start a Conversation <ArrowRight size={14} />
+              </Link>
+              <Link
+                to="/services"
+                className="inline-flex items-center rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-foreground hover:border-primary/40"
+              >
+                Explore Services
+              </Link>
+            </div>
+          </motion.div>
         </div>
       </section>
 
