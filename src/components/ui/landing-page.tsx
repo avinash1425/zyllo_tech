@@ -29,7 +29,7 @@ const defaultGlobeConfig = {
   positions: [{ top: "48%", left: "78%", scale: 1.2 }],
 };
 
-const heroSignals = ["Agent", "Automation", "Cloud Native"];
+const heroSignals = ["Web", "Mobile", "Cloud", "Cybersecurity"];
 function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: ScrollGlobeProps) {
   const [activeSection, setActiveSection] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -147,7 +147,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
               <div className="pointer-events-none absolute left-1/2 top-7 z-30 -translate-x-1/2">
                 <div className="flex flex-col items-center gap-3 text-center">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/95 sm:text-sm">
-                    Zyllo Tech AI Powered Solutions
+                    Zyllo Tech Software Solutions
                   </p>
                   <span className="inline-flex items-center rounded-full border border-white/35 bg-[hsl(215,30%,8%,0.35)] px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-sm sm:text-xs">
                     {heroSignals.join(" • ")}
@@ -214,9 +214,9 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
 
             {index === 0 && (
               <div className="mt-7 flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.15em] text-white/80 sm:text-sm">
-                <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">AI Agents in Production</span>
-                <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Cloud Native Delivery</span>
-                <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Outcome-Focused Execution</span>
+                <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Website Development</span>
+                <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Mobile App Engineering</span>
+                <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Cloud and Security Delivery</span>
               </div>
             )}
 
@@ -276,49 +276,50 @@ export default function GlobeScrollDemo() {
     {
       id: "hero",
       badge: "Zyllo Tech",
-      title: "Zyllo Tech AI Powered Solutions",
-      subtitle: "The Future Is Here",
+      title: "Web, Mobile, Cloud, and Cybersecurity Services",
+      subtitle: "Built for Real Business Delivery",
       description:
-        "We architect and scale AI-powered products, automation systems, and cloud-native platforms that help global teams move faster with confidence.",
+        "We are a service-based software company delivering scalable websites, production-ready mobile apps, cloud solutions, and security-first implementation.",
       align: "left" as const,
       actions: [
-        { label: "Contact Us", variant: "primary" as const, onClick: () => navigate("/contact") },
+        { label: "Talk to Us", variant: "primary" as const, onClick: () => navigate("/contact") },
         { label: "Explore Services", variant: "secondary" as const, onClick: () => navigate("/services") },
       ],
     },
     {
       id: "about",
       badge: "About Us",
-      title: "A Unified Team Across Product, Design, and Engineering",
+      title: "Who We Are, What We Build, and Why Teams Trust Zyllo Tech",
       description:
-        "From strategy to release, one accountable team drives architecture, UX, engineering, and QA so delivery stays predictable and quality remains high.",
+        "We work as one accountable team across consulting, architecture, design, engineering, QA, and support to deliver reliable outcomes and transparent execution.",
       align: "center" as const,
       actions: [{ label: "Learn About Us", variant: "secondary" as const, onClick: () => navigate("/about") }],
     },
     {
       id: "capabilities",
-      badge: "Capabilities",
-      title: "Execution Depth Across Services and Industries",
-      subtitle: "From Vision to Scaled Delivery",
+      badge: "Services",
+      title: "Core Service Lines for End-to-End Product Delivery",
+      subtitle: "From Discovery to Ongoing Support",
       description:
-        "We deliver across AI, web, mobile, automation, and cloud for teams that need measurable outcomes, secure delivery, and long-term scalability.",
+        "Our delivery model covers product strategy, implementation, and optimization so your teams can launch faster and scale with confidence.",
       align: "left" as const,
       features: [
-        { title: "Industries", description: "Domain-aligned delivery for real workflows, governance, and operational scale." },
-        { title: "Services", description: "Product engineering, AI implementation, platform modernization, and automation." },
-        { title: "Resources", description: "Practical playbooks and implementation insights your teams can execute quickly." },
+        { title: "Website Development", description: "Modern web apps, portals, and company websites with performance, SEO, and maintainability." },
+        { title: "Mobile App Development", description: "Reliable iOS and Android applications with secure APIs, analytics, and scalable architecture." },
+        { title: "Cloud Solutions", description: "Cloud infrastructure, migration, DevOps automation, monitoring, and cost-aware operations." },
+        { title: "Cybersecurity", description: "Security-by-design practices, hardening, vulnerability management, and compliance support." },
       ],
       actions: [
-        { label: "View Industries", variant: "secondary" as const, onClick: () => navigate("/industries") },
-        { label: "Open Resources", variant: "primary" as const, onClick: () => navigate("/resources") },
+        { label: "View Company", variant: "secondary" as const, onClick: () => navigate("/about") },
+        { label: "View Industries", variant: "primary" as const, onClick: () => navigate("/industries") },
       ],
     },
     {
       id: "cta",
       badge: "Next Step",
-      title: "Build Your Next AI-Ready Platform",
+      title: "Plan Your Next Software Initiative With Zyllo Tech",
       description:
-        "Share your product goals and constraints. We will map a practical roadmap with architecture, milestones, and delivery outcomes.",
+        "Share your goals, timelines, and constraints. We will propose a practical roadmap covering scope, architecture, milestones, and delivery plan.",
       align: "center" as const,
       actions: [{ label: "Start Conversation", variant: "primary" as const, onClick: () => navigate("/contact") }],
     },
