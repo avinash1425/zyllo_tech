@@ -92,8 +92,8 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
         />
       </div>
 
-      <div className="pointer-events-none absolute inset-0 z-10">
-        <DottedSurface className="[mask-image:linear-gradient(to_bottom,transparent_28vh,black_45vh)] opacity-85" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[58vh] overflow-hidden">
+        <DottedSurface className="opacity-80 [mask-image:linear-gradient(to_top,black_68%,transparent_100%)]" />
       </div>
 
       <div className="fixed left-0 top-0 z-50 h-0.5 w-full bg-border/30">
