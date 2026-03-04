@@ -41,8 +41,8 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <AppLoader>
-          <BrowserRouter>
+        <BrowserRouter>
+          <AppLoader>
             <ScrollToTop />
             <Routes>
               <Route path="/" element={<Index />} />
@@ -69,8 +69,8 @@ const App = () => (
               <Route path="/cookie-policy" element={<CookiePolicy />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </AppLoader>
+          </AppLoader>
+        </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
