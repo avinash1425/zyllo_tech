@@ -39,7 +39,7 @@ const services: Service[] = [
     title: "Website & Web Application Development",
     category: "Engineering",
     summary:
-      "From high-conversion marketing sites to complex SaaS platforms and enterprise portals — we architect, build, and ship production-grade web applications that are fast, secure, and built to grow.",
+      "Most web projects fail at architecture, not execution. We design for scalability first, then build — delivering production-grade applications with sub-2s load times, secure APIs, full source code ownership, and zero vendor lock-in.",
     outcomes: [
       "Production-ready applications with clean architecture that your team can own and extend",
       "Sub-2s load times with optimized Core Web Vitals for better SEO and conversion",
@@ -77,8 +77,8 @@ const services: Service[] = [
     icon: Smartphone,
     title: "Mobile App Development",
     category: "Engineering",
-    summary:
-      "iOS and Android applications built for real-world usage — with offline support, secure data handling, smooth performance, and production-grade release engineering from day one.",
+
+      "App store rejection, poor crash rates, and performance degradation at scale are preventable — if you architect them out from the start. We build iOS and Android apps with real-world resilience: offline-first, biometric security, 99.5%+ crash-free sessions, and automated release pipelines.",
     outcomes: [
       "Store-approved apps with clean UX that users actually retain and return to",
       "Crash-free rate above 99.5% with real-time monitoring and alerting in place",
@@ -117,7 +117,7 @@ const services: Service[] = [
     title: "Cloud Solutions & DevOps",
     category: "Platform",
     summary:
-      "Cloud architecture, migration, and DevOps engineering — from greenfield infrastructure to legacy modernization — with a focus on resilience, security, and right-sized costs.",
+      "Most companies overspend 40–60% on cloud and under-invest in reliability. We fix both — designing resilient, cost-governed infrastructure with IaC, zero-downtime CI/CD, and the observability to detect and resolve incidents before your customers do.",
     outcomes: [
       "Deployment frequency increases from weeks to hours with zero-downtime pipelines",
       "Infrastructure cost reduction through right-sizing, reserved instances, and waste elimination",
@@ -156,7 +156,7 @@ const services: Service[] = [
     title: "Cybersecurity Engineering",
     category: "Security",
     summary:
-      "End-to-end security engineering — from threat modeling and code-level vulnerability assessment to compliance alignment and secure SDLC integration — so security is built in, not bolted on.",
+      "Most breaches aren't sophisticated attacks — they're unpatched dependencies, exposed secrets, and misconfigured access controls. We address the 80% that most teams ignore: threat modeling, automated scanning in CI/CD, OWASP controls in code, and compliance alignment for ISO 27001, SOC 2, and GDPR.",
     outcomes: [
       "Identified and remediated critical vulnerabilities before they reach production",
       "Security controls embedded in CI/CD so every release is automatically validated",
@@ -195,7 +195,7 @@ const services: Service[] = [
     title: "Quality Engineering & Test Automation",
     category: "Engineering",
     summary:
-      "Comprehensive quality engineering across web, mobile, API, and performance — with automated test suites, CI-integrated quality gates, and shift-left practices that catch defects before they reach users.",
+      "Slow, flaky test suites are worse than no tests — they erode team confidence and slow releases. We build the right test pyramid (unit → integration → E2E) with fast, stable automation in CI, so your team ships with genuine confidence rather than hope.",
     outcomes: [
       "Up to 70% reduction in production defects with automated regression coverage",
       "Release confidence with full test reports, traceability, and coverage metrics",
@@ -234,7 +234,7 @@ const services: Service[] = [
     title: "Application Support & Maintenance",
     category: "Platform",
     summary:
-      "Reliable post-launch support with defined SLAs, proactive monitoring, dependency upgrades, and continuous improvement — so your application stays healthy, secure, and aligned with your business as it evolves.",
+      "A system that breaks on a Sunday night with no runbooks and no on-call process is not a system — it's a liability. We provide structured support with defined SLA tiers, proactive monitoring, CVE patching, and post-mortem-driven improvement so your application is an asset, not a risk.",
     outcomes: [
       "Defined SLA tiers with guaranteed response and resolution times you can hold us to",
       "Zero critical security vulnerabilities left unpatched beyond agreed windows",
@@ -273,7 +273,7 @@ const services: Service[] = [
     title: "Data Engineering & Applied AI",
     category: "Platform",
     summary:
-      "From raw data pipelines to production AI features — we help businesses build reliable data infrastructure, actionable analytics, and targeted AI capabilities that create measurable operational value.",
+      "Data quality is the real problem — 80% of data projects spend 80% of time cleaning bad data. We start with a data quality baseline, build reliable pipelines, and then layer in AI features (RAG, forecasting, document intelligence) that are accurate, auditable, and safe for enterprise use.",
     outcomes: [
       "Single source of truth for business data — no more conflicting spreadsheet reports",
       "Real-time and batch pipelines that deliver clean, trusted data to downstream systems",
@@ -312,7 +312,7 @@ const services: Service[] = [
     title: "Dedicated Teams & Product Delivery",
     category: "Engineering",
     summary:
-      "Dedicated engineering squads that work as an extension of your team — fully integrated into your processes, accountable to your roadmap, and committed to long-term product quality.",
+      "Conway's Law is real: your system will mirror your team's communication structure. We design team topology to support your architecture — not fight it — delivering dedicated squads with full IP ownership, NDA coverage, structured onboarding, and engineering standards that keep quality high at scale.",
     outcomes: [
       "Faster roadmap execution with an experienced, immediately productive team",
       "Full IP ownership and code escrow — everything your team builds belongs to you",
@@ -349,20 +349,20 @@ const services: Service[] = [
 
 const bestPracticePillars = [
   {
-    title: "Architecture First",
-    desc: "We define system design, integration contracts, and non-functional requirements before writing a single line of code — preventing costly rework later.",
+    title: "Architecture Before Code",
+    desc: "The first two weeks of any engagement shape the next two years. We invest heavily upfront in system design, integration contracts, non-functional requirements, and failure mode analysis — because rearchitecting a live system costs 10× more than getting it right the first time.",
   },
   {
-    title: "Secure by Design",
-    desc: "Security is embedded at every stage — threat modeling in design, SAST/SCA in CI, OWASP controls in code, and penetration testing before major releases.",
+    title: "Security is Not a Phase",
+    desc: "Most breaches aren't zero-day exploits — they're misconfigurations, unpatched dependencies, and stolen credentials. We embed threat modeling at design, SAST/SCA in every CI pipeline, and OWASP controls in every PR — not as a compliance checkbox, but as engineering discipline.",
   },
   {
-    title: "Automated Quality Gates",
-    desc: "Every pull request triggers automated linting, unit tests, integration tests, and coverage checks. Nothing ships without passing defined quality thresholds.",
+    title: "Test Pyramid, Not Test Theater",
+    desc: "70% unit tests, 20% integration, 10% end-to-end — not the other way around. Flaky, slow E2E suites destroy CI/CD confidence. We build the right coverage at the right layer so your team trusts the pipeline and ships with confidence.",
   },
   {
-    title: "Full Observability",
-    desc: "We instrument every system with structured logging, distributed tracing, and business-level metrics — so issues are detected and resolved before users notice.",
+    title: "Observability as a First Citizen",
+    desc: "You cannot operate what you cannot see. We instrument every system from day one with structured logs, distributed traces, and business-level SLIs — not just infrastructure metrics. When something breaks at 2am, your team has the context to resolve it in minutes, not hours.",
   },
 ];
 
@@ -572,17 +572,20 @@ const ServicesPage = () => {
                 </div>
 
                 <div className="rounded-lg border border-border p-4">
-                  <h4 className="text-sm font-semibold text-foreground">Delivery Scope</h4>
-                  <ul className="mt-3 space-y-1 text-sm text-muted-foreground">
+                  <h4 className="text-sm font-semibold text-foreground">What We Deliver</h4>
+                  <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
                     {activeService.deliverables.map((item) => (
-                      <li key={item}>- {item}</li>
+                      <li key={item} className="flex items-start gap-2">
+                        <ArrowRight size={12} className="mt-1 text-primary shrink-0" />
+                        <span>{item}</span>
+                      </li>
                     ))}
                   </ul>
                 </div>
               </div>
 
               <div className="mt-4 rounded-lg border border-border p-4">
-                <h4 className="text-sm font-semibold text-foreground">Typical Technology Stack</h4>
+                <h4 className="text-sm font-semibold text-foreground">Technology Stack</h4>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {activeService.technologies.map((tech) => (
                     <span
@@ -593,6 +596,36 @@ const ServicesPage = () => {
                     </span>
                   ))}
                 </div>
+              </div>
+
+              {activeService.faqs.length > 0 && (
+                <div className="mt-4 rounded-lg border border-border p-4">
+                  <h4 className="text-sm font-semibold text-foreground">Frequently Asked Questions</h4>
+                  <div className="mt-3 space-y-4">
+                    {activeService.faqs.map((faq) => (
+                      <div key={faq.q} className="border-b border-border/50 pb-4 last:border-0 last:pb-0">
+                        <p className="text-sm font-medium text-foreground">{faq.q}</p>
+                        <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{faq.a}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                <Link
+                  to="/contact"
+                  onClick={closeServiceModal}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-5 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity"
+                >
+                  Discuss This Service <ArrowRight size={14} />
+                </Link>
+                <button
+                  onClick={closeServiceModal}
+                  className="flex-1 inline-flex items-center justify-center rounded-lg border border-border px-5 py-3 text-sm font-medium text-foreground hover:border-primary/40 transition-colors"
+                >
+                  Close
+                </button>
               </div>
             </motion.div>
           </div>
