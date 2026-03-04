@@ -66,12 +66,6 @@ const companyLinks: LinkItem[] = [
     description: "Solutions by industry sector",
     icon: Building2,
   },
-  {
-    title: "Resources",
-    href: "/resources",
-    description: "Guides and implementation blueprints",
-    icon: Leaf,
-  },
 ];
 
 const companyLinks2: LinkItem[] = [
@@ -131,8 +125,8 @@ export function Header() {
 
   return (
     <header
-      className={cn("sticky top-0 z-50 w-full border-b border-transparent", {
-        "bg-background/95 supports-[backdrop-filter]:bg-background/70 border-border backdrop-blur-lg": scrolled,
+      className={cn("sticky top-0 z-50 w-full border-b border-border bg-background/98 supports-[backdrop-filter]:bg-background/94 backdrop-blur-lg", {
+        "shadow-[0_8px_26px_hsl(215_24%_14%_/_0.08)]": scrolled,
       })}
     >
       <nav className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4">
@@ -189,6 +183,11 @@ export function Header() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuLink className="px-4" asChild>
+                <Link to="/about" className="hover:bg-accent rounded-md p-2">
+                  About
+                </Link>
+              </NavigationMenuLink>
+              <NavigationMenuLink className="px-2" asChild>
                 <Link to="/industries" className="hover:bg-accent rounded-md p-2">
                   Industries
                 </Link>
@@ -208,7 +207,10 @@ export function Header() {
           <Button variant="outline" asChild>
             <Link to="/login">Sign In</Link>
           </Button>
-          <GradientButton asChild className="min-w-0 px-5 py-2.5 text-sm leading-none">
+          <GradientButton
+            asChild
+            className="min-w-0 border border-border bg-white px-5 py-2.5 text-sm leading-none text-foreground [background:none] hover:text-white"
+          >
             <Link to="/contact">Get Started</Link>
           </GradientButton>
         </div>
@@ -238,13 +240,20 @@ export function Header() {
             {companyLinks2.map((link) => (
               <ListItem key={link.title} {...link} />
             ))}
+            <span className="text-sm">Quick Links</span>
+            <ListItem title="About" href="/about" icon={Users} description="Company overview" />
+            <ListItem title="Industries" href="/industries" icon={Building2} description="Sector solutions" />
+            <ListItem title="Resources" href="/resources" icon={Leaf} description="Guides and playbooks" />
           </div>
         </NavigationMenu>
         <div className="flex flex-col gap-2">
           <Button variant="outline" className="w-full bg-transparent" asChild>
             <Link to="/login">Sign In</Link>
           </Button>
-          <GradientButton asChild className="w-full min-w-0 px-5 py-2.5 text-sm leading-none">
+          <GradientButton
+            asChild
+            className="w-full min-w-0 border border-border bg-white px-5 py-2.5 text-sm leading-none text-foreground [background:none] hover:text-white"
+          >
             <Link to="/contact">Get Started</Link>
           </GradientButton>
         </div>
@@ -329,4 +338,3 @@ function useScroll(threshold: number) {
 
   return scrolled;
 }
-
