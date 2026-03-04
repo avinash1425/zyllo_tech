@@ -1,5 +1,7 @@
-import Component from "@/components/ui/landing-page";
+import AboutUsSection from "@/components/ui/about-us-section";
 
-export default function DemoOne() {
-  return <Component />;
-}
+const DemoOne = () => {
+  return <AboutUsSection />;
+};
+
+export { DemoOne };
