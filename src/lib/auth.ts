@@ -1,4 +1,6 @@
-export type UserRole = "admin" | "user";
+import { supabase } from "@/integrations/supabase/client";
+
+export type UserRole = "admin" | "moderator" | "user";
 
 export interface AuthUser {
   id: string;
@@ -8,122 +10,74 @@ export interface AuthUser {
   createdAt: string;
 }
 
-interface StoredUser extends AuthUser {
-  passwordHash: string;
-}
-
-interface StoredSession {
-  userId: string;
-}
-
-const USERS_KEY = "zyllo.auth.users";
-const SESSION_KEY = "zyllo.auth.session";
-
-const toHex = (buffer: ArrayBuffer) =>
-  Array.from(new Uint8Array(buffer))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-
-export async function hashPassword(password: string): Promise<string> {
-  const data = new TextEncoder().encode(password);
-  const digest = await crypto.subtle.digest("SHA-256", data);
-  return toHex(digest);
-}
-
-function safeParse<T>(value: string | null): T | null {
-  if (!value) return null;
-  try {
-    return JSON.parse(value) as T;
-  } catch {
-    return null;
-  }
-}
-
-function readUsers(): StoredUser[] {
-  return safeParse<StoredUser[]>(localStorage.getItem(USERS_KEY)) ?? [];
-}
-
-function writeUsers(users: StoredUser[]) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-
-function readSession(): StoredSession | null {
-  const local = safeParse<StoredSession>(localStorage.getItem(SESSION_KEY));
-  if (local?.userId) return local;
-  const session = safeParse<StoredSession>(sessionStorage.getItem(SESSION_KEY));
-  return session?.userId ? session : null;
-}
-
-function writeSession(session: StoredSession, rememberMe: boolean) {
-  localStorage.removeItem(SESSION_KEY);
-  sessionStorage.removeItem(SESSION_KEY);
-  const target = rememberMe ? localStorage : sessionStorage;
-  target.setItem(SESSION_KEY, JSON.stringify(session));
-}
-
-export function clearSession() {
-  localStorage.removeItem(SESSION_KEY);
-  sessionStorage.removeItem(SESSION_KEY);
-}
-
-export function getCurrentUser(): AuthUser | null {
-  const session = readSession();
-  if (!session) return null;
-  const users = readUsers();
-  const user = users.find((u) => u.id === session.userId);
+export async function getCurrentUser(): Promise<AuthUser | null> {
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
-  const { passwordHash: _passwordHash, ...safeUser } = user;
-  return safeUser;
+
+  // Get role
+  const { data: roles } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", user.id);
+
+  const role: UserRole = roles?.some((r: any) => r.role === "admin")
+    ? "admin"
+    : "user";
+
+  return {
+    id: user.id,
+    name: user.user_metadata?.full_name || "",
+    email: user.email || "",
+    role,
+    createdAt: user.created_at,
+  };
 }
 
 export async function registerUser(input: {
   name: string;
   email: string;
   password: string;
-}): Promise<AuthUser> {
-  const users = readUsers();
-  const normalizedEmail = input.email.trim().toLowerCase();
-  const exists = users.some((u) => u.email.toLowerCase() === normalizedEmail);
-  if (exists) {
-    throw new Error("An account with this email already exists.");
-  }
-
-  const passwordHash = await hashPassword(input.password);
-  const isFirstUser = users.length === 0;
-  const newUser: StoredUser = {
-    id: crypto.randomUUID(),
-    name: input.name.trim(),
-    email: normalizedEmail,
-    role: isFirstUser ? "admin" : "user",
-    createdAt: new Date().toISOString(),
-    passwordHash,
-  };
-
-  users.push(newUser);
-  writeUsers(users);
-
-  const { passwordHash: _passwordHash, ...safeUser } = newUser;
-  return safeUser;
+}): Promise<void> {
+  const { error } = await supabase.auth.signUp({
+    email: input.email,
+    password: input.password,
+    options: {
+      data: { full_name: input.name },
+      emailRedirectTo: window.location.origin,
+    },
+  });
+  if (error) throw new Error(error.message);
 }
 
 export async function authenticateUser(
   email: string,
   password: string,
-  rememberMe: boolean
 ): Promise<AuthUser> {
-  const users = readUsers();
-  const normalizedEmail = email.trim().toLowerCase();
-  const user = users.find((u) => u.email.toLowerCase() === normalizedEmail);
-  if (!user) {
-    throw new Error("Invalid email or password.");
-  }
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+  if (error) throw new Error(error.message);
 
-  const passwordHash = await hashPassword(password);
-  if (passwordHash !== user.passwordHash) {
-    throw new Error("Invalid email or password.");
-  }
+  const user = data.user;
+  const { data: roles } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", user.id);
 
-  writeSession({ userId: user.id }, rememberMe);
-  const { passwordHash: _passwordHash, ...safeUser } = user;
-  return safeUser;
+  const role: UserRole = roles?.some((r: any) => r.role === "admin")
+    ? "admin"
+    : "user";
+
+  return {
+    id: user.id,
+    name: user.user_metadata?.full_name || "",
+    email: user.email || "",
+    role,
+    createdAt: user.created_at,
+  };
+}
+
+export async function clearSession(): Promise<void> {
+  await supabase.auth.signOut();
 }

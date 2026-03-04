@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   authenticateUser,
   clearSession,
@@ -17,7 +18,7 @@ interface SignUpInput {
 interface SignInInput {
   email: string;
   password: string;
-  rememberMe: boolean;
+  rememberMe?: boolean;
 }
 
 interface AuthContextValue {
@@ -37,8 +38,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    setUser(getCurrentUser());
-    setIsHydrated(true);
+    // Set up auth state listener BEFORE checking session
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (session?.user) {
+          // Use setTimeout to avoid deadlock with Supabase client
+          setTimeout(async () => {
+            const authUser = await getCurrentUser();
+            setUser(authUser);
+            setIsHydrated(true);
+          }, 0);
+        } else {
+          setUser(null);
+          setIsHydrated(true);
+        }
+      }
+    );
+
+    // Check existing session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        const authUser = await getCurrentUser();
+        setUser(authUser);
+      }
+      setIsHydrated(true);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const value = useMemo<AuthContextValue>(
@@ -51,11 +77,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         await registerUser(input);
       },
       signIn: async (input) => {
-        const signedInUser = await authenticateUser(input.email, input.password, input.rememberMe);
+        const signedInUser = await authenticateUser(input.email, input.password);
         setUser(signedInUser);
       },
-      signOut: () => {
-        clearSession();
+      signOut: async () => {
+        await clearSession();
         setUser(null);
       },
     }),

@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
 import {
   MapPin,
   Clock3,
@@ -136,15 +137,52 @@ const CareersPage = () => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: CareerFormData) => {
     setSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-    setSubmitting(false);
-    reset();
-    toast({
-      title: "Application submitted",
-      description: "Our recruitment team will review your profile and contact you soon.",
-    });
+    try {
+      // Upload resume
+      const file = data.resume[0];
+      const fileExt = file.name.split(".").pop();
+      const filePath = `${crypto.randomUUID()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage
+        .from("resumes")
+        .upload(filePath, file);
+      if (uploadError) throw uploadError;
+
+      // Save application
+      const { error } = await supabase.from("career_applications").insert({
+        full_name: data.fullName.trim(),
+        email: data.email.trim(),
+        phone: data.phone.trim(),
+        role: data.role.trim(),
+        location: data.location.trim(),
+        experience: data.experience.trim(),
+        linkedin_url: data.linkedIn?.trim() || null,
+        cover_letter: data.coverLetter.trim(),
+        resume_path: filePath,
+        consent: data.consent,
+      });
+      if (error) throw error;
+
+      // Send admin notification (fire and forget)
+      supabase.functions.invoke("notify-admin", {
+        body: { type: "career", data: { fullName: data.fullName, email: data.email, phone: data.phone, role: data.role, location: data.location, experience: data.experience, linkedIn: data.linkedIn || "", coverLetter: data.coverLetter } },
+      }).catch(() => {});
+
+      reset();
+      toast({
+        title: "Application submitted",
+        description: "Our recruitment team will review your profile and contact you soon.",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Submission failed",
+        description: err?.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const fieldClass =
