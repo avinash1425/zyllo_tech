@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Search, Sparkles } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
@@ -19,6 +19,12 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    const openSearch = () => setSearchOpen(true);
+    window.addEventListener("open-ai-search", openSearch);
+    return () => window.removeEventListener("open-ai-search", openSearch);
+  }, []);
 
   return (
     <motion.header

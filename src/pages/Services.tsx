@@ -301,8 +301,6 @@ const categories: Array<"All" | Service["category"]> = ["All", "Engineering", "P
 const ServicesPage = () => {
   const [selectedCategory, setSelectedCategory] = useState<"All" | Service["category"]>("All");
   const [activeService, setActiveService] = useState<Service | null>(null);
-  const [modalQuery, setModalQuery] = useState("");
-  const [modalAnswer, setModalAnswer] = useState("");
 
   const filteredServices = useMemo(() => {
     if (selectedCategory === "All") return services;
@@ -311,45 +309,10 @@ const ServicesPage = () => {
 
   const openServiceModal = (service: Service) => {
     setActiveService(service);
-    setModalQuery("");
-    setModalAnswer("");
   };
 
   const closeServiceModal = () => {
     setActiveService(null);
-    setModalQuery("");
-    setModalAnswer("");
-  };
-
-  const handleModalSearch = () => {
-    if (!activeService) return;
-    const query = modalQuery.trim().toLowerCase();
-
-    if (!query) {
-      setModalAnswer("Please enter your question about this service.");
-      return;
-    }
-
-    const matchedFaq = activeService.faqs.find(
-      (faq) => faq.q.toLowerCase().includes(query) || faq.a.toLowerCase().includes(query),
-    );
-
-    if (matchedFaq) {
-      setModalAnswer(matchedFaq.a);
-      return;
-    }
-
-    const keywordMatch = activeService.keywords.some((keyword) => query.includes(keyword));
-    if (keywordMatch) {
-      setModalAnswer(
-        "This service can address that requirement. Share your timeline and constraints, and we can provide a tailored scope.",
-      );
-      return;
-    }
-
-    setModalAnswer(
-      "Your question is valid for this service. Please book a consultation and we will share a detailed technical approach.",
-    );
   };
 
   return (
@@ -368,12 +331,15 @@ const ServicesPage = () => {
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mx-auto flex max-w-4xl items-center justify-between gap-4 rounded-xl bg-gradient-to-r from-[#7eb7b3] to-[#bba355] px-5 py-4"
+            className="mx-auto flex max-w-5xl items-center justify-between gap-4 rounded-2xl border border-primary/20 bg-gradient-to-r from-[hsl(215,42%,30%)] via-[hsl(195,50%,38%)] to-[hsl(24,88%,46%)] px-5 py-4 shadow-[0_10px_40px_hsl(215_35%_18%_/_0.18)]"
           >
             <p className="flex items-center gap-2 text-sm font-medium text-white">
-              <Sparkles size={16} /> Not sure what you need? Let AI guide your service selection.
+              <Sparkles size={16} /> Not sure which Zyllo Tech service fits? Use AI to find your best path.
             </p>
-            <button className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-[#0077b6] hover:bg-white/90 transition-colors">
+            <button
+              onClick={() => window.dispatchEvent(new Event("open-ai-search"))}
+              className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-[hsl(215,42%,30%)] hover:bg-white/90 transition-colors"
+            >
               <Search size={15} /> AI Service Search
             </button>
           </motion.div>
@@ -550,26 +516,6 @@ const ServicesPage = () => {
                 </div>
               </div>
 
-              <div className="mt-4 rounded-lg border border-border p-4">
-                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                  Ask About This Service
-                </p>
-                <div className="mt-2 flex items-center gap-2">
-                  <input
-                    value={modalQuery}
-                    onChange={(e) => setModalQuery(e.target.value)}
-                    placeholder="Type your question"
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50"
-                  />
-                  <button
-                    onClick={handleModalSearch}
-                    className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:opacity-90"
-                  >
-                    <Search size={13} /> Search
-                  </button>
-                </div>
-                {modalAnswer && <p className="mt-3 text-sm text-muted-foreground">{modalAnswer}</p>}
-              </div>
             </motion.div>
           </div>
         )}
