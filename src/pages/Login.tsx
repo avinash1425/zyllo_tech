@@ -17,7 +17,6 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -46,7 +45,7 @@ const Login = () => {
     setError("");
     setIsSubmitting(true);
     try {
-      await signIn({ email, password, rememberMe });
+      await signIn({ email, password });
       toast({
         title: "Signed in successfully",
         description: "Welcome back.",
@@ -71,7 +70,6 @@ const Login = () => {
             className="w-full max-w-md"
           >
             <div className="rounded-2xl border border-border bg-card p-8 shadow-xl relative overflow-hidden">
-              {/* Decorative accent */}
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-primary" />
 
               <div className="text-center mb-8">
@@ -125,21 +123,6 @@ const Login = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between text-sm">
-                  <label className="flex items-center gap-2 text-muted-foreground cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                      className="rounded border-input accent-primary"
-                    />
-                    Remember me
-                  </label>
-                  <Link to="/contact" className="text-primary hover:underline font-medium">
-                    Need Help?
-                  </Link>
-                </div>
-
                 <button
                   type="submit"
                   disabled={isSubmitting}
@@ -156,7 +139,6 @@ const Login = () => {
                   Create Account
                 </Link>
               </p>
-
             </div>
           </motion.div>
         </div>
