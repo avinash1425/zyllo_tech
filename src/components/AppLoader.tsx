@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
-import infinityFavicon from "../../Logo/2026-02-17_Logo_Zyllo_Tech_Favicon_512x512_v2.png";
+import infinityFavicon from "@/assets/zyllo-infinity-loader.png";
 
 const LoadingScreen = ({ onComplete, quick = false }: { onComplete: () => void; quick?: boolean }) => {
   const [progress, setProgress] = useState(0);

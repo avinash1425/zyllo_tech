@@ -35,8 +35,9 @@ const Footer = () => {
       }
       setSubscribed(true);
       setEmail("");
-    } catch (err: any) {
-      toast({ title: "Failed", description: err?.message || "Please try again.", variant: "destructive" });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Please try again.";
+      toast({ title: "Failed", description: message, variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
