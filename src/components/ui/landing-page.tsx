@@ -29,7 +29,7 @@ const defaultGlobeConfig = {
   positions: [{ top: "48%", left: "78%", scale: 1.2 }],
 };
 
-const heroSignals = ["Web", "Mobile", "Cloud", "Cybersecurity"];
+const heroSignals = ["Web Platforms", "Mobile Apps", "Cloud Engineering", "Cybersecurity"];
 function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: ScrollGlobeProps) {
   const [activeSection, setActiveSection] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -276,52 +276,64 @@ export default function GlobeScrollDemo() {
     {
       id: "hero",
       badge: "Zyllo Tech",
-      title: "Web, Mobile, Cloud, and Cybersecurity Services",
-      subtitle: "Built for Real Business Delivery",
+      title: "Engineering Digital Products That Scale With Confidence",
+      subtitle: "Web, Mobile, Cloud, and Security in One Delivery Partner",
       description:
-        "We are a service-based software company delivering scalable websites, production-ready mobile apps, cloud solutions, and security-first implementation.",
+        "Zyllo Tech helps businesses design, build, secure, and scale software systems. We deliver high-quality websites, mobile applications, cloud platforms, and cybersecurity solutions with clear ownership and measurable outcomes.",
       align: "left" as const,
       actions: [
-        { label: "Talk to Us", variant: "primary" as const, onClick: () => navigate("/contact") },
+        { label: "Start Your Project", variant: "primary" as const, onClick: () => navigate("/contact") },
         { label: "Explore Services", variant: "secondary" as const, onClick: () => navigate("/services") },
       ],
     },
     {
       id: "about",
       badge: "About Us",
-      title: "Who We Are, What We Build, and Why Teams Trust Zyllo Tech",
+      title: "A Software Partner Focused on Clarity, Quality, and Accountability",
       description:
-        "We work as one accountable team across consulting, architecture, design, engineering, QA, and support to deliver reliable outcomes and transparent execution.",
+        "We combine strategy, architecture, UI/UX, engineering, QA, and support into one delivery model. Our teams work transparently, communicate clearly, and execute with a long-term product mindset.",
       align: "center" as const,
-      actions: [{ label: "Learn About Us", variant: "secondary" as const, onClick: () => navigate("/about") }],
+      actions: [{ label: "Know More About Us", variant: "secondary" as const, onClick: () => navigate("/about") }],
     },
     {
       id: "capabilities",
       badge: "Services",
-      title: "Core Service Lines for End-to-End Product Delivery",
-      subtitle: "From Discovery to Ongoing Support",
+      title: "End-to-End Services Built for Business Impact",
+      subtitle: "From Discovery and Build to Optimization and Growth",
       description:
-        "Our delivery model covers product strategy, implementation, and optimization so your teams can launch faster and scale with confidence.",
+        "We provide practical, execution-ready services that reduce delivery risk and improve speed to market while keeping performance, scalability, and security at the center.",
       align: "left" as const,
       features: [
-        { title: "Website Development", description: "Modern web apps, portals, and company websites with performance, SEO, and maintainability." },
-        { title: "Mobile App Development", description: "Reliable iOS and Android applications with secure APIs, analytics, and scalable architecture." },
-        { title: "Cloud Solutions", description: "Cloud infrastructure, migration, DevOps automation, monitoring, and cost-aware operations." },
-        { title: "Cybersecurity", description: "Security-by-design practices, hardening, vulnerability management, and compliance support." },
+        {
+          title: "Website Development",
+          description: "Business websites, customer portals, and web applications designed for speed, SEO, conversion, and maintainable growth.",
+        },
+        {
+          title: "Mobile App Development",
+          description: "iOS and Android applications with stable architecture, secure integrations, clean user flows, and release-ready quality.",
+        },
+        {
+          title: "Cloud Solutions",
+          description: "Cloud architecture, migration, DevOps pipelines, monitoring, and performance tuning to support reliability at scale.",
+        },
+        {
+          title: "Cybersecurity",
+          description: "Security-first engineering, vulnerability management, access controls, and compliance-aligned practices across delivery.",
+        },
       ],
       actions: [
-        { label: "View Company", variant: "secondary" as const, onClick: () => navigate("/about") },
-        { label: "View Industries", variant: "primary" as const, onClick: () => navigate("/industries") },
+        { label: "View Industries", variant: "secondary" as const, onClick: () => navigate("/industries") },
+        { label: "View Services", variant: "primary" as const, onClick: () => navigate("/services") },
       ],
     },
     {
       id: "cta",
       badge: "Next Step",
-      title: "Plan Your Next Software Initiative With Zyllo Tech",
+      title: "Let’s Build Your Next Digital Solution",
       description:
-        "Share your goals, timelines, and constraints. We will propose a practical roadmap covering scope, architecture, milestones, and delivery plan.",
+        "Tell us your business goals, technical challenges, and timelines. We will propose a practical roadmap with scope, architecture, milestones, and delivery plan.",
       align: "center" as const,
-      actions: [{ label: "Start Conversation", variant: "primary" as const, onClick: () => navigate("/contact") }],
+      actions: [{ label: "Book a Consultation", variant: "primary" as const, onClick: () => navigate("/contact") }],
     },
   ];
 
