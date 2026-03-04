@@ -7,7 +7,6 @@ import { LucideIcon, Briefcase, Building2, FileText, GlobeIcon, HelpCircle, Laye
 import logo from "@/assets/zyllo-logo.png";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { GradientButton } from "@/components/ui/gradient-button";
 import { MenuToggleIcon } from "@/components/ui/menu-toggle-icon";
 import {
   NavigationMenu,
@@ -66,6 +65,12 @@ const companyLinks: LinkItem[] = [
     description: "Solutions by industry sector",
     icon: Building2,
   },
+  {
+    title: "Resources",
+    href: "/resources",
+    description: "Guides and implementation blueprints",
+    icon: Leaf,
+  },
 ];
 
 const companyLinks2: LinkItem[] = [
@@ -99,7 +104,6 @@ const companyLinks2: LinkItem[] = [
 export function Header() {
   const [open, setOpen] = React.useState(false);
   const [searchOpen, setSearchOpen] = React.useState(false);
-  const scrolled = useScroll(10);
   const location = useLocation();
 
   React.useEffect(() => {
@@ -125,9 +129,7 @@ export function Header() {
 
   return (
     <header
-      className={cn("sticky top-0 z-50 w-full border-b border-border bg-background/98 supports-[backdrop-filter]:bg-background/94 backdrop-blur-lg", {
-        "shadow-[0_8px_26px_hsl(215_24%_14%_/_0.08)]": scrolled,
-      })}
+      className="sticky top-0 z-50 w-full border-b border-border bg-background/95 supports-[backdrop-filter]:bg-background/92 backdrop-blur-lg shadow-[0_8px_22px_hsl(215_24%_14%_/_0.06)]"
     >
       <nav className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4">
         <div className="flex items-center gap-5">
@@ -137,7 +139,15 @@ export function Header() {
           <NavigationMenu className="hidden md:flex">
             <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent">Services</NavigationMenuTrigger>
+                <NavigationMenuTrigger
+                  className={cn(
+                    "bg-transparent",
+                    location.pathname.startsWith("/services") &&
+                      "bg-primary/10 text-primary hover:bg-primary/10",
+                  )}
+                >
+                  Services
+                </NavigationMenuTrigger>
                 <NavigationMenuContent className="bg-background p-1 pr-1.5">
                   <ul className="bg-popover grid w-[32rem] grid-cols-2 gap-2 rounded-md border p-2 shadow">
                     {productLinks.map((item) => (
@@ -157,7 +167,19 @@ export function Header() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent">Company</NavigationMenuTrigger>
+                <NavigationMenuTrigger
+                  className={cn(
+                    "bg-transparent",
+                    (location.pathname.startsWith("/about") ||
+                      location.pathname.startsWith("/industries") ||
+                      location.pathname.startsWith("/resources") ||
+                      location.pathname.startsWith("/careers") ||
+                      location.pathname.startsWith("/blog")) &&
+                      "bg-primary/10 text-primary hover:bg-primary/10",
+                  )}
+                >
+                  Company
+                </NavigationMenuTrigger>
                 <NavigationMenuContent className="bg-background p-1 pr-1.5 pb-1.5">
                   <div className="grid w-[32rem] grid-cols-2 gap-2">
                     <ul className="bg-popover space-y-2 rounded-md border p-2 shadow">
@@ -182,21 +204,6 @@ export function Header() {
                   </div>
                 </NavigationMenuContent>
               </NavigationMenuItem>
-              <NavigationMenuLink className="px-4" asChild>
-                <Link to="/about" className="hover:bg-accent rounded-md p-2">
-                  About
-                </Link>
-              </NavigationMenuLink>
-              <NavigationMenuLink className="px-2" asChild>
-                <Link to="/industries" className="hover:bg-accent rounded-md p-2">
-                  Industries
-                </Link>
-              </NavigationMenuLink>
-              <NavigationMenuLink className="px-2" asChild>
-                <Link to="/resources" className="hover:bg-accent rounded-md p-2">
-                  Resources
-                </Link>
-              </NavigationMenuLink>
             </NavigationMenuList>
           </NavigationMenu>
         </div>
@@ -204,15 +211,6 @@ export function Header() {
           <Button variant="outline" size="icon" onClick={() => setSearchOpen(true)} aria-label="Search">
             <Search size={16} />
           </Button>
-          <Button variant="outline" asChild>
-            <Link to="/login">Sign In</Link>
-          </Button>
-          <GradientButton
-            asChild
-            className="min-w-0 border border-border bg-white px-5 py-2.5 text-sm leading-none text-foreground [background:none] hover:text-white"
-          >
-            <Link to="/contact">Get Started</Link>
-          </GradientButton>
         </div>
         <Button
           size="icon"
@@ -240,22 +238,12 @@ export function Header() {
             {companyLinks2.map((link) => (
               <ListItem key={link.title} {...link} />
             ))}
-            <span className="text-sm">Quick Links</span>
-            <ListItem title="About" href="/about" icon={Users} description="Company overview" />
-            <ListItem title="Industries" href="/industries" icon={Building2} description="Sector solutions" />
-            <ListItem title="Resources" href="/resources" icon={Leaf} description="Guides and playbooks" />
           </div>
         </NavigationMenu>
         <div className="flex flex-col gap-2">
-          <Button variant="outline" className="w-full bg-transparent" asChild>
-            <Link to="/login">Sign In</Link>
+          <Button variant="outline" className="w-full bg-transparent" onClick={() => setSearchOpen(true)}>
+            Search
           </Button>
-          <GradientButton
-            asChild
-            className="w-full min-w-0 border border-border bg-white px-5 py-2.5 text-sm leading-none text-foreground [background:none] hover:text-white"
-          >
-            <Link to="/contact">Get Started</Link>
-          </GradientButton>
         </div>
       </MobileMenu>
       <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
@@ -318,23 +306,4 @@ function ListItem({
       </Link>
     </NavigationMenuLink>
   );
-}
-
-function useScroll(threshold: number) {
-  const [scrolled, setScrolled] = React.useState(false);
-
-  const onScroll = React.useCallback(() => {
-    setScrolled(window.scrollY > threshold);
-  }, [threshold]);
-
-  React.useEffect(() => {
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [onScroll]);
-
-  React.useEffect(() => {
-    onScroll();
-  }, [onScroll]);
-
-  return scrolled;
 }
