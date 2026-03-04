@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpen, Sparkles, Building2, ShoppingCart, Heart, GraduationCap, Truck, Factory, Gamepad2, Home, Plane, Radio, Tv, Leaf } from "lucide-react";
+import { ArrowRight, BookOpen, Building2, ShoppingCart, Heart, GraduationCap, Truck, Factory, Gamepad2, Home, Plane, Radio, Tv, Leaf } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
