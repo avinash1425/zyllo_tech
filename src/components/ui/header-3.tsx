@@ -3,7 +3,7 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
-import { LucideIcon, Briefcase, Building2, FileText, GlobeIcon, HelpCircle, LayersIcon, Leaf, Lock, Newspaper, Shield, Users, Wrench, Search } from "lucide-react";
+import { LucideIcon, Briefcase, Building2, FileText, GlobeIcon, HelpCircle, LayersIcon, Leaf, Lock, Shield, Users, Wrench, Search } from "lucide-react";
 import logo from "@/assets/zyllo-logo.png";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -80,11 +80,6 @@ const companyLinks2: LinkItem[] = [
     icon: Briefcase,
   },
   {
-    title: "Blog",
-    href: "/blog",
-    icon: Newspaper,
-  },
-  {
     title: "Terms of Service",
     href: "/terms-of-service",
     icon: FileText,
@@ -149,8 +144,7 @@ export function Header() {
                     (location.pathname.startsWith("/about") ||
                       location.pathname.startsWith("/industries") ||
                       location.pathname.startsWith("/resources") ||
-                      location.pathname.startsWith("/careers") ||
-                      location.pathname.startsWith("/blog")) &&
+                      location.pathname.startsWith("/careers")) &&
                       "bg-primary/10 text-primary hover:bg-primary/10",
                   )}
                 >
