@@ -132,7 +132,7 @@ export function Header() {
       className="sticky top-0 z-50 w-full border-b border-border bg-background/95 supports-[backdrop-filter]:bg-background/92 backdrop-blur-lg shadow-[0_8px_22px_hsl(215_24%_14%_/_0.06)]"
     >
       <nav className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4">
-        <div className="flex items-center gap-5">
+        <div className="flex items-center">
           <Link to="/" className="rounded-md p-0 focus-visible:outline-none">
             <img
               src={logo}
@@ -140,7 +140,7 @@ export function Header() {
               className="h-12 w-auto max-w-none origin-left scale-[1.26] object-contain"
             />
           </Link>
-          <NavigationMenu className="hidden md:flex">
+          <NavigationMenu className="ml-8 hidden md:flex lg:ml-10">
             <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuTrigger
