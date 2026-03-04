@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
+import infinityFavicon from "../../Logo/2026-02-17_Logo_Zyllo_Tech_Favicon_512x512_v2.png";
 
 const LoadingScreen = ({ onComplete, quick = false }: { onComplete: () => void; quick?: boolean }) => {
   const [progress, setProgress] = useState(0);
@@ -45,7 +46,7 @@ const LoadingScreen = ({ onComplete, quick = false }: { onComplete: () => void; 
           transition={{ duration: 2.6, repeat: Infinity, ease: "linear" }}
         />
         <motion.img
-          src="/favicon.ico"
+          src={infinityFavicon}
           alt="Zyllo Tech Infinity"
           className="h-16 w-16 rounded-xl object-cover"
           animate={{
