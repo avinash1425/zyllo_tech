@@ -15,6 +15,7 @@ import {
   TrendingUp,
   Users,
   Workflow,
+  Globe,
 } from "lucide-react";
 import { motion, useInView, useScroll, useSpring, useTransform } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -188,12 +189,9 @@ export default function AboutUsSection() {
                   className="h-full w-full object-cover"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[hsl(215,30%,16%,0.7)] to-transparent p-4">
-                  <Link
-                    to="/portfolio"
-                    className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold text-[hsl(215,30%,16%)]"
-                  >
-                    View Case Studies <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
+                  <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold text-[hsl(215,30%,16%)]">
+                    <Globe className="h-3.5 w-3.5" /> About Us
+                  </span>
                 </div>
               </div>
             </motion.div>
