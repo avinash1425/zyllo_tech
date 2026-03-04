@@ -174,10 +174,11 @@ const CareersPage = () => {
         title: "Application submitted",
         description: "Our recruitment team will review your profile and contact you soon.",
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
       toast({
         title: "Submission failed",
-        description: err?.message || "Something went wrong. Please try again.",
+        description: message,
         variant: "destructive",
       });
     } finally {

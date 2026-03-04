@@ -232,10 +232,11 @@ const ContactPage = () => {
         title: "Message Sent! 🎉",
         description: "Thank you for reaching out. We'll get back to you within 24 hours.",
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
       toast({
         title: "Failed to send",
-        description: err?.message || "Something went wrong. Please try again.",
+        description: message,
         variant: "destructive",
       });
     } finally {

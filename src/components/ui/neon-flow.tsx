@@ -41,7 +41,7 @@ export function TubesBackground({
       try {
         const module = await (import(
           /* @vite-ignore */ "https://cdn.jsdelivr.net/npm/threejs-components@0.0.19/build/cursors/tubes1.min.js" as string
-        ) as Promise<{ default: any }>);
+        ) as Promise<{ default: (canvas: HTMLCanvasElement, options: unknown) => TubesApp }>);
         const TubesCursor = module.default;
 
         if (!mounted || !canvasRef.current) return;

@@ -10,6 +10,10 @@ export interface AuthUser {
   createdAt: string;
 }
 
+type RoleRow = {
+  role: string;
+};
+
 export async function getCurrentUser(): Promise<AuthUser | null> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
@@ -20,7 +24,8 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     .select("role")
     .eq("user_id", user.id);
 
-  const role: UserRole = roles?.some((r: any) => r.role === "admin")
+  const roleRows = (roles ?? []) as RoleRow[];
+  const role: UserRole = roleRows.some((r) => r.role === "admin")
     ? "admin"
     : "user";
 
@@ -65,7 +70,8 @@ export async function authenticateUser(
     .select("role")
     .eq("user_id", user.id);
 
-  const role: UserRole = roles?.some((r: any) => r.role === "admin")
+  const roleRows = (roles ?? []) as RoleRow[];
+  const role: UserRole = roleRows.some((r) => r.role === "admin")
     ? "admin"
     : "user";
 
