@@ -3,7 +3,7 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
-import { LucideIcon, Briefcase, Building2, FileText, GlobeIcon, HelpCircle, LayersIcon, Leaf, Lock, Shield, Users, Wrench, Search } from "lucide-react";
+import { LucideIcon, Briefcase, Building2, Database, FolderKanban, BookOpen, GlobeIcon, LayersIcon, Leaf, LifeBuoy, MessageCircle, Shield, TestTube2, UserCheck, Users, Wrench, Search } from "lucide-react";
 import logo from "@/assets/zyllo-logo.png";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -28,28 +28,52 @@ type LinkItem = {
 
 const productLinks: LinkItem[] = [
   {
-    title: "Web Development",
-    href: "/services",
+    title: "Web & App Development",
+    href: "/services#web-engineering",
     description: "Websites, portals, and product platforms",
     icon: GlobeIcon,
   },
   {
-    title: "Mobile Apps",
-    href: "/services",
+    title: "Mobile App Development",
+    href: "/services#mobile-apps",
     description: "iOS and Android app engineering",
     icon: LayersIcon,
   },
   {
-    title: "Cloud & DevOps",
-    href: "/services",
+    title: "Cloud Solutions & DevOps",
+    href: "/services#cloud-platform",
     description: "Cloud architecture and automation",
     icon: Wrench,
   },
   {
-    title: "Cybersecurity",
-    href: "/services",
+    title: "Cybersecurity Engineering",
+    href: "/services#cybersecurity",
     description: "Secure delivery and risk controls",
     icon: Shield,
+  },
+  {
+    title: "Data Engineering & AI",
+    href: "/services#data-ai",
+    description: "Pipelines, ML models, and intelligent systems",
+    icon: Database,
+  },
+  {
+    title: "Quality Engineering & QA",
+    href: "/services#qa-testing",
+    description: "Automated testing and quality assurance",
+    icon: TestTube2,
+  },
+  {
+    title: "Dedicated Teams",
+    href: "/services#dedicated-team",
+    description: "Embedded engineers as your extended team",
+    icon: UserCheck,
+  },
+  {
+    title: "App Support & Maintenance",
+    href: "/services#support-maintenance",
+    description: "Ongoing support, SLAs, and evolution",
+    icon: LifeBuoy,
   },
 ];
 
@@ -76,24 +100,28 @@ const companyLinks: LinkItem[] = [
 
 const companyLinks2: LinkItem[] = [
   {
+    title: "Portfolio",
+    href: "/portfolio",
+    description: "Case studies and client work",
+    icon: FolderKanban,
+  },
+  {
+    title: "Blog",
+    href: "/blog",
+    description: "Tech insights and guides",
+    icon: BookOpen,
+  },
+  {
     title: "Careers",
     href: "/careers",
+    description: "Join our engineering team",
     icon: Briefcase,
   },
   {
-    title: "Terms of Service",
-    href: "/terms-of-service",
-    icon: FileText,
-  },
-  {
-    title: "Privacy Policy",
-    href: "/privacy-policy",
-    icon: Lock,
-  },
-  {
-    title: "Help Center",
+    title: "Contact Us",
     href: "/contact",
-    icon: HelpCircle,
+    description: "Get a free consultation",
+    icon: MessageCircle,
   },
 ];
 
@@ -148,7 +176,9 @@ export function Header() {
                   location.pathname.startsWith("/about") ||
                   location.pathname.startsWith("/industries") ||
                   location.pathname.startsWith("/resources") ||
-                  location.pathname.startsWith("/careers")
+                  location.pathname.startsWith("/careers") ||
+                  location.pathname.startsWith("/portfolio") ||
+                  location.pathname.startsWith("/blog")
                 }
               >
                 <div className="grid w-[32rem] grid-cols-2 gap-3">
@@ -184,23 +214,25 @@ export function Header() {
                 item="Services"
                 isCurrent={location.pathname.startsWith("/services")}
               >
-                <div className="grid w-[32rem] grid-cols-2 gap-3">
-                  {productLinks.map((item) => (
-                    <ProductItem
-                      key={item.title}
-                      title={item.title}
-                      to={item.href}
-                      description={item.description || ""}
-                      icon={<item.icon className="size-4" />}
-                    />
-                  ))}
-                  <div className="rounded-xl border border-border/80 bg-muted/30 p-3">
+                <div className="w-[40rem]">
+                  <div className="grid grid-cols-2 gap-2">
+                    {productLinks.map((item) => (
+                      <ProductItem
+                        key={item.title}
+                        title={item.title}
+                        to={item.href}
+                        description={item.description || ""}
+                        icon={<item.icon className="size-4" />}
+                      />
+                    ))}
+                  </div>
+                  <div className="mt-2 rounded-xl border border-border/80 bg-muted/30 p-3">
                     <p className="text-xs font-medium uppercase tracking-[0.12em] text-primary">Need Custom Scope?</p>
-                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                       Discuss your project goals and we will define a practical implementation roadmap.
                     </p>
-                    <HoveredLink to="/contact" className="mt-3 inline-flex text-sm font-medium text-foreground">
-                      Talk to our team
+                    <HoveredLink to="/contact" className="mt-2 inline-flex text-sm font-medium text-foreground">
+                      Talk to our team →
                     </HoveredLink>
                   </div>
                 </div>

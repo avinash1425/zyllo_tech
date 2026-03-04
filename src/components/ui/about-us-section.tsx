@@ -79,7 +79,7 @@ const identity = [
   },
   {
     title: "What We Are",
-    text: "A service-based technology partner delivering websites, mobile apps, cloud platforms, and cybersecurity.",
+    text: "A service-based technology partner delivering web apps, mobile apps, cloud platforms, cybersecurity, data engineering, AI solutions, quality engineering, and dedicated teams.",
   },
   {
     title: "Our Mission",
@@ -92,7 +92,7 @@ const identity = [
 ];
 
 const stats = [
-  { icon: <Award />, value: 6, label: "Core Service Lines", suffix: "" },
+  { icon: <Award />, value: 8, label: "Service Offerings", suffix: "" },
   { icon: <Users />, value: 12, label: "Industry Coverage Areas", suffix: "" },
   { icon: <Calendar />, value: 4, label: "Delivery Phases", suffix: "" },
   { icon: <Lock />, value: 100, label: "Security-First Delivery", suffix: "%" },

@@ -45,11 +45,11 @@ const openings = [
     skills: ["Docker", "Kubernetes", "CI/CD", "AWS", "Terraform"],
   },
   {
-    title: "UI/UX Designer",
+    title: "QA Automation Engineer",
     location: "India / Remote",
     type: "Full Time",
     experience: "3+ Years",
-    skills: ["Figma", "Design Systems", "Prototyping", "User Research"],
+    skills: ["Selenium", "Playwright", "Cypress", "Jest", "CI/CD Pipelines"],
   },
 ];
 
@@ -195,7 +195,7 @@ const CareersPage = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Software Engineering Jobs & Careers | Join Zyllo Tech India"
-        description="Build your engineering career at Zyllo Tech. We're hiring software engineers, cloud architects, AI/ML engineers, QA automation engineers, and UI/UX designers in Hyderabad, India and remotely."
+        description="Build your engineering career at Zyllo Tech. We're hiring software engineers, cloud architects, AI/ML engineers, QA automation engineers, and cybersecurity engineers in Hyderabad, India and remotely."
         canonical="/careers"
         keywords="software engineering jobs India, IT jobs Hyderabad, software developer jobs, cloud architect jobs India, AI ML engineer jobs, React developer jobs Hyderabad, remote software jobs India"
         structuredData={breadcrumbSchema([

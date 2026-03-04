@@ -29,7 +29,7 @@ const defaultGlobeConfig = {
   positions: [{ top: "48%", left: "78%", scale: 1.2 }],
 };
 
-const heroSignals = ["Web Platforms", "Mobile Apps", "Cloud Engineering", "Cybersecurity"];
+const heroSignals = ["Web Platforms", "Mobile Apps", "Cloud Engineering", "Cybersecurity", "Data & AI", "QA Engineering"];
 function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: ScrollGlobeProps) {
   const [activeSection, setActiveSection] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -218,7 +218,9 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
               <div className="mt-7 flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.15em] text-white/80 sm:text-sm">
                 <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Website Development</span>
                 <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Mobile App Engineering</span>
-                <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Cloud and Security Delivery</span>
+                <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Cloud & DevOps</span>
+                <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Data & AI</span>
+                <span className="rounded-full border border-white/25 bg-white/5 px-3 py-1.5">Cybersecurity & QA</span>
               </div>
             )}
 
@@ -279,9 +281,9 @@ export default function GlobeScrollDemo() {
       id: "hero",
       badge: "Zyllo Tech",
       title: "Engineering Digital Products That Scale With Confidence",
-      subtitle: "Web, Mobile, Cloud, and Security in One Delivery Partner",
+      subtitle: "Web, Mobile, Cloud, AI, Security & Quality in One Delivery Partner",
       description:
-        "Zyllo Tech helps businesses design, build, secure, and scale software systems. We deliver high-quality websites, mobile applications, cloud platforms, and cybersecurity solutions with clear ownership and measurable outcomes.",
+        "Zyllo Tech helps businesses design, build, secure, and scale software systems. From web and mobile apps to cloud infrastructure, data engineering, AI solutions, cybersecurity, and quality assurance — delivered with clear ownership and measurable outcomes.",
       align: "left" as const,
       actions: [
         { label: "Start Your Project", variant: "primary" as const, onClick: () => navigate("/contact") },
@@ -307,7 +309,7 @@ export default function GlobeScrollDemo() {
       align: "left" as const,
       features: [
         {
-          title: "Website Development",
+          title: "Web & App Development",
           description: "Business websites, customer portals, and web applications designed for speed, SEO, conversion, and maintainable growth.",
         },
         {
@@ -315,12 +317,20 @@ export default function GlobeScrollDemo() {
           description: "iOS and Android applications with stable architecture, secure integrations, clean user flows, and release-ready quality.",
         },
         {
-          title: "Cloud Solutions",
-          description: "Cloud architecture, migration, DevOps pipelines, monitoring, and performance tuning to support reliability at scale.",
+          title: "Cloud Solutions & DevOps",
+          description: "Cloud architecture, migration, IaC pipelines, monitoring, and performance tuning to support reliability and cost efficiency at scale.",
         },
         {
-          title: "Cybersecurity",
-          description: "Security-first engineering, vulnerability management, access controls, and compliance-aligned practices across delivery.",
+          title: "Data Engineering & AI",
+          description: "Data pipelines, ML models, RAG-based AI systems, and analytics platforms that turn raw data into actionable business intelligence.",
+        },
+        {
+          title: "Cybersecurity Engineering",
+          description: "Security-first delivery with OWASP-aligned practices, threat modeling, vulnerability management, and compliance-ready controls.",
+        },
+        {
+          title: "Quality Engineering & QA",
+          description: "Automated test suites, shift-left testing, performance validation, and structured QA processes across web, mobile, and APIs.",
         },
       ],
       actions: [
