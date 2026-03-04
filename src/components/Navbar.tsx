@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Search, ArrowRight } from "lucide-react";
+import { Menu, X, Search, Sparkles } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "@/assets/zyllo-logo.png";
 import TopBar from "./TopBar";
@@ -8,17 +8,16 @@ import SearchDialog from "./SearchDialog";
 
 const navLinks = [
   { label: "Home", href: "/" },
-  { label: "About", href: "/about" },
+  { label: "About Us", href: "/about" },
   { label: "Services", href: "/services" },
   { label: "Industries", href: "/industries" },
   { label: "Resources", href: "/resources" },
-  { label: "Contact", href: "/contact" },
+  { label: "Contact Us", href: "/contact" },
 ];
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -27,128 +26,83 @@ const Navbar = () => {
     return () => window.removeEventListener("open-ai-search", openSearch);
   }, []);
 
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [location.pathname]);
-
-  useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 12);
-    onScroll();
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="fixed left-0 right-0 top-0 z-50"
+      transition={{ duration: 0.6 }}
+      className="fixed top-0 left-0 right-0 z-50"
     >
       <TopBar />
+      <nav className="bg-background/95 backdrop-blur-md border-b border-border">
+      <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 py-2">
+        <Link to="/" className="flex items-center">
+          <img src={logo} alt="Zyllo Tech" className="h-14 md:h-16 w-auto object-contain" />
+        </Link>
 
-      <nav
-        className={`border-b border-border/80 bg-background/92 backdrop-blur-xl transition-shadow ${
-          isScrolled ? "shadow-[0_10px_26px_hsl(215_24%_14%_/_0.08)]" : ""
-        }`}
-      >
-        <div className="container mx-auto flex items-center justify-between px-4 py-2.5 sm:px-6">
-          <Link to="/" className="flex items-center">
-            <img src={logo} alt="Zyllo Tech" className="h-10 w-auto object-contain md:h-11" />
-          </Link>
-
-          <div className="hidden items-center gap-3 lg:flex">
-            <div className="flex items-center gap-1 rounded-full border border-border bg-background/70 px-1.5 py-1">
-              {navLinks.map((link) => {
-                const isActive = location.pathname === link.href;
-                return (
-                  <Link
-                    key={link.label}
-                    to={link.href}
-                    className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
-                      isActive
-                        ? "bg-primary/12 text-primary"
-                        : "text-foreground/70 hover:bg-muted hover:text-foreground"
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
-            </div>
-
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground/65 transition-colors hover:border-primary/40 hover:text-primary"
-              aria-label="Open search"
-            >
-              <Search size={17} />
-            </button>
-
+        <div className="hidden lg:flex items-center gap-6">
+          {navLinks.map((link) => (
             <Link
-              to="/contact"
-              className="inline-flex items-center gap-1 rounded-lg bg-primary px-3.5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
-            >
-              Let&apos;s Talk <ArrowRight size={14} />
+              key={link.label}
+              to={link.href}
+              className={`relative text-[15px] font-semibold transition-colors duration-200 pb-1 ${
+                location.pathname === link.href
+                  ? "text-transparent bg-clip-text bg-gradient-to-r from-[hsl(24,95%,50%)] to-[hsl(195,55%,42%)] after:absolute after:bottom-[-14px] after:left-0 after:right-0 after:h-[2px] after:bg-gradient-to-r after:from-[hsl(24,95%,50%)] after:to-[hsl(195,55%,42%)]"
+                  : "text-foreground/70 hover:text-primary"
+              }`}
+                >
+              {link.label}
             </Link>
-          </div>
-
-          <div className="flex items-center gap-2 lg:hidden">
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground/70"
-              aria-label="Open search"
-            >
-              <Search size={17} />
-            </button>
-            <button
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground"
-              onClick={() => setMobileOpen((prev) => !prev)}
-              aria-label="Toggle menu"
-            >
-              {mobileOpen ? <X size={18} /> : <Menu size={18} />}
-            </button>
-          </div>
+          ))}
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-gradient-to-r from-primary/15 to-[hsl(195,55%,42%,0.2)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary">
+            <Sparkles size={12} />
+            AI-Powered
+          </span>
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="text-foreground/60 hover:text-primary transition-colors"
+            aria-label="Search"
+          >
+            <Search size={20} />
+          </button>
         </div>
 
-        <AnimatePresence>
-          {mobileOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="border-t border-border bg-background/98 px-4 py-4 sm:px-6 lg:hidden"
-            >
-              <div className="space-y-1.5">
-                {navLinks.map((link) => {
-                  const isActive = location.pathname === link.href;
-                  return (
-                    <Link
-                      key={link.label}
-                      to={link.href}
-                      className={`block rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                        isActive
-                          ? "bg-primary/10 text-primary"
-                          : "text-foreground/80 hover:bg-muted hover:text-foreground"
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
-                  );
-                })}
-              </div>
+        <button
+          className="lg:hidden text-foreground"
+          onClick={() => setMobileOpen(!mobileOpen)}
+        >
+          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
 
-              <Link
-                to="/contact"
-                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
-              >
-                Let&apos;s Talk <ArrowRight size={14} />
-              </Link>
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="lg:hidden overflow-hidden border-t border-border bg-background"
+          >
+            <div className="flex flex-col gap-4 px-6 py-6">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={`text-base transition-colors ${
+                    location.pathname === link.href
+                      ? "text-primary font-medium"
+                      : "text-foreground/70 hover:text-primary"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       </nav>
-
       <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
     </motion.header>
   );
