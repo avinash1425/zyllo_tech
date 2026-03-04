@@ -7,6 +7,18 @@ import FloatingButtons from "@/components/FloatingButtons";
 import PageHero from "@/components/PageHero";
 import { Link } from "react-router-dom";
 import { articles, articleCategories } from "@/data/articles";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
+
+const blogSchema = {
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "@id": `${SITE_URL}/blog`,
+  name: "Zyllo Tech Engineering Blog",
+  description: "Technical articles, implementation guides, and industry insights from the Zyllo Tech engineering team.",
+  url: `${SITE_URL}/blog`,
+  publisher: { "@type": "Organization", name: "Zyllo Tech", url: SITE_URL },
+  inLanguage: "en-IN",
+};
 
 const BlogPage = () => {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -19,6 +31,19 @@ const BlogPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Engineering Blog & Industry Implementation Guides | Zyllo Tech"
+        description="Read technical articles and deep-dive implementation guides from Zyllo Tech — covering AI/ML, cloud architecture, React, DevOps, and industry-specific software engineering for Banking, Healthcare, EdTech, Logistics, and more."
+        canonical="/blog"
+        keywords="software engineering blog India, tech articles India, AI ML blog, cloud architecture guide, React TypeScript tutorial, industry software implementation guide, banking software guide, healthcare software development"
+        structuredData={[
+          blogSchema,
+          breadcrumbSchema([
+            { name: "Home", url: SITE_URL },
+            { name: "Blog", url: `${SITE_URL}/blog` },
+          ]),
+        ]}
+      />
       <Navbar />
       <PageHero
         title="Insights &"

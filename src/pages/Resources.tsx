@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, BookOpen, Building2, ShoppingCart, Heart, GraduationCap, Truck, Factory, Gamepad2, Home, Plane, Radio, Tv, Leaf } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import PageHero from "@/components/PageHero";
@@ -108,6 +109,16 @@ const industryGuides = [
 const Resources = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Technical Resources & Industry Software Implementation Guides | Zyllo Tech"
+        description="Free engineering playbooks and implementation blueprints for Banking, Healthcare, E-Commerce, EdTech, Logistics, Manufacturing, Gaming, Real Estate, Travel, Telecom, Media, and AgriTech software development."
+        canonical="/resources"
+        keywords="software implementation guide India, banking software architecture, healthcare FHIR guide, edtech LMS development, logistics fleet tracking, manufacturing IoT, headless commerce guide, free tech resources India"
+        structuredData={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "Resources", url: `${SITE_URL}/resources` },
+        ])}
+      />
       <Navbar />
       <PageHero
         title="Resources"

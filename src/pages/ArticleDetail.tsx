@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import { getArticleBySlug, articles, type ContentBlock } from "@/data/articles";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 
 function renderBlock(block: ContentBlock, idx: number) {
   switch (block.type) {
@@ -103,8 +104,52 @@ const ArticleDetail = () => {
       ? related
       : articles.filter((a) => a.slug !== article.slug).slice(0, 3);
 
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": article.category === "Industry Solutions" ? "TechArticle" : "Article",
+    "@id": `${SITE_URL}/blog/${article.slug}`,
+    headline: article.title,
+    description: article.metaDescription || article.excerpt,
+    url: `${SITE_URL}/blog/${article.slug}`,
+    datePublished: article.date,
+    dateModified: article.date,
+    author: {
+      "@type": "Person",
+      name: article.author,
+      jobTitle: article.role,
+      worksFor: { "@type": "Organization", name: "Zyllo Tech", url: SITE_URL },
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Zyllo Tech",
+      url: SITE_URL,
+      logo: { "@type": "ImageObject", url: `${SITE_URL}/zyllo-logo.png` },
+    },
+    keywords: article.tags.join(", "),
+    articleSection: article.category,
+    inLanguage: "en-IN",
+    isPartOf: { "@type": "Blog", name: "Zyllo Tech Engineering Blog", url: `${SITE_URL}/blog` },
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={article.title}
+        description={article.metaDescription || article.excerpt}
+        canonical={`/blog/${article.slug}`}
+        ogType="article"
+        keywords={article.tags.join(", ")}
+        publishedTime={article.date}
+        author={article.author}
+        structuredData={[
+          articleSchema,
+          breadcrumbSchema([
+            { name: "Home", url: SITE_URL },
+            { name: "Blog", url: `${SITE_URL}/blog` },
+            { name: article.title, url: `${SITE_URL}/blog/${article.slug}` },
+          ]),
+        ]}
+      />
       <Navbar />
 
       {/* Breadcrumb */}

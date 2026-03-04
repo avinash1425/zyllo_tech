@@ -106,6 +106,8 @@ const careerFormSchema = z.object({
 
 type CareerFormData = z.infer<typeof careerFormSchema>;
 
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
+
 const CareersPage = () => {
   const { toast } = useToast();
   const formRef = useRef<HTMLDivElement>(null);
@@ -191,6 +193,16 @@ const CareersPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Software Engineering Jobs & Careers | Join Zyllo Tech India"
+        description="Build your engineering career at Zyllo Tech. We're hiring software engineers, cloud architects, AI/ML engineers, QA automation engineers, and UI/UX designers in Hyderabad, India and remotely."
+        canonical="/careers"
+        keywords="software engineering jobs India, IT jobs Hyderabad, software developer jobs, cloud architect jobs India, AI ML engineer jobs, React developer jobs Hyderabad, remote software jobs India"
+        structuredData={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "Careers", url: `${SITE_URL}/careers` },
+        ])}
+      />
       <Navbar />
       <PageHero
         title="Build Your"

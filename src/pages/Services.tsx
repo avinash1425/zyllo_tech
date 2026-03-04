@@ -296,6 +296,19 @@ const bestPracticePillars = [
 
 const categories: Array<"All" | Service["category"]> = ["All", "Engineering", "Platform", "Security"];
 
+const servicesFaqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    { "@type": "Question", name: "What software development services does Zyllo Tech offer?", acceptedAnswer: { "@type": "Answer", text: "Zyllo Tech offers web & mobile app development, cloud DevOps, data engineering & AI/ML, cybersecurity engineering, quality assurance & test automation, and dedicated engineering teams." } },
+    { "@type": "Question", name: "Does Zyllo Tech work with startups and enterprises?", acceptedAnswer: { "@type": "Answer", text: "Yes. We work with early-stage startups, scale-ups, and large enterprises across India, USA, UAE, UK, Singapore, and other countries." } },
+    { "@type": "Question", name: "What technologies does Zyllo Tech use?", acceptedAnswer: { "@type": "Answer", text: "We use React, Next.js, Node.js, Python, React Native, AWS, Azure, GCP, Kubernetes, Terraform, PostgreSQL, dbt, Snowflake, and more depending on project requirements." } },
+    { "@type": "Question", name: "How does Zyllo Tech ensure software quality?", acceptedAnswer: { "@type": "Answer", text: "We use automated testing (Playwright, Cypress, k6), CI/CD pipelines with quality gates, OWASP security scanning, and code reviews on every pull request." } },
+  ],
+};
+
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
+
 const ServicesPage = () => {
   const [selectedCategory, setSelectedCategory] = useState<"All" | Service["category"]>("All");
   const [activeService, setActiveService] = useState<Service | null>(null);
@@ -315,6 +328,19 @@ const ServicesPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Software Development Services | Web, Mobile, Cloud, AI & Cybersecurity | Zyllo Tech"
+        description="Zyllo Tech offers end-to-end software engineering services — web & mobile app development, cloud DevOps, data & AI engineering, cybersecurity, QA automation, and dedicated teams for enterprises in India and globally."
+        canonical="/services"
+        keywords="software development services India, web development company India, mobile app development, cloud DevOps services, AI ML development, cybersecurity services India, QA testing automation, dedicated development team India"
+        structuredData={[
+          servicesFaqSchema,
+          breadcrumbSchema([
+            { name: "Home", url: SITE_URL },
+            { name: "Services", url: `${SITE_URL}/services` },
+          ]),
+        ]}
+      />
       <Navbar />
       <PageHero
         title="Software"

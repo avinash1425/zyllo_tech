@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import PageHero from "@/components/PageHero";
 import { Link } from "react-router-dom";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 
 const categories = ["All", "Web App", "Mobile", "AI/ML", "Cloud", "E-Commerce"];
 
@@ -175,6 +176,16 @@ const PortfolioPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Software Development Portfolio & Case Studies | Zyllo Tech"
+        description="Explore Zyllo Tech's portfolio of delivered software projects — a FinTech banking dashboard, patient portal, headless commerce platform, IoT fleet tracker, EdTech LMS, AI farm analytics, and more."
+        canonical="/portfolio"
+        keywords="software portfolio India, IT company case studies, fintech software case study, healthcare portal development, e-commerce platform, fleet management system, AI ML case study India"
+        structuredData={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "Portfolio", url: `${SITE_URL}/portfolio` },
+        ])}
+      />
       <Navbar />
       <PageHero
         title="Our"

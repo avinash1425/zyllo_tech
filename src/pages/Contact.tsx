@@ -19,6 +19,7 @@ import FloatingButtons from "@/components/FloatingButtons";
 import PageHero from "@/components/PageHero";
 import { useToast } from "@/hooks/use-toast";
 import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164 } from "@/lib/contact";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -254,6 +255,25 @@ const ContactPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Contact Zyllo Tech | Free Software Consultation India"
+        description="Get in touch with Zyllo Tech for software development, AI solutions, cloud engineering, and QA projects. We offer a free consultation for enterprises and startups across India, USA, UAE, UK, and globally."
+        canonical="/contact"
+        keywords="contact software company India, hire software developer India, software development consultation, IT outsourcing India, software company Hyderabad contact, get software quote India"
+        structuredData={[
+          breadcrumbSchema([
+            { name: "Home", url: SITE_URL },
+            { name: "Contact", url: `${SITE_URL}/contact` },
+          ]),
+          {
+            "@context": "https://schema.org",
+            "@type": "ContactPage",
+            name: "Contact Zyllo Tech",
+            url: `${SITE_URL}/contact`,
+            description: "Reach out to Zyllo Tech for software engineering projects and consultations.",
+          },
+        ]}
+      />
       <Navbar />
       <PageHero
         title="Contact"

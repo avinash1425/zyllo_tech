@@ -16,6 +16,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import { HoveredLink, Menu, MenuItem, ProductItem } from "@/components/ui/navbar-menu";
 import SearchDialog from "@/components/SearchDialog";
 
 type LinkItem = {
@@ -99,6 +100,7 @@ const companyLinks2: LinkItem[] = [
 export function Header() {
   const [open, setOpen] = React.useState(false);
   const [searchOpen, setSearchOpen] = React.useState(false);
+  const [activeMenu, setActiveMenu] = React.useState<string | null>(null);
   const location = useLocation();
 
   React.useEffect(() => {
@@ -120,6 +122,7 @@ export function Header() {
 
   React.useEffect(() => {
     setOpen(false);
+    setActiveMenu(null);
   }, [location.pathname]);
 
   return (
@@ -135,75 +138,71 @@ export function Header() {
               className="h-12 w-auto max-w-none origin-left scale-[1.26] object-contain"
             />
           </Link>
-          <NavigationMenu className="ml-8 hidden md:flex lg:ml-10">
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger
-                  className={cn(
-                    "bg-transparent",
-                    (location.pathname.startsWith("/about") ||
-                      location.pathname.startsWith("/industries") ||
-                      location.pathname.startsWith("/resources") ||
-                      location.pathname.startsWith("/careers")) &&
-                      "bg-primary/10 text-primary hover:bg-primary/10",
-                  )}
-                >
-                  Company
-                </NavigationMenuTrigger>
-                <NavigationMenuContent className="bg-background p-1 pr-1.5 pb-1.5">
-                  <div className="grid w-[32rem] grid-cols-2 gap-2">
-                    <ul className="bg-popover space-y-2 rounded-md border p-2 shadow">
-                      {companyLinks.map((item) => (
-                        <li key={item.title}>
-                          <ListItem {...item} />
-                        </li>
-                      ))}
-                    </ul>
-                    <ul className="space-y-2 p-3">
-                      {companyLinks2.map((item) => (
-                        <li key={item.title}>
-                          <NavigationMenuLink asChild>
-                            <Link to={item.href} className="flex p-2 hover:bg-accent flex-row rounded-md items-center gap-x-2">
-                              <item.icon className="text-foreground size-4" />
-                              <span className="font-medium">{item.title}</span>
-                            </Link>
-                          </NavigationMenuLink>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger
-                  className={cn(
-                    "bg-transparent",
-                    location.pathname.startsWith("/services") &&
-                      "bg-primary/10 text-primary hover:bg-primary/10",
-                  )}
-                >
-                  Services
-                </NavigationMenuTrigger>
-                <NavigationMenuContent className="bg-background p-1 pr-1.5">
-                  <ul className="bg-popover grid w-[32rem] grid-cols-2 gap-2 rounded-md border p-2 shadow">
-                    {productLinks.map((item) => (
-                      <li key={item.title}>
-                        <ListItem {...item} />
-                      </li>
+          <div className="ml-8 hidden md:flex lg:ml-10">
+            <Menu setActive={setActiveMenu}>
+              <MenuItem
+                setActive={(item) => setActiveMenu(item)}
+                active={activeMenu}
+                item="Company"
+                isCurrent={
+                  location.pathname.startsWith("/about") ||
+                  location.pathname.startsWith("/industries") ||
+                  location.pathname.startsWith("/resources") ||
+                  location.pathname.startsWith("/careers")
+                }
+              >
+                <div className="grid w-[32rem] grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    {companyLinks.map((item) => (
+                      <ProductItem
+                        key={item.title}
+                        title={item.title}
+                        to={item.href}
+                        description={item.description || ""}
+                        icon={<item.icon className="size-4" />}
+                      />
                     ))}
-                  </ul>
-                  <div className="p-2">
-                    <p className="text-muted-foreground text-sm">
-                      Need a tailored stack?{" "}
-                      <Link to="/contact" className="text-foreground font-medium hover:underline">
-                        Talk to our team
-                      </Link>
-                    </p>
                   </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+                  <div className="space-y-3 rounded-xl border border-border/80 bg-muted/30 p-3">
+                    {companyLinks2.map((item) => (
+                      <HoveredLink key={item.title} to={item.href} className="inline-flex items-center gap-2 text-sm">
+                        <item.icon className="size-4 text-primary" />
+                        {item.title}
+                      </HoveredLink>
+                    ))}
+                  </div>
+                </div>
+              </MenuItem>
+
+              <MenuItem
+                setActive={(item) => setActiveMenu(item)}
+                active={activeMenu}
+                item="Services"
+                isCurrent={location.pathname.startsWith("/services")}
+              >
+                <div className="grid w-[32rem] grid-cols-2 gap-3">
+                  {productLinks.map((item) => (
+                    <ProductItem
+                      key={item.title}
+                      title={item.title}
+                      to={item.href}
+                      description={item.description || ""}
+                      icon={<item.icon className="size-4" />}
+                    />
+                  ))}
+                  <div className="rounded-xl border border-border/80 bg-muted/30 p-3">
+                    <p className="text-xs font-medium uppercase tracking-[0.12em] text-primary">Need Custom Scope?</p>
+                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                      Discuss your project goals and we will define a practical implementation roadmap.
+                    </p>
+                    <HoveredLink to="/contact" className="mt-3 inline-flex text-sm font-medium text-foreground">
+                      Talk to our team
+                    </HoveredLink>
+                  </div>
+                </div>
+              </MenuItem>
+            </Menu>
+          </div>
         </div>
         <div className="hidden items-center gap-2 md:flex">
           <Button variant="outline" size="icon" onClick={() => setSearchOpen(true)} aria-label="Search">

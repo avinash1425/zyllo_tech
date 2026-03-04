@@ -313,11 +313,36 @@ const industries: Industry[] = [
   },
 ];
 
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
+
+const industriesFaqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    { "@type": "Question", name: "Which industries does Zyllo Tech serve?", acceptedAnswer: { "@type": "Answer", text: "Zyllo Tech serves Banking & Financial Services, Retail & E-Commerce, Healthcare & Life Sciences, EdTech, Logistics & Transportation, Manufacturing, Gaming & Entertainment, Real Estate, Travel & Hospitality, Telecom, Media & Publishing, and Agriculture." } },
+    { "@type": "Question", name: "Does Zyllo Tech build software for the BFSI sector?", acceptedAnswer: { "@type": "Answer", text: "Yes. We build KYC automation platforms, digital banking portals, payment gateway integrations, risk analytics dashboards, and PCI-DSS compliant infrastructure for banks, NBFCs, and FinTech companies." } },
+    { "@type": "Question", name: "Can Zyllo Tech build HIPAA or FHIR compliant healthcare software?", acceptedAnswer: { "@type": "Answer", text: "Yes. We design and deliver FHIR R4 compliant patient portals, telehealth platforms, clinical workflow automation, and HIPAA-compliant cloud infrastructure for healthcare providers and life sciences companies." } },
+  ],
+};
+
 const IndustriesPage = () => {
   const [activeIndustry, setActiveIndustry] = useState<Industry | null>(null);
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Industry-Specific Software Solutions | Banking, Healthcare, Retail & 9 More | Zyllo Tech"
+        description="Zyllo Tech builds tailored software for Banking, Healthcare, E-Commerce, EdTech, Logistics, Manufacturing, Gaming, Real Estate, Travel, Telecom, Media, and AgriTech — with sector-specific architecture and compliance expertise."
+        canonical="/industries"
+        keywords="industry software solutions India, banking software development, healthcare software India, edtech platform development, logistics software, manufacturing software, retail e-commerce development India, fintech software company"
+        structuredData={[
+          industriesFaqSchema,
+          breadcrumbSchema([
+            { name: "Home", url: SITE_URL },
+            { name: "Industries", url: `${SITE_URL}/industries` },
+          ]),
+        ]}
+      />
       <Navbar />
       <PageHero
         title="Industries"
