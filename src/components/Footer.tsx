@@ -106,13 +106,14 @@ const Footer = () => {
             <h4 className="font-display font-semibold text-white mb-4">Services</h4>
             <div className="flex flex-col gap-2">
               {[
-                { label: "Software Development", to: "/services" },
-                { label: "AI & Machine Learning", to: "/services" },
-                { label: "Cloud Solutions", to: "/services" },
-                { label: "UI/UX Design", to: "/services" },
-                { label: "Mobile Development", to: "/services" },
-                { label: "Digital Marketing", to: "/services" },
-                { label: "Industries", to: "/industries" },
+                { label: "Web & App Development", to: "/services#web-engineering" },
+                { label: "Mobile App Development", to: "/services#mobile-apps" },
+                { label: "Cloud Solutions & DevOps", to: "/services#cloud-platform" },
+                { label: "Cybersecurity Engineering", to: "/services#cybersecurity" },
+                { label: "Quality Engineering & QA", to: "/services#qa-testing" },
+                { label: "Data Engineering & AI", to: "/services#data-ai" },
+                { label: "Dedicated Teams", to: "/services#dedicated-team" },
+                { label: "App Support & Maintenance", to: "/services#support-maintenance" },
               ].map((link) => (
                 <Link key={link.label} to={link.to} className="text-sm text-white/50 hover:text-primary transition-colors">
                   {link.label}
@@ -125,14 +126,14 @@ const Footer = () => {
           <div>
             <h4 className="font-display font-semibold text-white mb-4">Get in Touch</h4>
             <div className="flex flex-col gap-3 mb-6">
-              <a href="mailto:info@zyllotech.com" className="flex items-center gap-2 text-sm text-white/60 hover:text-primary transition-colors">
-                <Mail size={14} className="text-primary shrink-0" /> info@zyllotech.com
+              <a href="mailto:hello@zyllotech.com" className="flex items-center gap-2 text-sm text-white/60 hover:text-primary transition-colors">
+                <Mail size={14} className="text-primary shrink-0" /> hello@zyllotech.com
               </a>
               <a href={`tel:${CONTACT_PHONE_E164}`} className="flex items-center gap-2 text-sm text-white/60 hover:text-primary transition-colors">
                 <Phone size={14} className="text-primary shrink-0" /> {CONTACT_PHONE_DISPLAY}
               </a>
               <div className="flex items-center gap-2 text-sm text-white/60">
-                <MapPin size={14} className="text-primary shrink-0" /> India
+                <MapPin size={14} className="text-primary shrink-0" /> Hyderabad, Telangana, India
               </div>
             </div>
 
