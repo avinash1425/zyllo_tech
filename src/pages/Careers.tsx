@@ -11,6 +11,9 @@ import {
   ShieldCheck,
   Rocket,
   Users,
+  GraduationCap,
+  Star,
+  Lightbulb,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -29,27 +32,47 @@ const openings = [
     type: "Full Time",
     experience: "5+ Years",
     skills: ["React", "Node.js", "TypeScript", "PostgreSQL", "AWS"],
+    domain: "Web Engineering",
   },
   {
-    title: "AI/ML Engineer",
+    title: "Cloud Solutions Engineer",
+    location: "India / Remote",
+    type: "Full Time",
+    experience: "4+ Years",
+    skills: ["AWS / GCP / Azure", "Terraform", "Kubernetes", "CI/CD", "Linux"],
+    domain: "Cloud & DevOps",
+  },
+  {
+    title: "Cybersecurity Engineer",
     location: "India / Remote",
     type: "Full Time",
     experience: "3+ Years",
-    skills: ["Python", "TensorFlow", "PyTorch", "NLP", "MLOps"],
+    skills: ["VAPT", "OWASP", "SIEM / SOAR", "Network Security", "Compliance"],
+    domain: "Cybersecurity",
+  },
+  {
+    title: "AI / ML Engineer",
+    location: "India / Remote",
+    type: "Full Time",
+    experience: "3+ Years",
+    skills: ["Python", "PyTorch / TensorFlow", "LLMs", "RAG", "MLOps"],
+    domain: "Data & AI",
   },
   {
     title: "DevOps Engineer",
     location: "India / Remote",
     type: "Full Time",
     experience: "4+ Years",
-    skills: ["Docker", "Kubernetes", "CI/CD", "AWS", "Terraform"],
+    skills: ["Docker", "Kubernetes", "CI/CD Pipelines", "AWS", "Terraform"],
+    domain: "Cloud & DevOps",
   },
   {
     title: "QA Automation Engineer",
     location: "India / Remote",
     type: "Full Time",
     experience: "3+ Years",
-    skills: ["Selenium", "Playwright", "Cypress", "Jest", "CI/CD Pipelines"],
+    skills: ["Selenium", "Playwright", "Cypress", "Jest", "API Testing"],
+    domain: "Quality Engineering",
   },
 ];
 
@@ -194,10 +217,10 @@ const CareersPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Software Engineering Jobs & Careers | Join Zyllo Tech India"
-        description="Build your engineering career at Zyllo Tech. We're hiring software engineers, cloud architects, AI/ML engineers, QA automation engineers, and cybersecurity engineers in Hyderabad, India and remotely."
+        title="Software Engineering Jobs & OJT Programme | Zyllo Tech India"
+        description="Join Zyllo Tech — hiring Senior Full Stack Developers, Cloud Engineers, Cybersecurity Engineers, AI/ML Engineers, DevOps Engineers, and QA Automation Engineers. Also offering a Graduate OJT programme for final-year students and fresh graduates across India."
         canonical="/careers"
-        keywords="software engineering jobs India, IT jobs Hyderabad, software developer jobs, cloud architect jobs India, AI ML engineer jobs, React developer jobs Hyderabad, remote software jobs India"
+        keywords="software engineering jobs India, IT jobs Hyderabad, cybersecurity engineer jobs India, cloud engineer jobs India, AI ML engineer jobs, QA automation engineer jobs, OJT training India, fresher software jobs Hyderabad, graduate IT programme India"
         structuredData={breadcrumbSchema([
           { name: "Home", url: SITE_URL },
           { name: "Careers", url: `${SITE_URL}/careers` },
@@ -253,7 +276,7 @@ const CareersPage = () => {
             <h3 className="mt-3 font-display text-3xl md:text-4xl font-bold text-foreground">Current opportunities</h3>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {openings.map((job, i) => (
               <motion.article
                 key={job.title}
@@ -261,30 +284,100 @@ const CareersPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.06 }}
-                className="rounded-2xl border border-border bg-background p-6 shadow-sm"
+                className="flex flex-col rounded-2xl border border-border bg-background p-6 shadow-sm hover:border-primary/30 transition-colors"
               >
-                <h4 className="font-display text-xl font-semibold text-foreground">{job.title}</h4>
-                <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted-foreground">
-                  <span className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4 text-primary" />{job.location}</span>
-                  <span className="inline-flex items-center gap-1.5"><Briefcase className="h-4 w-4 text-primary" />{job.type}</span>
-                  <span className="inline-flex items-center gap-1.5"><Clock3 className="h-4 w-4 text-primary" />{job.experience}</span>
+                <div className="flex items-start justify-between gap-2 mb-3">
+                  <h4 className="font-display text-lg font-semibold text-foreground leading-snug">{job.title}</h4>
+                  <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">{job.domain}</span>
                 </div>
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mb-4">
+                  <span className="inline-flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-primary" />{job.location}</span>
+                  <span className="inline-flex items-center gap-1.5"><Briefcase className="h-3.5 w-3.5 text-primary" />{job.type}</span>
+                  <span className="inline-flex items-center gap-1.5"><Clock3 className="h-3.5 w-3.5 text-primary" />{job.experience}</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5 mb-6">
                   {job.skills.map((skill) => (
-                    <span key={skill} className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                    <span key={skill} className="rounded-md bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
                       {skill}
                     </span>
                   ))}
                 </div>
                 <button
                   onClick={() => applyForRole(job.title)}
-                  className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80"
+                  className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
                 >
                   Apply for this role <ArrowRight className="h-4 w-4" />
                 </button>
               </motion.article>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* OJT / Graduate Programme */}
+      <section className="py-16">
+        <div className="container mx-auto px-4 sm:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/5 via-background to-[hsl(195,55%,42%,0.06)] p-8 md:p-10"
+          >
+            <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
+              <div className="flex-1">
+                <div className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-primary mb-4">
+                  <GraduationCap className="h-4 w-4" /> Graduate & OJT Programme
+                </div>
+                <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-3">
+                  Starting Your Career? We Want to Hear From You.
+                </h3>
+                <p className="text-muted-foreground leading-relaxed mb-6">
+                  Whether you are a final-year student, a recent B.Tech / MCA / BCA / BSc graduate, or looking for On-the-Job Training (OJT) as part of your academic programme — Zyllo Tech welcomes driven learners who want real engineering experience, not just theory.
+                </p>
+                <div className="grid gap-4 sm:grid-cols-3 mb-8">
+                  {[
+                    {
+                      icon: <Lightbulb className="h-5 w-5 text-primary" />,
+                      title: "Learn by Doing",
+                      text: "Work on live client projects in web, mobile, cloud, and AI — not dummy assignments.",
+                    },
+                    {
+                      icon: <Users className="h-5 w-5 text-primary" />,
+                      title: "Mentored Teams",
+                      text: "Paired with senior engineers who review your code, guide architecture decisions, and support growth.",
+                    },
+                    {
+                      icon: <Star className="h-5 w-5 text-primary" />,
+                      title: "Path to Full-Time",
+                      text: "Strong OJT performers are evaluated for full-time offers at the end of the programme.",
+                    },
+                  ].map((item) => (
+                    <div key={item.title} className="rounded-xl border border-border bg-background p-4">
+                      <div className="mb-2">{item.icon}</div>
+                      <p className="text-sm font-semibold text-foreground mb-1">{item.title}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{item.text}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="rounded-lg border border-border bg-muted/40 px-5 py-4 text-sm text-muted-foreground mb-6">
+                  <p className="font-medium text-foreground mb-1">Programme Details</p>
+                  <ul className="space-y-1 text-xs">
+                    <li>• Duration: 3 – 6 months (flexible based on academic requirement)</li>
+                    <li>• Mode: Hybrid / Remote (India)</li>
+                    <li>• Domains: Web Development, Mobile Apps, Cloud & DevOps, Data & AI, QA Engineering</li>
+                    <li>• Eligibility: Final-year students or graduates in CS / IT / Engineering (2023–2025 batches)</li>
+                    <li>• Certificate of completion issued; OJT letters provided for college requirements</li>
+                  </ul>
+                </div>
+                <button
+                  onClick={() => applyForRole("Graduate OJT Programme")}
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
+                >
+                  Apply for OJT Programme <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -325,6 +418,8 @@ const CareersPage = () => {
                     {openings.map((job) => (
                       <option key={job.title} value={job.title}>{job.title}</option>
                     ))}
+                    <option value="Graduate OJT Programme">Graduate OJT Programme</option>
+                    <option value="Other / Open Application">Other / Open Application</option>
                   </select>
                   {errors.role && <p className="mt-1 text-xs text-destructive">{errors.role.message}</p>}
                 </div>
