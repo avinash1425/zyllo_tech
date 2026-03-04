@@ -5,6 +5,8 @@ interface TubesBackgroundProps {
   children?: React.ReactNode;
   className?: string;
   enableClickInteraction?: boolean;
+  orbitSpeed?: number;
+  orbitScale?: number;
 }
 
 const randomColors = (count: number) => {
@@ -25,6 +27,8 @@ export function TubesBackground({
   children,
   className,
   enableClickInteraction = true,
+  orbitSpeed = 0.72,
+  orbitScale = 1,
 }: TubesBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -64,36 +68,36 @@ export function TubesBackground({
           if (!canvas) return;
           const rect = canvas.getBoundingClientRect();
           const t = performance.now() / 1000;
-          const a = t * 0.62;
+          const a = t * orbitSpeed;
           const cx = rect.width / 2;
           const cy = rect.height / 2;
-          const rx = Math.min(rect.width * 0.54, rect.height * 1.08);
-          const ry = Math.min(rect.height * 0.31, rect.width * 0.29);
+          const rx = Math.min(rect.width * 0.44, rect.height * 1.35) * orbitScale;
+          const ry = Math.min(rect.height * 0.34, rect.width * 0.32) * orbitScale;
 
           const dispatchOrbitPoint = (angle: number) => {
-            // Gerono lemniscate: stable, symmetric infinity with a clear center crossing.
+            // Gerono lemniscate: clear infinity-loop path.
             const x = cx + Math.sin(angle) * rx;
             const y = cy + Math.sin(angle) * Math.cos(angle) * (ry * 2);
             const clientX = rect.left + x;
             const clientY = rect.top + y;
 
-            const evt = new PointerEvent("pointermove", {
-              clientX,
-              clientY,
-              pointerType: "mouse",
-              bubbles: true,
-            });
-            canvas.dispatchEvent(evt);
-            window.dispatchEvent(evt);
+            if (typeof PointerEvent !== "undefined") {
+              const evt = new PointerEvent("pointermove", {
+                clientX,
+                clientY,
+                pointerType: "mouse",
+                bubbles: true,
+              });
+              canvas.dispatchEvent(evt);
+              window.dispatchEvent(evt);
+            } else {
+              const evt = new MouseEvent("mousemove", { clientX, clientY, bubbles: true });
+              canvas.dispatchEvent(evt);
+              window.dispatchEvent(evt);
+            }
           };
 
-          // Bidirectional sampling keeps both infinity circles equally reinforced.
-          const segments = 20;
-          for (let i = 0; i < segments; i += 1) {
-            const phase = (i * Math.PI * 2) / segments;
-            dispatchOrbitPoint(a + phase);
-            dispatchOrbitPoint(-a + phase + Math.PI / segments);
-          }
+          dispatchOrbitPoint(a);
           orbitRafId = requestAnimationFrame(runInfinityOrbit);
         };
 
@@ -123,7 +127,7 @@ export function TubesBackground({
       if (cleanup) cleanup();
       cancelAnimationFrame(orbitRafId);
     };
-  }, []);
+  }, [orbitScale, orbitSpeed]);
 
   const handleClick = () => {
     if (!enableClickInteraction || !tubesRef.current?.tubes) return;
