@@ -5,6 +5,7 @@ import {
   Cloud,
   Code2,
   Cpu,
+  Eye,
   Globe,
   Lock,
   Shield,
@@ -20,18 +21,30 @@ import FloatingButtons from "@/components/FloatingButtons";
 import PageHero from "@/components/PageHero";
 import aboutTeam from "@/assets/about-team.jpg";
 
-const corePositioning = [
+const identityPillars = [
   {
+    key: "who",
     title: "Who We Are",
-    body: "A software engineering partner for businesses that need reliable websites, mobile apps, cloud platforms, and security-first delivery.",
+    subtitle: "Engineering Team with Product Mindset",
+    body: "We are a software company that combines strategy, design, engineering, QA, cloud, and security capabilities to deliver reliable digital systems.",
   },
   {
-    title: "What We Do",
-    body: "We design, build, modernize, and operate digital systems with clear architecture, practical execution, and measurable business outcomes.",
+    key: "what",
+    title: "What We Are",
+    subtitle: "Service-Based Technology Partner",
+    body: "We support businesses with end-to-end services across websites, mobile apps, cloud solutions, cybersecurity, and product operations.",
   },
   {
-    title: "How We Work",
-    body: "Cross-functional teams, transparent communication, structured delivery phases, and quality/security controls in every release.",
+    key: "mission",
+    title: "Our Mission",
+    subtitle: "Create Measurable Business Value",
+    body: "To build technology solutions that solve real operational problems, improve customer experience, and help companies scale with confidence.",
+  },
+  {
+    key: "vision",
+    title: "Our Vision",
+    subtitle: "Trusted Global Delivery Partner",
+    body: "To become a trusted software partner known for responsible engineering, secure delivery, and long-term product outcomes.",
   },
 ];
 
@@ -116,7 +129,7 @@ const AboutPage = () => {
             >
               <span className="text-xs font-medium uppercase tracking-widest text-primary">Company Overview</span>
               <h2 className="mt-3 font-display text-3xl md:text-4xl font-bold text-foreground">
-                Built for Companies That Need Real Execution, Not Just Promises
+                Who We Are, What We Are, and Why We Exist
               </h2>
               <p className="mt-4 text-muted-foreground leading-relaxed">
                 Zyllo Tech helps organizations move from ideas to reliable digital products through disciplined software engineering.
@@ -126,10 +139,11 @@ const AboutPage = () => {
                 Our approach emphasizes clarity, transparency, and measurable progress so business teams and engineering teams stay aligned from discovery to production.
               </p>
 
-              <div className="mt-6 space-y-3">
-                {corePositioning.map((item) => (
-                  <div key={item.title} className="rounded-lg border border-border bg-background p-4">
-                    <p className="text-sm font-semibold text-foreground">{item.title}</p>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {identityPillars.map((item) => (
+                  <div key={item.key} className="rounded-lg border border-border bg-background p-4">
+                    <p className="text-xs uppercase tracking-[0.14em] text-primary">{item.title}</p>
+                    <p className="mt-1 text-sm font-semibold text-foreground">{item.subtitle}</p>
                     <p className="mt-1 text-sm text-muted-foreground">{item.body}</p>
                   </div>
                 ))}
@@ -177,6 +191,40 @@ const AboutPage = () => {
                 </div>
                 <h3 className="font-display text-lg font-semibold text-foreground">{area.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{area.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20">
+        <div className="container mx-auto px-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            {[
+              {
+                icon: Target,
+                title: "Mission",
+                body: "Deliver practical, secure, and scalable software solutions that create real business outcomes for every client.",
+              },
+              {
+                icon: Eye,
+                title: "Vision",
+                body: "Be a globally trusted software partner for companies building long-term digital capabilities.",
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+                className="rounded-xl border border-border bg-background p-7"
+              >
+                <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <item.icon size={20} />
+                </div>
+                <h3 className="font-display text-2xl font-bold text-foreground">{item.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{item.body}</p>
               </motion.div>
             ))}
           </div>
