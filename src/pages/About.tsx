@@ -6,6 +6,7 @@ import {
   Code2,
   Cpu,
   Globe,
+  Lock,
   Shield,
   Sparkles,
   Target,
@@ -19,76 +20,79 @@ import FloatingButtons from "@/components/FloatingButtons";
 import PageHero from "@/components/PageHero";
 import aboutTeam from "@/assets/about-team.jpg";
 
-const impactStats = [
-  { value: "Web", label: "Product Engineering" },
-  { value: "Mobile", label: "App Delivery" },
-  { value: "Cloud", label: "Platform Operations" },
-  { value: "Secure", label: "Engineering Practices" },
+const corePositioning = [
+  {
+    title: "Who We Are",
+    body: "A software engineering partner for businesses that need reliable websites, mobile apps, cloud platforms, and security-first delivery.",
+  },
+  {
+    title: "What We Do",
+    body: "We design, build, modernize, and operate digital systems with clear architecture, practical execution, and measurable business outcomes.",
+  },
+  {
+    title: "How We Work",
+    body: "Cross-functional teams, transparent communication, structured delivery phases, and quality/security controls in every release.",
+  },
 ];
 
-const servicePillars = [
+const capabilityAreas = [
   {
     icon: Globe,
-    title: "Web & Product Engineering",
-    desc: "Scalable websites, web applications, and product platforms built for performance and business outcomes.",
+    title: "Web Platforms",
+    desc: "Marketing websites, portals, and SaaS products designed for performance, SEO, accessibility, and conversion.",
   },
   {
     icon: Code2,
-    title: "Mobile App Development",
-    desc: "iOS and Android applications with reliable release pipelines, analytics, and long-term maintainability.",
+    title: "Mobile Engineering",
+    desc: "Native and cross-platform apps with release discipline, monitoring, and maintainable product architecture.",
   },
   {
     icon: Cloud,
     title: "Cloud & DevOps",
-    desc: "Cloud-native architecture, automation, observability, and cost-aware operations for dependable systems.",
+    desc: "Cloud architecture, infrastructure automation, observability, and incident-ready operations.",
   },
   {
     icon: Shield,
-    title: "Cybersecurity Engineering",
-    desc: "Secure SDLC, vulnerability management, and compliance-aligned controls embedded into delivery.",
+    title: "Cybersecurity",
+    desc: "Secure SDLC, vulnerability remediation, and controls aligned to practical security standards.",
   },
   {
     icon: Cpu,
     title: "Data & Applied AI",
-    desc: "Data pipelines, analytics products, and AI-assisted workflows that improve operational decisions.",
+    desc: "Data pipelines, analytics systems, and focused AI use cases tied to operational improvement.",
   },
   {
     icon: Workflow,
     title: "Delivery & Support",
-    desc: "Dedicated teams, QA, and post-launch support models designed for continuous product improvement.",
+    desc: "Dedicated teams, QA automation, and post-launch support for continuous improvement.",
   },
 ];
 
-const executionModel = [
-  {
-    step: "01",
-    title: "Business Discovery",
-    details: "We define objectives, risk constraints, integration dependencies, and success metrics before build.",
-  },
-  {
-    step: "02",
-    title: "Solution Architecture",
-    details: "We map technical architecture, delivery scope, and release phases aligned with your timelines.",
-  },
-  {
-    step: "03",
-    title: "Agile Delivery",
-    details: "Cross-functional teams execute in sprints with demos, QA gates, and transparent reporting.",
-  },
-  {
-    step: "04",
-    title: "Operate & Evolve",
-    details: "Post-launch monitoring, security hardening, and ongoing optimization keep products reliable.",
-  },
+const deliveryPrinciples = [
+  "Start with business outcomes, not features.",
+  "Design architecture for reliability and scale from day one.",
+  "Integrate quality and security checks into every release.",
+  "Keep communication direct, transparent, and accountable.",
+  "Ship in phases and measure impact continuously.",
+  "Document systems for long-term maintainability.",
 ];
 
-const standards = [
-  "Architecture-first planning before implementation",
-  "Security and quality controls in every release cycle",
-  "Clear engineering governance and documentation",
-  "Data-driven decision making and measurable outcomes",
-  "Long-term maintainability over short-term shortcuts",
-  "Partnership mindset with transparent communication",
+const trustSignals = [
+  {
+    icon: Target,
+    title: "Clear Scope",
+    desc: "Each engagement starts with explicit scope, assumptions, risks, and delivery milestones.",
+  },
+  {
+    icon: Lock,
+    title: "Responsible Claims",
+    desc: "We avoid inflated promises and focus on verifiable deliverables and practical outcomes.",
+  },
+  {
+    icon: Users,
+    title: "Accessible Communication",
+    desc: "Decision logs, sprint updates, and working demos keep stakeholders aligned throughout delivery.",
+  },
 ];
 
 const AboutPage = () => {
@@ -98,49 +102,47 @@ const AboutPage = () => {
       <PageHero
         title="About"
         highlight="Zyllo Tech"
-        description="A software engineering company helping businesses build, modernize, and scale digital products with clarity and confidence."
+        description="A software company focused on dependable engineering, secure delivery, and long-term product value."
         breadcrumb="About Us"
       />
 
       <section className="py-20">
         <div className="container mx-auto px-6">
-          <div className="grid items-center gap-12 lg:grid-cols-2">
+          <div className="grid gap-12 lg:grid-cols-2 items-center">
             <motion.div
-              initial={{ opacity: 0, x: -24 }}
+              initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <span className="text-xs font-medium uppercase tracking-widest text-primary">Who We Are</span>
+              <span className="text-xs font-medium uppercase tracking-widest text-primary">Company Overview</span>
               <h2 className="mt-3 font-display text-3xl md:text-4xl font-bold text-foreground">
-                Engineering-Led Team Focused on Business Impact
+                Built for Companies That Need Real Execution, Not Just Promises
               </h2>
               <p className="mt-4 text-muted-foreground leading-relaxed">
-                Zyllo Tech is a service-based software company delivering websites, mobile products,
-                cloud platforms, cybersecurity programs, and AI-enabled systems for growth-stage and
-                enterprise teams.
+                Zyllo Tech helps organizations move from ideas to reliable digital products through disciplined software engineering.
+                We work across product development, cloud operations, cybersecurity, and ongoing support.
               </p>
               <p className="mt-3 text-muted-foreground leading-relaxed">
-                We combine product thinking with disciplined engineering so every project ships with
-                clear architecture, operational readiness, and measurable outcomes.
+                Our approach emphasizes clarity, transparency, and measurable progress so business teams and engineering teams stay aligned from discovery to production.
               </p>
 
-              <div className="mt-6 grid grid-cols-2 gap-4">
-                {impactStats.map((stat) => (
-                  <div key={stat.label} className="rounded-lg border border-border bg-background p-4">
-                    <div className="font-display text-3xl font-bold text-primary">{stat.value}</div>
-                    <p className="mt-1 text-xs text-muted-foreground">{stat.label}</p>
+              <div className="mt-6 space-y-3">
+                {corePositioning.map((item) => (
+                  <div key={item.title} className="rounded-lg border border-border bg-background p-4">
+                    <p className="text-sm font-semibold text-foreground">{item.title}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{item.body}</p>
                   </div>
                 ))}
               </div>
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, x: 24 }}
+              initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               className="overflow-hidden rounded-2xl border border-border shadow-sm"
             >
-              <img src={aboutTeam} alt="Zyllo Tech team collaboration" className="w-full h-auto" />
+              <img src={aboutTeam} alt="Zyllo Tech team working on software solutions" className="w-full h-auto" />
             </motion.div>
           </div>
         </div>
@@ -154,16 +156,16 @@ const AboutPage = () => {
             viewport={{ once: true }}
             className="text-center mb-14"
           >
-            <span className="text-xs font-medium uppercase tracking-widest text-primary">What We Deliver</span>
+            <span className="text-xs font-medium uppercase tracking-widest text-primary">Capabilities</span>
             <h2 className="mt-3 font-display text-4xl md:text-5xl font-bold text-foreground">
-              Core Capability Areas
+              What We Deliver
             </h2>
           </motion.div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {servicePillars.map((pillar, i) => (
+            {capabilityAreas.map((area, i) => (
               <motion.div
-                key={pillar.title}
+                key={area.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -171,10 +173,10 @@ const AboutPage = () => {
                 className="rounded-xl border border-border bg-background p-6 hover:border-primary/40 hover:shadow-sm transition-all"
               >
                 <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <pillar.icon size={20} />
+                  <area.icon size={20} />
                 </div>
-                <h3 className="font-display text-lg font-semibold text-foreground">{pillar.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{pillar.desc}</p>
+                <h3 className="font-display text-lg font-semibold text-foreground">{area.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{area.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -185,49 +187,65 @@ const AboutPage = () => {
         <div className="container mx-auto px-6">
           <div className="grid gap-8 lg:grid-cols-2">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               className="rounded-xl border border-border bg-background p-7"
             >
-              <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Target size={20} />
-              </div>
-              <h3 className="font-display text-2xl font-bold text-foreground">Execution Model</h3>
-              <div className="mt-5 space-y-4">
-                {executionModel.map((item) => (
-                  <div key={item.step} className="rounded-lg border border-border p-4">
-                    <p className="text-xs font-semibold text-primary">STEP {item.step}</p>
-                    <p className="mt-1 text-sm font-semibold text-foreground">{item.title}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{item.details}</p>
+              <h3 className="font-display text-2xl font-bold text-foreground">Delivery Principles</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Our delivery model is designed to reduce project risk while keeping speed and quality in balance.
+              </p>
+              <div className="mt-5 space-y-3">
+                {deliveryPrinciples.map((item) => (
+                  <div key={item} className="flex items-start gap-2 rounded-lg border border-border p-3">
+                    <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-primary" />
+                    <p className="text-sm text-foreground">{item}</p>
                   </div>
                 ))}
               </div>
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.05 }}
               className="rounded-xl border border-border bg-background p-7"
             >
-              <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Users size={20} />
-              </div>
-              <h3 className="font-display text-2xl font-bold text-foreground">How We Work</h3>
-              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                Our team follows engineering and delivery practices designed to reduce risk, improve
-                release quality, and keep stakeholders aligned.
+              <h3 className="font-display text-2xl font-bold text-foreground">Trust & Transparency</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                For service businesses, trust is built through transparency, responsible communication, and clear operating standards.
               </p>
 
-              <div className="mt-5 space-y-3">
-                {standards.map((item) => (
-                  <div key={item} className="flex items-start gap-2 rounded-lg border border-border p-3">
-                    <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-primary" />
-                    <p className="text-sm text-foreground">{item}</p>
+              <div className="mt-5 space-y-4">
+                {trustSignals.map((signal) => (
+                  <div key={signal.title} className="rounded-lg border border-border p-4">
+                    <div className="flex items-center gap-2 text-foreground">
+                      <signal.icon size={16} className="text-primary" />
+                      <p className="text-sm font-semibold">{signal.title}</p>
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">{signal.desc}</p>
                   </div>
                 ))}
+              </div>
+
+              <div className="mt-5 rounded-lg border border-border p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-primary">Company Information</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link to="/contact" className="rounded border border-border px-3 py-1 text-xs text-foreground hover:border-primary/40">
+                    Contact
+                  </Link>
+                  <Link to="/services" className="rounded border border-border px-3 py-1 text-xs text-foreground hover:border-primary/40">
+                    Services
+                  </Link>
+                  <Link to="/privacy-policy" className="rounded border border-border px-3 py-1 text-xs text-foreground hover:border-primary/40">
+                    Privacy Policy
+                  </Link>
+                  <Link to="/terms-of-service" className="rounded border border-border px-3 py-1 text-xs text-foreground hover:border-primary/40">
+                    Terms of Service
+                  </Link>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -245,23 +263,22 @@ const AboutPage = () => {
             <div className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <Sparkles size={20} />
             </div>
-            <h3 className="font-display text-3xl font-bold text-foreground">Build With a Reliable Technology Partner</h3>
+            <h3 className="font-display text-3xl font-bold text-foreground">Let’s Build Something Durable</h3>
             <p className="mt-3 mx-auto max-w-2xl text-sm text-muted-foreground leading-relaxed">
-              If you are planning a new product, modernization initiative, or industry-specific
-              digital platform, we can help you define the roadmap and deliver it with confidence.
+              Share your goals, current constraints, and timelines. We will recommend a practical solution path and delivery model.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Link
                 to="/contact"
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90"
               >
-                Start a Conversation <ArrowRight size={14} />
+                Discuss Your Project <ArrowRight size={14} />
               </Link>
               <Link
-                to="/services"
+                to="/industries"
                 className="inline-flex items-center rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-foreground hover:border-primary/40"
               >
-                Explore Services
+                View Industry Solutions
               </Link>
             </div>
           </motion.div>
