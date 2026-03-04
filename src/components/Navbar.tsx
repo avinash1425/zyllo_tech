@@ -45,10 +45,10 @@ const Navbar = () => {
             <Link
               key={link.label}
               to={link.href}
-              className={`relative text-[14px] font-semibold transition-colors duration-200 pb-0.5 ${
+              className={`rounded-md px-2 py-1 text-[14px] font-semibold transition-colors duration-200 ${
                 location.pathname === link.href
-                  ? "text-transparent bg-clip-text bg-gradient-to-r from-[hsl(24,95%,50%)] to-[hsl(195,55%,42%)] after:absolute after:bottom-[-14px] after:left-0 after:right-0 after:h-[2px] after:bg-gradient-to-r after:from-[hsl(24,95%,50%)] after:to-[hsl(195,55%,42%)]"
-                  : "text-foreground/70 hover:text-primary"
+                  ? "bg-primary/10 text-primary"
+                  : "text-foreground/70 hover:bg-muted/60 hover:text-primary"
               }`}
                 >
               {link.label}
