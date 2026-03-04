@@ -182,13 +182,23 @@ export default function AboutUsSection() {
               transition={{ duration: 0.6 }}
               className="relative w-full max-w-xs"
             >
-              <div className="overflow-hidden rounded-xl border border-border shadow-lg">
-                <img
-                  src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1400&auto=format&fit=crop"
-                  alt="Software team planning architecture"
-                  className="h-full w-full object-cover"
-                />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[hsl(215,30%,16%,0.7)] to-transparent p-4">
+              <div className="relative overflow-hidden rounded-xl border border-border bg-[linear-gradient(150deg,hsl(215,30%,14%),hsl(215,34%,20%),hsl(195,48%,22%))] shadow-lg">
+                <div className="absolute -left-10 -top-10 h-36 w-36 rounded-full bg-primary/20 blur-2xl" />
+                <div className="absolute -bottom-8 -right-8 h-40 w-40 rounded-full bg-[hsl(195,55%,42%,0.2)] blur-2xl" />
+
+                <div className="flex min-h-[320px] items-center justify-center">
+                  <motion.div
+                    animate={{ rotate: [0, 8, 0, -8, 0] }}
+                    transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+                    className="relative"
+                  >
+                    <div className="absolute -inset-6 rounded-full border border-white/10" />
+                    <div className="absolute -inset-12 rounded-full border border-white/5" />
+                    <Globe className="h-28 w-28 text-white/90 md:h-32 md:w-32" strokeWidth={1.8} />
+                  </motion.div>
+                </div>
+
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[hsl(215,30%,12%,0.8)] to-transparent p-4">
                   <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold text-[hsl(215,30%,16%)] shadow-sm">
                     <Globe className="h-4.5 w-4.5" strokeWidth={2.1} /> About Us
                   </span>
