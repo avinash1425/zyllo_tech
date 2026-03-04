@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpen, Bot, FileText, Layers, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, Bot, FileText, Layers, Sparkles, Building2, ShoppingCart, Heart, GraduationCap, Truck, Factory, Gamepad2, Home, Plane, Radio, Tv, Leaf } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -9,31 +9,130 @@ import PageHero from "@/components/PageHero";
 const resources = [
   {
     title: "AI Playbooks",
-    description: "Practical guides for introducing AI features into business workflows.",
+    description: "Practical guides for introducing AI features into business workflows — from LLM integration to predictive analytics and automation pipelines.",
     icon: Bot,
-    href: "/blog",
+    href: "/blog?category=AI+%26+ML",
     tag: "AI-Powered",
   },
   {
     title: "Engineering Insights",
-    description: "Architecture patterns, scaling tips, and code quality best practices.",
+    description: "Architecture patterns, scaling strategies, microservices migration, and code quality best practices from our engineering team.",
     icon: Layers,
-    href: "/blog",
+    href: "/blog?category=Development",
     tag: "Engineering",
   },
   {
     title: "Product Templates",
-    description: "Kickoff documents, discovery checklists, and roadmap templates.",
+    description: "Kickoff documents, discovery checklists, RFP guides, and roadmap templates for software projects.",
     icon: FileText,
     href: "/contact",
     tag: "Templates",
   },
   {
     title: "Case Stories",
-    description: "Real examples of delivery outcomes from idea to production launch.",
+    description: "Real delivery outcomes from idea to production — covering FinTech, HealthTech, EdTech, and more.",
     icon: BookOpen,
-    href: "/contact",
+    href: "/portfolio",
     tag: "Case Study",
+  },
+];
+
+const industryGuides = [
+  {
+    icon: Building2,
+    label: "Banking & FinTech",
+    slug: "digital-banking-platform-implementation-guide",
+    desc: "KYC automation, payment integration, and OWASP-compliant architecture",
+    color: "text-blue-500",
+    bg: "bg-blue-500/10",
+  },
+  {
+    icon: ShoppingCart,
+    label: "Retail & E-Commerce",
+    slug: "headless-commerce-architecture-retail",
+    desc: "Headless commerce, inventory sync, and flash-sale engineering at scale",
+    color: "text-orange-500",
+    bg: "bg-orange-500/10",
+  },
+  {
+    icon: Heart,
+    label: "Healthcare",
+    slug: "fhir-patient-portal-implementation",
+    desc: "FHIR-compliant patient portals, telehealth, and HIPAA security controls",
+    color: "text-rose-500",
+    bg: "bg-rose-500/10",
+  },
+  {
+    icon: GraduationCap,
+    label: "EdTech & LMS",
+    slug: "lms-scaling-edtech-implementation",
+    desc: "Video infrastructure, adaptive learning, and live virtual classrooms",
+    color: "text-amber-500",
+    bg: "bg-amber-500/10",
+  },
+  {
+    icon: Truck,
+    label: "Logistics & Fleet",
+    slug: "fleet-tracking-iot-cloud-implementation",
+    desc: "Real-time IoT fleet tracking, route optimisation, and driver apps",
+    color: "text-teal-500",
+    bg: "bg-teal-500/10",
+  },
+  {
+    icon: Factory,
+    label: "Manufacturing",
+    slug: "predictive-maintenance-manufacturing-implementation",
+    desc: "Predictive maintenance ML, MES integration, and IoT sensor pipelines",
+    color: "text-slate-500",
+    bg: "bg-slate-500/10",
+  },
+  {
+    icon: Gamepad2,
+    label: "Gaming & Entertainment",
+    slug: "game-backend-architecture-scaling",
+    desc: "Low-latency game backends, matchmaking, and in-game economy systems",
+    color: "text-purple-500",
+    bg: "bg-purple-500/10",
+  },
+  {
+    icon: Home,
+    label: "Real Estate",
+    slug: "proptech-crm-project-management",
+    desc: "PropTech CRM, construction project tracking, and buyer portals",
+    color: "text-emerald-500",
+    bg: "bg-emerald-500/10",
+  },
+  {
+    icon: Plane,
+    label: "Travel & Hospitality",
+    slug: "hotel-booking-engine-travel-implementation",
+    desc: "Booking engines, channel manager integration, and loyalty systems",
+    color: "text-sky-500",
+    bg: "bg-sky-500/10",
+  },
+  {
+    icon: Radio,
+    label: "Telecom & IT Services",
+    slug: "telecom-customer-portal-billing-automation",
+    desc: "Self-service portals, billing automation, and BSS/OSS integration",
+    color: "text-indigo-500",
+    bg: "bg-indigo-500/10",
+  },
+  {
+    icon: Tv,
+    label: "Media & Publishing",
+    slug: "headless-cms-migration-media-publishing",
+    desc: "Headless CMS migration, paywall implementation, and content delivery",
+    color: "text-pink-500",
+    bg: "bg-pink-500/10",
+  },
+  {
+    icon: Leaf,
+    label: "Agriculture & Environment",
+    slug: "iot-farm-monitoring-agritech-implementation",
+    desc: "IoT farm monitoring, supply chain traceability, and sustainability reporting",
+    color: "text-green-500",
+    bg: "bg-green-500/10",
   },
 ];
 
@@ -44,17 +143,18 @@ const Resources = () => {
       <PageHero
         title="Resources"
         highlight="Hub"
-        description="Explore practical resources across AI, engineering, product strategy, and delivery execution."
+        description="Practical implementation guides, engineering playbooks, and industry blueprints — written by the engineers who build these systems."
         breadcrumb="Resources"
       />
 
       <section className="py-20">
         <div className="container mx-auto px-6">
+          {/* AI Capability Banner */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-10 rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-background to-[hsl(195,55%,42%,0.08)] p-6 md:p-8"
+            className="mb-14 rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-background to-[hsl(195,55%,42%,0.08)] p-6 md:p-8"
           >
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
@@ -72,7 +172,7 @@ const Resources = () => {
               </div>
               <Link
                 to="/contact"
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
+                className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
               >
                 Talk to Us
                 <ArrowRight size={15} />
@@ -80,36 +180,125 @@ const Resources = () => {
             </div>
           </motion.div>
 
-          <div className="grid gap-6 sm:grid-cols-2">
-            {resources.map((resource, i) => (
-              <motion.article
-                key={resource.title}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-                className="group rounded-xl border border-border bg-background p-6 hover:border-primary/40 hover:shadow-md transition-all"
-              >
-                <div className="mb-4 flex items-center justify-between">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <resource.icon size={18} />
-                  </div>
-                  <span className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">
-                    {resource.tag}
-                  </span>
-                </div>
-                <h3 className="font-display text-lg font-bold text-foreground">{resource.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{resource.description}</p>
-                <Link
-                  to={resource.href}
-                  className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
+          {/* Resource Categories */}
+          <div className="mb-16">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mb-8"
+            >
+              <h2 className="font-display text-2xl font-bold text-foreground">Resource Library</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Guides, playbooks, and templates from our team.
+              </p>
+            </motion.div>
+            <div className="grid gap-6 sm:grid-cols-2">
+              {resources.map((resource, i) => (
+                <motion.article
+                  key={resource.title}
+                  initial={{ opacity: 0, y: 18 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05 }}
+                  className="group rounded-xl border border-border bg-background p-6 hover:border-primary/40 hover:shadow-md transition-all"
                 >
-                  Explore
-                  <ArrowRight size={14} />
-                </Link>
-              </motion.article>
-            ))}
+                  <div className="mb-4 flex items-center justify-between">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <resource.icon size={18} />
+                    </div>
+                    <span className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">
+                      {resource.tag}
+                    </span>
+                  </div>
+                  <h3 className="font-display text-lg font-bold text-foreground">{resource.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{resource.description}</p>
+                  <Link
+                    to={resource.href}
+                    className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
+                  >
+                    Explore
+                    <ArrowRight size={14} />
+                  </Link>
+                </motion.article>
+              ))}
+            </div>
           </div>
+
+          {/* Industry Implementation Guides */}
+          <div>
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mb-8"
+            >
+              <p className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary mb-3">
+                <BookOpen size={12} />
+                Implementation Blueprints
+              </p>
+              <h2 className="font-display text-2xl font-bold text-foreground">
+                Industry-Specific Engineering Guides
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+                Deep technical guides written by our engineers who have built production systems in each of these sectors. Use them to understand the architecture, evaluate vendors, or plan your own implementation.
+              </p>
+            </motion.div>
+
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {industryGuides.map((guide, i) => (
+                <motion.div
+                  key={guide.slug}
+                  initial={{ opacity: 0, y: 18 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.04 }}
+                >
+                  <Link
+                    to={`/blog/${guide.slug}`}
+                    className="group flex gap-4 rounded-xl border border-border bg-background p-5 hover:border-primary/40 hover:shadow-md transition-all h-full"
+                  >
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${guide.bg} ${guide.color}`}>
+                      <guide.icon size={18} />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-display text-sm font-bold text-foreground group-hover:text-primary transition-colors leading-snug mb-1">
+                        {guide.label}
+                      </h3>
+                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                        {guide.desc}
+                      </p>
+                      <span className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary">
+                        Read guide <ArrowRight size={11} />
+                      </span>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Bottom CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-16 rounded-2xl bg-muted/60 border border-border p-10 text-center"
+          >
+            <h3 className="font-display text-2xl font-bold text-foreground mb-2">
+              Don't see your industry?
+            </h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto text-sm">
+              We work across more sectors than we've listed here. Reach out and we'll share relevant case studies and technical approaches for your specific domain.
+            </p>
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
+            >
+              Get in Touch
+              <ArrowRight size={15} />
+            </Link>
+          </motion.div>
         </div>
       </section>
 
