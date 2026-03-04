@@ -164,6 +164,11 @@ const CareersPage = () => {
       });
       if (error) throw error;
 
+      // Send admin notification (fire and forget)
+      supabase.functions.invoke("notify-admin", {
+        body: { type: "career", data: { fullName: data.fullName, email: data.email, phone: data.phone, role: data.role, location: data.location, experience: data.experience, linkedIn: data.linkedIn || "", coverLetter: data.coverLetter } },
+      }).catch(() => {});
+
       reset();
       toast({
         title: "Application submitted",
