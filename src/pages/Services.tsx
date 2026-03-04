@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   CheckCircle2,
@@ -10,8 +10,10 @@ import {
   Search,
   Shield,
   Smartphone,
+  Sparkles,
   Workflow,
   Wrench,
+  X,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -298,44 +300,56 @@ const categories: Array<"All" | Service["category"]> = ["All", "Engineering", "P
 
 const ServicesPage = () => {
   const [selectedCategory, setSelectedCategory] = useState<"All" | Service["category"]>("All");
-  const [expandedServiceId, setExpandedServiceId] = useState<string | null>(services[0].id);
-  const [serviceQuestion, setServiceQuestion] = useState<Record<string, string>>({});
-  const [serviceAnswer, setServiceAnswer] = useState<Record<string, string>>({});
+  const [activeService, setActiveService] = useState<Service | null>(null);
+  const [modalQuery, setModalQuery] = useState("");
+  const [modalAnswer, setModalAnswer] = useState("");
 
   const filteredServices = useMemo(() => {
     if (selectedCategory === "All") return services;
     return services.filter((service) => service.category === selectedCategory);
   }, [selectedCategory]);
 
-  const handleServiceQuestion = (service: Service) => {
-    const query = (serviceQuestion[service.id] || "").trim().toLowerCase();
+  const openServiceModal = (service: Service) => {
+    setActiveService(service);
+    setModalQuery("");
+    setModalAnswer("");
+  };
+
+  const closeServiceModal = () => {
+    setActiveService(null);
+    setModalQuery("");
+    setModalAnswer("");
+  };
+
+  const handleModalSearch = () => {
+    if (!activeService) return;
+    const query = modalQuery.trim().toLowerCase();
+
     if (!query) {
-      setServiceAnswer((prev) => ({ ...prev, [service.id]: "Please type a question first." }));
+      setModalAnswer("Please enter your question about this service.");
       return;
     }
 
-    const matchedFaq = service.faqs.find(
+    const matchedFaq = activeService.faqs.find(
       (faq) => faq.q.toLowerCase().includes(query) || faq.a.toLowerCase().includes(query),
     );
 
     if (matchedFaq) {
-      setServiceAnswer((prev) => ({ ...prev, [service.id]: matchedFaq.a }));
+      setModalAnswer(matchedFaq.a);
       return;
     }
 
-    const matchedKeyword = service.keywords.some((keyword) => query.includes(keyword));
-    if (matchedKeyword) {
-      setServiceAnswer((prev) => ({
-        ...prev,
-        [service.id]: `Based on your question, this service fits. Recommended next step: book a consultation and we will share a tailored scope, timeline, and architecture options.`,
-      }));
+    const keywordMatch = activeService.keywords.some((keyword) => query.includes(keyword));
+    if (keywordMatch) {
+      setModalAnswer(
+        "This service can address that requirement. Share your timeline and constraints, and we can provide a tailored scope.",
+      );
       return;
     }
 
-    setServiceAnswer((prev) => ({
-      ...prev,
-      [service.id]: "We can answer this in detail during consultation. Share your use case and constraints, and we will propose the right solution path.",
-    }));
+    setModalAnswer(
+      "Your question is valid for this service. Please book a consultation and we will share a detailed technical approach.",
+    );
   };
 
   return (
@@ -348,23 +362,20 @@ const ServicesPage = () => {
         breadcrumb="Services"
       />
 
-      <section className="py-16 border-b border-border/70">
+      <section className="py-12 border-b border-border/70">
         <div className="container mx-auto px-6">
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center"
+            className="mx-auto flex max-w-4xl items-center justify-between gap-4 rounded-xl bg-gradient-to-r from-[#7eb7b3] to-[#bba355] px-5 py-4"
           >
-            <span className="text-xs font-medium uppercase tracking-widest text-primary">
-              What We Provide
-            </span>
-            <h2 className="mt-3 font-display text-3xl md:text-4xl font-bold text-foreground">
-              Service Lines Built for a Software Company
-            </h2>
-            <p className="mt-3 mx-auto max-w-3xl text-muted-foreground">
-              From product engineering to security and cloud operations, each service line is designed for measurable delivery outcomes and long-term maintainability.
+            <p className="flex items-center gap-2 text-sm font-medium text-white">
+              <Sparkles size={16} /> Not sure what you need? Let AI guide your service selection.
             </p>
+            <button className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-[#0077b6] hover:bg-white/90 transition-colors">
+              <Search size={15} /> AI Service Search
+            </button>
           </motion.div>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
@@ -388,110 +399,32 @@ const ServicesPage = () => {
       <section className="py-20">
         <div className="container mx-auto px-6">
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredServices.map((service, i) => {
-              const isExpanded = expandedServiceId === service.id;
-              return (
-                <motion.article
-                  key={service.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.45, delay: i * 0.04 }}
-                  className={`rounded-xl border bg-background p-6 transition-all duration-300 ${
-                    isExpanded
-                      ? "border-primary/60 shadow-md"
-                      : "border-border hover:border-primary/40 hover:shadow-md"
-                  }`}
+            {filteredServices.map((service, i) => (
+              <motion.article
+                key={service.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.45, delay: i * 0.04 }}
+                className="rounded-xl border border-border bg-background p-6 transition-all duration-300 hover:border-primary/40 hover:shadow-md"
+              >
+                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <service.icon size={24} />
+                </div>
+                <div className="mb-2 inline-flex rounded-full border border-border px-2.5 py-0.5 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                  {service.category}
+                </div>
+                <h3 className="font-display text-xl font-semibold text-foreground">{service.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{service.summary}</p>
+
+                <button
+                  onClick={() => openServiceModal(service)}
+                  className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-primary hover:opacity-80"
                 >
-                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <service.icon size={24} />
-                  </div>
-                  <div className="mb-2 inline-flex rounded-full border border-border px-2.5 py-0.5 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                    {service.category}
-                  </div>
-                  <h3 className="font-display text-xl font-semibold text-foreground">{service.title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{service.summary}</p>
-
-                  <button
-                    onClick={() => setExpandedServiceId((prev) => (prev === service.id ? null : service.id))}
-                    className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-primary hover:opacity-80"
-                  >
-                    {isExpanded ? "Hide scope" : "View scope"} <ArrowRight size={14} />
-                  </button>
-
-                  {isExpanded && (
-                    <div className="mt-6 rounded-lg border border-border p-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-                        Enhanced Scope Tab
-                      </p>
-
-                      <div className="mt-4">
-                        <h4 className="text-sm font-semibold text-foreground">Outcomes</h4>
-                        <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-                          {service.outcomes.map((outcome) => (
-                            <li key={outcome} className="flex items-start gap-2">
-                              <CheckCircle2 size={14} className="mt-0.5 text-primary shrink-0" />
-                              <span>{outcome}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div className="mt-4">
-                        <h4 className="text-sm font-semibold text-foreground">Deliverables</h4>
-                        <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-                          {service.deliverables.map((item) => (
-                            <li key={item}>- {item}</li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div className="mt-4">
-                        <h4 className="text-sm font-semibold text-foreground">Typical Tech</h4>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {service.technologies.map((tech) => (
-                            <span
-                              key={tech}
-                              className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground"
-                            >
-                              {tech}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="mt-5 rounded-lg border border-border p-3">
-                        <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                          Ask about this service
-                        </p>
-                        <div className="mt-2 flex items-center gap-2">
-                          <input
-                            value={serviceQuestion[service.id] || ""}
-                            onChange={(e) =>
-                              setServiceQuestion((prev) => ({
-                                ...prev,
-                                [service.id]: e.target.value,
-                              }))
-                            }
-                            placeholder="Ask a specific question for this service"
-                            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50"
-                          />
-                          <button
-                            onClick={() => handleServiceQuestion(service)}
-                            className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:opacity-90"
-                          >
-                            <Search size={13} /> Search
-                          </button>
-                        </div>
-                        {serviceAnswer[service.id] && (
-                          <p className="mt-3 text-sm text-muted-foreground">{serviceAnswer[service.id]}</p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </motion.article>
-              );
-            })}
+                  View scope <ArrowRight size={14} />
+                </button>
+              </motion.article>
+            ))}
           </div>
         </div>
       </section>
@@ -544,6 +477,103 @@ const ServicesPage = () => {
           </div>
         </div>
       </section>
+
+      <AnimatePresence>
+        {activeService && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center px-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/50"
+              onClick={closeServiceModal}
+            />
+
+            <motion.div
+              initial={{ opacity: 0, y: 16, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+              className="relative z-10 w-full max-w-3xl max-h-[85vh] overflow-y-auto rounded-2xl border border-border bg-background p-6 shadow-2xl"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.16em] text-primary">Service Scope</p>
+                  <h3 className="mt-1 font-display text-2xl font-bold text-foreground">
+                    {activeService.title}
+                  </h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{activeService.summary}</p>
+                </div>
+                <button
+                  onClick={closeServiceModal}
+                  className="rounded-lg border border-border p-2 text-muted-foreground hover:text-foreground"
+                  aria-label="Close service details"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div className="mt-6 grid gap-4 md:grid-cols-2">
+                <div className="rounded-lg border border-border p-4">
+                  <h4 className="text-sm font-semibold text-foreground">Business Outcomes</h4>
+                  <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                    {activeService.outcomes.map((outcome) => (
+                      <li key={outcome} className="flex items-start gap-2">
+                        <CheckCircle2 size={14} className="mt-0.5 text-primary shrink-0" />
+                        <span>{outcome}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="rounded-lg border border-border p-4">
+                  <h4 className="text-sm font-semibold text-foreground">Delivery Scope</h4>
+                  <ul className="mt-3 space-y-1 text-sm text-muted-foreground">
+                    {activeService.deliverables.map((item) => (
+                      <li key={item}>- {item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-lg border border-border p-4">
+                <h4 className="text-sm font-semibold text-foreground">Typical Technology Stack</h4>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {activeService.technologies.map((tech) => (
+                    <span
+                      key={tech}
+                      className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-lg border border-border p-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                  Ask About This Service
+                </p>
+                <div className="mt-2 flex items-center gap-2">
+                  <input
+                    value={modalQuery}
+                    onChange={(e) => setModalQuery(e.target.value)}
+                    placeholder="Type your question"
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50"
+                  />
+                  <button
+                    onClick={handleModalSearch}
+                    className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:opacity-90"
+                  >
+                    <Search size={13} /> Search
+                  </button>
+                </div>
+                {modalAnswer && <p className="mt-3 text-sm text-muted-foreground">{modalAnswer}</p>}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <Footer />
       <FloatingButtons />
