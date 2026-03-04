@@ -20,10 +20,10 @@ import PageHero from "@/components/PageHero";
 import aboutTeam from "@/assets/about-team.jpg";
 
 const impactStats = [
-  { value: "5+", label: "Years Building Products" },
-  { value: "30+", label: "Global Clients" },
-  { value: "50+", label: "Projects Delivered" },
-  { value: "6+", label: "Countries Served" },
+  { value: "Web", label: "Product Engineering" },
+  { value: "Mobile", label: "App Delivery" },
+  { value: "Cloud", label: "Platform Operations" },
+  { value: "Secure", label: "Engineering Practices" },
 ];
 
 const servicePillars = [
