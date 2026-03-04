@@ -131,10 +131,14 @@ export function Header() {
     <header
       className="sticky top-0 z-50 w-full border-b border-border bg-background/95 supports-[backdrop-filter]:bg-background/92 backdrop-blur-lg shadow-[0_8px_22px_hsl(215_24%_14%_/_0.06)]"
     >
-      <nav className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4">
+      <nav className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4">
         <div className="flex items-center gap-5">
-          <Link to="/" className="hover:bg-accent rounded-md p-1.5">
-            <img src={logo} alt="Zyllo Tech" className="h-11 w-auto object-contain" />
+          <Link to="/" className="hover:bg-accent rounded-md p-0.5">
+            <img
+              src={logo}
+              alt="Zyllo Tech"
+              className="h-12 w-auto max-w-none origin-left scale-[1.18] object-contain"
+            />
           </Link>
           <NavigationMenu className="hidden md:flex">
             <NavigationMenuList>
@@ -263,7 +267,7 @@ function MobileMenu({ open, children, className, ...props }: MobileMenuProps) {
       id="mobile-menu"
       className={cn(
         "bg-background/95 supports-[backdrop-filter]:bg-background/70 backdrop-blur-lg",
-        "fixed top-16 right-0 bottom-0 left-0 z-40 flex flex-col overflow-hidden border-y md:hidden",
+        "fixed top-14 right-0 bottom-0 left-0 z-40 flex flex-col overflow-hidden border-y md:hidden",
       )}
     >
       <div
