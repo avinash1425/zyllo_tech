@@ -3,16 +3,37 @@ import { Mail, Phone, MapPin, Send } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/zyllo-logo.png";
 import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164 } from "@/lib/contact";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Footer = () => {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const { toast } = useToast();
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) {
+    const trimmed = email.trim();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return;
+
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.from("newsletter_subscribers").insert({ email: trimmed });
+      if (error) {
+        if (error.code === "23505") {
+          // Already subscribed
+          toast({ title: "Already subscribed", description: "This email is already on our list." });
+        } else {
+          throw error;
+        }
+      }
       setSubscribed(true);
       setEmail("");
+    } catch (err: any) {
+      toast({ title: "Failed", description: err?.message || "Please try again.", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -44,7 +65,8 @@ const Footer = () => {
                   />
                   <button
                     type="submit"
-                    className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary text-white hover:opacity-90 transition-opacity flex-shrink-0"
+                    disabled={submitting}
+                    className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary text-white hover:opacity-90 transition-opacity flex-shrink-0 disabled:opacity-50"
                     aria-label="Subscribe"
                   >
                     <Send size={13} />
@@ -66,11 +88,7 @@ const Footer = () => {
                 { label: "Resources", to: "/resources" },
                 { label: "Contact Us", to: "/contact" },
               ].map((link) => (
-                <Link
-                  key={link.label}
-                  to={link.to}
-                  className="text-sm text-white/50 hover:text-primary transition-colors"
-                >
+                <Link key={link.label} to={link.to} className="text-sm text-white/50 hover:text-primary transition-colors">
                   {link.label}
                 </Link>
               ))}
@@ -90,11 +108,7 @@ const Footer = () => {
                 { label: "Digital Marketing", to: "/services" },
                 { label: "Industries", to: "/industries" },
               ].map((link) => (
-                <Link
-                  key={link.label}
-                  to={link.to}
-                  className="text-sm text-white/50 hover:text-primary transition-colors"
-                >
+                <Link key={link.label} to={link.to} className="text-sm text-white/50 hover:text-primary transition-colors">
                   {link.label}
                 </Link>
               ))}
@@ -106,16 +120,13 @@ const Footer = () => {
             <h4 className="font-display font-semibold text-white mb-4">Get in Touch</h4>
             <div className="flex flex-col gap-3 mb-6">
               <a href="mailto:info@zyllotech.com" className="flex items-center gap-2 text-sm text-white/60 hover:text-primary transition-colors">
-                <Mail size={14} className="text-primary shrink-0" />
-                info@zyllotech.com
+                <Mail size={14} className="text-primary shrink-0" /> info@zyllotech.com
               </a>
               <a href={`tel:${CONTACT_PHONE_E164}`} className="flex items-center gap-2 text-sm text-white/60 hover:text-primary transition-colors">
-                <Phone size={14} className="text-primary shrink-0" />
-                {CONTACT_PHONE_DISPLAY}
+                <Phone size={14} className="text-primary shrink-0" /> {CONTACT_PHONE_DISPLAY}
               </a>
               <div className="flex items-center gap-2 text-sm text-white/60">
-                <MapPin size={14} className="text-primary shrink-0" />
-                India
+                <MapPin size={14} className="text-primary shrink-0" /> India
               </div>
             </div>
 

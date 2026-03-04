@@ -1,4 +1,5 @@
 import { useState, useRef, type ComponentType } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -205,18 +206,34 @@ const ContactPage = () => {
     setIsSubmitting(true);
     setErrors({});
 
-    // Simulate network delay
-    await new Promise((r) => setTimeout(r, 1800));
+    try {
+      const { error } = await supabase.from("contact_submissions").insert({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim() || null,
+        subject: form.subject.trim(),
+        service: form.service === SERVICES[0] ? null : form.service,
+        message: form.message.trim(),
+      });
 
-    setIsSubmitting(false);
-    setIsSuccess(true);
-    setForm(emptyForm);
-    setTouched({});
+      if (error) throw error;
 
-    toast({
-      title: "Message Sent! 🎉",
-      description: "Thank you for reaching out. We'll get back to you within 24 hours.",
-    });
+      setIsSuccess(true);
+      setForm(emptyForm);
+      setTouched({});
+      toast({
+        title: "Message Sent! 🎉",
+        description: "Thank you for reaching out. We'll get back to you within 24 hours.",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Failed to send",
+        description: err?.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const inputBase =
