@@ -118,37 +118,6 @@ const Resources = () => {
 
       <section className="py-20">
         <div className="container mx-auto px-6">
-          {/* AI Capability Banner */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-14 rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-background to-[hsl(195,55%,42%,0.08)] p-6 md:p-8"
-          >
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
-                  <Sparkles size={12} />
-                  AI Capability
-                </p>
-                <h2 className="mt-3 font-display text-2xl font-bold text-foreground md:text-3xl">
-                  AI-powered discovery and faster delivery workflows
-                </h2>
-                <p className="mt-2 max-w-2xl text-sm text-muted-foreground md:text-base">
-                  We combine human engineering quality with AI-assisted research, design acceleration,
-                  and quality checks to reduce cycle time while improving output quality.
-                </p>
-              </div>
-              <Link
-                to="/contact"
-                className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
-              >
-                Talk to Us
-                <ArrowRight size={15} />
-              </Link>
-            </div>
-          </motion.div>
-
           {/* Industry Implementation Guides */}
           <div>
             <motion.div
