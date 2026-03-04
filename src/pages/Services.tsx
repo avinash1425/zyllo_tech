@@ -7,10 +7,8 @@ import {
   Code2,
   Database,
   Globe,
-  Search,
   Shield,
   Smartphone,
-  Sparkles,
   Workflow,
   Wrench,
   X,
@@ -327,35 +325,7 @@ const ServicesPage = () => {
 
       <section className="py-12 border-b border-border/70">
         <div className="container mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-border bg-card shadow-[0_14px_44px_hsl(215_35%_18%_/_0.12)]"
-          >
-            <div className="flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-start gap-3">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[hsl(24,95%,50%)] to-[hsl(195,55%,42%)] text-white">
-                  <Sparkles size={17} />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">Zyllo AI Service Guide</p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Describe your goal and get the right service path instantly.
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => window.dispatchEvent(new Event("open-ai-search"))}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
-              >
-                <Search size={15} /> Search with AI
-              </button>
-            </div>
-            <div className="h-1.5 bg-gradient-to-r from-[hsl(24,95%,50%)] via-[hsl(195,55%,42%)] to-[hsl(24,95%,50%)]" />
-          </motion.div>
-
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-2">
             {categories.map((category) => (
               <button
                 key={category}
