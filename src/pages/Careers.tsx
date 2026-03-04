@@ -42,37 +42,28 @@ const openings = [
     skills: ["AWS / GCP / Azure", "Terraform", "Kubernetes", "CI/CD", "Linux"],
     domain: "Cloud & DevOps",
   },
+];
+
+const upcomingOpenings = [
   {
     title: "Cybersecurity Engineer",
-    location: "India / Remote",
-    type: "Full Time",
-    experience: "3+ Years",
-    skills: ["VAPT", "OWASP", "SIEM / SOAR", "Network Security", "Compliance"],
     domain: "Cybersecurity",
+    skills: ["VAPT", "OWASP", "SIEM / SOAR", "Network Security", "Compliance"],
   },
   {
     title: "AI / ML Engineer",
-    location: "India / Remote",
-    type: "Full Time",
-    experience: "3+ Years",
-    skills: ["Python", "PyTorch / TensorFlow", "LLMs", "RAG", "MLOps"],
     domain: "Data & AI",
+    skills: ["Python", "PyTorch / TensorFlow", "LLMs", "RAG", "MLOps"],
   },
   {
     title: "DevOps Engineer",
-    location: "India / Remote",
-    type: "Full Time",
-    experience: "4+ Years",
-    skills: ["Docker", "Kubernetes", "CI/CD Pipelines", "AWS", "Terraform"],
     domain: "Cloud & DevOps",
+    skills: ["Docker", "Kubernetes", "CI/CD Pipelines", "AWS", "Terraform"],
   },
   {
     title: "QA Automation Engineer",
-    location: "India / Remote",
-    type: "Full Time",
-    experience: "3+ Years",
-    skills: ["Selenium", "Playwright", "Cypress", "Jest", "API Testing"],
     domain: "Quality Engineering",
+    skills: ["Selenium", "Playwright", "Cypress", "Jest", "API Testing"],
   },
 ];
 
@@ -273,10 +264,10 @@ const CareersPage = () => {
         <div className="container mx-auto px-4 sm:px-6">
           <div className="mb-10 text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Open Roles</p>
-            <h3 className="mt-3 font-display text-3xl md:text-4xl font-bold text-foreground">Current opportunities</h3>
+            <h3 className="mt-3 font-display text-3xl md:text-4xl font-bold text-foreground">Current Opportunities</h3>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2">
             {openings.map((job, i) => (
               <motion.article
                 key={job.title}
@@ -287,7 +278,7 @@ const CareersPage = () => {
                 className="flex flex-col rounded-2xl border border-border bg-background p-6 shadow-sm hover:border-primary/30 transition-colors"
               >
                 <div className="flex items-start justify-between gap-2 mb-3">
-                  <h4 className="font-display text-lg font-semibold text-foreground leading-snug">{job.title}</h4>
+                  <h4 className="font-display text-xl font-semibold text-foreground leading-snug">{job.title}</h4>
                   <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">{job.domain}</span>
                 </div>
                 <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mb-4">
@@ -310,6 +301,34 @@ const CareersPage = () => {
                 </button>
               </motion.article>
             ))}
+          </div>
+
+          {/* Upcoming roles */}
+          <div className="mt-12">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground mb-5 text-center">Coming Soon — We're Hiring For These Next</p>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {upcomingOpenings.map((job, i) => (
+                <motion.div
+                  key={job.title}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05 }}
+                  className="rounded-xl border border-dashed border-border bg-background/60 p-4 opacity-70"
+                >
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <p className="text-sm font-semibold text-foreground">{job.title}</p>
+                    <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{job.domain}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {job.skills.slice(0, 3).map((skill) => (
+                      <span key={skill} className="rounded-md bg-muted/60 px-2 py-0.5 text-[10px] text-muted-foreground">{skill}</span>
+                    ))}
+                  </div>
+                  <p className="mt-3 text-xs text-muted-foreground/70 italic">Hiring soon — send an open application</p>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -365,7 +384,7 @@ const CareersPage = () => {
                     <li>• Duration: 3 – 6 months (flexible based on academic requirement)</li>
                     <li>• Mode: Hybrid / Remote (India)</li>
                     <li>• Domains: Web Development, Mobile Apps, Cloud & DevOps, Data & AI, QA Engineering</li>
-                    <li>• Eligibility: Final-year students or graduates in CS / IT / Engineering (2023–2025 batches)</li>
+                    <li>• Eligibility: Final-year students or recent graduates in CS / IT / Engineering / related fields</li>
                     <li>• Certificate of completion issued; OJT letters provided for college requirements</li>
                   </ul>
                 </div>
