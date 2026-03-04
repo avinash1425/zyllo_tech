@@ -1,5 +1,12 @@
-import { Component } from "@/components/ui/ai-loader";
+import { GradientButton } from "@/components/ui/gradient-button";
 
-export default function DemoOne() {
-  return <Component />;
+function Demo() {
+  return (
+    <div className="flex gap-8">
+      <GradientButton>Get Started</GradientButton>
+      <GradientButton variant="variant">Get Started</GradientButton>
+    </div>
+  );
 }
+
+export { Demo };
