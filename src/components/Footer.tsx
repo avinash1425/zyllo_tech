@@ -27,6 +27,11 @@ const Footer = () => {
         } else {
           throw error;
         }
+      } else {
+        // Send admin notification (fire and forget)
+        supabase.functions.invoke("notify-admin", {
+          body: { type: "newsletter", data: { email: trimmed } },
+        }).catch(() => {});
       }
       setSubscribed(true);
       setEmail("");
