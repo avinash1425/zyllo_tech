@@ -134,38 +134,10 @@ export function Header() {
       <nav className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4">
         <div className="flex items-center gap-5">
           <Link to="/" className="hover:bg-accent rounded-md p-1.5">
-            <img src={logo} alt="Zyllo Tech" className="h-8 w-auto object-contain" />
+            <img src={logo} alt="Zyllo Tech" className="h-10 w-auto object-contain" />
           </Link>
           <NavigationMenu className="hidden md:flex">
             <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger
-                  className={cn(
-                    "bg-transparent",
-                    location.pathname.startsWith("/services") &&
-                      "bg-primary/10 text-primary hover:bg-primary/10",
-                  )}
-                >
-                  Services
-                </NavigationMenuTrigger>
-                <NavigationMenuContent className="bg-background p-1 pr-1.5">
-                  <ul className="bg-popover grid w-[32rem] grid-cols-2 gap-2 rounded-md border p-2 shadow">
-                    {productLinks.map((item) => (
-                      <li key={item.title}>
-                        <ListItem {...item} />
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="p-2">
-                    <p className="text-muted-foreground text-sm">
-                      Need a tailored stack?{" "}
-                      <Link to="/contact" className="text-foreground font-medium hover:underline">
-                        Talk to our team
-                      </Link>
-                    </p>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuTrigger
                   className={cn(
@@ -204,6 +176,34 @@ export function Header() {
                   </div>
                 </NavigationMenuContent>
               </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger
+                  className={cn(
+                    "bg-transparent",
+                    location.pathname.startsWith("/services") &&
+                      "bg-primary/10 text-primary hover:bg-primary/10",
+                  )}
+                >
+                  Services
+                </NavigationMenuTrigger>
+                <NavigationMenuContent className="bg-background p-1 pr-1.5">
+                  <ul className="bg-popover grid w-[32rem] grid-cols-2 gap-2 rounded-md border p-2 shadow">
+                    {productLinks.map((item) => (
+                      <li key={item.title}>
+                        <ListItem {...item} />
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="p-2">
+                    <p className="text-muted-foreground text-sm">
+                      Need a tailored stack?{" "}
+                      <Link to="/contact" className="text-foreground font-medium hover:underline">
+                        Talk to our team
+                      </Link>
+                    </p>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
         </div>
@@ -227,15 +227,15 @@ export function Header() {
       <MobileMenu open={open} className="flex flex-col justify-between gap-2 overflow-y-auto">
         <NavigationMenu className="max-w-full">
           <div className="flex w-full flex-col gap-y-2">
-            <span className="text-sm">Services</span>
-            {productLinks.map((link) => (
-              <ListItem key={link.title} {...link} />
-            ))}
             <span className="text-sm">Company</span>
             {companyLinks.map((link) => (
               <ListItem key={link.title} {...link} />
             ))}
             {companyLinks2.map((link) => (
+              <ListItem key={link.title} {...link} />
+            ))}
+            <span className="text-sm">Services</span>
+            {productLinks.map((link) => (
               <ListItem key={link.title} {...link} />
             ))}
           </div>
