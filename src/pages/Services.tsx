@@ -331,16 +331,16 @@ const ServicesPage = () => {
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mx-auto max-w-5xl rounded-2xl bg-gradient-to-r from-[hsl(24,95%,50%)] via-[hsl(195,55%,42%)] to-[hsl(24,95%,50%)] p-[1px] shadow-[0_14px_44px_hsl(215_35%_18%_/_0.2)]"
+            className="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-border bg-card shadow-[0_14px_44px_hsl(215_35%_18%_/_0.12)]"
           >
-            <div className="flex flex-col gap-4 rounded-2xl bg-[linear-gradient(120deg,hsl(215,30%,18%),hsl(215,34%,22%))] px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-start gap-3">
                 <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[hsl(24,95%,50%)] to-[hsl(195,55%,42%)] text-white">
                   <Sparkles size={17} />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-white">Zyllo AI Service Guide</p>
-                  <p className="mt-1 text-sm text-white/75">
+                  <p className="text-sm font-semibold text-foreground">Zyllo AI Service Guide</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
                     Describe your goal and get the right service path instantly.
                   </p>
                 </div>
@@ -352,27 +352,22 @@ const ServicesPage = () => {
                 <Search size={15} /> Search with AI
               </button>
             </div>
+            <div className="h-1.5 bg-gradient-to-r from-[hsl(24,95%,50%)] via-[hsl(195,55%,42%)] to-[hsl(24,95%,50%)]" />
           </motion.div>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
             {categories.map((category) => (
-              <div
+              <button
                 key={category}
-                className={`rounded-full bg-gradient-to-r from-[hsl(24,95%,50%)] to-[hsl(195,55%,42%)] p-[1px] ${
-                  selectedCategory === category ? "opacity-100" : "opacity-80 hover:opacity-100"
+                onClick={() => setSelectedCategory(category)}
+                className={`rounded-full border px-4 py-1.5 text-xs transition-colors ${
+                  selectedCategory === category
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"
                 }`}
               >
-                <button
-                  onClick={() => setSelectedCategory(category)}
-                  className={`rounded-full px-4 py-1.5 text-xs transition-colors ${
-                    selectedCategory === category
-                      ? "bg-[hsl(215,30%,16%)] text-white"
-                      : "bg-background text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {category}
-                </button>
-              </div>
+                {category}
+              </button>
             ))}
           </div>
         </div>
@@ -388,25 +383,23 @@ const ServicesPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.45, delay: i * 0.04 }}
-                className="rounded-xl bg-gradient-to-r from-[hsl(24,95%,50%)]/85 via-[hsl(195,55%,42%)]/85 to-[hsl(24,95%,50%)]/85 p-[1px] transition-all duration-300 hover:shadow-md"
+                className="rounded-xl border border-border bg-background p-6 transition-all duration-300 hover:border-primary/40 hover:shadow-md"
               >
-                <div className="rounded-xl bg-background p-6">
-                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <service.icon size={24} />
-                  </div>
-                  <div className="mb-2 inline-flex rounded-full border border-border px-2.5 py-0.5 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                    {service.category}
-                  </div>
-                  <h3 className="font-display text-xl font-semibold text-foreground">{service.title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{service.summary}</p>
-
-                  <button
-                    onClick={() => openServiceModal(service)}
-                    className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-primary hover:opacity-80"
-                  >
-                    View scope <ArrowRight size={14} />
-                  </button>
+                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <service.icon size={24} />
                 </div>
+                <div className="mb-2 inline-flex rounded-full border border-border px-2.5 py-0.5 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                  {service.category}
+                </div>
+                <h3 className="font-display text-xl font-semibold text-foreground">{service.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{service.summary}</p>
+
+                <button
+                  onClick={() => openServiceModal(service)}
+                  className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-primary hover:opacity-80"
+                >
+                  View scope <ArrowRight size={14} />
+                </button>
               </motion.article>
             ))}
           </div>
@@ -437,12 +430,10 @@ const ServicesPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className="rounded-xl bg-gradient-to-r from-[hsl(24,95%,50%)]/80 to-[hsl(195,55%,42%)]/80 p-[1px]"
+                className="rounded-xl border border-border bg-background p-6"
               >
-                <div className="rounded-xl bg-background p-6">
-                  <h3 className="font-display text-lg font-semibold text-foreground">{pillar.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{pillar.desc}</p>
-                </div>
+                <h3 className="font-display text-lg font-semibold text-foreground">{pillar.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{pillar.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -480,67 +471,59 @@ const ServicesPage = () => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 16, scale: 0.98 }}
               transition={{ duration: 0.2 }}
-              className="relative z-10 w-full max-w-3xl max-h-[85vh] overflow-y-auto rounded-2xl bg-gradient-to-r from-[hsl(24,95%,50%)] to-[hsl(195,55%,42%)] p-[1px] shadow-2xl"
+              className="relative z-10 w-full max-w-3xl max-h-[85vh] overflow-y-auto rounded-2xl border border-border bg-background p-6 shadow-2xl"
             >
-              <div className="rounded-2xl bg-background p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.16em] text-primary">Service Scope</p>
-                    <h3 className="mt-1 font-display text-2xl font-bold text-foreground">
-                      {activeService.title}
-                    </h3>
-                    <p className="mt-2 text-sm text-muted-foreground">{activeService.summary}</p>
-                  </div>
-                  <button
-                    onClick={closeServiceModal}
-                    className="rounded-lg border border-border p-2 text-muted-foreground hover:text-foreground"
-                    aria-label="Close service details"
-                  >
-                    <X size={16} />
-                  </button>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.16em] text-primary">Service Scope</p>
+                  <h3 className="mt-1 font-display text-2xl font-bold text-foreground">
+                    {activeService.title}
+                  </h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{activeService.summary}</p>
+                </div>
+                <button
+                  onClick={closeServiceModal}
+                  className="rounded-lg border border-border p-2 text-muted-foreground hover:text-foreground"
+                  aria-label="Close service details"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div className="mt-6 grid gap-4 md:grid-cols-2">
+                <div className="rounded-lg border border-border p-4">
+                  <h4 className="text-sm font-semibold text-foreground">Business Outcomes</h4>
+                  <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                    {activeService.outcomes.map((outcome) => (
+                      <li key={outcome} className="flex items-start gap-2">
+                        <CheckCircle2 size={14} className="mt-0.5 text-primary shrink-0" />
+                        <span>{outcome}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
 
-                <div className="mt-6 grid gap-4 md:grid-cols-2">
-                  <div className="rounded-lg bg-gradient-to-r from-[hsl(24,95%,50%)]/80 to-[hsl(195,55%,42%)]/80 p-[1px]">
-                    <div className="rounded-lg bg-background p-4">
-                      <h4 className="text-sm font-semibold text-foreground">Business Outcomes</h4>
-                      <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-                        {activeService.outcomes.map((outcome) => (
-                          <li key={outcome} className="flex items-start gap-2">
-                            <CheckCircle2 size={14} className="mt-0.5 text-primary shrink-0" />
-                            <span>{outcome}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-
-                  <div className="rounded-lg bg-gradient-to-r from-[hsl(24,95%,50%)]/80 to-[hsl(195,55%,42%)]/80 p-[1px]">
-                    <div className="rounded-lg bg-background p-4">
-                      <h4 className="text-sm font-semibold text-foreground">Delivery Scope</h4>
-                      <ul className="mt-3 space-y-1 text-sm text-muted-foreground">
-                        {activeService.deliverables.map((item) => (
-                          <li key={item}>- {item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
+                <div className="rounded-lg border border-border p-4">
+                  <h4 className="text-sm font-semibold text-foreground">Delivery Scope</h4>
+                  <ul className="mt-3 space-y-1 text-sm text-muted-foreground">
+                    {activeService.deliverables.map((item) => (
+                      <li key={item}>- {item}</li>
+                    ))}
+                  </ul>
                 </div>
+              </div>
 
-                <div className="mt-4 rounded-lg bg-gradient-to-r from-[hsl(24,95%,50%)]/80 to-[hsl(195,55%,42%)]/80 p-[1px]">
-                  <div className="rounded-lg bg-background p-4">
-                    <h4 className="text-sm font-semibold text-foreground">Typical Technology Stack</h4>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {activeService.technologies.map((tech) => (
-                        <span
-                          key={tech}
-                          className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+              <div className="mt-4 rounded-lg border border-border p-4">
+                <h4 className="text-sm font-semibold text-foreground">Typical Technology Stack</h4>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {activeService.technologies.map((tech) => (
+                    <span
+                      key={tech}
+                      className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground"
+                    >
+                      {tech}
+                    </span>
+                  ))}
                 </div>
               </div>
             </motion.div>
