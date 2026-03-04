@@ -1,41 +1,10 @@
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpen, Bot, FileText, Layers, Sparkles, Building2, ShoppingCart, Heart, GraduationCap, Truck, Factory, Gamepad2, Home, Plane, Radio, Tv, Leaf } from "lucide-react";
+import { ArrowRight, BookOpen, Sparkles, Building2, ShoppingCart, Heart, GraduationCap, Truck, Factory, Gamepad2, Home, Plane, Radio, Tv, Leaf } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import PageHero from "@/components/PageHero";
-
-const resources = [
-  {
-    title: "AI Playbooks",
-    description: "Practical guides for introducing AI features into business workflows — from LLM integration to predictive analytics and automation pipelines.",
-    icon: Bot,
-    href: "/blog?category=AI+%26+ML",
-    tag: "AI-Powered",
-  },
-  {
-    title: "Engineering Insights",
-    description: "Architecture patterns, scaling strategies, microservices migration, and code quality best practices from our engineering team.",
-    icon: Layers,
-    href: "/blog?category=Development",
-    tag: "Engineering",
-  },
-  {
-    title: "Product Templates",
-    description: "Kickoff documents, discovery checklists, RFP guides, and roadmap templates for software projects.",
-    icon: FileText,
-    href: "/contact",
-    tag: "Templates",
-  },
-  {
-    title: "Case Stories",
-    description: "Real delivery outcomes from idea to production — covering FinTech, HealthTech, EdTech, and more.",
-    icon: BookOpen,
-    href: "/portfolio",
-    tag: "Case Study",
-  },
-];
 
 const industryGuides = [
   {
@@ -179,51 +148,6 @@ const Resources = () => {
               </Link>
             </div>
           </motion.div>
-
-          {/* Resource Categories */}
-          <div className="mb-16">
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="mb-8"
-            >
-              <h2 className="font-display text-2xl font-bold text-foreground">Resource Library</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Guides, playbooks, and templates from our team.
-              </p>
-            </motion.div>
-            <div className="grid gap-6 sm:grid-cols-2">
-              {resources.map((resource, i) => (
-                <motion.article
-                  key={resource.title}
-                  initial={{ opacity: 0, y: 18 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.05 }}
-                  className="group rounded-xl border border-border bg-background p-6 hover:border-primary/40 hover:shadow-md transition-all"
-                >
-                  <div className="mb-4 flex items-center justify-between">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <resource.icon size={18} />
-                    </div>
-                    <span className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">
-                      {resource.tag}
-                    </span>
-                  </div>
-                  <h3 className="font-display text-lg font-bold text-foreground">{resource.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{resource.description}</p>
-                  <Link
-                    to={resource.href}
-                    className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
-                  >
-                    Explore
-                    <ArrowRight size={14} />
-                  </Link>
-                </motion.article>
-              ))}
-            </div>
-          </div>
 
           {/* Industry Implementation Guides */}
           <div>
