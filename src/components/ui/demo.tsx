@@ -1,7 +1,5 @@
-import AboutUsSection from "@/components/ui/about-us-section";
+import { Component } from "@/components/ui/ai-loader";
 
-const DemoOne = () => {
-  return <AboutUsSection />;
-};
-
-export { DemoOne };
+export default function DemoOne() {
+  return <Component />;
+}
