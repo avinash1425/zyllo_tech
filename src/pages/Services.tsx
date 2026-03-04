@@ -347,7 +347,7 @@ const ServicesPage = () => {
               </div>
               <button
                 onClick={() => window.dispatchEvent(new Event("open-ai-search"))}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[hsl(24,95%,50%)] to-[hsl(195,55%,42%)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
               >
                 <Search size={15} /> Search with AI
               </button>
