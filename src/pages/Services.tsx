@@ -449,7 +449,7 @@ const ServicesPage = () => {
       />
 
       <section className="py-12 border-b border-border/70">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-4 sm:px-6">
           <div className="flex flex-wrap items-center justify-center gap-2">
             {categories.map((category) => (
               <button
@@ -469,7 +469,7 @@ const ServicesPage = () => {
       </section>
 
       <section className="py-20">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-4 sm:px-6">
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {filteredServices.map((service, i) => (
               <motion.article
@@ -502,7 +502,7 @@ const ServicesPage = () => {
       </section>
 
       <section className="py-20 bg-muted/50">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -512,7 +512,7 @@ const ServicesPage = () => {
             <span className="text-xs font-medium uppercase tracking-widest text-primary">
               Best Practices
             </span>
-            <h2 className="mt-3 font-display text-4xl md:text-5xl font-bold text-foreground">
+            <h2 className="mt-3 font-display text-3xl md:text-5xl font-bold text-foreground">
               Engineering Standards We Follow
             </h2>
           </motion.div>
@@ -566,7 +566,7 @@ const ServicesPage = () => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 16, scale: 0.98 }}
               transition={{ duration: 0.2 }}
-              className="relative z-10 w-full max-w-3xl max-h-[85vh] overflow-y-auto rounded-2xl border border-border bg-background p-6 shadow-2xl"
+              className="relative z-10 w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-background p-4 shadow-2xl sm:p-6"
             >
               <div className="flex items-start justify-between gap-4">
                 <div>

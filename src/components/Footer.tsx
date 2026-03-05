@@ -155,7 +155,7 @@ const Footer = () => {
 
         <div className="mt-10 border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/40">
           <span>© {new Date().getFullYear()} Zyllo Tech Software Solutions Pvt. Ltd. All rights reserved.</span>
-          <div className="flex gap-5">
+          <div className="flex flex-wrap justify-center gap-4">
             <Link to="/privacy-policy" className="hover:text-white/70 transition-colors">Privacy Policy</Link>
             <Link to="/terms-of-service" className="hover:text-white/70 transition-colors">Terms of Service</Link>
             <Link to="/cookie-policy" className="hover:text-white/70 transition-colors">Cookie Policy</Link>

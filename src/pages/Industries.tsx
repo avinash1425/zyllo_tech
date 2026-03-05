@@ -362,7 +362,7 @@ const IndustriesPage = () => {
       />
 
       <section className="py-16 border-b border-border/70">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -381,7 +381,7 @@ const IndustriesPage = () => {
       </section>
 
       <section className="py-20">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-4 sm:px-6">
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {industries.map((industry, i) => (
               <motion.article
@@ -417,7 +417,7 @@ const IndustriesPage = () => {
       </section>
 
       <section className="py-20 bg-muted/50">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-4 sm:px-6">
           <div className="rounded-2xl border border-border bg-background p-7 md:p-9">
             <h3 className="font-display text-2xl font-bold text-foreground">Need a Sector-Specific Solution Plan?</h3>
             <p className="mt-2 text-sm text-muted-foreground max-w-3xl">
@@ -457,7 +457,7 @@ const IndustriesPage = () => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 16, scale: 0.98 }}
               transition={{ duration: 0.2 }}
-              className="relative z-10 w-full max-w-4xl max-h-[85vh] overflow-y-auto rounded-2xl border border-border bg-background p-6 shadow-2xl"
+              className="relative z-10 w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-background p-4 shadow-2xl sm:p-6"
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -474,7 +474,7 @@ const IndustriesPage = () => {
                 </button>
               </div>
 
-              <div className="mt-6 grid gap-4 md:grid-cols-3">
+              <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <div className="rounded-lg border border-border p-4">
                   <h4 className="text-sm font-semibold text-foreground">Key Challenges</h4>
                   <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
