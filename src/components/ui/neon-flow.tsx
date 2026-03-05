@@ -71,11 +71,14 @@ export function TubesBackground({
           const a = t * orbitSpeed;
           const cx = rect.width / 2;
           const cy = rect.height / 2;
-          const rx = Math.min(rect.width * 0.24, rect.height * 0.7) * orbitScale;
-          const ry = Math.min(rect.height * 0.22, rect.width * 0.18) * orbitScale;
+          // Wider rx so both lobes span visibly across the viewport
+          const rx = Math.min(rect.width * 0.40, rect.height * 0.9) * orbitScale;
+          // Flatter ry gives the classic stretched-∞ look; effective amplitude = ry
+          const ry = Math.min(rect.height * 0.18, rect.width * 0.11) * orbitScale;
 
           const dispatchOrbitPoint = (angle: number) => {
-            // Gerono lemniscate: clear infinity-loop path.
+            // Gerono lemniscate: x = sin(a)*rx, y = sin(a)*cos(a)*ry*2
+            // As angle runs 0→2π this traces a full figure-8 (∞) path.
             const x = cx + Math.sin(angle) * rx;
             const y = cy + Math.sin(angle) * Math.cos(angle) * (ry * 2);
             const clientX = rect.left + x;
@@ -97,9 +100,12 @@ export function TubesBackground({
             }
           };
 
-          // Emit opposite points only to keep a compact, clear infinity shape.
+          // 4 evenly-spaced phase points ensure both lobes AND the crossing centre
+          // always carry visible tube trails simultaneously, making the ∞ unmistakable.
           dispatchOrbitPoint(a);
+          dispatchOrbitPoint(a + Math.PI * 0.5);
           dispatchOrbitPoint(a + Math.PI);
+          dispatchOrbitPoint(a + Math.PI * 1.5);
           orbitRafId = requestAnimationFrame(runInfinityOrbit);
         };
 
