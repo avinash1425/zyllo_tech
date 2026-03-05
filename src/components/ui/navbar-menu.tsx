@@ -76,7 +76,7 @@ export const Menu = ({
     <nav
       onMouseLeave={() => setActive(null)}
       className={cn(
-        "relative flex items-center justify-center space-x-8 rounded-full border border-border/70 bg-background/75 px-8 py-2.5 shadow-sm backdrop-blur-md",
+        "relative flex items-center justify-center gap-4 rounded-full border border-border/70 bg-background/75 px-4 py-2.5 shadow-sm backdrop-blur-md lg:gap-6 lg:px-6",
         className,
       )}
     >
@@ -97,13 +97,13 @@ export const ProductItem = ({
   icon?: React.ReactNode;
 }) => {
   return (
-    <Link to={to} className="group flex max-w-[16rem] items-start gap-3 rounded-lg p-2 hover:bg-muted/70">
+    <Link to={to} className="group flex w-full items-start gap-3 rounded-lg p-2 hover:bg-muted/70">
       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
         {icon}
       </div>
       <div>
         <h4 className="mb-1 text-sm font-semibold text-foreground group-hover:text-primary">{title}</h4>
-        <p className="max-w-[12rem] text-xs leading-relaxed text-muted-foreground">{description}</p>
+        <p className="text-xs leading-relaxed text-muted-foreground">{description}</p>
       </div>
     </Link>
   );
@@ -124,4 +124,3 @@ export const HoveredLink = ({ children, className, ...rest }: HoveredLinkProps) 
     </Link>
   );
 };
-

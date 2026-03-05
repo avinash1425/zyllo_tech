@@ -166,7 +166,7 @@ export function Header() {
               className="h-12 w-auto max-w-none origin-left scale-[1.26] object-contain"
             />
           </Link>
-          <div className="ml-8 hidden md:flex lg:ml-10">
+          <div className="ml-5 hidden md:flex lg:ml-8">
             <Menu setActive={setActiveMenu}>
               <MenuItem
                 setActive={(item) => setActiveMenu(item)}
@@ -181,7 +181,7 @@ export function Header() {
                   location.pathname.startsWith("/blog")
                 }
               >
-                <div className="grid w-[32rem] grid-cols-2 gap-3">
+                <div className="grid w-[min(92vw,32rem)] grid-cols-1 gap-3 lg:grid-cols-2">
                   <div className="space-y-2">
                     {companyLinks.map((item) => (
                       <ProductItem
@@ -214,8 +214,8 @@ export function Header() {
                 item="Services"
                 isCurrent={location.pathname.startsWith("/services")}
               >
-                <div className="w-[40rem]">
-                  <div className="grid grid-cols-2 gap-2">
+                <div className="w-[min(92vw,40rem)]">
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {productLinks.map((item) => (
                       <ProductItem
                         key={item.title}

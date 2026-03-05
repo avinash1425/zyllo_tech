@@ -107,7 +107,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
         />
       </div>
 
-      <div className="fixed right-3 top-1/2 z-40 hidden -translate-y-1/2 sm:flex lg:right-6">
+      <div className="fixed right-3 top-1/2 z-40 hidden -translate-y-1/2 lg:flex lg:right-6">
         <div className="space-y-4">
           {sections.map((section, index) => (
             <button
@@ -146,7 +146,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/95 sm:text-sm">
                     Zyllo Tech Software Solutions
                   </p>
-                  <span className="inline-flex items-center rounded-full border border-white/35 bg-[hsl(215,30%,8%,0.35)] px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-sm sm:text-xs">
+                  <span className="inline-flex max-w-[92vw] items-center rounded-full border border-white/35 bg-[hsl(215,30%,8%,0.35)] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-white backdrop-blur-sm sm:max-w-none sm:px-5 sm:text-xs">
                     {heroSignals.join(" • ")}
                   </span>
                 </div>
@@ -174,7 +174,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
               <h1
                 className={cn(
                   "font-display font-bold leading-[1.02] tracking-tight",
-                  index === 0 ? "text-4xl sm:text-6xl lg:text-7xl xl:text-8xl" : "text-3xl sm:text-5xl lg:text-6xl"
+                  index === 0 ? "text-3xl sm:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl" : "text-3xl sm:text-5xl lg:text-6xl"
                 )}
               >
                 <span
