@@ -36,9 +36,17 @@ export const organizationSchema = {
     {
       "@type": "ContactPoint",
       telephone: "+91-70757-73680",
+      email: "info@zyllotech.com",
       contactType: "customer service",
-      areaServed: "IN",
+      areaServed: ["IN", "SG", "AE", "AU", "CA", "GB"],
       availableLanguage: ["English", "Hindi", "Telugu"],
+    },
+    {
+      "@type": "ContactPoint",
+      email: "info@zyllotech.com",
+      contactType: "sales",
+      areaServed: "US",
+      availableLanguage: "English",
     },
   ],
   sameAs: [
@@ -62,11 +70,13 @@ export const organizationSchema = {
     "@type": "OfferCatalog",
     name: "Software Engineering Services",
     itemListElement: [
-      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Web & Mobile App Development" } },
-      { "@type": "Offer", itemOffered: { "@type": "Service", name: "AI & Data Engineering" } },
-      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Cloud Solutions & DevOps" } },
-      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Cybersecurity Engineering" } },
-      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Quality Engineering & Test Automation" } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Web & Mobile App Development", description: "Business websites, customer portals, iOS and Android applications built for performance and scale." } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "AI & Data Engineering", description: "Data pipelines, ML models, RAG-based AI systems, and business intelligence platforms." } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Cloud Solutions & DevOps", description: "Cloud architecture, migration, IaC pipelines, monitoring, and cost optimization." } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Cybersecurity Engineering", description: "OWASP-aligned secure delivery, threat modeling, vulnerability management, and compliance controls." } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Quality Engineering & Test Automation", description: "Automated test suites, shift-left testing, performance validation across web, mobile, and APIs." } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Dedicated Development Teams", description: "Embedded engineering teams as an extended delivery arm for long-term product development." } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "App Support & Maintenance", description: "Post-launch support, SLAs, bug fixing, performance optimization, and product evolution." } },
     ],
   },
 };

@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import PageHero from "@/components/PageHero";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 
 const sections = [
   {
@@ -49,6 +50,16 @@ const sections = [
 const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Privacy Policy | Zyllo Tech"
+        description="Learn how Zyllo Tech collects, uses, protects, and manages personal information on our website and services. We do not sell your data."
+        canonical="/privacy-policy"
+        keywords="Zyllo Tech privacy policy, data protection, personal information, GDPR, data security"
+        structuredData={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "Privacy Policy", url: `${SITE_URL}/privacy-policy` },
+        ])}
+      />
       <Navbar />
       <PageHero
         title="Privacy"

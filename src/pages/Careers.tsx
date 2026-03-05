@@ -23,6 +23,7 @@ import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import PageHero from "@/components/PageHero";
 import careersBanner from "@/assets/careers-banner.jpg";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 import { useToast } from "@/hooks/use-toast";
 
 const openings = [
@@ -214,13 +215,79 @@ const CareersPage = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Software Engineering Jobs & OJT Programme | Zyllo Tech India"
-        description="Join Zyllo Tech — hiring Senior Full Stack Developers, Cloud Engineers, Cybersecurity Engineers, AI/ML Engineers, DevOps Engineers, and QA Automation Engineers. Also offering a Graduate OJT programme for final-year students and fresh graduates across India."
+        description="Join Zyllo Tech — currently hiring a Senior Full Stack Developer and a Cloud Solutions Engineer. Also offering a Graduate OJT programme for final-year students and fresh graduates across India."
         canonical="/careers"
-        keywords="software engineering jobs India, IT jobs Hyderabad, cybersecurity engineer jobs India, cloud engineer jobs India, AI ML engineer jobs, QA automation engineer jobs, OJT training India, fresher software jobs Hyderabad, graduate IT programme India"
-        structuredData={breadcrumbSchema([
-          { name: "Home", url: SITE_URL },
-          { name: "Careers", url: `${SITE_URL}/careers` },
-        ])}
+        keywords="software engineering jobs India, IT jobs Hyderabad, full stack developer jobs India, cloud engineer jobs India, software developer jobs remote India, OJT training India, fresher software jobs Hyderabad, graduate IT programme India, software company careers Hyderabad"
+        structuredData={[
+          breadcrumbSchema([
+            { name: "Home", url: SITE_URL },
+            { name: "Careers", url: `${SITE_URL}/careers` },
+          ]),
+          {
+            "@context": "https://schema.org",
+            "@type": "JobPosting",
+            title: "Senior Full Stack Developer",
+            description: "We are looking for a Senior Full Stack Developer with 5+ years of experience in React, Node.js, TypeScript, PostgreSQL, and AWS to build and scale web applications for global clients.",
+            datePosted: "2026-03-01",
+            employmentType: "FULL_TIME",
+            jobLocation: {
+              "@type": "Place",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: "Hyderabad",
+                addressRegion: "Telangana",
+                addressCountry: "IN",
+              },
+            },
+            jobLocationType: "TELECOMMUTE",
+            applicantLocationRequirements: { "@type": "Country", name: "India" },
+            hiringOrganization: {
+              "@type": "Organization",
+              name: "Zyllo Tech",
+              sameAs: SITE_URL,
+              logo: `${SITE_URL}/zyllo-logo.png`,
+            },
+            skills: "React, Node.js, TypeScript, PostgreSQL, AWS",
+            experienceRequirements: "5+ years of full stack development experience",
+            baseSalary: {
+              "@type": "MonetaryAmount",
+              currency: "INR",
+              value: { "@type": "QuantitativeValue", unitText: "YEAR" },
+            },
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "JobPosting",
+            title: "Cloud Solutions Engineer",
+            description: "We are looking for a Cloud Solutions Engineer with 4+ years of experience in AWS/GCP/Azure, Terraform, Kubernetes, and CI/CD to design and operate scalable cloud infrastructure for enterprise clients.",
+            datePosted: "2026-03-01",
+            employmentType: "FULL_TIME",
+            jobLocation: {
+              "@type": "Place",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: "Hyderabad",
+                addressRegion: "Telangana",
+                addressCountry: "IN",
+              },
+            },
+            jobLocationType: "TELECOMMUTE",
+            applicantLocationRequirements: { "@type": "Country", name: "India" },
+            hiringOrganization: {
+              "@type": "Organization",
+              name: "Zyllo Tech",
+              sameAs: SITE_URL,
+              logo: `${SITE_URL}/zyllo-logo.png`,
+            },
+            skills: "AWS, GCP, Azure, Terraform, Kubernetes, CI/CD, Linux",
+            experienceRequirements: "4+ years of cloud engineering experience",
+            baseSalary: {
+              "@type": "MonetaryAmount",
+              currency: "INR",
+              value: { "@type": "QuantitativeValue", unitText: "YEAR" },
+            },
+          },
+        ]}
       />
       <Navbar />
       <PageHero

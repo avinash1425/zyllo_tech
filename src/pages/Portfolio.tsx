@@ -178,13 +178,31 @@ const PortfolioPage = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Software Development Portfolio & Case Studies | Zyllo Tech"
-        description="Explore Zyllo Tech's portfolio of delivered software projects — a FinTech banking dashboard, patient portal, headless commerce platform, IoT fleet tracker, EdTech LMS, AI farm analytics, and more."
+        description="Explore Zyllo Tech's portfolio of delivered software — FinTech banking dashboard, FHIR patient portal, headless e-commerce, IoT fleet tracker, EdTech LMS, AI farm analytics, cloud migration, and more. Real projects, measurable outcomes."
         canonical="/portfolio"
-        keywords="software portfolio India, IT company case studies, fintech software case study, healthcare portal development, e-commerce platform, fleet management system, AI ML case study India"
-        structuredData={breadcrumbSchema([
-          { name: "Home", url: SITE_URL },
-          { name: "Portfolio", url: `${SITE_URL}/portfolio` },
-        ])}
+        keywords="software development portfolio India, IT company case studies, fintech software case study, healthcare portal development, e-commerce platform India, fleet management system, AI ML case study India, cloud migration case study, EdTech platform development"
+        structuredData={[
+          breadcrumbSchema([
+            { name: "Home", url: SITE_URL },
+            { name: "Portfolio", url: `${SITE_URL}/portfolio` },
+          ]),
+          {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: "Zyllo Tech Software Portfolio",
+            description: "Case studies and delivered software projects by Zyllo Tech across FinTech, Healthcare, E-Commerce, Logistics, EdTech, AgriTech, Cloud, and AI/ML.",
+            url: `${SITE_URL}/portfolio`,
+            publisher: { "@type": "Organization", name: "Zyllo Tech", url: SITE_URL },
+            hasPart: [
+              { "@type": "SoftwareApplication", name: "FinEdge Banking Dashboard", applicationCategory: "FinanceApplication", description: "Core banking dashboard with real-time transaction monitoring, compliance reporting, and multi-role access control." },
+              { "@type": "SoftwareApplication", name: "MedCare Patient Portal", applicationCategory: "HealthApplication", description: "AI-powered patient management with telemedicine integration, EHR, and appointment scheduling." },
+              { "@type": "SoftwareApplication", name: "RetailX Commerce Platform", applicationCategory: "BusinessApplication", description: "Multi-vendor e-commerce platform with real-time inventory, recommendation engine, and 200K+ monthly visitors." },
+              { "@type": "SoftwareApplication", name: "LogiTrack Fleet Management", applicationCategory: "BusinessApplication", description: "Real-time fleet tracking and route optimization with mobile app for drivers and dispatchers." },
+              { "@type": "SoftwareApplication", name: "EduSpark Learning Platform", applicationCategory: "EducationalApplication", description: "Interactive LMS with live classes, AI-generated assessments, and gamified progress tracking for 10K+ learners." },
+              { "@type": "SoftwareApplication", name: "SmartFarm AI Analytics", applicationCategory: "BusinessApplication", description: "AI precision agriculture platform analyzing satellite imagery and soil data for crop recommendations." },
+            ],
+          },
+        ]}
       />
       <Navbar />
       <PageHero

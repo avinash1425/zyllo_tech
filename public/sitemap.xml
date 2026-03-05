@@ -6,130 +6,152 @@
   <!-- ── Core Pages ────────────────────────────────────────────────────────── -->
   <url>
     <loc>https://zyllotech.com/</loc>
-    <lastmod>2025-03-04</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en-in" href="https://zyllotech.com/"/>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://zyllotech.com/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://zyllotech.com/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://zyllotech.com/"/>
   </url>
 
   <url>
     <loc>https://zyllotech.com/about</loc>
-    <lastmod>2025-03-04</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en-in" href="https://zyllotech.com/about"/>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://zyllotech.com/about"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://zyllotech.com/about"/>
   </url>
 
   <url>
     <loc>https://zyllotech.com/services</loc>
-    <lastmod>2025-03-04</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en-in" href="https://zyllotech.com/services"/>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://zyllotech.com/services"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://zyllotech.com/services"/>
   </url>
 
   <url>
     <loc>https://zyllotech.com/industries</loc>
-    <lastmod>2025-03-04</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en-in" href="https://zyllotech.com/industries"/>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://zyllotech.com/industries"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://zyllotech.com/industries"/>
   </url>
 
   <url>
     <loc>https://zyllotech.com/portfolio</loc>
-    <lastmod>2025-03-04</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en-in" href="https://zyllotech.com/portfolio"/>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://zyllotech.com/portfolio"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://zyllotech.com/portfolio"/>
   </url>
 
   <url>
     <loc>https://zyllotech.com/resources</loc>
-    <lastmod>2025-03-04</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en-in" href="https://zyllotech.com/resources"/>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://zyllotech.com/resources"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://zyllotech.com/resources"/>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog</loc>
-    <lastmod>2025-03-04</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en-in" href="https://zyllotech.com/blog"/>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://zyllotech.com/blog"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://zyllotech.com/blog"/>
   </url>
 
   <url>
     <loc>https://zyllotech.com/careers</loc>
-    <lastmod>2025-03-04</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/contact</loc>
-    <lastmod>2025-03-04</lastmod>
+    <lastmod>2026-03-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en-in" href="https://zyllotech.com/contact"/>
+    <xhtml:link rel="alternate" hreflang="en-us" href="https://zyllotech.com/contact"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://zyllotech.com/contact"/>
   </url>
 
   <!-- ── General Blog Articles ─────────────────────────────────────────────── -->
   <url>
     <loc>https://zyllotech.com/blog/ai-reshaping-enterprise-software-2025</loc>
-    <lastmod>2025-02-20</lastmod>
+    <lastmod>2026-01-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog/migrating-to-microservices-playbook</loc>
-    <lastmod>2025-02-12</lastmod>
+    <lastmod>2025-12-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog/scalable-react-typescript</loc>
-    <lastmod>2025-02-05</lastmod>
+    <lastmod>2025-12-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog/langchain-vs-llamaindex-rag</loc>
-    <lastmod>2025-01-28</lastmod>
+    <lastmod>2026-01-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog/design-systems-that-scale</loc>
-    <lastmod>2025-01-20</lastmod>
+    <lastmod>2025-11-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog/software-rfp-guide</loc>
-    <lastmod>2025-01-14</lastmod>
+    <lastmod>2025-11-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog/kubernetes-cost-optimization</loc>
-    <lastmod>2025-01-08</lastmod>
+    <lastmod>2026-02-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog/api-design-principles</loc>
-    <lastmod>2024-12-30</lastmod>
+    <lastmod>2025-12-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog/micro-interactions-ux</loc>
-    <lastmod>2024-12-22</lastmod>
+    <lastmod>2025-11-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -137,84 +159,84 @@
   <!-- ── Industry Implementation Guides (High SEO value) ───────────────────── -->
   <url>
     <loc>https://zyllotech.com/blog/digital-banking-platform-implementation-guide</loc>
-    <lastmod>2025-03-01</lastmod>
+    <lastmod>2026-02-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog/headless-commerce-architecture-retail</loc>
-    <lastmod>2025-03-02</lastmod>
+    <lastmod>2026-02-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog/fhir-patient-portal-implementation</loc>
-    <lastmod>2025-03-03</lastmod>
+    <lastmod>2026-02-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog/lms-scaling-edtech-implementation</loc>
-    <lastmod>2025-03-04</lastmod>
+    <lastmod>2026-02-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog/fleet-tracking-iot-cloud-implementation</loc>
-    <lastmod>2025-03-05</lastmod>
+    <lastmod>2026-02-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog/predictive-maintenance-manufacturing-implementation</loc>
-    <lastmod>2025-03-06</lastmod>
+    <lastmod>2026-02-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog/game-backend-architecture-scaling</loc>
-    <lastmod>2025-03-07</lastmod>
+    <lastmod>2026-02-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog/proptech-crm-project-management</loc>
-    <lastmod>2025-03-08</lastmod>
+    <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog/hotel-booking-engine-travel-implementation</loc>
-    <lastmod>2025-03-09</lastmod>
+    <lastmod>2026-02-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog/telecom-customer-portal-billing-automation</loc>
-    <lastmod>2025-03-10</lastmod>
+    <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog/headless-cms-migration-media-publishing</loc>
-    <lastmod>2025-03-11</lastmod>
+    <lastmod>2026-03-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/blog/iot-farm-monitoring-agritech-implementation</loc>
-    <lastmod>2025-03-12</lastmod>
+    <lastmod>2026-03-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -222,21 +244,21 @@
   <!-- ── Legal Pages ────────────────────────────────────────────────────────── -->
   <url>
     <loc>https://zyllotech.com/privacy-policy</loc>
-    <lastmod>2025-01-01</lastmod>
+    <lastmod>2026-01-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/terms-of-service</loc>
-    <lastmod>2025-01-01</lastmod>
+    <lastmod>2026-01-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
 
   <url>
     <loc>https://zyllotech.com/cookie-policy</loc>
-    <lastmod>2025-01-01</lastmod>
+    <lastmod>2026-01-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

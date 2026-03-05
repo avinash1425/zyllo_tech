@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import PageHero from "@/components/PageHero";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 
 const sections = [
   {
@@ -53,6 +54,16 @@ const sections = [
 const TermsOfService = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Terms of Service | Zyllo Tech"
+        description="Read the terms and conditions governing use of the Zyllo Tech website and digital properties. Understand your rights and responsibilities as a visitor."
+        canonical="/terms-of-service"
+        keywords="Zyllo Tech terms of service, website terms, conditions of use, legal terms"
+        structuredData={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "Terms of Service", url: `${SITE_URL}/terms-of-service` },
+        ])}
+      />
       <Navbar />
       <PageHero
         title="Terms of"

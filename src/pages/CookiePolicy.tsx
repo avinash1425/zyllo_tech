@@ -2,10 +2,21 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import PageHero from "@/components/PageHero";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 
 const CookiePolicy = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Cookie Policy | Zyllo Tech"
+        description="Understand how Zyllo Tech uses cookies and similar technologies on our website. Learn what cookies we set, why, and how to manage your preferences."
+        canonical="/cookie-policy"
+        keywords="Zyllo Tech cookie policy, cookies, tracking technologies, browser cookies, consent"
+        structuredData={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "Cookie Policy", url: `${SITE_URL}/cookie-policy` },
+        ])}
+      />
       <Navbar />
       <PageHero
         title="Cookie"
