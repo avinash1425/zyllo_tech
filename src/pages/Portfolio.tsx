@@ -213,7 +213,7 @@ const PortfolioPage = () => {
       />
 
       <section className="py-24">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-4 sm:px-6">
           {/* Category Filter */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -281,7 +281,7 @@ const PortfolioPage = () => {
                 </div>
 
                 {/* Metrics */}
-                <div className="grid grid-cols-3 gap-3 border-t border-border/60 pt-4">
+                <div className="grid grid-cols-2 gap-3 border-t border-border/60 pt-4 sm:grid-cols-3">
                   {project.metrics.map((metric) => (
                     <div key={metric.label} className="text-center">
                       <metric.icon size={14} className={`mx-auto mb-1 ${project.accentColor}`} />
@@ -302,7 +302,7 @@ const PortfolioPage = () => {
 
       {/* CTA */}
       <section className="py-20 bg-muted/50">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}

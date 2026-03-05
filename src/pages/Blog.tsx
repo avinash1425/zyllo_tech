@@ -53,7 +53,7 @@ const BlogPage = () => {
       />
 
       <section className="py-24">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-4 sm:px-6">
           {/* Featured Article */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}

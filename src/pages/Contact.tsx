@@ -385,7 +385,7 @@ const ContactPage = () => {
               </div>
 
               {/* Trust badges */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 {[
                   { stat: "24h", label: "Response Time" },
                   { stat: "100+", label: "Projects Delivered" },
