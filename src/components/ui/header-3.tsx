@@ -166,7 +166,7 @@ export function Header() {
               className="h-12 w-auto max-w-none origin-left scale-[1.26] object-contain"
             />
           </Link>
-          <div className="ml-5 hidden md:flex lg:ml-8">
+          <div className="ml-5 hidden lg:flex lg:ml-8">
             <Menu setActive={setActiveMenu}>
               <MenuItem
                 setActive={(item) => setActiveMenu(item)}
@@ -240,7 +240,7 @@ export function Header() {
             </Menu>
           </div>
         </div>
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           <Button variant="outline" size="icon" onClick={() => setSearchOpen(true)} aria-label="Search">
             <Search size={16} />
           </Button>
@@ -249,7 +249,7 @@ export function Header() {
           size="icon"
           variant="outline"
           onClick={() => setOpen(!open)}
-          className="md:hidden"
+          className="lg:hidden"
           aria-expanded={open}
           aria-controls="mobile-menu"
           aria-label="Toggle menu"
@@ -296,7 +296,7 @@ function MobileMenu({ open, children, className, ...props }: MobileMenuProps) {
       id="mobile-menu"
       className={cn(
         "bg-background/95 supports-[backdrop-filter]:bg-background/70 backdrop-blur-lg",
-        "fixed top-14 right-0 bottom-0 left-0 z-40 flex flex-col overflow-hidden border-y md:hidden",
+        "fixed top-14 right-0 bottom-0 left-0 z-40 flex flex-col overflow-hidden border-y lg:hidden",
       )}
     >
       <div

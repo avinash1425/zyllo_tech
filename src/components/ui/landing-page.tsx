@@ -146,7 +146,7 @@ function ScrollGlobe({ sections, globeConfig = defaultGlobeConfig, className }: 
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/95 sm:text-sm">
                     Zyllo Tech Software Solutions
                   </p>
-                  <span className="inline-flex max-w-[92vw] items-center rounded-full border border-white/35 bg-[hsl(215,30%,8%,0.35)] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-white backdrop-blur-sm sm:max-w-none sm:px-5 sm:text-xs">
+                  <span className="inline-flex max-w-[92vw] flex-wrap justify-center items-center rounded-full border border-white/35 bg-[hsl(215,30%,8%,0.35)] px-4 py-1.5 text-[9px] font-semibold uppercase tracking-[0.08em] text-white backdrop-blur-sm sm:flex-nowrap sm:px-5 sm:text-[10px] sm:tracking-[0.1em]">
                     {heroSignals.join(" • ")}
                   </span>
                 </div>

@@ -154,7 +154,7 @@ const ArticleDetail = () => {
 
       {/* Breadcrumb */}
       <div className="border-b border-border bg-muted/30 py-3">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-4 sm:px-6">
           <nav className="flex items-center gap-2 text-xs text-muted-foreground">
             <Link to="/" className="hover:text-foreground transition-colors">
               Home
@@ -164,7 +164,7 @@ const ArticleDetail = () => {
               Blog
             </Link>
             <ChevronRight size={12} />
-            <span className="text-foreground truncate max-w-[200px] sm:max-w-xs">
+            <span className="text-foreground truncate max-w-[140px] sm:max-w-xs">
               {article.title}
             </span>
           </nav>
@@ -172,7 +172,7 @@ const ArticleDetail = () => {
       </div>
 
       <article className="py-14">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-4 sm:px-6">
           <div className="mx-auto max-w-3xl">
             {/* Header */}
             <motion.div
