@@ -303,7 +303,7 @@ const ContactPage = () => {
 
       {/* ── Contact Info Cards ── */}
       <section className="py-16 border-b border-border">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {CONTACT_INFO.map((item, i) => (
               item.href ? (
@@ -363,7 +363,7 @@ const ContactPage = () => {
 
       {/* ── Form + Map ── */}
       <section className="py-24">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-4 sm:px-6">
           <div className="grid gap-16 lg:grid-cols-2 items-start">
 
             {/* Left — intro + map */}
