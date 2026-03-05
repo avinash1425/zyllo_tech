@@ -123,8 +123,6 @@ const careerFormSchema = z.object({
 
 type CareerFormData = z.infer<typeof careerFormSchema>;
 
-import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
-
 const CareersPage = () => {
   const { toast } = useToast();
   const formRef = useRef<HTMLDivElement>(null);
