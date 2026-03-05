@@ -125,6 +125,8 @@ interface SEOHeadProps {
   modifiedTime?: string;
   author?: string;
   lang?: string;
+  /** Pass hreflang alternates. If omitted, default en-IN / en-US / x-default are added automatically. */
+  hreflang?: Array<{ lang: string; href: string }>;
 }
 
 const SEOHead = ({
@@ -140,9 +142,20 @@ const SEOHead = ({
   modifiedTime,
   author,
   lang = "en",
+  hreflang,
 }: SEOHeadProps) => {
   const fullTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
   const canonicalUrl = canonical ? `${SITE_URL}${canonical}` : undefined;
+
+  // Default hreflang: en-IN (primary), en-US (secondary), x-default
+  const hreflangLinks = hreflang ?? (canonicalUrl
+    ? [
+        { lang: "en-IN", href: canonicalUrl },
+        { lang: "en-US", href: canonicalUrl },
+        { lang: "en",    href: canonicalUrl },
+        { lang: "x-default", href: canonicalUrl },
+      ]
+    : []);
 
   const schemas: object[] = [organizationSchema, webSiteSchema];
   if (structuredData) {
@@ -188,6 +201,9 @@ const SEOHead = ({
       <meta property="og:locale" content="en_IN" />
       <meta property="og:locale:alternate" content="en_US" />
       {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+      {hreflangLinks.map((h) => (
+        <link key={h.lang} rel="alternate" hrefLang={h.lang} href={h.href} />
+      ))}
       {publishedTime && <meta property="article:published_time" content={publishedTime} />}
       {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
 

@@ -271,6 +271,25 @@ const ContactPage = () => {
             name: "Contact Zyllo Tech",
             url: `${SITE_URL}/contact`,
             description: "Reach out to Zyllo Tech for software engineering projects and consultations.",
+            mainEntity: {
+              "@type": "Organization",
+              name: "Zyllo Tech",
+              url: SITE_URL,
+              telephone: "+91-70757-73680",
+              email: "info@zyllotech.com",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: "Hyderabad",
+                addressRegion: "Telangana",
+                postalCode: "500001",
+                addressCountry: "IN",
+              },
+              areaServed: ["IN", "US", "AE", "GB", "SG", "AU", "CA"],
+              contactPoint: [
+                { "@type": "ContactPoint", telephone: "+91-70757-73680", email: "info@zyllotech.com", contactType: "sales", areaServed: ["IN", "SG", "AE", "AU", "CA", "GB"], availableLanguage: ["English", "Hindi", "Telugu"] },
+                { "@type": "ContactPoint", email: "info@zyllotech.com", contactType: "sales", areaServed: "US", availableLanguage: "English" },
+              ],
+            },
           },
         ]}
       />
