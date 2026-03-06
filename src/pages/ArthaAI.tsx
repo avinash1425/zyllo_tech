@@ -67,7 +67,7 @@ const ArthaAI = () => (
             </motion.p>
             <motion.div variants={fade} className="flex flex-wrap gap-3 mb-8">
               <Link
-                to="/signup"
+                to="/dashboard"
                 className="rounded-lg px-7 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
                 style={{ background: OG }}
               >
@@ -379,7 +379,7 @@ const ArthaAI = () => (
               {["All 6 financial calculators", "Basic financial plan", "Hindi + 4 regional languages", "Educational articles"].map(f => <li key={f}><Check color={DB} />{f}</li>)}
               {["AI advisor chat", "Full 22 languages", "Advanced investment report"].map(f => <li key={f} className="text-gray-400"><Cross />{f}</li>)}
             </ul>
-            <Link to="/signup" className="block text-center rounded-lg py-2.5 text-sm font-bold border border-gray-300 hover:bg-gray-50 transition-colors" style={{ color: DB }}>Get Started Free</Link>
+            <Link to="/dashboard" className="block text-center rounded-lg py-2.5 text-sm font-bold border border-gray-300 hover:bg-gray-50 transition-colors" style={{ color: DB }}>Get Started Free</Link>
           </motion.div>
 
           {/* Pro */}
@@ -395,7 +395,7 @@ const ArthaAI = () => (
             <ul className="space-y-2 mb-6 text-sm text-white/80">
               {["Everything in Free", "Full 22 Indian languages", "AI advisor chat (ArthaGuru)", "Advanced life planner", "Personalised investment report", "WhatsApp integration", "Priority support"].map(f => <li key={f}><Check color={OG} />{f}</li>)}
             </ul>
-            <Link to="/signup" className="block text-center rounded-lg py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90" style={{ background: OG }}>Start 14-Day Free Trial</Link>
+            <Link to="/dashboard" className="block text-center rounded-lg py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90" style={{ background: OG }}>Start 14-Day Free Trial</Link>
           </motion.div>
 
           {/* Enterprise */}
