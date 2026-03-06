@@ -244,6 +244,16 @@ export function Header() {
                   </div>
                 </div>
               </MenuItem>
+
+              <a
+                href="/arthaai/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cursor-pointer text-sm font-medium text-foreground/90 hover:text-foreground flex items-center gap-1.5"
+              >
+                <Rocket className="size-3.5 text-primary" />
+                ArthaAI
+              </a>
             </Menu>
           </div>
         </div>
@@ -278,6 +288,21 @@ export function Header() {
             {productLinks.map((link) => (
               <ListItem key={link.title} {...link} />
             ))}
+            <span className="text-sm mt-1">Startups</span>
+            <a
+              href="/arthaai/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex flex-row gap-x-2 hover:bg-accent hover:text-accent-foreground rounded-sm p-2"
+            >
+              <div className="bg-background/40 flex aspect-square size-12 items-center justify-center rounded-md border shadow-sm">
+                <Rocket className="text-foreground size-5" />
+              </div>
+              <div className="flex flex-col items-start justify-center">
+                <span className="font-medium">ArthaAI</span>
+                <span className="text-muted-foreground text-xs">Smart Money Guidance for Every Indian</span>
+              </div>
+            </a>
           </div>
         </NavigationMenu>
         <div className="flex flex-col gap-2">
