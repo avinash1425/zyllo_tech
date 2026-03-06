@@ -16,6 +16,7 @@ const sections = [
       { label: "Resources", to: "/resources" },
       { label: "Blog", to: "/blog" },
       { label: "Careers", to: "/careers" },
+      { label: "Startups", to: "/startups" },
       { label: "Contact", to: "/contact" },
     ],
   },

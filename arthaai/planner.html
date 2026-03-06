@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ArthaPlanner — Personalised financial life planner. Set goals, build a budget, track your net worth, and plan for every life stage.">
+  <title>ArthaPlanner — Financial Life Planner | ArthaAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .goal-card { border: 2px solid var(--gray-200); border-radius: var(--radius-lg); padding: 20px; cursor: pointer; transition: var(--transition); position: relative; }
+    .goal-card:hover { border-color: var(--og); background: var(--og-pale); }
+    .goal-card.selected { border-color: var(--og); background: var(--og-pale); }
+    .goal-card-icon { font-size: 2rem; margin-bottom: 8px; display: block; }
+    .goal-card h4 { font-size: 0.9rem; margin-bottom: 4px; }
+    .goal-card p { font-size: 0.78rem; color: var(--gray-400); }
+    .goal-card .selected-check { position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; background: var(--og); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; display: none; }
+    .goal-card.selected .selected-check { display: flex; }
+    .budget-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; align-items: center; padding: 12px; border-radius: var(--radius); background: var(--gray-50); border: 1px solid var(--gray-200); margin-bottom: 8px; }
+    .budget-row:hover { background: var(--og-pale); }
+    .budget-category-icon { font-size: 1.2rem; }
+    .budget-category-name { font-size: 0.88rem; font-weight: 600; color: var(--db); }
+    .budget-amount-input { padding: 8px 12px; border: 1.5px solid var(--gray-300); border-radius: var(--radius-sm); font-size: 0.9rem; width: 100%; outline: none; transition: var(--transition); }
+    .budget-amount-input:focus { border-color: var(--og); }
+    .budget-suggested { font-size: 0.75rem; color: var(--gray-400); text-align: right; }
+    .lifestage-card { border-radius: var(--radius-lg); padding: 28px; border: 2px solid transparent; cursor: pointer; transition: var(--transition-slow); }
+    .lifestage-20s { background: linear-gradient(135deg, #fff9f5, #fff4ec); border-color: #f5d8c8; }
+    .lifestage-30s { background: linear-gradient(135deg, #f0f6fc, #e8f4fb); border-color: #c8dff0; }
+    .lifestage-40s { background: linear-gradient(135deg, #f5f0fc, #ede8fb); border-color: #d8c8f0; }
+    .lifestage-50s { background: linear-gradient(135deg, #f0faf5, #e8f7ef); border-color: #c0e8d0; }
+    .lifestage-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-xl); }
+    .milestone-item { display: flex; gap: 14px; padding: 14px; background: var(--white); border-radius: var(--radius); border: 1px solid var(--gray-200); margin-bottom: 8px; align-items: center; }
+    .milestone-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+    .debt-method-btn { padding: 10px 20px; border-radius: var(--radius-sm); border: 2px solid var(--gray-300); background: white; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: var(--transition); }
+    .debt-method-btn.active { border-color: var(--og); background: var(--og-pale); color: var(--og-dark); }
+    .debt-item { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; }
+    .debt-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .debt-item-remove { background: var(--red-light); color: var(--red); border: none; border-radius: var(--radius-sm); padding: 4px 10px; font-size: 0.75rem; cursor: pointer; font-weight: 600; }
+    .nw-category { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 12px; }
+    .nw-category h4 { font-size: 0.88rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .nw-input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+    .nw-input-label { font-size: 0.78rem; color: var(--gray-500); margin-bottom: 4px; }
+    .input-prefix-sm { position: relative; }
+    .input-prefix-sm input { padding-left: 28px; }
+    .input-prefix-sm::before { content: '₹'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-weight: 600; color: var(--gray-400); font-size: 0.85rem; pointer-events: none; }
+  </style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="nav" id="mainNav">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <div class="nav-logo-icon">A</div>
+        <span class="nav-logo-text">Artha<span>AI</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="calculators.html" class="nav-link">ArthaCalc</a>
+        <a href="planner.html" class="nav-link active">ArthaPlanner</a>
+        <a href="guru.html" class="nav-link">ArthaGuru</a>
+        <a href="index.html#pricing" class="nav-link">Pricing</a>
+      </div>
+      <div class="nav-actions">
+        <a href="#" class="btn btn-ghost btn-sm">Login</a>
+        <a href="#" class="btn btn-primary btn-sm">Get Started Free</a>
+      </div>
+      <button class="nav-hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+<div class="nav-mobile" id="navMobile">
+  <a href="index.html" class="nav-link">Home</a>
+  <a href="calculators.html" class="nav-link">ArthaCalc — Calculators</a>
+  <a href="planner.html" class="nav-link active">ArthaPlanner — Life Planner</a>
+  <a href="guru.html" class="nav-link">ArthaGuru — Education</a>
+  <a href="index.html#pricing" class="nav-link">Pricing</a>
+  <a href="#" class="btn btn-primary btn-full">Get Started Free</a>
+</div>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="container">
+    <div class="badge badge-db mb-16" style="background:rgba(255,255,255,0.15); color:white;">ArthaPlanner</div>
+    <h1>Your Financial Life Planner</h1>
+    <p>Personalised planning for every life stage — goals, budget, debt, emergency fund, and net worth — all in one place.</p>
+    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:20px;">
+      <span class="badge" style="background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.9);">🎯 6 Planning Tools</span>
+      <span class="badge" style="background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.9);">📊 Life-Stage Milestones</span>
+      <span class="badge" style="background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.9);">💳 Debt Payoff Plans</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<section class="section">
+  <div class="container">
+
+    <!-- TABS -->
+    <div class="tabs" id="plannerTabs">
+      <button class="tab-btn active" data-tab="goals">🎯 Goal Planner</button>
+      <button class="tab-btn" data-tab="budget">📊 Budget Builder</button>
+      <button class="tab-btn" data-tab="emergency">🛡️ Emergency Fund</button>
+      <button class="tab-btn" data-tab="debt">💳 Debt Repayment</button>
+      <button class="tab-btn" data-tab="lifestage">🌟 Life Stage Guide</button>
+      <button class="tab-btn" data-tab="networth">💰 Net Worth</button>
+    </div>
+
+    <!-- ===== TAB: GOAL PLANNER ===== -->
+    <div class="tab-panel active" id="tab-goals">
+      <div style="max-width:800px; margin:0 auto;">
+        <h3 style="margin-bottom:8px;">Set Your Financial Goals</h3>
+        <p style="margin-bottom:28px;">Select all goals that apply to you. ArthaAI will help you prioritise and build a step-by-step plan.</p>
+        <div class="grid grid-4" style="margin-bottom:32px;" id="goal-cards">
+          <div class="goal-card" data-goal="home" onclick="toggleGoal(this)">
+            <div class="selected-check">✓</div>
+            <span class="goal-card-icon">🏠</span>
+            <h4>Buy a Home</h4>
+            <p>Down payment &amp; EMI planning</p>
+          </div>
+          <div class="goal-card" data-goal="education" onclick="toggleGoal(this)">
+            <div class="selected-check">✓</div>
+            <span class="goal-card-icon">🎓</span>
+            <h4>Child's Education</h4>
+            <p>Plan for school, college &amp; abroad</p>
+          </div>
+          <div class="goal-card" data-goal="marriage" onclick="toggleGoal(this)">
+            <div class="selected-check">✓</div>
+            <span class="goal-card-icon">💍</span>
+            <h4>Marriage</h4>
+            <p>Wedding corpus planning</p>
+          </div>
+          <div class="goal-card" data-goal="retirement" onclick="toggleGoal(this)">
+            <div class="selected-check">✓</div>
+            <span class="goal-card-icon">👴</span>
+            <h4>Retirement</h4>
+            <p>Corpus &amp; monthly income plan</p>
+          </div>
+          <div class="goal-card" data-goal="vehicle" onclick="toggleGoal(this)">
+            <div class="selected-check">✓</div>
+            <span class="goal-card-icon">🚗</span>
+            <h4>Buy a Vehicle</h4>
+            <p>Car or two-wheeler purchase</p>
+          </div>
+          <div class="goal-card" data-goal="travel" onclick="toggleGoal(this)">
+            <div class="selected-check">✓</div>
+            <span class="goal-card-icon">✈️</span>
+            <h4>Travel Fund</h4>
+            <p>Dream vacation savings</p>
+          </div>
+          <div class="goal-card" data-goal="startup" onclick="toggleGoal(this)">
+            <div class="selected-check">✓</div>
+            <span class="goal-card-icon">🚀</span>
+            <h4>Start a Business</h4>
+            <p>Build your startup fund</p>
+          </div>
+          <div class="goal-card" data-goal="wealth" onclick="toggleGoal(this)">
+            <div class="selected-check">✓</div>
+            <span class="goal-card-icon">💹</span>
+            <h4>Wealth Creation</h4>
+            <p>Long-term investment corpus</p>
+          </div>
+        </div>
+
+        <!-- GOAL DETAIL FORM -->
+        <div id="goal-detail-form" style="display:none;">
+          <div class="divider"></div>
+          <h4 style="margin-bottom:20px;" id="goal-form-title">Configure Your Goal</h4>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start;">
+            <div class="calc-form">
+              <div class="form-group">
+                <label class="form-label">Goal Name</label>
+                <input type="text" class="form-input" id="goal-name" placeholder="e.g. Child's IIT Engineering Fund">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Target Amount</label>
+                <div class="input-prefix"><input type="number" class="form-input" id="goal-amount" placeholder="e.g. 2500000"></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Target Year</label>
+                <input type="number" class="form-input" id="goal-year" placeholder="e.g. 2035" min="2026" max="2060">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Amount Already Saved</label>
+                <div class="input-prefix"><input type="number" class="form-input" id="goal-saved" value="0" min="0"></div>
+              </div>
+              <button class="btn btn-primary" onclick="calculateGoal()">Calculate Monthly Investment Needed →</button>
+            </div>
+            <div class="result-box" id="goal-result">
+              <h4>Monthly SIP Required</h4>
+              <div class="result-value" id="goal-monthly-sip">₹ —</div>
+              <div class="result-sub" id="goal-result-sub">Enter goal details to see your plan</div>
+              <div class="result-grid" style="margin-top:16px;">
+                <div class="result-item"><h5>Target</h5><p id="goal-target-show">—</p></div>
+                <div class="result-item"><h5>Years Left</h5><p id="goal-years">—</p></div>
+                <div class="result-item"><h5>Total Invest.</h5><p id="goal-total-invest">—</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center; margin-top:24px;">
+          <button class="btn btn-primary btn-xl" onclick="document.getElementById('goal-detail-form').style.display='block'; document.getElementById('goal-detail-form').scrollIntoView({behavior:'smooth'})">Plan My Goals →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB: BUDGET BUILDER ===== -->
+    <div class="tab-panel" id="tab-budget">
+      <div style="max-width:860px; margin:0 auto;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start;">
+          <div>
+            <h3 style="margin-bottom:8px;">Monthly Budget Builder</h3>
+            <p style="margin-bottom:24px;">Enter your income and expenses to see if your budget follows the <strong>50-30-20 rule</strong>.</p>
+            <div class="form-group">
+              <label class="form-label">Monthly Take-Home Income</label>
+              <div class="input-prefix"><input type="number" class="form-input" id="budget-income" value="80000" min="0" step="1000" onchange="updateBudgetSuggestions()"></div>
+            </div>
+            <div class="divider"></div>
+            <div style="font-size:0.82rem; font-weight:700; color:var(--db); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;">NEEDS (50% suggested)</div>
+            <div class="budget-row">
+              <div><div class="budget-category-icon">🏠</div><div class="budget-category-name">Rent / EMI</div></div>
+              <div class="input-prefix-sm"><input type="number" class="budget-amount-input" id="b-rent" value="20000" onchange="updateBudgetChart()"></div>
+              <div class="budget-suggested" id="bs-rent">Suggested: ₹20,000</div>
+            </div>
+            <div class="budget-row">
+              <div><div class="budget-category-icon">🛒</div><div class="budget-category-name">Groceries</div></div>
+              <div class="input-prefix-sm"><input type="number" class="budget-amount-input" id="b-groceries" value="8000" onchange="updateBudgetChart()"></div>
+              <div class="budget-suggested" id="bs-groceries">Suggested: ₹8,000</div>
+            </div>
+            <div class="budget-row">
+              <div><div class="budget-category-icon">🚌</div><div class="budget-category-name">Transport</div></div>
+              <div class="input-prefix-sm"><input type="number" class="budget-amount-input" id="b-transport" value="5000" onchange="updateBudgetChart()"></div>
+              <div class="budget-suggested" id="bs-transport">Suggested: ₹5,000</div>
+            </div>
+            <div class="budget-row">
+              <div><div class="budget-category-icon">💡</div><div class="budget-category-name">Utilities</div></div>
+              <div class="input-prefix-sm"><input type="number" class="budget-amount-input" id="b-utilities" value="3000" onchange="updateBudgetChart()"></div>
+              <div class="budget-suggested">Suggested: ₹3,000</div>
+            </div>
+            <div style="font-size:0.82rem; font-weight:700; color:var(--db); margin:16px 0 10px; text-transform:uppercase; letter-spacing:0.5px;">WANTS (30% suggested)</div>
+            <div class="budget-row">
+              <div><div class="budget-category-icon">🍽️</div><div class="budget-category-name">Dining / Eating Out</div></div>
+              <div class="input-prefix-sm"><input type="number" class="budget-amount-input" id="b-dining" value="5000" onchange="updateBudgetChart()"></div>
+              <div class="budget-suggested">Suggested: ₹5,000</div>
+            </div>
+            <div class="budget-row">
+              <div><div class="budget-category-icon">🎬</div><div class="budget-category-name">Entertainment</div></div>
+              <div class="input-prefix-sm"><input type="number" class="budget-amount-input" id="b-entertainment" value="3000" onchange="updateBudgetChart()"></div>
+              <div class="budget-suggested">Suggested: ₹3,000</div>
+            </div>
+            <div class="budget-row">
+              <div><div class="budget-category-icon">👗</div><div class="budget-category-name">Clothing / Shopping</div></div>
+              <div class="input-prefix-sm"><input type="number" class="budget-amount-input" id="b-shopping" value="3000" onchange="updateBudgetChart()"></div>
+              <div class="budget-suggested">Suggested: ₹3,000</div>
+            </div>
+            <div style="font-size:0.82rem; font-weight:700; color:var(--db); margin:16px 0 10px; text-transform:uppercase; letter-spacing:0.5px;">SAVINGS (20% suggested)</div>
+            <div class="budget-row">
+              <div><div class="budget-category-icon">📈</div><div class="budget-category-name">Investments / SIP</div></div>
+              <div class="input-prefix-sm"><input type="number" class="budget-amount-input" id="b-investments" value="10000" onchange="updateBudgetChart()"></div>
+              <div class="budget-suggested" id="bs-savings">Suggested: ₹16,000</div>
+            </div>
+            <div class="budget-row">
+              <div><div class="budget-category-icon">🛡️</div><div class="budget-category-name">Emergency Fund</div></div>
+              <div class="input-prefix-sm"><input type="number" class="budget-amount-input" id="b-emergency" value="3000" onchange="updateBudgetChart()"></div>
+              <div class="budget-suggested">Suggested: ₹4,000</div>
+            </div>
+            <button class="btn btn-primary btn-full mt-16" onclick="updateBudgetChart()">Analyse My Budget →</button>
+          </div>
+          <div>
+            <div class="result-box" id="budget-result">
+              <h4>Budget Analysis</h4>
+              <div class="result-value" id="budget-balance">₹20,000</div>
+              <div class="result-sub" id="budget-balance-sub">Monthly surplus / deficit</div>
+              <div class="result-grid">
+                <div class="result-item"><h5>Total Needs</h5><p id="budget-needs">₹36,000</p></div>
+                <div class="result-item"><h5>Total Wants</h5><p id="budget-wants">₹11,000</p></div>
+                <div class="result-item"><h5>Total Savings</h5><p id="budget-savings">₹13,000</p></div>
+              </div>
+              <div style="margin-top:20px;">
+                <div style="font-size:0.75rem; color:rgba(255,255,255,0.6); margin-bottom:8px;">50-30-20 HEALTH CHECK</div>
+                <div style="margin-bottom:8px;">
+                  <div style="display:flex; justify-content:space-between; font-size:0.78rem; color:rgba(255,255,255,0.75); margin-bottom:4px;"><span>Needs</span><span id="budget-needs-pct">45%</span></div>
+                  <div class="progress"><div class="progress-fill progress-fill-mb" id="budget-needs-bar" style="width:45%"></div></div>
+                </div>
+                <div style="margin-bottom:8px;">
+                  <div style="display:flex; justify-content:space-between; font-size:0.78rem; color:rgba(255,255,255,0.75); margin-bottom:4px;"><span>Wants</span><span id="budget-wants-pct">14%</span></div>
+                  <div class="progress"><div class="progress-fill" style="background:var(--yellow);" id="budget-wants-bar" style="width:14%"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:0.78rem; color:rgba(255,255,255,0.75); margin-bottom:4px;"><span>Savings</span><span id="budget-savings-pct">16%</span></div>
+                  <div class="progress"><div class="progress-fill progress-fill-green" id="budget-savings-bar" style="width:16%"></div></div>
+                </div>
+              </div>
+            </div>
+            <div class="card mt-16">
+              <h4 style="font-size:0.88rem; margin-bottom:10px;">📌 The 50-30-20 Rule</h4>
+              <div style="font-size:0.82rem; color:var(--gray-600); line-height:1.7;">
+                <div style="display:flex; gap:10px; margin-bottom:6px;"><span style="font-weight:700; color:var(--mb); min-width:30px;">50%</span> <span>Needs — Rent, groceries, transport, utilities, bills</span></div>
+                <div style="display:flex; gap:10px; margin-bottom:6px;"><span style="font-weight:700; color:var(--yellow); min-width:30px;">30%</span> <span>Wants — Entertainment, dining, subscriptions</span></div>
+                <div style="display:flex; gap:10px;"><span style="font-weight:700; color:var(--green); min-width:30px;">20%</span> <span>Savings &amp; Investments — SIP, emergency fund, debt repayment</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB: EMERGENCY FUND ===== -->
+    <div class="tab-panel" id="tab-emergency">
+      <div style="max-width:700px; margin:0 auto;">
+        <h3 style="margin-bottom:8px;">Emergency Fund Calculator</h3>
+        <p style="margin-bottom:28px;">Your emergency fund is your financial safety net. Most experts recommend 3–6 months of essential expenses in an easily accessible liquid fund.</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:start;">
+          <div class="calc-form">
+            <div class="form-group">
+              <label class="form-label">Monthly Essential Expenses</label>
+              <div class="input-prefix"><input type="number" class="form-input" id="ef-expenses" value="40000" min="5000" step="1000"></div>
+              <div class="form-hint">Rent + EMI + groceries + utilities + insurance</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Months of Coverage Desired</label>
+              <select class="form-input form-select" id="ef-months">
+                <option value="3">3 Months (Minimum)</option>
+                <option value="6" selected>6 Months (Recommended)</option>
+                <option value="9">9 Months (If unstable income)</option>
+                <option value="12">12 Months (Freelancer / Self-Employed)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Current Emergency Savings</label>
+              <div class="input-prefix"><input type="number" class="form-input" id="ef-current" value="0" min="0" step="1000"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Monthly Savings for Emergency Fund</label>
+              <div class="input-prefix"><input type="number" class="form-input" id="ef-monthly" value="5000" min="0" step="500"></div>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="calculateEmergencyFund()">Calculate Emergency Plan →</button>
+          </div>
+          <div>
+            <div class="result-box" id="ef-result">
+              <h4>Target Emergency Fund</h4>
+              <div class="result-value" id="ef-target">₹2,40,000</div>
+              <div class="result-sub">6 months of essential expenses</div>
+              <div class="result-grid" style="grid-template-columns:1fr 1fr;">
+                <div class="result-item"><h5>Already Saved</h5><p id="ef-saved-show">₹0</p></div>
+                <div class="result-item"><h5>Gap to Fill</h5><p class="og" id="ef-gap">₹2,40,000</p></div>
+              </div>
+              <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
+                <div id="ef-timeline" style="font-size:0.9rem; color:rgba(255,255,255,0.85);"></div>
+              </div>
+            </div>
+            <div class="card-mb mt-16">
+              <h4 style="font-size:0.85rem; margin-bottom:10px; color:var(--db);">✅ Where to Keep Your Emergency Fund</h4>
+              <div class="check-list" style="font-size:0.82rem;">
+                <div class="check-item"><div class="check-icon">✓</div> Liquid Mutual Fund (best returns + 24hr access)</div>
+                <div class="check-item"><div class="check-icon">✓</div> Savings Account with high interest (7%+ digital banks)</div>
+                <div class="check-item"><div class="check-icon check-icon-og">✗</div> NOT in FD (penalty for early withdrawal)</div>
+                <div class="check-item"><div class="check-icon check-icon-og">✗</div> NOT in equities (market can be down when you need it)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB: DEBT REPAYMENT ===== -->
+    <div class="tab-panel" id="tab-debt">
+      <div style="max-width:860px; margin:0 auto;">
+        <h3 style="margin-bottom:8px;">Debt Repayment Planner</h3>
+        <p style="margin-bottom:20px;">Add all your debts and ArthaAI will create an optimised payoff plan using either the <strong>Avalanche</strong> (save most interest) or <strong>Snowball</strong> (psychological wins) method.</p>
+        <div style="display:flex; gap:12px; margin-bottom:24px;">
+          <button class="debt-method-btn active" id="method-avalanche" onclick="setDebtMethod('avalanche')">❄️ Avalanche (Highest Interest First)</button>
+          <button class="debt-method-btn" id="method-snowball" onclick="setDebtMethod('snowball')">⛄ Snowball (Smallest Balance First)</button>
+        </div>
+        <div id="debt-list"></div>
+        <button class="btn btn-ghost mb-24" onclick="addDebt()">+ Add Another Debt</button>
+        <div class="form-group" style="max-width:300px;">
+          <label class="form-label">Monthly Budget for Debt Repayment</label>
+          <div class="input-prefix"><input type="number" class="form-input" id="debt-monthly-budget" value="20000" min="1000" step="500"></div>
+        </div>
+        <button class="btn btn-primary" onclick="calculateDebtPlan()">Generate Payoff Plan →</button>
+        <div id="debt-result" style="display:none; margin-top:24px;">
+          <div class="result-box">
+            <h4>Debt Freedom Date</h4>
+            <div class="result-value" id="debt-freedom-date">Dec 2027</div>
+            <div class="result-sub" id="debt-freedom-sub">Using avalanche method</div>
+            <div class="result-grid">
+              <div class="result-item"><h5>Total Debt</h5><p id="debt-total-amount">₹3,50,000</p></div>
+              <div class="result-item"><h5>Interest Saved</h5><p class="og" id="debt-interest-saved">₹28,400</p></div>
+              <div class="result-item"><h5>Payoff Time</h5><p id="debt-payoff-time">23 months</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB: LIFE STAGE ===== -->
+    <div class="tab-panel" id="tab-lifestage">
+      <h3 style="margin-bottom:8px; text-align:center;">Life Stage Financial Milestones</h3>
+      <p style="text-align:center; margin-bottom:32px; max-width:600px; margin-left:auto; margin-right:auto;">Every life stage comes with distinct financial priorities. Find your stage and see the key milestones you should hit.</p>
+      <div class="grid grid-4" style="margin-bottom:40px;" id="lifestage-cards">
+        <div class="lifestage-card lifestage-20s" onclick="showLifeStage('20s')">
+          <div style="font-size:2rem; margin-bottom:10px;">🌱</div>
+          <h3 style="color:var(--og); font-size:1.1rem;">Your 20s</h3>
+          <p style="font-size:0.82rem; color:var(--gray-600); margin-top:6px;">Foundation building — start early, build habits</p>
+        </div>
+        <div class="lifestage-card lifestage-30s" onclick="showLifeStage('30s')">
+          <div style="font-size:2rem; margin-bottom:10px;">📈</div>
+          <h3 style="color:var(--db); font-size:1.1rem;">Your 30s</h3>
+          <p style="font-size:0.82rem; color:var(--gray-600); margin-top:6px;">Wealth acceleration — major goals &amp; family</p>
+        </div>
+        <div class="lifestage-card lifestage-40s" onclick="showLifeStage('40s')">
+          <div style="font-size:2rem; margin-bottom:10px;">🏆</div>
+          <h3 style="color:#6936d4; font-size:1.1rem;">Your 40s</h3>
+          <p style="font-size:0.82rem; color:var(--gray-600); margin-top:6px;">Peak earnings — maximise &amp; protect wealth</p>
+        </div>
+        <div class="lifestage-card lifestage-50s" onclick="showLifeStage('50s')">
+          <div style="font-size:2rem; margin-bottom:10px;">🌅</div>
+          <h3 style="color:var(--green); font-size:1.1rem;">Your 50s+</h3>
+          <p style="font-size:0.82rem; color:var(--gray-600); margin-top:6px;">Pre-retirement — consolidate &amp; de-risk</p>
+        </div>
+      </div>
+      <div id="lifestage-detail" style="display:none; max-width:800px; margin:0 auto;">
+        <div class="card" id="lifestage-content"></div>
+      </div>
+    </div>
+
+    <!-- ===== TAB: NET WORTH ===== -->
+    <div class="tab-panel" id="tab-networth">
+      <div style="max-width:800px; margin:0 auto;">
+        <h3 style="margin-bottom:8px;">Net Worth Tracker</h3>
+        <p style="margin-bottom:24px;">Your net worth = what you own (assets) minus what you owe (liabilities). Track it monthly to see your financial health improve.</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:start;">
+          <div>
+            <div class="nw-category">
+              <h4><span style="color:var(--green);">↑</span> ASSETS — What You Own</h4>
+              <div class="nw-input-row">
+                <div><div class="nw-input-label">Savings &amp; Bank Accounts</div><div class="input-prefix-sm"><input type="number" class="form-input" id="nw-savings" value="200000" min="0" step="1000" onchange="calculateNetWorth()"></div></div>
+                <div><div class="nw-input-label">Fixed Deposits / RD</div><div class="input-prefix-sm"><input type="number" class="form-input" id="nw-fd" value="100000" min="0" step="1000" onchange="calculateNetWorth()"></div></div>
+              </div>
+              <div class="nw-input-row">
+                <div><div class="nw-input-label">Mutual Funds</div><div class="input-prefix-sm"><input type="number" class="form-input" id="nw-mf" value="300000" min="0" step="1000" onchange="calculateNetWorth()"></div></div>
+                <div><div class="nw-input-label">Stocks</div><div class="input-prefix-sm"><input type="number" class="form-input" id="nw-stocks" value="100000" min="0" step="1000" onchange="calculateNetWorth()"></div></div>
+              </div>
+              <div class="nw-input-row">
+                <div><div class="nw-input-label">PPF / NPS / EPF</div><div class="input-prefix-sm"><input type="number" class="form-input" id="nw-ppf" value="150000" min="0" step="1000" onchange="calculateNetWorth()"></div></div>
+                <div><div class="nw-input-label">Real Estate (current value)</div><div class="input-prefix-sm"><input type="number" class="form-input" id="nw-realestate" value="0" min="0" step="10000" onchange="calculateNetWorth()"></div></div>
+              </div>
+              <div class="nw-input-row">
+                <div><div class="nw-input-label">Gold / Jewellery</div><div class="input-prefix-sm"><input type="number" class="form-input" id="nw-gold" value="50000" min="0" step="1000" onchange="calculateNetWorth()"></div></div>
+                <div><div class="nw-input-label">Vehicle Value</div><div class="input-prefix-sm"><input type="number" class="form-input" id="nw-vehicle" value="200000" min="0" step="5000" onchange="calculateNetWorth()"></div></div>
+              </div>
+            </div>
+            <div class="nw-category">
+              <h4><span style="color:var(--red);">↓</span> LIABILITIES — What You Owe</h4>
+              <div class="nw-input-row">
+                <div><div class="nw-input-label">Home Loan Outstanding</div><div class="input-prefix-sm"><input type="number" class="form-input" id="nw-homeloan" value="0" min="0" step="10000" onchange="calculateNetWorth()"></div></div>
+                <div><div class="nw-input-label">Car / Vehicle Loan</div><div class="input-prefix-sm"><input type="number" class="form-input" id="nw-carloan" value="150000" min="0" step="1000" onchange="calculateNetWorth()"></div></div>
+              </div>
+              <div class="nw-input-row">
+                <div><div class="nw-input-label">Personal Loan</div><div class="input-prefix-sm"><input type="number" class="form-input" id="nw-personalloan" value="50000" min="0" step="1000" onchange="calculateNetWorth()"></div></div>
+                <div><div class="nw-input-label">Credit Card Due</div><div class="input-prefix-sm"><input type="number" class="form-input" id="nw-cc" value="0" min="0" step="1000" onchange="calculateNetWorth()"></div></div>
+              </div>
+              <div class="nw-input-row">
+                <div><div class="nw-input-label">Education Loan</div><div class="input-prefix-sm"><input type="number" class="form-input" id="nw-educloan" value="0" min="0" step="1000" onchange="calculateNetWorth()"></div></div>
+                <div><div class="nw-input-label">Other Loans</div><div class="input-prefix-sm"><input type="number" class="form-input" id="nw-other" value="0" min="0" step="1000" onchange="calculateNetWorth()"></div></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="result-box" id="nw-result">
+              <h4>Your Net Worth</h4>
+              <div class="result-value" id="nw-value">₹9,00,000</div>
+              <div class="result-sub" id="nw-health">Good — keep growing!</div>
+              <div class="result-grid" style="grid-template-columns:1fr 1fr;">
+                <div class="result-item"><h5>Total Assets</h5><p id="nw-total-assets">₹11,00,000</p></div>
+                <div class="result-item"><h5>Total Liabilities</h5><p class="og" id="nw-total-liabilities">₹2,00,000</p></div>
+              </div>
+              <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
+                <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:8px;">ASSET ALLOCATION</div>
+                <div id="nw-allocation" style="display:flex; flex-direction:column; gap:6px;"></div>
+              </div>
+            </div>
+            <div class="card-mb mt-16">
+              <h4 style="font-size:0.85rem; margin-bottom:8px; color:var(--db);">📈 Net Worth Benchmarks</h4>
+              <div style="font-size:0.82rem; color:var(--gray-600); line-height:1.8;">
+                <div><strong>Age 25:</strong> 0.5× Annual Income</div>
+                <div><strong>Age 30:</strong> 1–2× Annual Income</div>
+                <div><strong>Age 35:</strong> 3× Annual Income</div>
+                <div><strong>Age 40:</strong> 5× Annual Income</div>
+                <div><strong>Age 50:</strong> 10× Annual Income</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand"><div class="nav-logo"><div class="nav-logo-icon">A</div><span class="nav-logo-text" style="color:white;">Artha<span>AI</span></span></div><p>India's first AI-powered personal finance guidance platform — multilingual, unbiased, and built for Bharat.</p></div>
+      <div class="footer-col"><h4>Modules</h4><a href="calculators.html" class="footer-link">ArthaCalc</a><a href="planner.html" class="footer-link">ArthaPlanner</a><a href="guru.html" class="footer-link">ArthaGuru</a><a href="index.html#pricing" class="footer-link">Pricing</a></div>
+      <div class="footer-col"><h4>Company</h4><a href="https://zyllotech.com" class="footer-link">Zyllo Tech</a><a href="mailto:info@zyllotech.com" class="footer-link">Contact Us</a><a href="#" class="footer-link">Privacy Policy</a></div>
+      <div class="footer-col"><h4>DPDP &amp; Legal</h4><a href="#" class="footer-link">Data Policy</a><a href="#" class="footer-link">Disclaimer</a><a href="#" class="footer-link">SEBI Notice</a></div>
+    </div>
+    <div class="footer-bottom"><div>© 2026 Zyllo Tech Software Solutions Pvt Ltd · ArthaAI is a financial education platform, not a SEBI-registered Investment Adviser.</div></div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/planner.js"></script>
+</body>
+</html>

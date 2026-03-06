@@ -3,7 +3,7 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
-import { LucideIcon, Briefcase, Building2, Database, FolderKanban, BookOpen, GlobeIcon, LayersIcon, Leaf, LifeBuoy, MessageCircle, Shield, TestTube2, UserCheck, Users, Wrench, Search } from "lucide-react";
+import { LucideIcon, Briefcase, Building2, Database, FolderKanban, BookOpen, GlobeIcon, LayersIcon, Leaf, LifeBuoy, MessageCircle, Rocket, Shield, TestTube2, UserCheck, Users, Wrench, Search } from "lucide-react";
 import logo from "@/assets/zyllo-logo.png";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -106,6 +106,12 @@ const companyLinks2: LinkItem[] = [
     icon: FolderKanban,
   },
   {
+    title: "Startups",
+    href: "/startups",
+    description: "Ventures built by Zyllo Tech",
+    icon: Rocket,
+  },
+  {
     title: "Blog",
     href: "/blog",
     description: "Tech insights and guides",
@@ -178,6 +184,7 @@ export function Header() {
                   location.pathname.startsWith("/resources") ||
                   location.pathname.startsWith("/careers") ||
                   location.pathname.startsWith("/portfolio") ||
+                  location.pathname.startsWith("/startups") ||
                   location.pathname.startsWith("/blog")
                 }
               >

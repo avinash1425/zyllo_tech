@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ArthaCalc — India's most comprehensive financial calculator suite. EMI, SIP, Tax Savings, FD/PPF/NPS maturity, Retirement corpus, and Rent vs Buy — all free.">
+  <title>ArthaCalc — Smart Financial Calculators | ArthaAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .calc-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+    .calc-desc { background: var(--og-pale); border: 1px solid #f5d8c8; border-radius: var(--radius-lg); padding: 20px; margin-bottom: 24px; font-size: 0.88rem; color: var(--gray-600); line-height: 1.7; }
+    .calc-desc strong { color: var(--og-dark); }
+    .breakdown-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 16px; }
+    .breakdown-table th { padding: 10px 12px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); font-size: 0.75rem; text-align: left; font-weight: 600; letter-spacing: 0.4px; }
+    .breakdown-table td { padding: 9px 12px; border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--white); }
+    .breakdown-table tr:last-child td { border-bottom: none; font-weight: 700; background: rgba(255,255,255,0.08); }
+    .input-prefix { position: relative; }
+    .input-prefix input { padding-left: 34px; }
+    .input-prefix::before { content: '₹'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: 600; color: var(--gray-400); font-size: 0.9rem; pointer-events: none; }
+    .input-suffix { position: relative; }
+    .input-suffix input { padding-right: 38px; }
+    .input-suffix::after { content: attr(data-suffix); position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-weight: 600; color: var(--gray-400); font-size: 0.82rem; pointer-events: none; }
+    .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .tag-pill { padding: 5px 12px; border-radius: var(--radius-full); background: var(--gray-100); font-size: 0.78rem; font-weight: 600; color: var(--gray-600); cursor: pointer; border: 1.5px solid transparent; transition: var(--transition); }
+    .tag-pill:hover, .tag-pill.active { background: var(--og-light); color: var(--og-dark); border-color: var(--og); }
+    .result-donut { position: relative; width: 160px; height: 160px; margin: 0 auto 16px; }
+    .result-donut svg { transform: rotate(-90deg); }
+    .donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+    .donut-pct { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: var(--white); line-height: 1; }
+    .donut-label { font-size: 0.68rem; color: rgba(255,255,255,0.6); margin-top: 2px; }
+    .legend-row { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: rgba(255,255,255,0.8); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    @media (max-width: 768px) { .calc-layout { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="nav" id="mainNav">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <div class="nav-logo-icon">A</div>
+        <span class="nav-logo-text">Artha<span>AI</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="calculators.html" class="nav-link active">ArthaCalc</a>
+        <a href="planner.html" class="nav-link">ArthaPlanner</a>
+        <a href="guru.html" class="nav-link">ArthaGuru</a>
+        <a href="index.html#pricing" class="nav-link">Pricing</a>
+      </div>
+      <div class="nav-actions">
+        <a href="#" class="btn btn-ghost btn-sm">Login</a>
+        <a href="#" class="btn btn-primary btn-sm">Get Started Free</a>
+      </div>
+      <button class="nav-hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+<div class="nav-mobile" id="navMobile">
+  <a href="index.html" class="nav-link">Home</a>
+  <a href="calculators.html" class="nav-link active">ArthaCalc — Calculators</a>
+  <a href="planner.html" class="nav-link">ArthaPlanner — Life Planner</a>
+  <a href="guru.html" class="nav-link">ArthaGuru — Education</a>
+  <a href="index.html#pricing" class="nav-link">Pricing</a>
+  <a href="#" class="btn btn-primary btn-full">Get Started Free</a>
+</div>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="container">
+    <div class="badge badge-og mb-16">ArthaCalc</div>
+    <h1>Smart Financial Calculators</h1>
+    <p>100+ financial formulas. Free forever. Accurate results in seconds — in your language.</p>
+    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:20px;">
+      <span class="badge" style="background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.9);">🧮 6 Calculator Types</span>
+      <span class="badge" style="background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.9);">📱 Mobile Friendly</span>
+      <span class="badge" style="background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.9);">✅ 100% Free</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<section class="section">
+  <div class="container">
+
+    <!-- TABS -->
+    <div class="tabs" id="calcTabs">
+      <button class="tab-btn active" data-tab="emi">🏠 EMI Calculator</button>
+      <button class="tab-btn" data-tab="sip">📈 SIP Calculator</button>
+      <button class="tab-btn" data-tab="tax">💰 Tax Savings</button>
+      <button class="tab-btn" data-tab="fd">🏦 FD / PPF / NPS</button>
+      <button class="tab-btn" data-tab="retirement">👴 Retirement</button>
+      <button class="tab-btn" data-tab="rentvsbuy">🏡 Rent vs Buy</button>
+    </div>
+
+    <!-- ============ TAB 1: EMI ============ -->
+    <div class="tab-panel active" id="tab-emi">
+      <div class="calc-layout">
+        <div>
+          <div class="calc-desc">
+            <strong>EMI Calculator</strong> — Calculate your monthly EMI for Home Loan, Car Loan, Personal Loan, or Education Loan. Understand the total interest you'll pay and the full cost of borrowing.
+            <br><em style="font-size:0.8rem; opacity:0.8;">Formula: EMI = P × r × (1+r)^n ÷ [(1+r)^n – 1]</em>
+          </div>
+          <div class="tag-row">
+            <span class="tag-pill active" data-preset="home">🏠 Home Loan</span>
+            <span class="tag-pill" data-preset="car">🚗 Car Loan</span>
+            <span class="tag-pill" data-preset="personal">💳 Personal Loan</span>
+            <span class="tag-pill" data-preset="education">🎓 Education Loan</span>
+          </div>
+          <div class="calc-form">
+            <div class="form-group">
+              <label class="form-label">Loan Amount <span>(Principal)</span></label>
+              <div class="input-prefix"><input type="number" class="form-input" id="emi-principal" value="3000000" min="10000" step="10000"></div>
+              <div class="form-hint">Enter loan amount in ₹</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Interest Rate <span>(Annual %)</span></label>
+              <div class="input-suffix" data-suffix="% p.a."><input type="number" class="form-input" id="emi-rate" value="8.5" min="1" max="36" step="0.1"></div>
+              <div class="range-wrap">
+                <input type="range" class="form-range" id="emi-rate-range" min="5" max="24" step="0.1" value="8.5">
+                <div class="range-labels"><span>5%</span><span>24%</span></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Loan Tenure</label>
+              <div class="form-row">
+                <div>
+                  <input type="number" class="form-input" id="emi-tenure" value="20" min="1" max="30">
+                  <div class="form-hint">Years</div>
+                </div>
+                <div>
+                  <input type="number" class="form-input" id="emi-tenure-months" value="240" min="1" max="360" readonly style="background:var(--gray-50);">
+                  <div class="form-hint">Months (auto)</div>
+                </div>
+              </div>
+              <div class="range-wrap">
+                <input type="range" class="form-range" id="emi-tenure-range" min="1" max="30" step="1" value="20">
+                <div class="range-labels"><span>1 yr</span><span>30 yrs</span></div>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="calculateEMI()">Calculate EMI →</button>
+          </div>
+        </div>
+        <div>
+          <div class="result-box" id="emi-result">
+            <div style="text-align:center; margin-bottom:20px;">
+              <div class="result-donut">
+                <svg width="160" height="160" viewBox="0 0 160 160">
+                  <circle cx="80" cy="80" r="60" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="18"/>
+                  <circle cx="80" cy="80" r="60" fill="none" stroke="#E05C1A" stroke-width="18" stroke-dasharray="377" stroke-dashoffset="0" id="emi-donut-interest" stroke-linecap="round"/>
+                  <circle cx="80" cy="80" r="60" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="18" stroke-dasharray="377" stroke-dashoffset="150" id="emi-donut-principal" stroke-linecap="round"/>
+                </svg>
+                <div class="donut-center">
+                  <div class="donut-pct" id="emi-interest-pct">40%</div>
+                  <div class="donut-label">Interest</div>
+                </div>
+              </div>
+              <div style="display:flex; justify-content:center; gap:20px;">
+                <div class="legend-row"><div class="legend-dot" style="background:var(--og);"></div> Interest</div>
+                <div class="legend-row"><div class="legend-dot" style="background:rgba(255,255,255,0.6);"></div> Principal</div>
+              </div>
+            </div>
+            <h4>Monthly EMI</h4>
+            <div class="result-value" id="emi-monthly">₹26,035</div>
+            <div class="result-sub">Your fixed monthly payment</div>
+            <div class="result-grid">
+              <div class="result-item">
+                <h5>Principal</h5>
+                <p id="emi-principal-display">₹30,00,000</p>
+              </div>
+              <div class="result-item">
+                <h5>Total Interest</h5>
+                <p class="og" id="emi-total-interest">₹32,48,400</p>
+              </div>
+              <div class="result-item">
+                <h5>Total Amount</h5>
+                <p id="emi-total-amount">₹62,48,400</p>
+              </div>
+            </div>
+            <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
+              <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:8px;">REPAYMENT BREAKDOWN</div>
+              <table class="breakdown-table" id="emi-breakdown-table">
+                <thead><tr><th>Year</th><th>Principal Paid</th><th>Interest Paid</th><th>Balance</th></tr></thead>
+                <tbody id="emi-breakdown-body"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="notice notice-info mt-16">
+            <span>💡</span>
+            <span>Prepaying even ₹5,000/month extra can reduce your loan tenure by 4+ years and save lakhs in interest.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TAB 2: SIP ============ -->
+    <div class="tab-panel" id="tab-sip">
+      <div class="calc-layout">
+        <div>
+          <div class="calc-desc">
+            <strong>SIP & Lumpsum Calculator</strong> — Estimate the future value of your mutual fund investments. Switch between SIP (monthly investment) and Lumpsum to plan your wealth creation journey.
+            <br><em style="font-size:0.8rem; opacity:0.8;">SIP FV = P × [(1+r)^n – 1] / r × (1+r) &nbsp;|&nbsp; Lumpsum FV = P × (1+r)^n</em>
+          </div>
+          <div class="tag-row">
+            <span class="tag-pill active" data-mode="sip">📅 SIP (Monthly)</span>
+            <span class="tag-pill" data-mode="lumpsum">💰 Lumpsum</span>
+          </div>
+          <div class="calc-form">
+            <div class="form-group">
+              <label class="form-label" id="sip-amount-label">Monthly SIP Amount</label>
+              <div class="input-prefix"><input type="number" class="form-input" id="sip-amount" value="5000" min="500" step="500"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Expected Annual Return <span>(CAGR %)</span></label>
+              <div class="input-suffix" data-suffix="%"><input type="number" class="form-input" id="sip-return" value="12" min="1" max="30" step="0.5"></div>
+              <div class="range-wrap">
+                <input type="range" class="form-range" id="sip-return-range" min="5" max="25" step="0.5" value="12">
+                <div class="range-labels"><span>5%</span><span>25%</span></div>
+              </div>
+              <div class="form-hint">Equity MF avg: 12-15% | Debt: 7-8% | FD: 6-7%</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Investment Period</label>
+              <div class="input-suffix" data-suffix="yrs"><input type="number" class="form-input" id="sip-period" value="10" min="1" max="40" step="1"></div>
+              <div class="range-wrap">
+                <input type="range" class="form-range" id="sip-period-range" min="1" max="40" step="1" value="10">
+                <div class="range-labels"><span>1 yr</span><span>40 yrs</span></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Annual Step-Up <span>(Optional — increase SIP yearly %)</span></label>
+              <div class="input-suffix" data-suffix="%"><input type="number" class="form-input" id="sip-stepup" value="0" min="0" max="25" step="1"></div>
+              <div class="form-hint">Set 10-15% to increase SIP with salary hike</div>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="calculateSIP()">Calculate Returns →</button>
+          </div>
+        </div>
+        <div>
+          <div class="result-box" id="sip-result">
+            <h4>Maturity Value</h4>
+            <div class="result-value" id="sip-maturity">₹11,61,695</div>
+            <div class="result-sub" id="sip-maturity-sub">In 10 years · ₹5,000/month at 12%</div>
+            <div class="result-grid">
+              <div class="result-item">
+                <h5>Invested</h5>
+                <p id="sip-invested">₹6,00,000</p>
+              </div>
+              <div class="result-item">
+                <h5>Gains</h5>
+                <p class="og" id="sip-gains">₹5,61,695</p>
+              </div>
+              <div class="result-item">
+                <h5>CAGR</h5>
+                <p id="sip-cagr">12%</p>
+              </div>
+            </div>
+            <div style="margin-top:20px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
+              <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:10px;">YEAR-WISE GROWTH</div>
+              <div id="sip-year-bars" style="display:flex; flex-direction:column; gap:8px;"></div>
+            </div>
+          </div>
+          <div class="card-mb mt-16">
+            <h4 style="font-size:0.85rem; margin-bottom:12px; color:var(--db);">Power of Compounding</h4>
+            <p style="font-size:0.82rem; color:var(--gray-600);">Starting ₹5,000/month at age 25 vs 35 — the 10-year headstart builds <strong>3× more wealth</strong> by retirement. Time is the most powerful financial asset.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TAB 3: TAX ============ -->
+    <div class="tab-panel" id="tab-tax">
+      <div class="calc-layout">
+        <div>
+          <div class="calc-desc">
+            <strong>Tax Savings Calculator</strong> — Calculate your income tax under the New Tax Regime vs Old Tax Regime, and find your maximum deduction potential under Section 80C, 80D, HRA, NPS, and more.
+          </div>
+          <div class="calc-form">
+            <div class="form-group">
+              <label class="form-label">Annual Gross Income</label>
+              <div class="input-prefix"><input type="number" class="form-input" id="tax-income" value="1200000" min="0" step="10000"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Section 80C Investments <span>(max ₹1,50,000)</span></label>
+              <div class="input-prefix"><input type="number" class="form-input" id="tax-80c" value="150000" min="0" max="150000" step="1000"></div>
+              <div class="form-hint">PF + PPF + ELSS + LIC + Home Loan Principal</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Section 80D Health Insurance <span>(max ₹25,000)</span></label>
+              <div class="input-prefix"><input type="number" class="form-input" id="tax-80d" value="25000" min="0" max="25000" step="1000"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">NPS Contribution — Sec 80CCD(1B) <span>(max ₹50,000)</span></label>
+              <div class="input-prefix"><input type="number" class="form-input" id="tax-nps" value="50000" min="0" max="50000" step="1000"></div>
+              <div class="form-hint">Additional deduction over 80C limit</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">HRA Exemption <span>(if applicable)</span></label>
+              <div class="input-prefix"><input type="number" class="form-input" id="tax-hra" value="0" min="0" step="1000"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Employment Type</label>
+              <select class="form-input form-select" id="tax-type">
+                <option value="salaried">Salaried Employee</option>
+                <option value="selfemployed">Self Employed / Business</option>
+              </select>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="calculateTax()">Calculate Tax Savings →</button>
+          </div>
+        </div>
+        <div>
+          <div class="result-box" id="tax-result">
+            <h4>Total Tax Saved (vs No Deductions)</h4>
+            <div class="result-value" id="tax-saved">₹67,600</div>
+            <div class="result-sub" id="tax-saved-sub">By claiming all available deductions</div>
+            <div class="result-grid" style="grid-template-columns:1fr 1fr;">
+              <div class="result-item">
+                <h5>Old Regime Tax</h5>
+                <p id="tax-old">₹1,12,500</p>
+              </div>
+              <div class="result-item">
+                <h5>New Regime Tax</h5>
+                <p id="tax-new">₹1,25,000</p>
+              </div>
+            </div>
+            <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
+              <table class="breakdown-table">
+                <thead><tr><th>Deduction Section</th><th>Claimed</th><th>Tax Saved</th></tr></thead>
+                <tbody id="tax-breakdown-body"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card-mb mt-16">
+            <h4 style="font-size:0.85rem; margin-bottom:10px; color:var(--db);">💡 Tax Saving Tips</h4>
+            <div class="check-list" style="font-size:0.82rem;">
+              <div class="check-item"><div class="check-icon">✓</div> Max your 80C — invest in ELSS, PPF, or pay home loan EMI</div>
+              <div class="check-item"><div class="check-icon">✓</div> Add NPS 80CCD(1B) for ₹50K extra deduction</div>
+              <div class="check-item"><div class="check-icon">✓</div> Compare Old vs New regime every year</div>
+              <div class="check-item"><div class="check-icon">✓</div> Claim HRA if you pay rent — even to parents</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TAB 4: FD/PPF/NPS ============ -->
+    <div class="tab-panel" id="tab-fd">
+      <div class="calc-layout">
+        <div>
+          <div class="calc-desc">
+            <strong>FD / PPF / NPS Maturity Calculator</strong> — Calculate the maturity value of your fixed deposit, PPF account, or NPS corpus. Compare returns across instruments.
+          </div>
+          <div class="tag-row">
+            <span class="tag-pill active" data-fdtype="fd">🏦 Fixed Deposit</span>
+            <span class="tag-pill" data-fdtype="ppf">📗 PPF</span>
+            <span class="tag-pill" data-fdtype="nps">🏛️ NPS</span>
+            <span class="tag-pill" data-fdtype="rd">💹 RD</span>
+          </div>
+          <div class="calc-form">
+            <div class="form-group">
+              <label class="form-label" id="fd-amount-label">Deposit Amount</label>
+              <div class="input-prefix"><input type="number" class="form-input" id="fd-amount" value="100000" min="1000" step="1000"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" id="fd-rate-label">Interest Rate <span>(Annual %)</span></label>
+              <div class="input-suffix" data-suffix="%"><input type="number" class="form-input" id="fd-rate" value="7" min="1" max="15" step="0.1"></div>
+              <div class="range-wrap">
+                <input type="range" class="form-range" id="fd-rate-range" min="3" max="12" step="0.1" value="7">
+                <div class="range-labels"><span>3%</span><span>12%</span></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Period (Years)</label>
+              <div class="input-suffix" data-suffix="yrs"><input type="number" class="form-input" id="fd-period" value="5" min="1" max="40" step="1"></div>
+              <div class="range-wrap">
+                <input type="range" class="form-range" id="fd-period-range" min="1" max="40" step="1" value="5">
+                <div class="range-labels"><span>1 yr</span><span>40 yrs</span></div>
+              </div>
+            </div>
+            <div class="form-group" id="fd-compound-group">
+              <label class="form-label">Compounding Frequency</label>
+              <select class="form-input form-select" id="fd-compound">
+                <option value="4">Quarterly (Default)</option>
+                <option value="12">Monthly</option>
+                <option value="2">Half-Yearly</option>
+                <option value="1">Annually</option>
+              </select>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="calculateFD()">Calculate Maturity →</button>
+          </div>
+        </div>
+        <div>
+          <div class="result-box" id="fd-result">
+            <h4>Maturity Value</h4>
+            <div class="result-value" id="fd-maturity">₹1,41,478</div>
+            <div class="result-sub">After 5 years at 7% (Quarterly)</div>
+            <div class="result-grid">
+              <div class="result-item">
+                <h5>Principal</h5>
+                <p id="fd-principal-show">₹1,00,000</p>
+              </div>
+              <div class="result-item">
+                <h5>Interest Earned</h5>
+                <p class="og" id="fd-interest-show">₹41,478</p>
+              </div>
+              <div class="result-item">
+                <h5>Effective Rate</h5>
+                <p id="fd-effective">7.19%</p>
+              </div>
+            </div>
+            <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
+              <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:10px;">INSTRUMENT COMPARISON (₹1L for 5 years)</div>
+              <table class="breakdown-table" id="fd-compare-table">
+                <thead><tr><th>Instrument</th><th>Rate</th><th>Maturity</th></tr></thead>
+                <tbody>
+                  <tr><td>FD (SBI)</td><td>7.0%</td><td>₹1,41,478</td></tr>
+                  <tr><td>PPF</td><td>7.1%</td><td>₹1,41,930</td></tr>
+                  <tr><td>Sukanya Samriddhi</td><td>8.2%</td><td>₹1,48,527</td></tr>
+                  <tr><td>ELSS (avg)</td><td>12% est.</td><td>₹1,76,234</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TAB 5: RETIREMENT ============ -->
+    <div class="tab-panel" id="tab-retirement">
+      <div class="calc-layout">
+        <div>
+          <div class="calc-desc">
+            <strong>Retirement Corpus Calculator</strong> — Find out how much you need to retire comfortably, what you should be saving today, and whether your current savings are on track. Accounts for inflation and life expectancy.
+          </div>
+          <div class="calc-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Current Age</label>
+                <div class="input-suffix" data-suffix="yrs"><input type="number" class="form-input" id="ret-age" value="30" min="20" max="60" step="1"></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Retirement Age</label>
+                <div class="input-suffix" data-suffix="yrs"><input type="number" class="form-input" id="ret-retire-age" value="60" min="40" max="70" step="1"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Current Monthly Expenses</label>
+              <div class="input-prefix"><input type="number" class="form-input" id="ret-expenses" value="50000" min="5000" step="1000"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Existing Savings / Investments</label>
+              <div class="input-prefix"><input type="number" class="form-input" id="ret-savings" value="0" min="0" step="10000"></div>
+              <div class="form-hint">PF + NPS + MF + FD + any existing corpus</div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Expected Inflation <span>(%)</span></label>
+                <div class="input-suffix" data-suffix="%"><input type="number" class="form-input" id="ret-inflation" value="6" min="3" max="10" step="0.5"></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Return on Investment <span>(%)</span></label>
+                <div class="input-suffix" data-suffix="%"><input type="number" class="form-input" id="ret-roi" value="12" min="5" max="20" step="0.5"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Life Expectancy</label>
+              <div class="input-suffix" data-suffix="yrs"><input type="number" class="form-input" id="ret-life" value="85" min="70" max="100" step="1"></div>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="calculateRetirement()">Calculate Retirement Corpus →</button>
+          </div>
+        </div>
+        <div>
+          <div class="result-box" id="ret-result">
+            <h4>Retirement Corpus Required</h4>
+            <div class="result-value" id="ret-corpus">₹3,84,00,000</div>
+            <div class="result-sub">At current 6% inflation for 25 years post-retirement</div>
+            <div class="result-grid">
+              <div class="result-item">
+                <h5>Monthly Need at 60</h5>
+                <p id="ret-monthly-need">₹2,87,175</p>
+              </div>
+              <div class="result-item">
+                <h5>Years to Retire</h5>
+                <p id="ret-years">30 yrs</p>
+              </div>
+              <div class="result-item">
+                <h5>Monthly SIP Needed</h5>
+                <p class="og" id="ret-monthly-sip">₹18,540</p>
+              </div>
+            </div>
+            <div style="margin-top:20px; padding:16px; background:rgba(255,255,255,0.08); border-radius:10px;">
+              <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:6px;">RETIREMENT READINESS</div>
+              <div id="ret-readiness-bar" style="height:8px; background:rgba(255,255,255,0.2); border-radius:99px; overflow:hidden; margin-bottom:8px;">
+                <div style="height:100%; width:0%; background:var(--og); border-radius:99px; transition:width 1s;" id="ret-readiness-fill"></div>
+              </div>
+              <div id="ret-readiness-text" style="font-size:0.82rem; color:rgba(255,255,255,0.75);">Start investing today to secure your retirement</div>
+            </div>
+          </div>
+          <div class="card-mb mt-16">
+            <h4 style="font-size:0.85rem; margin-bottom:8px; color:var(--db);">🧮 The 25× Rule of Thumb</h4>
+            <p style="font-size:0.82rem; color:var(--gray-600);">To retire comfortably, you need a corpus of roughly <strong>25× your annual expenses</strong> (inflation-adjusted). Start early — every decade you delay doubles the monthly investment needed.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TAB 6: RENT VS BUY ============ -->
+    <div class="tab-panel" id="tab-rentvsbuy">
+      <div class="calc-layout">
+        <div>
+          <div class="calc-desc">
+            <strong>Rent vs. Buy Decision Engine</strong> — One of India's most important financial decisions. This calculator helps you compare the true cost of renting vs. buying a home over time, accounting for opportunity cost and appreciation.
+          </div>
+          <div class="calc-form">
+            <div class="form-group">
+              <label class="form-label">Property Price</label>
+              <div class="input-prefix"><input type="number" class="form-input" id="rvb-price" value="7500000" min="500000" step="100000"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Down Payment</label>
+              <div class="input-prefix"><input type="number" class="form-input" id="rvb-down" value="1500000" min="0" step="100000"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Home Loan Rate <span>(%)</span></label>
+                <div class="input-suffix" data-suffix="%"><input type="number" class="form-input" id="rvb-loan-rate" value="8.5" min="5" max="15" step="0.1"></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Loan Tenure <span>(yrs)</span></label>
+                <div class="input-suffix" data-suffix="yrs"><input type="number" class="form-input" id="rvb-tenure" value="20" min="5" max="30" step="1"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Current Monthly Rent (equivalent home)</label>
+              <div class="input-prefix"><input type="number" class="form-input" id="rvb-rent" value="25000" min="1000" step="500"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Annual Rent Increase <span>(%)</span></label>
+                <div class="input-suffix" data-suffix="%"><input type="number" class="form-input" id="rvb-rent-inc" value="5" min="0" max="15" step="1"></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Property Appreciation <span>(%)</span></label>
+                <div class="input-suffix" data-suffix="%"><input type="number" class="form-input" id="rvb-appreciation" value="5" min="0" max="15" step="1"></div>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="calculateRentVsBuy()">Compare Rent vs Buy →</button>
+          </div>
+        </div>
+        <div>
+          <div class="result-box" id="rvb-result">
+            <h4>Recommendation</h4>
+            <div class="result-value" id="rvb-winner" style="font-size:1.6rem;">Analysing...</div>
+            <div class="result-sub" id="rvb-sub">Enter your details above</div>
+            <div class="result-grid" style="grid-template-columns:1fr 1fr;">
+              <div class="result-item">
+                <h5>Total Cost to Buy</h5>
+                <p id="rvb-buy-cost">₹1,24,83,000</p>
+              </div>
+              <div class="result-item">
+                <h5>Total Cost to Rent</h5>
+                <p id="rvb-rent-cost">₹92,14,000</p>
+              </div>
+            </div>
+            <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
+              <div id="rvb-detail" style="font-size:0.82rem; color:rgba(255,255,255,0.75); line-height:1.7;"></div>
+            </div>
+          </div>
+          <div class="card-mb mt-16">
+            <h4 style="font-size:0.85rem; margin-bottom:8px; color:var(--db);">📌 The Price-to-Rent Ratio</h4>
+            <p style="font-size:0.82rem; color:var(--gray-600);">If <strong>Property Price ÷ Annual Rent > 20×</strong>, renting is often smarter. In Hyderabad/Pune, this ratio is typically 25–40× — meaning renting and investing the difference often wins.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- DISCLAIMER -->
+<section style="padding: 24px 0 48px; background: var(--gray-50);">
+  <div class="container">
+    <div class="notice notice-warn">
+      <span>⚠️</span>
+      <span><strong>Disclaimer:</strong> ArthaAI calculators are for educational and informational purposes only. Results are estimates based on the inputs provided. They do not constitute financial advice. Please consult a SEBI-registered Investment Adviser or Certified Financial Planner (CFP) before making investment decisions. Past performance is not indicative of future results. ArthaAI is not a SEBI-registered Investment Adviser.</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo"><div class="nav-logo-icon">A</div><span class="nav-logo-text" style="color:white;">Artha<span>AI</span></span></div>
+        <p>India's first AI-powered personal finance guidance platform — multilingual, unbiased, and built for Bharat.</p>
+      </div>
+      <div class="footer-col"><h4>Calculators</h4><a href="#" class="footer-link" onclick="switchTab('emi')">EMI Calculator</a><a href="#" class="footer-link" onclick="switchTab('sip')">SIP Calculator</a><a href="#" class="footer-link" onclick="switchTab('tax')">Tax Savings</a><a href="#" class="footer-link" onclick="switchTab('fd')">FD / PPF</a><a href="#" class="footer-link" onclick="switchTab('retirement')">Retirement</a></div>
+      <div class="footer-col"><h4>Modules</h4><a href="calculators.html" class="footer-link">ArthaCalc</a><a href="planner.html" class="footer-link">ArthaPlanner</a><a href="guru.html" class="footer-link">ArthaGuru</a><a href="index.html#pricing" class="footer-link">Pricing</a></div>
+      <div class="footer-col"><h4>Company</h4><a href="https://zyllotech.com" class="footer-link">Zyllo Tech</a><a href="mailto:info@zyllotech.com" class="footer-link">Contact Us</a><a href="#" class="footer-link">Privacy Policy</a><a href="#" class="footer-link">Disclaimer</a></div>
+    </div>
+    <div class="footer-bottom"><div>© 2026 Zyllo Tech Software Solutions Pvt Ltd · ArthaAI is a financial education platform, not a SEBI-registered Investment Adviser.</div></div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/calculators.js"></script>
+</body>
+</html>
