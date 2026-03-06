@@ -12,7 +12,7 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { signIn, isAuthenticated, isHydrated } = useAuth();
+  const { signIn, isAuthenticated, isAdmin, isHydrated } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -23,8 +23,8 @@ const Login = () => {
   useEffect(() => {
     if (!isHydrated || !isAuthenticated) return;
     const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname;
-    navigate(from || "/admin", { replace: true });
-  }, [isAuthenticated, isHydrated, location.state, navigate]);
+    navigate(from || (isAdmin ? "/admin" : "/dashboard"), { replace: true });
+  }, [isAuthenticated, isAdmin, isHydrated, location.state, navigate]);
 
   const validate = () => {
     if (!email.trim()) return "Email is required.";
@@ -50,7 +50,7 @@ const Login = () => {
         title: "Signed in successfully",
         description: "Welcome back.",
       });
-      navigate("/admin", { replace: true });
+      // Redirect is handled by the useEffect above once isAuthenticated updates
     } catch (authError) {
       setError(authError instanceof Error ? authError.message : "Unable to sign in.");
     } finally {

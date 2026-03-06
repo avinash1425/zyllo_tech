@@ -12,7 +12,6 @@ const MB  = "#2E86AB";
 const OG_PALE = "#FFF4ED";
 const OG_LIGHT = "#FDDECA";
 const GREEN = "#059669";
-const GREEN_LIGHT = "#D1FAE5";
 
 const fade = { hidden: { opacity: 0, y: 22 }, show: { opacity: 1, y: 0, transition: { duration: 0.55 } } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
@@ -67,13 +66,13 @@ const ArthaAI = () => (
               India's first AI-powered personal finance platform — multilingual, unbiased, and built for Bharat. No jargon. No commission bias. No English required.
             </motion.p>
             <motion.div variants={fade} className="flex flex-wrap gap-3 mb-8">
-              <a
-                href="mailto:info@zyllotech.com"
+              <Link
+                to="/signup"
                 className="rounded-lg px-7 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
                 style={{ background: OG }}
               >
                 Get Started Free →
-              </a>
+              </Link>
               <a
                 href="#how-it-works"
                 className="rounded-lg px-7 py-3 text-sm font-bold transition-colors"
@@ -380,7 +379,7 @@ const ArthaAI = () => (
               {["All 6 financial calculators", "Basic financial plan", "Hindi + 4 regional languages", "Educational articles"].map(f => <li key={f}><Check color={DB} />{f}</li>)}
               {["AI advisor chat", "Full 22 languages", "Advanced investment report"].map(f => <li key={f} className="text-gray-400"><Cross />{f}</li>)}
             </ul>
-            <a href="mailto:info@zyllotech.com" className="block text-center rounded-lg py-2.5 text-sm font-bold border border-gray-300 hover:bg-gray-50 transition-colors" style={{ color: DB }}>Get Started Free</a>
+            <Link to="/signup" className="block text-center rounded-lg py-2.5 text-sm font-bold border border-gray-300 hover:bg-gray-50 transition-colors" style={{ color: DB }}>Get Started Free</Link>
           </motion.div>
 
           {/* Pro */}
@@ -396,7 +395,7 @@ const ArthaAI = () => (
             <ul className="space-y-2 mb-6 text-sm text-white/80">
               {["Everything in Free", "Full 22 Indian languages", "AI advisor chat (ArthaGuru)", "Advanced life planner", "Personalised investment report", "WhatsApp integration", "Priority support"].map(f => <li key={f}><Check color={OG} />{f}</li>)}
             </ul>
-            <a href="mailto:info@zyllotech.com" className="block text-center rounded-lg py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90" style={{ background: OG }}>Start 14-Day Free Trial</a>
+            <Link to="/signup" className="block text-center rounded-lg py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90" style={{ background: OG }}>Start 14-Day Free Trial</Link>
           </motion.div>
 
           {/* Enterprise */}

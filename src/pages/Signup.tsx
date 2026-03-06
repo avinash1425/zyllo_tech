@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 const Signup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { signUp, isAuthenticated, isHydrated } = useAuth();
+  const { signUp, isAuthenticated, isAdmin, isHydrated } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -25,9 +25,9 @@ const Signup = () => {
 
   useEffect(() => {
     if (isHydrated && isAuthenticated) {
-      navigate("/admin", { replace: true });
+      navigate(isAdmin ? "/admin" : "/dashboard", { replace: true });
     }
-  }, [isAuthenticated, isHydrated, navigate]);
+  }, [isAuthenticated, isAdmin, isHydrated, navigate]);
 
   const validate = () => {
     if (!name.trim() || name.trim().length < 2) return "Please enter your full name.";
