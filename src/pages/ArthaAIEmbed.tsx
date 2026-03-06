@@ -1,14 +1,26 @@
 import Navbar from "@/components/Navbar";
 import SEOHead from "@/components/SEOHead";
 
-// Bundle the HTML at build time — the hosting can never 404 it.
-// Injecting <base href="/arthaai/"> makes all relative paths
-// (css/style.css, js/main.js, calculators.html …) resolve to /arthaai/*
-// on the same origin. Files with explicit extensions (.css .js .html)
-// are always served directly by the CDN without hitting the SPA catch-all.
+// Bundle everything at build time so zero external requests are needed.
+// CSS and JS are inlined directly — no CDN/hosting can intercept them.
 import rawHtml from "../../arthaai/index.html?raw";
+import rawCss  from "../../arthaai/css/style.css?raw";
+import rawJs   from "../../arthaai/js/main.js?raw";
 
-const srcDoc = rawHtml.replace("<head>", '<head>\n  <base href="/arthaai/">');
+const srcDoc = rawHtml
+  // Replace the external stylesheet link with an inline <style> block
+  .replace(
+    '<link rel="stylesheet" href="css/style.css">',
+    `<style>\n${rawCss}\n</style>`
+  )
+  // Replace the external script tag with an inline <script> block
+  .replace(
+    '<script src="js/main.js"></script>',
+    `<script>\n${rawJs}\n</script>`
+  )
+  // Keep <base> so inter-page links (calculators.html etc.)
+  // still resolve correctly when the user navigates inside the iframe
+  .replace("<head>", '<head>\n  <base href="/arthaai/">');
 
 const ArthaAIEmbed = () => {
   return (
