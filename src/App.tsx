@@ -28,6 +28,7 @@ const Sitemap = lazy(() => import("./pages/Sitemap"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const Startups = lazy(() => import("./pages/Startups"));
+const ArthaAIEmbed = lazy(() => import("./pages/ArthaAIEmbed"));
 
 const queryClient = new QueryClient();
 
@@ -74,6 +75,7 @@ const App = () => (
                 <Route path="/terms-of-service" element={<TermsOfService />} />
                 <Route path="/cookie-policy" element={<CookiePolicy />} />
                 <Route path="/startups" element={<Startups />} />
+                <Route path="/arthaai" element={<ArthaAIEmbed />} />
                 <Route path="/sitemap" element={<Sitemap />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
