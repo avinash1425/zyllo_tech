@@ -1,0 +1,5 @@
+# Serve ArthaAI static site directly — must come before the SPA catch-all
+/arthaai/*  /arthaai/:splat  200
+
+# SPA catch-all — all other routes serve the React app
+/*  /index.html  200
