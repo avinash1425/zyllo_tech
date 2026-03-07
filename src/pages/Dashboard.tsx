@@ -271,7 +271,7 @@ const DonutChart = ({ pct, color, size = 120 }: { pct: number; color: string; si
 };
 
 const BarChart = ({ data }: { data: { label: string; value: number; color: string }[] }) => {
-  const max = Math.max(...data.map(d => d.value));
+  const max = Math.max(1, ...data.map(d => d.value));
   return (
     <div className="space-y-2 w-full">
       {data.map(d => (
@@ -1018,6 +1018,25 @@ const EmergencyFundCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
             <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Completion ETA</p><p className="text-sm font-bold">{months} mo</p></div>
           </div>
         </div>
+        <BarChart data={[
+          { label: "Target Corpus", value: target, color: DB },
+          { label: "Current Corpus", value: existingFund, color: GREEN },
+          { label: "Remaining Gap", value: gap, color: OG },
+        ]} />
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          <div className="rounded-xl border border-gray-200 bg-white p-3 text-center">
+            <p className="text-[10px] text-gray-500">Savings A/c</p>
+            <p className="text-sm font-bold text-gray-800">{fmtShort(allocation.savings)}</p>
+          </div>
+          <div className="rounded-xl border border-gray-200 bg-white p-3 text-center">
+            <p className="text-[10px] text-gray-500">Liquid Fund</p>
+            <p className="text-sm font-bold text-gray-800">{fmtShort(allocation.liquid)}</p>
+          </div>
+          <div className="rounded-xl border border-gray-200 bg-white p-3 text-center">
+            <p className="text-[10px] text-gray-500">FD Ladder</p>
+            <p className="text-sm font-bold text-gray-800">{fmtShort(allocation.fd)}</p>
+          </div>
+        </div>
         <InsightBanner text={insight} />
       </div>
     </div>
@@ -1086,6 +1105,26 @@ const InsuranceNeedCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
             <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Health Gap</p><p className="text-sm font-bold">{fmtShort(additionalHealthNeed)}</p></div>
           </div>
         </div>
+        <BarChart data={[
+          { label: "Life Cover Need", value: totalLifeNeed, color: DB },
+          { label: "Existing Term Cover", value: existingTermCover, color: GREEN },
+          { label: "Additional Term Needed", value: additionalTermNeed, color: OG },
+        ]} />
+        <div className="mt-4 flex items-center justify-center">
+          <div className="relative">
+            <DonutChart
+              pct={Math.max(0, Math.min(100, totalLifeNeed > 0 ? (existingTermCover / totalLifeNeed) * 100 : 0))}
+              color={GREEN}
+              size={130}
+            />
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <p className="text-lg font-extrabold text-gray-800">
+                {Math.round(Math.max(0, Math.min(100, totalLifeNeed > 0 ? (existingTermCover / totalLifeNeed) * 100 : 0)))}%
+              </p>
+              <p className="text-[10px] text-gray-500">Life Cover Ready</p>
+            </div>
+          </div>
+        </div>
         <InsightBanner text={insight} />
       </div>
     </div>
@@ -1105,6 +1144,8 @@ const HomeLoanEligibilityCalc = ({ onContextUpdate }: { onContextUpdate: (s: str
   const n = tenureYears * 12;
   const eligibleLoan = r === 0 ? eligibleEmi * n : eligibleEmi * ((Math.pow(1 + r, n) - 1) / (r * Math.pow(1 + r, n)));
   const maxPropertyValue = downPaymentPct >= 100 ? eligibleLoan : eligibleLoan / (1 - downPaymentPct / 100);
+  const maxTotalObligation = netMonthlyIncome * foirLimit / 100;
+  const usedPct = maxTotalObligation > 0 ? (existingObligations / maxTotalObligation) * 100 : 0;
 
   useEffect(() => {
     onContextUpdate(
@@ -1138,6 +1179,20 @@ const HomeLoanEligibilityCalc = ({ onContextUpdate }: { onContextUpdate: (s: str
             <div className="rounded-xl p-2.5 col-span-2" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Max Property Budget</p><p className="text-sm font-bold">{fmtShort(maxPropertyValue)}</p></div>
           </div>
         </div>
+        <BarChart data={[
+          { label: "Max Allowed Obligation", value: maxTotalObligation, color: DB },
+          { label: "Existing Obligation", value: existingObligations, color: OG },
+          { label: "New EMI Capacity", value: eligibleEmi, color: GREEN },
+        ]} />
+        <div className="mt-4 flex items-center justify-center">
+          <div className="relative">
+            <DonutChart pct={Math.max(0, Math.min(100, usedPct))} color={OG} size={130} />
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <p className="text-lg font-extrabold text-gray-800">{Math.round(usedPct)}%</p>
+              <p className="text-[10px] text-gray-500">FOIR Used</p>
+            </div>
+          </div>
+        </div>
         <InsightBanner text={insight} />
       </div>
     </div>
@@ -1155,6 +1210,7 @@ const CreditCardEMICalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
   const emi = r === 0 ? principal / Math.max(1, months) : principal * r * Math.pow(1 + r, months) / (Math.pow(1 + r, months) - 1);
   const total = emi * months;
   const interest = total - principal;
+  const principalPct = total > 0 ? (principal / total) * 100 : 0;
 
   useEffect(() => {
     onContextUpdate(`Credit Card EMI: outstanding ${fmtShort(outstanding)}, rate ${annualRate}%, tenure ${months}m, EMI ${fmtShort(emi)}.`);
@@ -1180,6 +1236,20 @@ const CreditCardEMICalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
             <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Principal</p><p className="text-sm font-bold">{fmtShort(principal)}</p></div>
             <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Interest</p><p className="text-sm font-bold">{fmtShort(interest)}</p></div>
             <div className="rounded-xl p-2.5 col-span-2" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Total Payable</p><p className="text-sm font-bold">{fmtShort(total)}</p></div>
+          </div>
+        </div>
+        <BarChart data={[
+          { label: "Converted Principal", value: principal, color: DB },
+          { label: "Interest Cost", value: interest, color: OG },
+          { label: "Total Payable", value: total, color: GREEN },
+        ]} />
+        <div className="mt-4 flex items-center justify-center">
+          <div className="relative">
+            <DonutChart pct={Math.max(0, Math.min(100, principalPct))} color={DB} size={130} />
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <p className="text-lg font-extrabold text-gray-800">{Math.round(principalPct)}%</p>
+              <p className="text-[10px] text-gray-500">Principal Share</p>
+            </div>
           </div>
         </div>
         <InsightBanner text={insight} />
@@ -1233,6 +1303,12 @@ const HRACalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
             <div className="rounded-xl p-2.5 col-span-2" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Taxable HRA</p><p className="text-sm font-bold">{fmtShort(taxableHra)}</p></div>
           </div>
         </div>
+        <BarChart data={[
+          { label: "HRA Received", value: hraReceived, color: DB },
+          { label: "Rent - 10% Salary", value: rentMinus10pct, color: OG },
+          { label: `${isMetro === "yes" ? "50%" : "40%"} Salary Limit`, value: salaryLimit, color: MB },
+          { label: "Exempt HRA", value: exemptHra, color: GREEN },
+        ]} />
         <InsightBanner text={insight} />
       </div>
     </div>
@@ -1280,6 +1356,11 @@ const SSYCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
             <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Gains</p><p className="text-sm font-bold">{fmtShort(gains)}</p></div>
           </div>
         </div>
+        <BarChart data={[
+          { label: "Total Invested", value: totalInvested, color: DB },
+          { label: "Interest Gains", value: gains, color: OG },
+          { label: "Maturity Corpus", value: corpus, color: GREEN },
+        ]} />
         <InsightBanner text={insight} />
       </div>
     </div>
@@ -1341,6 +1422,12 @@ const MonthlySavingsGoalCalc = ({ onContextUpdate }: { onContextUpdate: (s: stri
             <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Projected</p><p className="text-sm font-bold">{fmtShort(projected)}</p></div>
           </div>
         </div>
+        <BarChart data={[
+          { label: "Target Amount", value: targetAmount, color: DB },
+          { label: "Future Value of Existing", value: fvExisting, color: GREEN },
+          { label: "Projected Total", value: projected, color: OG },
+          { label: "Residual Gap", value: Math.max(0, targetAmount - projected), color: "#ef4444" },
+        ]} />
         <InsightBanner text={insight} />
       </div>
     </div>
