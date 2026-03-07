@@ -50,9 +50,11 @@ export const organizationSchema = {
     },
   ],
   sameAs: [
-    "https://www.linkedin.com/company/zyllotech",
-    "https://twitter.com/ZylloTech",
-    "https://github.com/avinash1425/zyllo_tech",
+    "https://www.linkedin.com/company/zyllo-tech",
+    "https://x.com/ZylloS85154",
+    "https://www.instagram.com/zyllotechsoftwaresolutions/",
+    "https://www.facebook.com/profile.php?id=61588192247341",
+    "https://www.youtube.com/@zylloTechSoftwareSolutions",
   ],
   knowsAbout: [
     "Software Development",
