@@ -256,21 +256,6 @@ const ArthaGuruChat = ({ calcContext }: { calcContext: string }) => {
    SVG CHARTS
 ═══════════════════════════════════════════════════════════ */
 
-const DonutChart = ({ pct, color, size = 120 }: { pct: number; color: string; size?: number }) => {
-  const r = size / 2 - 12;
-  const circ = 2 * Math.PI * r;
-  const dash = (pct / 100) * circ;
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#f3f4f6" strokeWidth="10" />
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth="10"
-        strokeDasharray={`${dash} ${circ - dash}`} strokeDashoffset={circ / 4}
-        strokeLinecap="round" style={{ transition: "stroke-dasharray 0.8s ease" }}
-      />
-    </svg>
-  );
-};
-
 const BarChart = ({ data }: { data: { label: string; value: number; color: string }[] }) => {
   const max = Math.max(1, ...data.map(d => d.value));
   return (
@@ -1135,6 +1120,14 @@ const InsuranceNeedCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
   const dependentBuffer = dependents * annualIncome;
   const totalLifeNeed = Math.max(0, incomeProtectionNeed + outstandingLoans + dependentBuffer - existingInvestments);
   const additionalTermNeed = Math.max(0, totalLifeNeed - existingTermCover);
+  const lifeReadyPct = Math.max(
+    0,
+    Math.min(100, totalLifeNeed > 0 ? (existingTermCover / totalLifeNeed) * 100 : 0)
+  );
+  const lifeCoverageData = [
+    { value: Math.max(0, Math.min(existingTermCover, totalLifeNeed)), color: GREEN, label: "Covered" },
+    { value: additionalTermNeed, color: OG, label: "Gap" },
+  ];
 
   const baseHealthNeed = 1000000 + dependents * 300000;
   const futureHealthNeed = baseHealthNeed * Math.pow(1 + medicalInflation / 100, 5);
@@ -1188,19 +1181,22 @@ const InsuranceNeedCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
           { label: "Additional Term Needed", value: additionalTermNeed, color: OG },
         ]} />
         <div className="mt-4 flex items-center justify-center">
-          <div className="relative">
-            <DonutChart
-              pct={Math.max(0, Math.min(100, totalLifeNeed > 0 ? (existingTermCover / totalLifeNeed) * 100 : 0))}
-              color={GREEN}
-              size={130}
-            />
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <p className="text-lg font-extrabold text-gray-800">
-                {Math.round(Math.max(0, Math.min(100, totalLifeNeed > 0 ? (existingTermCover / totalLifeNeed) * 100 : 0)))}%
-              </p>
-              <p className="text-[10px] text-gray-500">Life Cover Ready</p>
-            </div>
-          </div>
+          <UIDonutChart
+            data={lifeCoverageData}
+            totalValue={Math.max(totalLifeNeed, 1)}
+            size={130}
+            strokeWidth={16}
+            animationDuration={0.8}
+            animationDelayPerSegment={0.06}
+            centerContent={
+              <div className="flex flex-col items-center justify-center">
+                <p className="text-lg font-extrabold text-gray-800">
+                  {Math.round(lifeReadyPct)}%
+                </p>
+                <p className="text-[10px] text-gray-500">Life Cover Ready</p>
+              </div>
+            }
+          />
         </div>
         <InsightBanner text={insight} />
       </div>
@@ -1223,6 +1219,11 @@ const HomeLoanEligibilityCalc = ({ onContextUpdate }: { onContextUpdate: (s: str
   const maxPropertyValue = downPaymentPct >= 100 ? eligibleLoan : eligibleLoan / (1 - downPaymentPct / 100);
   const maxTotalObligation = netMonthlyIncome * foirLimit / 100;
   const usedPct = maxTotalObligation > 0 ? (existingObligations / maxTotalObligation) * 100 : 0;
+  const clampedUsedPct = Math.max(0, Math.min(100, usedPct));
+  const foirData = [
+    { value: clampedUsedPct, color: OG, label: "Used" },
+    { value: Math.max(0, 100 - clampedUsedPct), color: GREEN, label: "Available" },
+  ];
   const eligibilityAt = (testRate: number) => {
     const tr = testRate / 12 / 100;
     return tr === 0 ? eligibleEmi * n : eligibleEmi * ((Math.pow(1 + tr, n) - 1) / (tr * Math.pow(1 + tr, n)));
@@ -1266,13 +1267,20 @@ const HomeLoanEligibilityCalc = ({ onContextUpdate }: { onContextUpdate: (s: str
           { label: "New EMI Capacity", value: eligibleEmi, color: GREEN },
         ]} />
         <div className="mt-4 flex items-center justify-center">
-          <div className="relative">
-            <DonutChart pct={Math.max(0, Math.min(100, usedPct))} color={OG} size={130} />
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <p className="text-lg font-extrabold text-gray-800">{Math.round(usedPct)}%</p>
-              <p className="text-[10px] text-gray-500">FOIR Used</p>
-            </div>
-          </div>
+          <UIDonutChart
+            data={foirData}
+            totalValue={100}
+            size={130}
+            strokeWidth={16}
+            animationDuration={0.8}
+            animationDelayPerSegment={0.06}
+            centerContent={
+              <div className="flex flex-col items-center justify-center">
+                <p className="text-lg font-extrabold text-gray-800">{Math.round(clampedUsedPct)}%</p>
+                <p className="text-[10px] text-gray-500">FOIR Used</p>
+              </div>
+            }
+          />
         </div>
         <BenchmarkBand
           label="FOIR Stress Meter"
@@ -1308,6 +1316,10 @@ const CreditCardEMICalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
   const total = emi * months;
   const interest = total - principal;
   const principalPct = total > 0 ? (principal / total) * 100 : 0;
+  const principalShareData = [
+    { value: principal, color: DB, label: "Principal" },
+    { value: Math.max(0, interest), color: OG, label: "Interest" },
+  ];
   const emiAt = (testMonths: number) => {
     const tm = Math.max(1, testMonths);
     return r === 0 ? principal / tm : principal * r * Math.pow(1 + r, tm) / (Math.pow(1 + r, tm) - 1);
@@ -1345,13 +1357,19 @@ const CreditCardEMICalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
           { label: "Total Payable", value: total, color: GREEN },
         ]} />
         <div className="mt-4 flex items-center justify-center">
-          <div className="relative">
-            <DonutChart pct={Math.max(0, Math.min(100, principalPct))} color={DB} size={130} />
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <p className="text-lg font-extrabold text-gray-800">{Math.round(principalPct)}%</p>
-              <p className="text-[10px] text-gray-500">Principal Share</p>
-            </div>
-          </div>
+          <UIDonutChart
+            data={principalShareData}
+            size={130}
+            strokeWidth={16}
+            animationDuration={0.8}
+            animationDelayPerSegment={0.06}
+            centerContent={
+              <div className="flex flex-col items-center justify-center">
+                <p className="text-lg font-extrabold text-gray-800">{Math.round(principalPct)}%</p>
+                <p className="text-[10px] text-gray-500">Principal Share</p>
+              </div>
+            }
+          />
         </div>
         <BenchmarkBand
           label="APR Risk Band"
