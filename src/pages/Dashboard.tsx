@@ -2201,71 +2201,56 @@ const PlannerWorkspace = ({
     );
   }, [goals.length, profile.riskProfile, totalRequiredMonthly, monthlySurplus]);
 
+  const localKey = `arthaai_planner_${userId ?? "guest"}`;
+
   useEffect(() => {
-    if (!userId) return;
     let cancelled = false;
     const load = async () => {
       setLoading(true);
-      const { data, error } = await (supabase as any)
-        .from("planner_journeys")
-        .select("*")
-        .eq("user_id", userId)
-        .maybeSingle();
-      if (!cancelled && !error && data) {
-        setProfile((prev) => ({
-          ...prev,
-          fullName: data.full_name ?? prev.fullName,
-          email: data.email ?? prev.email,
-          phone: data.phone ?? prev.phone,
-          city: data.city ?? prev.city,
-          familyMembers: Number(data.family_members ?? prev.familyMembers),
-          monthlyIncome: Number(data.monthly_income ?? prev.monthlyIncome),
-          monthlyExpenses: Number(data.monthly_expenses ?? prev.monthlyExpenses),
-          existingCorpus: Number(data.existing_corpus ?? prev.existingCorpus),
-          riskProfile: (data.risk_profile ?? prev.riskProfile) as PlannerProfile["riskProfile"],
-          notes: data.profile_data?.notes ?? prev.notes,
-        }));
-        if (Array.isArray(data.goals) && data.goals.length > 0) setGoals(data.goals as PlannerGoal[]);
-        if (data.report_text) setReportText(data.report_text);
+      try {
+        const raw = localStorage.getItem(localKey);
+        if (!raw) return;
+        const data = JSON.parse(raw) as {
+          profile?: PlannerProfile;
+          goals?: PlannerGoal[];
+          reportText?: string;
+        };
+        if (!cancelled && data.profile) setProfile(data.profile);
+        if (!cancelled && Array.isArray(data.goals) && data.goals.length > 0) setGoals(data.goals);
+        if (!cancelled && data.reportText) setReportText(data.reportText);
+      } catch {
+        // Ignore invalid local data and continue with defaults.
       }
       if (!cancelled) setLoading(false);
     };
     load();
     return () => { cancelled = true; };
-  }, [userId]);
+  }, [localKey]);
 
   const savePlanner = async (withReport?: string) => {
-    if (!userId) {
-      setStatus("Login required to save planner data.");
-      return;
-    }
     setSaving(true);
     setStatus("");
-    const payload = {
-      user_id: userId,
-      full_name: profile.fullName,
-      email: profile.email,
-      phone: profile.phone,
-      city: profile.city,
-      family_members: profile.familyMembers,
-      monthly_income: profile.monthlyIncome,
-      monthly_expenses: profile.monthlyExpenses,
-      existing_corpus: profile.existingCorpus,
-      risk_profile: profile.riskProfile,
-      profile_data: { notes: profile.notes },
-      goals,
-      report_text: withReport ?? reportText,
-      report_json: {
-        totalRequiredMonthly,
-        monthlySurplus,
-        expectedReturn,
-        generated_at: new Date().toISOString(),
-      },
-    };
-    const { error } = await (supabase as any).from("planner_journeys").upsert(payload, { onConflict: "user_id" });
-    setSaving(false);
-    if (error) setStatus(`Save failed: ${error.message}`);
-    else setStatus("Planner data saved.");
+    try {
+      localStorage.setItem(
+        localKey,
+        JSON.stringify({
+          profile,
+          goals,
+          reportText: withReport ?? reportText,
+          reportJson: {
+            totalRequiredMonthly,
+            monthlySurplus,
+            expectedReturn,
+            generated_at: new Date().toISOString(),
+          },
+        }),
+      );
+      setStatus("Planner data saved locally.");
+    } catch {
+      setStatus("Save failed in browser storage.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const generateReport = async () => {
