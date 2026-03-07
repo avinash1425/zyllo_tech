@@ -165,14 +165,14 @@ export function Header() {
     >
       <nav className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4">
         <div className="flex items-center">
-          <Link to="/" className="rounded-md p-0 focus-visible:outline-none">
+          <Link to="/" className="rounded-md p-0 focus-visible:outline-none shrink-0">
             <img
               src={logo}
               alt="Zyllo Tech"
-              className="h-12 w-auto max-w-none origin-left scale-[1.26] object-contain"
+              className="h-10 w-auto object-contain"
             />
           </Link>
-          <div className="ml-5 hidden lg:flex lg:ml-8">
+          <div className="ml-8 hidden lg:flex lg:ml-10">
             <Menu setActive={setActiveMenu}>
               <MenuItem
                 setActive={(item) => setActiveMenu(item)}
