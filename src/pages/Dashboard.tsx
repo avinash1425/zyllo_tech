@@ -1092,6 +1092,261 @@ const InsuranceNeedCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
   );
 };
 
+const HomeLoanEligibilityCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  const [netMonthlyIncome, setNetMonthlyIncome] = useState(120000);
+  const [existingObligations, setExistingObligations] = useState(15000);
+  const [foirLimit, setFoirLimit] = useState(45);
+  const [loanRate, setLoanRate] = useState(8.75);
+  const [tenureYears, setTenureYears] = useState(20);
+  const [downPaymentPct, setDownPaymentPct] = useState(20);
+
+  const eligibleEmi = Math.max(0, (netMonthlyIncome * foirLimit / 100) - existingObligations);
+  const r = loanRate / 12 / 100;
+  const n = tenureYears * 12;
+  const eligibleLoan = r === 0 ? eligibleEmi * n : eligibleEmi * ((Math.pow(1 + r, n) - 1) / (r * Math.pow(1 + r, n)));
+  const maxPropertyValue = downPaymentPct >= 100 ? eligibleLoan : eligibleLoan / (1 - downPaymentPct / 100);
+
+  useEffect(() => {
+    onContextUpdate(
+      `Home Loan Eligibility: income ${fmtShort(netMonthlyIncome)}, FOIR ${foirLimit}%, eligible EMI ${fmtShort(eligibleEmi)}, eligible loan ${fmtShort(eligibleLoan)}.`
+    );
+  }, [netMonthlyIncome, foirLimit, eligibleEmi, eligibleLoan]);
+
+  const insight = `**Home loan eligibility estimate:**\n\n• Max eligible EMI: **${fmtShort(eligibleEmi)}**\n• Approx loan eligibility: **${fmtShort(eligibleLoan)}**\n• Approx max property budget (with ${downPaymentPct}% down payment): **${fmtShort(maxPropertyValue)}**\n\n**Tip**: Keep FOIR below 40-45% for better approval odds and lower repayment stress.`;
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        <FieldRow label="Net Monthly Income"><NumField value={netMonthlyIncome} onChange={setNetMonthlyIncome} min={10000} max={2000000} step={1000} prefix="₹" /></FieldRow>
+        <FieldRow label="Existing Monthly Obligations"><NumField value={existingObligations} onChange={setExistingObligations} min={0} max={500000} step={500} prefix="₹" /></FieldRow>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="FOIR Limit"><NumField value={foirLimit} onChange={setFoirLimit} min={30} max={60} step={1} suffix="%" /></FieldRow>
+          <FieldRow label="Loan Tenure"><NumField value={tenureYears} onChange={setTenureYears} min={5} max={30} step={1} suffix="yrs" /></FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Interest Rate"><NumField value={loanRate} onChange={setLoanRate} min={6} max={14} step={0.1} suffix="%" /></FieldRow>
+          <FieldRow label="Down Payment"><NumField value={downPaymentPct} onChange={setDownPaymentPct} min={10} max={50} step={1} suffix="%" /></FieldRow>
+        </div>
+      </div>
+      <div>
+        <div className="rounded-2xl p-5 mb-4 text-white" style={{ background: `linear-gradient(135deg, ${DB}, #0f2540)` }}>
+          <p className="text-xs text-white/60 uppercase font-semibold">Eligibility Snapshot</p>
+          <p className="text-3xl font-extrabold mt-1 mb-3">{fmtShort(eligibleLoan)}</p>
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Eligible EMI</p><p className="text-sm font-bold">{fmtShort(eligibleEmi)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Loan Eligibility</p><p className="text-sm font-bold">{fmtShort(eligibleLoan)}</p></div>
+            <div className="rounded-xl p-2.5 col-span-2" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Max Property Budget</p><p className="text-sm font-bold">{fmtShort(maxPropertyValue)}</p></div>
+          </div>
+        </div>
+        <InsightBanner text={insight} />
+      </div>
+    </div>
+  );
+};
+
+const CreditCardEMICalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  const [outstanding, setOutstanding] = useState(120000);
+  const [annualRate, setAnnualRate] = useState(36);
+  const [processingFeePct, setProcessingFeePct] = useState(2);
+  const [months, setMonths] = useState(12);
+
+  const principal = outstanding + (outstanding * processingFeePct / 100);
+  const r = annualRate / 12 / 100;
+  const emi = r === 0 ? principal / Math.max(1, months) : principal * r * Math.pow(1 + r, months) / (Math.pow(1 + r, months) - 1);
+  const total = emi * months;
+  const interest = total - principal;
+
+  useEffect(() => {
+    onContextUpdate(`Credit Card EMI: outstanding ${fmtShort(outstanding)}, rate ${annualRate}%, tenure ${months}m, EMI ${fmtShort(emi)}.`);
+  }, [outstanding, annualRate, months, emi]);
+
+  const insight = `**Credit card EMI conversion:**\n\n• Converted principal (incl. processing fee): **${fmtShort(principal)}**\n• EMI: **${fmtShort(emi)}** for ${months} months\n• Total interest cost: **${fmtShort(interest)}**\n\n**Tip**: If card EMI APR is high, compare a lower-rate personal loan balance transfer.`;
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        <FieldRow label="Outstanding Amount"><NumField value={outstanding} onChange={setOutstanding} min={5000} max={5000000} step={500} prefix="₹" /></FieldRow>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Card EMI Annual Rate"><NumField value={annualRate} onChange={setAnnualRate} min={10} max={48} step={0.5} suffix="%" /></FieldRow>
+          <FieldRow label="Processing Fee"><NumField value={processingFeePct} onChange={setProcessingFeePct} min={0} max={5} step={0.1} suffix="%" /></FieldRow>
+        </div>
+        <FieldRow label="Tenure"><NumField value={months} onChange={setMonths} min={3} max={48} step={1} suffix="mo" /></FieldRow>
+      </div>
+      <div>
+        <div className="rounded-2xl p-5 mb-4 text-white" style={{ background: `linear-gradient(135deg, ${OG}, #c44d12)` }}>
+          <p className="text-xs text-white/60 uppercase font-semibold">Card EMI Snapshot</p>
+          <p className="text-3xl font-extrabold mt-1 mb-3">{fmtShort(emi)}</p>
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Principal</p><p className="text-sm font-bold">{fmtShort(principal)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Interest</p><p className="text-sm font-bold">{fmtShort(interest)}</p></div>
+            <div className="rounded-xl p-2.5 col-span-2" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Total Payable</p><p className="text-sm font-bold">{fmtShort(total)}</p></div>
+          </div>
+        </div>
+        <InsightBanner text={insight} />
+      </div>
+    </div>
+  );
+};
+
+const HRACalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  const [basicSalary, setBasicSalary] = useState(700000);
+  const [hraReceived, setHraReceived] = useState(240000);
+  const [rentPaid, setRentPaid] = useState(300000);
+  const [isMetro, setIsMetro] = useState("yes");
+
+  const salary10pct = basicSalary * 0.1;
+  const rentMinus10pct = Math.max(0, rentPaid - salary10pct);
+  const salaryLimit = basicSalary * (isMetro === "yes" ? 0.5 : 0.4);
+  const exemptHra = Math.max(0, Math.min(hraReceived, rentMinus10pct, salaryLimit));
+  const taxableHra = Math.max(0, hraReceived - exemptHra);
+
+  useEffect(() => {
+    onContextUpdate(`HRA Calculator: basic ${fmtShort(basicSalary)}, HRA ${fmtShort(hraReceived)}, rent ${fmtShort(rentPaid)}, exempt ${fmtShort(exemptHra)}.`);
+  }, [basicSalary, hraReceived, rentPaid, exemptHra]);
+
+  const insight = `**HRA exemption estimate:**\n\n• Exempt HRA: **${fmtShort(exemptHra)}**\n• Taxable HRA: **${fmtShort(taxableHra)}**\n• Limiting factor used among 3-rule method (HRA received, rent-10% salary, ${isMetro === "yes" ? "50%" : "40%"} of salary)\n\nKeep valid rent receipts and PAN details where applicable.`;
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        <FieldRow label="Basic Salary (Annual)"><NumField value={basicSalary} onChange={setBasicSalary} min={100000} max={10000000} step={10000} prefix="₹" /></FieldRow>
+        <FieldRow label="HRA Received (Annual)"><NumField value={hraReceived} onChange={setHraReceived} min={0} max={5000000} step={5000} prefix="₹" /></FieldRow>
+        <FieldRow label="Rent Paid (Annual)"><NumField value={rentPaid} onChange={setRentPaid} min={0} max={5000000} step={5000} prefix="₹" /></FieldRow>
+        <FieldRow label="Metro City">
+          <SelectField
+            value={isMetro}
+            onChange={setIsMetro}
+            options={[
+              { value: "yes", label: "Yes (Delhi, Mumbai, Kolkata, Chennai)" },
+              { value: "no", label: "No (Non-metro)" },
+            ]}
+          />
+        </FieldRow>
+      </div>
+      <div>
+        <div className="rounded-2xl p-5 mb-4 text-white" style={{ background: `linear-gradient(135deg, ${GREEN}, #047857)` }}>
+          <p className="text-xs text-white/60 uppercase font-semibold">HRA Summary</p>
+          <p className="text-3xl font-extrabold mt-1 mb-3">{fmtShort(exemptHra)}</p>
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">HRA Received</p><p className="text-sm font-bold">{fmtShort(hraReceived)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Exempt HRA</p><p className="text-sm font-bold">{fmtShort(exemptHra)}</p></div>
+            <div className="rounded-xl p-2.5 col-span-2" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Taxable HRA</p><p className="text-sm font-bold">{fmtShort(taxableHra)}</p></div>
+          </div>
+        </div>
+        <InsightBanner text={insight} />
+      </div>
+    </div>
+  );
+};
+
+const SSYCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  const [girlAge, setGirlAge] = useState(3);
+  const [yearlyContribution, setYearlyContribution] = useState(100000);
+  const [interestRate, setInterestRate] = useState(8.2);
+
+  const investYears = 15;
+  const maturityYears = Math.max(0, 21 - girlAge);
+  let corpus = 0;
+  let totalInvested = 0;
+  for (let y = 0; y < maturityYears; y += 1) {
+    if (y < investYears) {
+      const amt = Math.min(150000, yearlyContribution);
+      corpus += amt;
+      totalInvested += amt;
+    }
+    corpus *= (1 + interestRate / 100);
+  }
+  const gains = corpus - totalInvested;
+
+  useEffect(() => {
+    onContextUpdate(`SSY Calculator: age ${girlAge}, yearly ${fmtShort(yearlyContribution)}, maturity ${fmtShort(corpus)}.`);
+  }, [girlAge, yearlyContribution, corpus]);
+
+  const insight = `**SSY projection:**\n\n• Investment years: **${Math.min(investYears, maturityYears)}**\n• Maturity age: **21 years** (in ${maturityYears} years)\n• Total invested: **${fmtShort(totalInvested)}**\n• Estimated maturity corpus: **${fmtShort(corpus)}**\n\nSSY annual contribution cap is ₹1.5 lakh.`;
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        <FieldRow label="Girl Child Current Age"><NumField value={girlAge} onChange={setGirlAge} min={0} max={10} step={1} suffix="yrs" /></FieldRow>
+        <FieldRow label="Yearly Contribution"><NumField value={yearlyContribution} onChange={setYearlyContribution} min={250} max={150000} step={500} prefix="₹" /></FieldRow>
+        <FieldRow label="SSY Interest Rate"><NumField value={interestRate} onChange={setInterestRate} min={6} max={10} step={0.1} suffix="%" /></FieldRow>
+      </div>
+      <div>
+        <div className="rounded-2xl p-5 mb-4 text-white" style={{ background: `linear-gradient(135deg, ${MB}, ${DB})` }}>
+          <p className="text-xs text-white/60 uppercase font-semibold">SSY Summary</p>
+          <p className="text-3xl font-extrabold mt-1 mb-3">{fmtShort(corpus)}</p>
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Invested</p><p className="text-sm font-bold">{fmtShort(totalInvested)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Gains</p><p className="text-sm font-bold">{fmtShort(gains)}</p></div>
+          </div>
+        </div>
+        <InsightBanner text={insight} />
+      </div>
+    </div>
+  );
+};
+
+const MonthlySavingsGoalCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  const [targetAmount, setTargetAmount] = useState(2000000);
+  const [years, setYears] = useState(8);
+  const [existingCorpus, setExistingCorpus] = useState(200000);
+  const [returnRate, setReturnRate] = useState(10);
+  const [stepUpPct, setStepUpPct] = useState(8);
+
+  const r = returnRate / 12 / 100;
+  const months = years * 12;
+  const fvExisting = existingCorpus * Math.pow(1 + returnRate / 100, years);
+  const gap = Math.max(0, targetAmount - fvExisting);
+
+  const monthlyNeed = (() => {
+    if (gap <= 0) return 0;
+    let low = 0;
+    let high = 1000000;
+    for (let i = 0; i < 40; i += 1) {
+      const mid = (low + high) / 2;
+      const fv = sipFutureValueWithStepUp(mid, stepUpPct, returnRate, years);
+      if (fv >= gap) high = mid;
+      else low = mid;
+    }
+    return Math.round(high);
+  })();
+
+  const projected = fvExisting + sipFutureValueWithStepUp(monthlyNeed, stepUpPct, returnRate, years);
+
+  useEffect(() => {
+    onContextUpdate(`Monthly Savings Goal: target ${fmtShort(targetAmount)}, years ${years}, required SIP ${fmtShort(monthlyNeed)}.`);
+  }, [targetAmount, years, monthlyNeed]);
+
+  const insight = `**Monthly savings target planner:**\n\n• Goal amount: **${fmtShort(targetAmount)}** in ${years} years\n• Existing corpus future value: **${fmtShort(fvExisting)}**\n• Required monthly investment: **${fmtShort(monthlyNeed)}** with ${stepUpPct}% annual step-up\n• Projected corpus: **${fmtShort(projected)}**\n\nUse this for short/medium goals like car, wedding, business seed, travel, or down payment.`;
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        <FieldRow label="Target Amount"><NumField value={targetAmount} onChange={setTargetAmount} min={50000} max={100000000} step={10000} prefix="₹" /></FieldRow>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Years to Goal"><NumField value={years} onChange={setYears} min={1} max={30} step={1} suffix="yrs" /></FieldRow>
+          <FieldRow label="Expected Return"><NumField value={returnRate} onChange={setReturnRate} min={4} max={16} step={0.5} suffix="%" /></FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Existing Corpus"><NumField value={existingCorpus} onChange={setExistingCorpus} min={0} max={50000000} step={10000} prefix="₹" /></FieldRow>
+          <FieldRow label="Annual Step-up"><NumField value={stepUpPct} onChange={setStepUpPct} min={0} max={20} step={1} suffix="%" /></FieldRow>
+        </div>
+      </div>
+      <div>
+        <div className="rounded-2xl p-5 mb-4 text-white" style={{ background: `linear-gradient(135deg, ${DB}, ${MB})` }}>
+          <p className="text-xs text-white/60 uppercase font-semibold">Savings Goal Summary</p>
+          <p className="text-3xl font-extrabold mt-1 mb-3">{fmtShort(monthlyNeed)}/mo</p>
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Target</p><p className="text-sm font-bold">{fmtShort(targetAmount)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Projected</p><p className="text-sm font-bold">{fmtShort(projected)}</p></div>
+          </div>
+        </div>
+        <InsightBanner text={insight} />
+      </div>
+    </div>
+  );
+};
+
 /* Tax Saving */
 const TaxCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
   const [income, setI]  = useState(1200000);
@@ -1625,11 +1880,16 @@ const PLANNER_TABS = [
 
 const CALC_TABS = [
   { id: "emi",       label: "Home / Car Loan",      icon: Home,       comp: EMICalc,          category: "Borrowing & Housing" },
+  { id: "eligibility",label:"Home Loan Eligibility",icon: Home,       comp: HomeLoanEligibilityCalc, category: "Borrowing & Housing" },
   { id: "rentbuy",   label: "Rent vs Buy",          icon: Home,       comp: RentVsBuyCalc,    category: "Borrowing & Housing" },
+  { id: "ccemi",     label: "Credit Card EMI",      icon: Calculator, comp: CreditCardEMICalc,category: "Borrowing & Housing" },
   { id: "sip",       label: "SIP & Mutual Funds",   icon: TrendingUp, comp: SIPCalc,          category: "Wealth & Investments" },
+  { id: "monthlygoal",label:"Monthly Savings Goal", icon: Target,     comp: MonthlySavingsGoalCalc, category: "Wealth & Investments" },
   { id: "savings",   label: "FD / PPF / NPS / RD",  icon: Target,     comp: SavingsSchemeCalc,category: "Wealth & Investments" },
+  { id: "ssy",       label: "Sukanya Samriddhi (SSY)", icon: Target,  comp: SSYCalc,          category: "Wealth & Investments" },
   { id: "emergency", label: "Emergency Fund",       icon: Shield,     comp: EmergencyFundCalc,category: "Protection & Essentials" },
   { id: "insurance", label: "Insurance Need",       icon: Shield,     comp: InsuranceNeedCalc,category: "Protection & Essentials" },
+  { id: "hra",       label: "HRA Exemption",        icon: Shield,     comp: HRACalc,          category: "Tax & Compliance" },
   { id: "tax",       label: "Tax Savings",          icon: Shield,     comp: TaxCalc,          category: "Tax & Compliance" },
 ] as const;
 
