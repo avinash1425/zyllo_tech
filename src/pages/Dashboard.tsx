@@ -9,6 +9,7 @@ import {
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { DonutChart as UIDonutChart } from "@/components/ui/donut-chart";
 
 /* ── Brand ───────────────────────────────────────────────── */
 const OG       = "#E05C1A";
@@ -423,6 +424,7 @@ const EMICalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
   const [monthlyIncome, setMonthlyIncome] = useState(120000);
   const [existingEmi, setExistingEmi] = useState(0);
   const [annualPrepay, setAnnualPrepay] = useState(100000);
+  const [hoveredBreakdownLabel, setHoveredBreakdownLabel] = useState<string | null>(null);
 
   useEffect(() => {
     if (loanType === "home") {
@@ -475,6 +477,13 @@ const EMICalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
 
   const totalMonthlyObligation = emi + existingEmi;
   const foir = monthlyIncome > 0 ? (totalMonthlyObligation / monthlyIncome) * 100 : 0;
+  const breakdownData = [
+    { value: principal, color: DB, label: "Principal" },
+    { value: interest, color: OG, label: "Interest" },
+  ];
+  const activeBreakdown = breakdownData.find(
+    (segment) => segment.label === hoveredBreakdownLabel
+  );
 
   useEffect(() => {
     onContextUpdate(
@@ -548,11 +557,26 @@ const EMICalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
       <div>
         <div className="flex items-center justify-center gap-8 mb-4">
           <div className="relative">
-            <DonutChart pct={pPct} color={DB} size={140} />
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <p className="text-xl font-extrabold" style={{ color: DB }}>{pPct}%</p>
-              <p className="text-xs text-gray-400">Principal</p>
-            </div>
+            <UIDonutChart
+              data={breakdownData}
+              size={140}
+              strokeWidth={18}
+              animationDuration={0.8}
+              animationDelayPerSegment={0.06}
+              onSegmentHover={(segment) =>
+                setHoveredBreakdownLabel(segment?.label ?? null)
+              }
+              centerContent={
+                <div className="flex flex-col items-center justify-center">
+                  <p className="text-xl font-extrabold" style={{ color: DB }}>
+                    {activeBreakdown ? fmtShort(activeBreakdown.value) : `${pPct}%`}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {activeBreakdown ? activeBreakdown.label : "Principal"}
+                  </p>
+                </div>
+              }
+            />
           </div>
           <div className="space-y-3">
             <div>
@@ -1645,112 +1669,106 @@ const TaxCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
 };
 
 /* ═══════════════════════════════════════════════════════════
-   FINANCIAL PLANNER — GOAL ENGINE
+   FINANCIAL PLANNER — ARTHAPLANNER
 ═══════════════════════════════════════════════════════════ */
 
-const GOAL_LIST = [
-  { id: "home",       icon: "🏠", label: "Buy a Home",          amount: 7500000, years: 10 },
-  { id: "education",  icon: "🎓", label: "Child's Education",   amount: 3000000, years: 12 },
-  { id: "retirement", icon: "🌴", label: "Retire Comfortably",  amount: 20000000, years: 25 },
-  { id: "marriage",   icon: "💍", label: "Wedding Expenses",    amount: 2000000, years: 5  },
-  { id: "vehicle",    icon: "🚗", label: "Buy a Car",           amount: 1200000, years: 4  },
-  { id: "emergency",  icon: "🛡️", label: "Emergency Fund",     amount: 500000, years: 2  },
+/* ── Goal Overview Dashboard (Landing) ───────────────────── */
+const GOAL_OVERVIEW = [
+  { id: "home",       icon: "🏠", label: "Buy a Home",          color: DB,          tabLabel: "Home Buying Plan",       highlights: ["Down payment planning", "EMI vs rent analysis", "Stamp duty & interior costs", "Loan eligibility check"] },
+  { id: "education",  icon: "🎓", label: "Child's Education",   color: GREEN,        tabLabel: "Child Education Plan",   highlights: ["India / Abroad options", "Education inflation (9%)", "SSY for girl child", "Scholarship & loan hedge"] },
+  { id: "retirement", icon: "🌴", label: "Retire Comfortably",  color: MB,           tabLabel: "Retirement Freedom Plan",highlights: ["EPF + NPS + investments", "Inflation-adjusted corpus", "Pension & rental income", "Withdrawal strategy"] },
+  { id: "wedding",    icon: "💍", label: "Wedding Planning",    color: "#7C3AED",    tabLabel: "Wedding Planning",       highlights: ["Guest count & venue type", "Gold & jewelry budget", "Catering & photography", "Honeymoon planning"] },
+  { id: "vehicle",    icon: "🚗", label: "Buy a Vehicle",       color: "#0891B2",    tabLabel: "Vehicle Purchase Plan",  highlights: ["2-wheeler to luxury car", "New vs used comparison", "Loan or full cash?", "On-road cost breakdown"] },
+  { id: "emergency",  icon: "🛡️", label: "Emergency Fund",     color: "#DC2626",    tabLabel: "Emergency Fund Builder", highlights: ["Employment type based", "3–12 month coverage", "Liquid MF vs FD split", "Monthly savings plan"] },
+  { id: "business",   icon: "🚀", label: "Business / Startup",  color: OG,           tabLabel: "Business Corpus Plan",   highlights: ["Startup capital need", "Personal runway months", "Break-even projection", "Risk buffer planning"] },
 ];
 
-const GoalEngine = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
-  const [goalId, setGoalId]     = useState("home");
-  const [target, setTarget]     = useState(7500000);
-  const [years, setYears]       = useState(10);
-  const [current, setCurrent]   = useState(0);
-  const [retRate]               = useState(12);
-  const [income, setIncome]     = useState(80000);
-
-  const goal = GOAL_LIST.find(g => g.id === goalId)!;
-
-  const fvCurrent = current * Math.pow(1 + retRate / 100, years);
-  const gap       = Math.max(0, target - fvCurrent);
-  const r  = retRate / 12 / 100;
-  const n  = years * 12;
-  const reqSIP = r === 0 ? gap / n : gap * r / ((Math.pow(1+r,n)-1)*(1+r));
-  const onTrack   = fvCurrent >= target;
-  const sipPct    = (reqSIP / income * 100).toFixed(0);
-  const healthScore = Math.min(100, Math.round(
-    (current > 0 ? 30 : 0) + (reqSIP < income * 0.2 ? 30 : 15) + (years >= 10 ? 20 : 10) + (onTrack ? 20 : 0)
-  ));
-
-  useEffect(() => {
-    onContextUpdate(`Goal Planner: ${goal.label}, target ${fmtShort(target)}, ${years}yr, current savings ${fmtShort(current)}, required SIP ${fmtShort(reqSIP)}/mo`);
-  }, [goalId, target, years, current, retRate]);
+const GoalDashboard = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  useEffect(() => { onContextUpdate("ArthaPlanner overview: user viewing all life goal planners"); }, []);
 
   return (
-    <div className="space-y-5">
-      {/* Goal selector */}
-      <div>
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Choose Your Goal</p>
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-          {GOAL_LIST.map(g => (
-            <button key={g.id} onClick={() => { setGoalId(g.id); setTarget(g.amount); setYears(g.years); }}
-              className="rounded-2xl p-3 border-2 text-center transition-all hover:scale-105"
-              style={{ borderColor: goalId === g.id ? OG : "#e5e7eb", background: goalId === g.id ? OG_PALE : "#fff" }}
-            >
-              <span className="block text-2xl mb-1">{g.icon}</span>
-              <span className="text-[11px] font-semibold leading-tight block" style={{ color: goalId === g.id ? OG : "#374151" }}>{g.label}</span>
-            </button>
+    <div className="space-y-6">
+      {/* Hero */}
+      <div className="rounded-2xl p-5 sm:p-7 text-white" style={{ background: `linear-gradient(135deg, ${DB}, #0f2540)` }}>
+        <p className="text-xs text-white/50 uppercase font-bold tracking-wider mb-1">ArthaPlanner — Your Life Goals, All In One Place</p>
+        <p className="text-xl sm:text-2xl font-extrabold">Plan Every Corner of Your Financial Life</p>
+        <p className="text-sm text-white/60 mt-2 max-w-2xl">Each planner below is built specifically for Indian households — with real inflation rates, India-specific instruments (PPF, NPS, SSY, EPF), and practical assumptions. Click any tab above to begin a detailed plan.</p>
+        <div className="flex flex-wrap gap-3 mt-4">
+          {[
+            { n: "₹0", l: "Commission" }, { n: "7", l: "Life Goals" },
+            { n: "100%", l: "Unbiased" }, { n: "AI", l: "Powered" },
+          ].map(s => (
+            <div key={s.l} className="rounded-xl px-3 py-2 text-center min-w-[60px]" style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)" }}>
+              <p className="text-sm font-extrabold text-white">{s.n}</p>
+              <p className="text-[10px] text-white/50">{s.l}</p>
+            </div>
           ))}
         </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <FieldRow label={`Target for ${goal.label}`}>
-          <NumField value={target} onChange={setTarget} min={50000} max={100000000} step={100000} prefix="₹" />
-          <p className="text-xs text-right text-gray-400 mt-0.5">{fmtShort(target)}</p>
-        </FieldRow>
-        <FieldRow label="Years to Goal">
-          <NumField value={years} onChange={setYears} min={1} max={40} step={1} suffix="yrs" />
-        </FieldRow>
-        <FieldRow label="Current Savings">
-          <NumField value={current} onChange={setCurrent} min={0} max={50000000} step={10000} prefix="₹" />
-        </FieldRow>
-        <FieldRow label="Monthly Income">
-          <NumField value={income} onChange={setIncome} min={10000} max={2000000} step={5000} prefix="₹" />
-        </FieldRow>
+      {/* Goal tiles grid */}
+      <div>
+        <p className="text-xs font-bold uppercase tracking-wide text-gray-500 mb-3">Choose a Goal to Start Planning</p>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {GOAL_OVERVIEW.map(g => (
+            <div key={g.id} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm hover:shadow-md transition-all group">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-3xl">{g.icon}</span>
+                <div>
+                  <p className="font-bold text-gray-900 text-sm leading-tight">{g.label}</p>
+                  <div className="h-0.5 w-8 rounded-full mt-1" style={{ background: g.color }} />
+                </div>
+              </div>
+              <ul className="space-y-1 mb-3">
+                {g.highlights.map((h, i) => (
+                  <li key={i} className="flex items-start gap-1.5 text-[11px] text-gray-500">
+                    <span className="size-1.5 rounded-full shrink-0 mt-1" style={{ background: g.color }} />
+                    {h}
+                  </li>
+                ))}
+              </ul>
+              <p className="text-[11px] font-semibold mt-2" style={{ color: g.color }}>
+                → Click "{g.tabLabel}" tab above
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Result */}
-      <div className={`rounded-2xl p-5 border-2 ${onTrack ? "border-green-200" : "border-orange-200"}`}
-        style={{ background: onTrack ? "#f0fdf4" : OG_PALE }}
-      >
-        <div className="grid sm:grid-cols-3 gap-4 items-center">
-          <div className="flex items-center gap-3 sm:col-span-2">
-            <div className="size-12 rounded-2xl flex items-center justify-center text-white"
-              style={{ background: onTrack ? GREEN : OG }}>
-              {onTrack ? <Check size={22} /> : <AlertCircle size={22} />}
+      {/* Best practices */}
+      <div className="rounded-2xl border border-orange-100 bg-orange-50 p-5">
+        <p className="text-sm font-bold text-orange-800 mb-3">💡 Planning Best Practices for Indian Households</p>
+        <div className="grid sm:grid-cols-2 gap-2 text-xs text-orange-700">
+          {[
+            "Start with Emergency Fund — before any goal, build 6 months of expenses as a safety net first",
+            "Retirement planning benefits most from starting early — every year of delay costs you 2× later",
+            "Step up your SIP by 10% every year — aligns with salary hikes and dramatically accelerates wealth",
+            "Education inflation is 9-10% p.a. — if your child is 5 years old, today's ₹5L becomes ₹8-10L in 13 years",
+            "Diversify across PPF (safe), ELSS (tax+growth), NPS (retirement), and index funds (long-term)",
+            "Review your plan every year — job change, marriage, or a new child reshapes your entire goal timeline",
+          ].map((tip, i) => (
+            <div key={i} className="flex items-start gap-2">
+              <span className="size-1.5 rounded-full shrink-0 mt-1.5" style={{ background: OG }} />
+              <span>{tip}</span>
             </div>
-            <div>
-              {onTrack
-                ? <p className="font-bold text-green-700 text-lg">You're on track! 🎉</p>
-                : <><p className="font-bold text-lg" style={{ color: OG }}>Start SIP of <span className="text-2xl">{fmtShort(reqSIP)}</span>/month</p>
-                    <p className="text-sm text-gray-500 mt-0.5">That's {sipPct}% of your income — {Number(sipPct) <= 20 ? "very manageable" : Number(sipPct) <= 30 ? "achievable with planning" : "may need to increase income or extend timeline"}</p></>
-              }
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
-            <div className="rounded-xl p-3 text-center" style={{ background: onTrack ? GREEN : OG }}>
-              <p className="text-[10px] text-white/70">Goal</p>
-              <p className="font-extrabold text-white">{fmtShort(target)}</p>
-            </div>
-          </div>
+          ))}
         </div>
-        <div className="mt-4 pt-4 border-t border-black/5 grid grid-cols-3 gap-3 text-center text-xs">
-          <div><p className="text-gray-500">Current savings grows to</p><p className="font-bold text-gray-800">{fmtShort(fvCurrent)}</p></div>
-          <div><p className="text-gray-500">Gap to fill via SIP</p><p className="font-bold text-gray-800">{fmtShort(gap)}</p></div>
-          <div><p className="text-gray-500">Financial Health</p>
-            <div className="flex items-center justify-center gap-1">
-              <div className="flex-1 h-1.5 rounded-full bg-gray-200"><div className="h-full rounded-full" style={{ width: `${healthScore}%`, background: healthScore > 70 ? GREEN : healthScore > 40 ? OG : "#ef4444" }} /></div>
-              <span className="font-bold" style={{ color: healthScore > 70 ? GREEN : healthScore > 40 ? OG : "#ef4444" }}>{healthScore}</span>
-            </div>
+      </div>
+
+      {/* Assumptions panel */}
+      <div className="grid sm:grid-cols-4 gap-3">
+        {[
+          { icon: "📊", title: "Inflation Rates Used", desc: "Education 9%, Property 7%, Healthcare 12%, General 6%, Wedding 5%" },
+          { icon: "📈", title: "Return Assumptions", desc: "Equity SIP 11-13%, Debt 6-7%, PPF 7.1%, NPS 10-11%, FD 6.5-7.5%" },
+          { icon: "🏛️", title: "Tax Benefits", desc: "80C (PPF/ELSS ₹1.5L), 80D (Health ₹25K), 80CCD(1B) (NPS ₹50K), HRA" },
+          { icon: "⚠️", title: "Disclaimer", desc: "Projections are estimates only. Consult a SEBI-registered advisor for personalised advice." },
+        ].map(c => (
+          <div key={c.title} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+            <span className="text-2xl block mb-2">{c.icon}</span>
+            <p className="text-xs font-bold text-gray-800 mb-1">{c.title}</p>
+            <p className="text-[11px] text-gray-400 leading-snug">{c.desc}</p>
           </div>
-        </div>
+        ))}
       </div>
     </div>
   );
@@ -2100,11 +2118,567 @@ const RetirementGoalPlanner = ({ onContextUpdate }: { onContextUpdate: (s: strin
   );
 };
 
+/* ── Wedding Goal Planner ────────────────────────────────── */
+const WeddingGoalPlanner = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  const [weddingScale, setWeddingScale]     = useState("moderate");
+  const [cityTier, setCityTier]             = useState("tier1");
+  const [guestCount, setGuestCount]         = useState("100-300");
+  const [venueType, setVenueType]           = useState("banquet");
+  const [cateringType, setCateringType]     = useState("veg-premium");
+  const [jewelleryGold, setJewelleryGold]   = useState(800000);
+  const [photographyBudget, setPhotography] = useState(150000);
+  const [honeymoonType, setHoneymoonType]   = useState("india");
+  const [outfitsTrousseau, setOutfits]      = useState(200000);
+  const [mehendiBudget, setMehendi]         = useState(80000);
+  const [miscBudget, setMisc]               = useState(100000);
+  const [yearsToWedding, setYears]          = useState(4);
+  const [weddingInflation]                  = useState(5);
+  const [existingCorpus, setExisting]       = useState(300000);
+  const [monthlySIP, setSIP]                = useState(20000);
+  const [stepUp, setStepUp]                 = useState(8);
+  const [returnRate, setReturn]             = useState(11);
+
+  /* Preset venue + catering base costs */
+  const VENUE_BASE: Record<string, number> = {
+    home: 50000, community: 150000, banquet: 500000,
+    "five-star": 1200000, destination: 2500000, outdoor: 700000,
+  };
+  const GUEST_FACTOR: Record<string, number> = {
+    "upto-100": 0.6, "100-300": 1, "300-500": 1.8, "500+": 2.8,
+  };
+  const CATERING_RATE: Record<string, number> = {
+    "veg-basic": 400, "veg-premium": 800, "nonveg-basic": 600,
+    "nonveg-premium": 1200, "buffet-luxe": 2000,
+  };
+  const HONEYMOON_BASE: Record<string, number> = {
+    india: 80000, "se-asia": 200000, europe: 500000, usa: 700000, maldives: 350000,
+  };
+  const CITY_MULT: Record<string, number> = { tier1: 1.3, tier2: 1.0, tier3: 0.75 };
+  const SCALE_MULT: Record<string, number> = { budget: 0.5, moderate: 1, grand: 2, lavish: 3.5 };
+
+  const guestMid: Record<string, number> = { "upto-100": 75, "100-300": 200, "300-500": 400, "500+": 600 };
+  const guests = guestMid[guestCount] ?? 200;
+  const cateringTotal = (CATERING_RATE[cateringType] ?? 800) * guests;
+  const venueBase = (VENUE_BASE[venueType] ?? 500000) * (CITY_MULT[cityTier] ?? 1) * (GUEST_FACTOR[guestCount] ?? 1);
+  const honeymoon = HONEYMOON_BASE[honeymoonType] ?? 200000;
+
+  const totalTodayCost = (venueBase + cateringTotal + jewelleryGold + photographyBudget
+    + honeymoon + outfitsTrousseau + mehendiBudget + miscBudget) * (SCALE_MULT[weddingScale] ?? 1);
+
+  const futureCost = totalTodayCost * Math.pow(1 + weddingInflation / 100, yearsToWedding);
+  const projectedCorpus = existingCorpus * Math.pow(1 + returnRate / 100, yearsToWedding)
+    + sipFutureValueWithStepUp(monthlySIP, stepUp, returnRate, yearsToWedding);
+  const gap = Math.max(0, futureCost - projectedCorpus);
+  const r = returnRate / 12 / 100;
+  const n = yearsToWedding * 12;
+  const reqSIP = gap <= 0 ? 0 : (r === 0 ? gap / Math.max(1, n) : gap * r / ((Math.pow(1 + r, n) - 1) * (1 + r)));
+
+  useEffect(() => {
+    onContextUpdate(`Wedding Planner: scale ${weddingScale}, ${cityTier}, ${guestCount} guests, total cost today ${fmtShort(totalTodayCost)}, future ${fmtShort(futureCost)}, required SIP ${fmtShort(reqSIP)}/mo`);
+  }, [weddingScale, cityTier, guestCount, venueType, totalTodayCost, futureCost, reqSIP]);
+
+  const insight = `**Wedding cost projection (${yearsToWedding} years away):**\n\n• Estimated total cost today: **${fmtShort(totalTodayCost)}**\n• Inflation-adjusted target: **${fmtShort(futureCost)}**\n• Projected corpus by wedding: **${fmtShort(projectedCorpus)}**\n• Gap: **${fmtShort(gap)}**\n\n**Action**: ${gap > 0 ? `Start a dedicated SIP of ${fmtShort(reqSIP)}/month in a balanced or debt fund.` : "Current savings plan is sufficient. Keep investing and review annually."}\n\n**Tip**: Keep wedding corpus in a **low-risk debt fund** — not equity — especially in the last 2 years before the wedding.`;
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        {/* Scale + City */}
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Wedding Scale">
+            <SelectField value={weddingScale} onChange={setWeddingScale} options={[
+              { value: "budget",   label: "Budget (₹3–8L)" },
+              { value: "moderate", label: "Moderate (₹10–25L)" },
+              { value: "grand",    label: "Grand (₹30–60L)" },
+              { value: "lavish",   label: "Lavish (₹75L+)" },
+            ]} />
+          </FieldRow>
+          <FieldRow label="City Tier">
+            <SelectField value={cityTier} onChange={setCityTier} options={[
+              { value: "tier1", label: "Metro (Delhi / Mumbai / Bangalore)" },
+              { value: "tier2", label: "Tier-2 (Hyderabad / Pune / Jaipur)" },
+              { value: "tier3", label: "Tier-3 / Small Town" },
+            ]} />
+          </FieldRow>
+        </div>
+
+        {/* Guest count + Venue */}
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Expected Guests">
+            <SelectField value={guestCount} onChange={setGuestCount} options={[
+              { value: "upto-100", label: "Up to 100 guests" },
+              { value: "100-300",  label: "100 – 300 guests" },
+              { value: "300-500",  label: "300 – 500 guests" },
+              { value: "500+",     label: "500+ guests" },
+            ]} />
+          </FieldRow>
+          <FieldRow label="Venue Type">
+            <SelectField value={venueType} onChange={setVenueType} options={[
+              { value: "home",        label: "Home / Open Ground" },
+              { value: "community",   label: "Community / Kalyana Mandapam" },
+              { value: "banquet",     label: "Banquet Hall" },
+              { value: "outdoor",     label: "Outdoor / Garden / Farmhouse" },
+              { value: "five-star",   label: "5-Star Hotel" },
+              { value: "destination", label: "Destination Wedding (Goa / Udaipur)" },
+            ]} />
+          </FieldRow>
+        </div>
+
+        {/* Catering */}
+        <FieldRow label="Catering Type">
+          <SelectField value={cateringType} onChange={setCateringType} options={[
+            { value: "veg-basic",     label: "Vegetarian — Basic (₹400/plate)" },
+            { value: "veg-premium",   label: "Vegetarian — Premium (₹800/plate)" },
+            { value: "nonveg-basic",  label: "Non-veg — Basic (₹600/plate)" },
+            { value: "nonveg-premium",label: "Non-veg — Premium (₹1,200/plate)" },
+            { value: "buffet-luxe",   label: "Full Buffet Luxe (₹2,000/plate)" },
+          ]} />
+        </FieldRow>
+
+        {/* Honeymoon */}
+        <FieldRow label="Honeymoon Destination">
+          <SelectField value={honeymoonType} onChange={setHoneymoonType} options={[
+            { value: "india",    label: "India (Himachal / Goa / Kerala) — ₹80K" },
+            { value: "se-asia",  label: "SE Asia (Bali / Thailand / Vietnam) — ₹2L" },
+            { value: "maldives", label: "Maldives — ₹3.5L" },
+            { value: "europe",   label: "Europe — ₹5L" },
+            { value: "usa",      label: "USA / Canada — ₹7L" },
+          ]} />
+        </FieldRow>
+
+        {/* Itemized budgets */}
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Gold & Jewellery Budget">
+            <NumField value={jewelleryGold} onChange={setJewelleryGold} min={0} max={10000000} step={50000} prefix="₹" />
+          </FieldRow>
+          <FieldRow label="Photography & Videography">
+            <NumField value={photographyBudget} onChange={setPhotography} min={20000} max={2000000} step={10000} prefix="₹" />
+          </FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Outfits & Trousseau">
+            <NumField value={outfitsTrousseau} onChange={setOutfits} min={20000} max={2000000} step={10000} prefix="₹" />
+          </FieldRow>
+          <FieldRow label="Mehendi / Sangeet / Events">
+            <NumField value={mehendiBudget} onChange={setMehendi} min={0} max={1000000} step={10000} prefix="₹" />
+          </FieldRow>
+        </div>
+        <FieldRow label="Miscellaneous (Gifts, Invites, Sweets, Travel)">
+          <NumField value={miscBudget} onChange={setMisc} min={0} max={2000000} step={10000} prefix="₹" />
+        </FieldRow>
+
+        {/* Savings plan */}
+        <div className="h-px bg-gray-100" />
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Years to Wedding"><NumField value={yearsToWedding} onChange={setYears} min={1} max={15} step={1} suffix="yrs" /></FieldRow>
+          <FieldRow label="Existing Wedding Corpus"><NumField value={existingCorpus} onChange={setExisting} min={0} max={50000000} step={10000} prefix="₹" /></FieldRow>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          <FieldRow label="Monthly SIP"><NumField value={monthlySIP} onChange={setSIP} min={1000} max={500000} step={1000} prefix="₹" /></FieldRow>
+          <FieldRow label="Annual Step-up"><NumField value={stepUp} onChange={setStepUp} min={0} max={25} step={1} suffix="%" /></FieldRow>
+          <FieldRow label="Expected Return"><NumField value={returnRate} onChange={setReturn} min={5} max={14} step={0.5} suffix="%" /></FieldRow>
+        </div>
+      </div>
+
+      {/* Right: summary + breakdown */}
+      <div className="space-y-4">
+        <div className="rounded-2xl p-5 text-white" style={{ background: "linear-gradient(135deg, #7C3AED, #5B21B6)" }}>
+          <p className="text-xs text-white/60 uppercase font-semibold">Wedding Cost Summary</p>
+          <p className="text-3xl font-extrabold mt-1 mb-3">{fmtShort(futureCost)}</p>
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.1)" }}><p className="text-[10px] text-white/60">Today's Estimate</p><p className="text-sm font-bold">{fmtShort(totalTodayCost)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.1)" }}><p className="text-[10px] text-white/60">Projected Corpus</p><p className="text-sm font-bold">{fmtShort(projectedCorpus)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.1)" }}><p className="text-[10px] text-white/60">Catering Cost</p><p className="text-sm font-bold">{fmtShort(cateringTotal)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.1)" }}><p className="text-[10px] text-white/60">Required SIP</p><p className="text-sm font-bold">{reqSIP > 0 ? fmtShort(reqSIP) : "On Track ✓"}</p></div>
+          </div>
+        </div>
+
+        {/* Cost breakdown bar chart */}
+        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+          <p className="text-xs font-bold text-gray-600 uppercase tracking-wide mb-3">Cost Breakdown (Today's Value)</p>
+          <BarChart data={[
+            { label: "Venue",           value: venueBase,           color: "#7C3AED" },
+            { label: "Catering",        value: cateringTotal,       color: MB },
+            { label: "Gold & Jewellery",value: jewelleryGold,       color: OG },
+            { label: "Honeymoon",       value: honeymoon,           color: GREEN },
+            { label: "Photography",     value: photographyBudget,   color: "#0891B2" },
+            { label: "Outfits",         value: outfitsTrousseau,    color: "#DC2626" },
+          ]} />
+        </div>
+
+        <InsightBanner text={insight} />
+      </div>
+    </div>
+  );
+};
+
+/* ── Vehicle Purchase Planner ────────────────────────────── */
+const VehicleGoalPlanner = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  const [vehicleCategory, setVehicleCategory] = useState("compact-suv");
+  const [fuelType, setFuelType]               = useState("petrol");
+  const [condition, setCondition]             = useState("new");
+  const [purchaseMode, setPurchaseMode]       = useState("loan-20");
+  const [onRoadToday, setOnRoadToday]         = useState(1200000);
+  const [yearsToBuy, setYearsToBuy]           = useState(3);
+  const [vehicleInflation]                    = useState(5);
+  const [loanRate, setLoanRate]               = useState(9);
+  const [loanTenure, setLoanTenure]           = useState(5);
+  const [monthlyIncome, setMonthlyIncome]     = useState(120000);
+  const [existingCorpus, setExistingCorpus]   = useState(200000);
+  const [monthlySIP, setMonthlySIP]           = useState(15000);
+  const [stepUp, setStepUp]                   = useState(8);
+  const [returnRate, setReturnRate]           = useState(10);
+
+  /* Category presets for on-road price guidance */
+  const CATEGORY_RANGE: Record<string, string> = {
+    "two-wheeler":  "₹60K – ₹3L",
+    hatchback:      "₹5L – ₹9L",
+    sedan:          "₹8L – ₹18L",
+    "compact-suv":  "₹10L – ₹22L",
+    "mid-suv":      "₹20L – ₹40L",
+    luxury:         "₹45L – ₹1.5Cr",
+    "ev-entry":     "₹10L – ₹20L",
+    "ev-premium":   "₹25L – ₹80L",
+  };
+
+  const conditionDiscount = condition === "used-recent" ? 0.75 : condition === "used-old" ? 0.55 : 1;
+  const effectiveOnRoad   = onRoadToday * conditionDiscount;
+  const futureCost        = effectiveOnRoad * Math.pow(1 + vehicleInflation / 100, yearsToBuy);
+
+  const downPayPct = purchaseMode === "full-cash" ? 100
+    : purchaseMode === "loan-20" ? 20 : purchaseMode === "loan-30" ? 30 : 40;
+  const downPayment     = futureCost * downPayPct / 100;
+  const loanAmount      = futureCost - downPayment;
+  const rm              = loanRate / 12 / 100;
+  const n               = loanTenure * 12;
+  const emi             = (purchaseMode === "full-cash" || loanAmount <= 0) ? 0
+    : (rm === 0 ? loanAmount / n : loanAmount * rm * Math.pow(1 + rm, n) / (Math.pow(1 + rm, n) - 1));
+  const totalInterest   = emi * n - loanAmount;
+  const emiPct          = monthlyIncome > 0 ? (emi / monthlyIncome * 100) : 0;
+
+  /* Savings plan for down payment */
+  const projectedCorpus = existingCorpus * Math.pow(1 + returnRate / 100, yearsToBuy)
+    + sipFutureValueWithStepUp(monthlySIP, stepUp, returnRate, yearsToBuy);
+  const gap = Math.max(0, downPayment - projectedCorpus);
+  const r2  = returnRate / 12 / 100;
+  const n2  = yearsToBuy * 12;
+  const reqSIP = gap <= 0 ? 0 : (r2 === 0 ? gap / Math.max(1, n2) : gap * r2 / ((Math.pow(1 + r2, n2) - 1) * (1 + r2)));
+
+  useEffect(() => {
+    onContextUpdate(`Vehicle Planner: ${vehicleCategory}, ${fuelType}, ${condition}, on-road ${fmtShort(futureCost)}, down payment ${fmtShort(downPayment)}, EMI ${fmtShort(emi)}/mo, required SIP ${fmtShort(reqSIP)}/mo`);
+  }, [vehicleCategory, fuelType, condition, futureCost, downPayment, emi, reqSIP]);
+
+  const insight = `**Vehicle purchase plan (${yearsToBuy} years):**\n\n• Future on-road cost: **${fmtShort(futureCost)}**\n• Down payment needed (${downPayPct}%): **${fmtShort(downPayment)}**\n• Projected savings corpus: **${fmtShort(projectedCorpus)}**\n${emi > 0 ? `• Monthly EMI: **${fmtShort(emi)}** (${emiPct.toFixed(1)}% of income) | Total interest: **${fmtShort(totalInterest)}**\n` : ""}\n**Action**: ${gap > 0 ? `Increase monthly SIP by ${fmtShort(reqSIP)} for down payment.` : "Down payment corpus is on track."} ${emiPct > 15 ? "\n\n⚠️ EMI exceeds 15% of income — consider a longer tenure or a lower-cost vehicle." : ""}`;
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        {/* Vehicle type + fuel */}
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Vehicle Category">
+            <SelectField value={vehicleCategory} onChange={(v) => { setVehicleCategory(v); }} options={[
+              { value: "two-wheeler",  label: "Two-Wheeler (Bike / Scooter)" },
+              { value: "hatchback",    label: "Hatchback (Alto / Swift / i20)" },
+              { value: "sedan",        label: "Sedan (City / Verna / Ciaz)" },
+              { value: "compact-suv",  label: "Compact SUV (Creta / Seltos / Brezza)" },
+              { value: "mid-suv",      label: "Mid-size SUV (Fortuner / Harrier / XUV700)" },
+              { value: "luxury",       label: "Luxury Car (BMW / Audi / Mercedes)" },
+              { value: "ev-entry",     label: "Entry EV (Tiago EV / MG Comet / Nexon EV)" },
+              { value: "ev-premium",   label: "Premium EV (BYD / BMW iX / Kia EV6)" },
+            ]} />
+          </FieldRow>
+          <FieldRow label="Fuel Type">
+            <SelectField value={fuelType} onChange={setFuelType} options={[
+              { value: "petrol",  label: "Petrol" },
+              { value: "diesel",  label: "Diesel" },
+              { value: "cng",     label: "CNG / Factory Fitted" },
+              { value: "electric",label: "Electric (EV)" },
+              { value: "hybrid",  label: "Hybrid (Mild / Strong)" },
+            ]} />
+          </FieldRow>
+        </div>
+
+        {/* Condition + Purchase mode */}
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Vehicle Condition">
+            <SelectField value={condition} onChange={setCondition} options={[
+              { value: "new",         label: "Brand New" },
+              { value: "used-recent", label: "Used — 1 to 3 years old (~25% less)" },
+              { value: "used-old",    label: "Used — 3 to 6 years old (~45% less)" },
+            ]} />
+          </FieldRow>
+          <FieldRow label="Purchase Mode">
+            <SelectField value={purchaseMode} onChange={setPurchaseMode} options={[
+              { value: "full-cash", label: "Full Cash Purchase" },
+              { value: "loan-20",   label: "Loan — 20% Down Payment" },
+              { value: "loan-30",   label: "Loan — 30% Down Payment" },
+              { value: "loan-40",   label: "Loan — 40% Down Payment" },
+            ]} />
+          </FieldRow>
+        </div>
+
+        {/* Price inputs */}
+        <FieldRow label={`On-Road Price Today (Range: ${CATEGORY_RANGE[vehicleCategory] ?? ""})`}>
+          <NumField value={onRoadToday} onChange={setOnRoadToday} min={60000} max={20000000} step={50000} prefix="₹" />
+          <p className="text-xs text-right text-gray-400 mt-0.5">{fmtShort(onRoadToday)}</p>
+        </FieldRow>
+
+        {/* Loan details (if applicable) */}
+        {purchaseMode !== "full-cash" && (
+          <div className="grid grid-cols-2 gap-3">
+            <FieldRow label="Car Loan Rate"><NumField value={loanRate} onChange={setLoanRate} min={7} max={18} step={0.1} suffix="%" /></FieldRow>
+            <FieldRow label="Loan Tenure"><NumField value={loanTenure} onChange={setLoanTenure} min={1} max={7} step={1} suffix="yrs" /></FieldRow>
+          </div>
+        )}
+
+        <FieldRow label="Monthly Take-Home Income">
+          <NumField value={monthlyIncome} onChange={setMonthlyIncome} min={20000} max={2000000} step={5000} prefix="₹" />
+        </FieldRow>
+
+        {/* Savings plan */}
+        <div className="h-px bg-gray-100" />
+        <div className="grid grid-cols-3 gap-3">
+          <FieldRow label="Years to Buy"><NumField value={yearsToBuy} onChange={setYearsToBuy} min={1} max={10} step={1} suffix="yrs" /></FieldRow>
+          <FieldRow label="Existing Corpus"><NumField value={existingCorpus} onChange={setExistingCorpus} min={0} max={20000000} step={10000} prefix="₹" /></FieldRow>
+          <FieldRow label="Monthly SIP"><NumField value={monthlySIP} onChange={setMonthlySIP} min={500} max={300000} step={500} prefix="₹" /></FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Annual Step-up"><NumField value={stepUp} onChange={setStepUp} min={0} max={20} step={1} suffix="%" /></FieldRow>
+          <FieldRow label="Return on Savings"><NumField value={returnRate} onChange={setReturnRate} min={5} max={14} step={0.5} suffix="%" /></FieldRow>
+        </div>
+      </div>
+
+      {/* Right: summary */}
+      <div className="space-y-4">
+        <div className="rounded-2xl p-5 text-white" style={{ background: "linear-gradient(135deg, #0891B2, #0e7490)" }}>
+          <p className="text-xs text-white/60 uppercase font-semibold">Vehicle Plan Summary</p>
+          <p className="text-3xl font-extrabold mt-1 mb-3">{fmtShort(futureCost)}</p>
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.1)" }}><p className="text-[10px] text-white/60">Down Payment ({downPayPct}%)</p><p className="text-sm font-bold">{fmtShort(downPayment)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.1)" }}><p className="text-[10px] text-white/60">Projected Corpus</p><p className="text-sm font-bold">{fmtShort(projectedCorpus)}</p></div>
+            {emi > 0 && <>
+              <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.1)" }}><p className="text-[10px] text-white/60">Monthly EMI</p><p className="text-sm font-bold" style={{ color: emiPct > 15 ? "#fca5a5" : "#86efac" }}>{fmtShort(emi)}</p></div>
+              <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.1)" }}><p className="text-[10px] text-white/60">Total Interest Paid</p><p className="text-sm font-bold">{fmtShort(totalInterest)}</p></div>
+            </>}
+          </div>
+          {emi > 0 && (
+            <div className="mt-3 rounded-xl p-2.5 text-center" style={{ background: "rgba(255,255,255,0.06)" }}>
+              <p className="text-[10px] text-white/60">EMI as % of Income</p>
+              <p className="text-lg font-extrabold" style={{ color: emiPct > 15 ? "#fca5a5" : "#86efac" }}>{emiPct.toFixed(1)}%</p>
+              <p className="text-[10px] text-white/50">{emiPct <= 10 ? "Very comfortable" : emiPct <= 15 ? "Manageable" : emiPct <= 20 ? "Stretch — be careful" : "⚠️ High — reconsider"}</p>
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+          <p className="text-xs font-bold text-gray-600 uppercase tracking-wide mb-3">EV vs ICE Running Cost Guide</p>
+          <div className="space-y-2 text-xs text-gray-600">
+            {[
+              { type: "Petrol Car",  cost: "₹6–8 per km", maint: "₹8–12K/year" },
+              { type: "Diesel Car",  cost: "₹5–6 per km", maint: "₹10–15K/year" },
+              { type: "CNG Car",     cost: "₹2–3 per km", maint: "₹8–12K/year" },
+              { type: "Electric Car",cost: "₹1–1.5 per km", maint: "₹4–6K/year" },
+            ].map(r => (
+              <div key={r.type} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
+                <span className="font-medium">{r.type}</span>
+                <span className="text-gray-500">{r.cost} · Maint {r.maint}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <InsightBanner text={insight} />
+      </div>
+    </div>
+  );
+};
+
+/* ── Emergency Fund Builder ──────────────────────────────── */
+const EmergencyFundGoalPlanner = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  const [employmentType, setEmploymentType]   = useState("salaried-stable");
+  const [monthlyRent, setMonthlyRent]         = useState(20000);
+  const [monthlyGroceries, setGroceries]      = useState(15000);
+  const [monthlyUtilities, setUtilities]      = useState(5000);
+  const [monthlyEMIs, setEMIs]                = useState(20000);
+  const [monthlyInsurance, setInsurance]      = useState(3000);
+  const [monthlyOther, setOther]              = useState(10000);
+  const [targetMonths, setTargetMonths]       = useState(6);
+  const [existingFund, setExistingFund]       = useState(100000);
+  const [monthlyCapacity, setCapacity]        = useState(10000);
+  const [storageStrategy, setStrategy]        = useState("split");
+  const [financialDependents, setDependents]  = useState(2);
+
+  /* Recommended months by employment type */
+  const RECOMMENDED: Record<string, { months: number; reason: string }> = {
+    "salaried-stable":   { months: 3,  reason: "Stable job with regular salary — 3 months is adequate" },
+    "salaried-risk":     { months: 6,  reason: "Job at risk or notice period > 1 month — 6 months recommended" },
+    "self-employed":     { months: 9,  reason: "Variable income — build 9 months for comfort" },
+    "business-owner":    { months: 12, reason: "Business cash flows are unpredictable — 12 months is prudent" },
+    "freelancer":        { months: 9,  reason: "Irregular payments — 9 months covers client payment delays" },
+    "retired":           { months: 24, reason: "Fixed income with health risks — 24 months liquid is safe" },
+  };
+
+  const totalMonthlyExpense = monthlyRent + monthlyGroceries + monthlyUtilities
+    + monthlyEMIs + monthlyInsurance + monthlyOther;
+  const recommended      = RECOMMENDED[employmentType] ?? RECOMMENDED["salaried-stable"];
+  const effectiveTarget  = totalMonthlyExpense * targetMonths;
+  const gap              = Math.max(0, effectiveTarget - existingFund);
+  const monthsToComplete = monthlyCapacity > 0 ? Math.ceil(gap / monthlyCapacity) : 999;
+
+  /* Storage strategy returns */
+  const STRATEGY_INFO: Record<string, { alloc: string; expectedReturn: string; access: string }> = {
+    savings:  { alloc: "100% in high-yield savings account",       expectedReturn: "3.5–7%",    access: "Instant" },
+    liquid:   { alloc: "100% in liquid / overnight mutual fund",   expectedReturn: "6.5–7.5%",  access: "T+1 day" },
+    fd:       { alloc: "100% in 1-year FD (sweep-in)",            expectedReturn: "6.5–7.5%",  access: "1–2 days" },
+    split:    { alloc: "40% Savings + 40% Liquid MF + 20% FD",    expectedReturn: "6–7%",       access: "Mixed" },
+    noloss:   { alloc: "100% Arbitrage Fund (liquid + low-risk)", expectedReturn: "6–7.5%",     access: "T+2 days" },
+  };
+  const stratInfo = STRATEGY_INFO[storageStrategy] ?? STRATEGY_INFO.split;
+
+  useEffect(() => {
+    onContextUpdate(`Emergency Fund: ${employmentType}, total expenses ${fmtShort(totalMonthlyExpense)}/mo, target ${fmtShort(effectiveTarget)}, existing ${fmtShort(existingFund)}, gap ${fmtShort(gap)}, ${monthsToComplete} months to complete`);
+  }, [employmentType, totalMonthlyExpense, effectiveTarget, existingFund, gap, monthsToComplete]);
+
+  const insight = `**Emergency fund status:**\n\n• Monthly essential expenses: **${fmtShort(totalMonthlyExpense)}**\n• Target (${targetMonths} months): **${fmtShort(effectiveTarget)}**\n• Already saved: **${fmtShort(existingFund)}**\n• Gap: **${fmtShort(gap)}**\n• Time to complete (at ${fmtShort(monthlyCapacity)}/mo): **${monthsToComplete <= 0 ? "Already done!" : `${monthsToComplete} months`}**\n\n**Storage**: ${stratInfo.alloc} | Expected return: ${stratInfo.expectedReturn}\n\n**Rule**: ${recommended.reason}`;
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        {/* Employment type */}
+        <FieldRow label="Employment / Income Type">
+          <SelectField value={employmentType} onChange={setEmploymentType} options={[
+            { value: "salaried-stable", label: "Salaried — Stable Job (Government / PSU / Large Corp)" },
+            { value: "salaried-risk",   label: "Salaried — At-Risk / Startup / Contract" },
+            { value: "self-employed",   label: "Self-Employed Professional (Doctor / CA / Consultant)" },
+            { value: "business-owner",  label: "Business Owner / Proprietor" },
+            { value: "freelancer",      label: "Freelancer / Gig Worker" },
+            { value: "retired",         label: "Retired / Semi-Retired" },
+          ]} />
+        </FieldRow>
+
+        {/* Recommendation banner */}
+        <div className="rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs text-blue-700">
+          <span className="font-bold">Recommended for you: {recommended.months} months.</span> {recommended.reason}
+        </div>
+
+        {/* Monthly expenses breakdown */}
+        <p className="text-xs font-bold uppercase tracking-wide text-gray-500">Monthly Essential Expenses</p>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Rent / Home Loan EMI"><NumField value={monthlyRent} onChange={setMonthlyRent} min={0} max={500000} step={1000} prefix="₹" /></FieldRow>
+          <FieldRow label="Groceries & Food"><NumField value={monthlyGroceries} onChange={setGroceries} min={0} max={200000} step={500} prefix="₹" /></FieldRow>
+          <FieldRow label="Utilities (Power, Water, Net)"><NumField value={monthlyUtilities} onChange={setUtilities} min={0} max={50000} step={500} prefix="₹" /></FieldRow>
+          <FieldRow label="Other EMIs (Car, Personal)"><NumField value={monthlyEMIs} onChange={setEMIs} min={0} max={500000} step={1000} prefix="₹" /></FieldRow>
+          <FieldRow label="Insurance Premiums (Monthly)"><NumField value={monthlyInsurance} onChange={setInsurance} min={0} max={100000} step={500} prefix="₹" /></FieldRow>
+          <FieldRow label="Other Fixed Expenses"><NumField value={monthlyOther} onChange={setOther} min={0} max={300000} step={500} prefix="₹" /></FieldRow>
+        </div>
+
+        {/* Target + existing + capacity */}
+        <div className="h-px bg-gray-100" />
+        <div className="grid grid-cols-3 gap-3">
+          <FieldRow label="Target Coverage">
+            <SelectField value={String(targetMonths)} onChange={(v) => setTargetMonths(Number(v))} options={[
+              { value: "3",  label: "3 months" },
+              { value: "6",  label: "6 months" },
+              { value: "9",  label: "9 months" },
+              { value: "12", label: "12 months" },
+              { value: "18", label: "18 months" },
+              { value: "24", label: "24 months" },
+            ]} />
+          </FieldRow>
+          <FieldRow label="Current Emergency Fund"><NumField value={existingFund} onChange={setExistingFund} min={0} max={50000000} step={5000} prefix="₹" /></FieldRow>
+          <FieldRow label="Monthly Saving Capacity"><NumField value={monthlyCapacity} onChange={setCapacity} min={500} max={500000} step={500} prefix="₹" /></FieldRow>
+        </div>
+
+        {/* Financial dependents */}
+        <FieldRow label="Number of Financial Dependents">
+          <SelectField value={String(financialDependents)} onChange={(v) => setDependents(Number(v))} options={[
+            { value: "0", label: "0 — Single, no dependents" },
+            { value: "1", label: "1 — Spouse / Parent" },
+            { value: "2", label: "2 — Spouse + Child / Parent" },
+            { value: "3", label: "3 — Spouse + 2 children / Parents" },
+            { value: "4", label: "4+ — Large family" },
+          ]} />
+        </FieldRow>
+        {financialDependents >= 3 && (
+          <div className="rounded-xl border border-orange-100 bg-orange-50 p-3 text-xs text-orange-700">
+            ⚠️ With {financialDependents}+ dependents, consider targeting at least <strong>9–12 months</strong> of expenses.
+          </div>
+        )}
+
+        {/* Where to keep it */}
+        <FieldRow label="Where to Keep Emergency Fund">
+          <SelectField value={storageStrategy} onChange={setStrategy} options={[
+            { value: "savings",  label: "High-Yield Savings Account (instant access)" },
+            { value: "liquid",   label: "Liquid Mutual Fund (T+1 day withdrawal)" },
+            { value: "fd",       label: "Sweep-in FD (auto-liquidates on withdrawal)" },
+            { value: "split",    label: "Recommended Split: 40% Savings + 40% Liquid MF + 20% FD" },
+            { value: "noloss",   label: "Arbitrage Fund (tax-efficient, ~7%)" },
+          ]} />
+        </FieldRow>
+      </div>
+
+      {/* Right: summary */}
+      <div className="space-y-4">
+        <div className="rounded-2xl p-5 text-white" style={{ background: "linear-gradient(135deg, #DC2626, #991b1b)" }}>
+          <p className="text-xs text-white/60 uppercase font-semibold">Emergency Fund Target</p>
+          <p className="text-3xl font-extrabold mt-1 mb-3">{fmtShort(effectiveTarget)}</p>
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.1)" }}><p className="text-[10px] text-white/60">Monthly Expenses</p><p className="text-sm font-bold">{fmtShort(totalMonthlyExpense)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.1)" }}><p className="text-[10px] text-white/60">Already Saved</p><p className="text-sm font-bold">{fmtShort(existingFund)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.1)" }}><p className="text-[10px] text-white/60">Gap Remaining</p><p className="text-sm font-bold">{fmtShort(gap)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.1)" }}><p className="text-[10px] text-white/60">Months to Complete</p><p className="text-sm font-bold">{gap <= 0 ? "Done ✓" : monthsToComplete + " months"}</p></div>
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+          <p className="text-xs font-bold text-gray-600 uppercase tracking-wide mb-3">Fund Progress</p>
+          <div className="mb-2 flex justify-between text-xs">
+            <span className="text-gray-500">Built so far</span>
+            <span className="font-bold" style={{ color: existingFund >= effectiveTarget ? GREEN : OG }}>
+              {effectiveTarget > 0 ? Math.min(100, (existingFund / effectiveTarget * 100)).toFixed(0) : 0}%
+            </span>
+          </div>
+          <div className="h-3 rounded-full bg-gray-100">
+            <div className="h-full rounded-full transition-all duration-700"
+              style={{ width: `${effectiveTarget > 0 ? Math.min(100, existingFund / effectiveTarget * 100) : 0}%`, background: existingFund >= effectiveTarget ? GREEN : OG }} />
+          </div>
+          <p className="text-[11px] text-gray-400 mt-2">{fmtShort(existingFund)} of {fmtShort(effectiveTarget)} target</p>
+
+          {/* Storage breakdown */}
+          <div className="mt-4 rounded-xl bg-gray-50 p-3">
+            <p className="text-[11px] font-bold text-gray-600 mb-1">Recommended Storage: {storageStrategy === "split" ? "Split Strategy" : storageStrategy.toUpperCase()}</p>
+            <p className="text-[11px] text-gray-500">{stratInfo.alloc}</p>
+            <p className="text-[11px] text-gray-400 mt-1">Expected return: {stratInfo.expectedReturn} · Access: {stratInfo.access}</p>
+          </div>
+        </div>
+
+        {/* Expense breakdown */}
+        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+          <p className="text-xs font-bold text-gray-600 uppercase tracking-wide mb-3">Monthly Expense Breakdown</p>
+          <BarChart data={[
+            { label: "Rent / Home EMI",  value: monthlyRent,      color: DB },
+            { label: "Groceries & Food", value: monthlyGroceries, color: GREEN },
+            { label: "Other EMIs",       value: monthlyEMIs,      color: OG },
+            { label: "Utilities",        value: monthlyUtilities, color: MB },
+            { label: "Insurance",        value: monthlyInsurance, color: "#7C3AED" },
+            { label: "Other",            value: monthlyOther,     color: "#6B7280" },
+          ]} />
+        </div>
+
+        <InsightBanner text={insight} />
+      </div>
+    </div>
+  );
+};
+
 const PLANNER_TABS = [
-  { id: "goal", label: "Goal Builder", comp: GoalEngine },
-  { id: "home", label: "Buy Home Plan", comp: HomeGoalPlanner },
-  { id: "education", label: "Child Education Plan", comp: EducationGoalPlanner },
-  { id: "retirement", label: "Retirement Plan", comp: RetirementGoalPlanner },
+  { id: "goal",       label: "Goal Overview",          comp: GoalDashboard },
+  { id: "home",       label: "Home Buying Plan",        comp: HomeGoalPlanner },
+  { id: "education",  label: "Child Education Plan",    comp: EducationGoalPlanner },
+  { id: "retirement", label: "Retirement Freedom Plan", comp: RetirementGoalPlanner },
+  { id: "wedding",    label: "Wedding Planning",        comp: WeddingGoalPlanner },
+  { id: "vehicle",    label: "Vehicle Purchase Plan",   comp: VehicleGoalPlanner },
+  { id: "emergency",  label: "Emergency Fund Builder",  comp: EmergencyFundGoalPlanner },
 ];
 
 type PlannerGoal = {
