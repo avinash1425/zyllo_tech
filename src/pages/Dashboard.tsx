@@ -616,6 +616,11 @@ const SIPCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
   }
   const total = corpus;
   const gains = total - invested;
+  const gainsPct = total > 0 ? (gains / total) * 100 : 0;
+  const sipBreakdownData = [
+    { value: Math.max(0, invested), color: DB, label: "Invested" },
+    { value: Math.max(0, gains), color: OG, label: "Gains" },
+  ];
   const realCorpus = total / Math.pow(1 + inflation / 100, years);
   const multiplier = invested > 0 ? (total / invested).toFixed(1) : "0";
   const monthlySurplus = Math.max(0, monthlyIncome - monthlyExpenses);
@@ -733,6 +738,21 @@ const SIPCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
           { label: "Wealth Gained", value: gains, color: OG },
           { label: "Total Corpus", value: total, color: GREEN },
         ]} />
+        <div className="mt-4 flex items-center justify-center">
+          <UIDonutChart
+            data={sipBreakdownData}
+            size={130}
+            strokeWidth={16}
+            animationDuration={0.8}
+            animationDelayPerSegment={0.06}
+            centerContent={
+              <div className="flex flex-col items-center justify-center">
+                <p className="text-lg font-extrabold text-gray-800">{Math.round(gainsPct)}%</p>
+                <p className="text-[10px] text-gray-500">Gain Share</p>
+              </div>
+            }
+          />
+        </div>
         <InsightBanner text={insight} />
       </div>
     </div>
@@ -798,6 +818,12 @@ const RentVsBuyCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => vo
 
   const decision = buyNetWorth >= rentCorpus ? "buy" : "rent";
   const edge = Math.abs(buyNetWorth - rentCorpus);
+  const combinedWorth = buyNetWorth + rentCorpus;
+  const buySharePct = combinedWorth > 0 ? (buyNetWorth / combinedWorth) * 100 : 0;
+  const rentVsBuyData = [
+    { value: Math.max(0, buyNetWorth), color: DB, label: "Buy Net Worth" },
+    { value: Math.max(0, rentCorpus), color: OG, label: "Rent Corpus" },
+  ];
 
   useEffect(() => {
     onContextUpdate(
@@ -886,6 +912,21 @@ const RentVsBuyCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => vo
           { label: "Total Buy Outflow", value: totalBuyOutflow, color: DB },
           { label: "Future House Value", value: futureHomeValue, color: GREEN },
         ]} />
+        <div className="mt-4 flex items-center justify-center">
+          <UIDonutChart
+            data={rentVsBuyData}
+            size={130}
+            strokeWidth={16}
+            animationDuration={0.8}
+            animationDelayPerSegment={0.06}
+            centerContent={
+              <div className="flex flex-col items-center justify-center">
+                <p className="text-lg font-extrabold text-gray-800">{Math.round(buySharePct)}%</p>
+                <p className="text-[10px] text-gray-500">Buy Share</p>
+              </div>
+            }
+          />
+        </div>
         <InsightBanner text={insight} />
       </div>
     </div>
@@ -942,6 +983,12 @@ const SavingsSchemeCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
     { name: "PPF", value: ppfCorpus },
     { name: "NPS", value: npsCorpus },
   ].sort((a, b) => b.value - a.value)[0];
+  const schemeBreakdownData = [
+    { value: Math.max(0, fdMaturity), color: DB, label: "FD" },
+    { value: Math.max(0, rdMaturity), color: MB, label: "RD" },
+    { value: Math.max(0, ppfCorpus), color: GREEN, label: "PPF" },
+    { value: Math.max(0, npsCorpus), color: OG, label: "NPS" },
+  ];
 
   const insight = `**India savings comparison (${years} years):**\n\n• FD maturity: **${fmtShort(fdMaturity)}**\n• RD maturity: **${fmtShort(rdMaturity)}**\n• PPF maturity (annual cap ₹1.5L): **${fmtShort(ppfCorpus)}**\n• NPS corpus estimate: **${fmtShort(npsCorpus)}** (Lumpsum ${fmtShort(npsLumpsum)} + Annuity ${fmtShort(npsAnnuity)})\n• Inflation-adjusted best corpus: **${fmtShort(real(best.value))}**\n\n**Interpretation**: ${best.name} gives the highest projected maturity under current assumptions.`;
 
@@ -1000,6 +1047,21 @@ const SavingsSchemeCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
           { label: "PPF", value: ppfCorpus, color: GREEN },
           { label: "NPS", value: npsCorpus, color: OG },
         ]} />
+        <div className="mt-4 flex items-center justify-center">
+          <UIDonutChart
+            data={schemeBreakdownData}
+            size={130}
+            strokeWidth={16}
+            animationDuration={0.8}
+            animationDelayPerSegment={0.06}
+            centerContent={
+              <div className="flex flex-col items-center justify-center">
+                <p className="text-sm font-extrabold text-gray-800">{best.name}</p>
+                <p className="text-[10px] text-gray-500">Top Scheme</p>
+              </div>
+            }
+          />
+        </div>
         <InsightBanner text={insight} />
       </div>
     </div>
@@ -1018,6 +1080,11 @@ const EmergencyFundCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
   const dependentAdj = dependents >= 3 ? 1.25 : dependents === 2 ? 1.15 : 1;
   const target = monthlyExpense * monthsTarget * dependentAdj;
   const gap = Math.max(0, target - existingFund);
+  const readinessPct = target > 0 ? (existingFund / target) * 100 : 0;
+  const emergencyProgressData = [
+    { value: Math.max(0, Math.min(existingFund, target)), color: GREEN, label: "Ready" },
+    { value: Math.max(0, gap), color: OG, label: "Gap" },
+  ];
   const monthlyReturn = savingsRate / 12 / 100;
 
   let months = 0;
@@ -1085,6 +1152,24 @@ const EmergencyFundCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
           { label: "Current Corpus", value: existingFund, color: GREEN },
           { label: "Remaining Gap", value: gap, color: OG },
         ]} />
+        <div className="mt-4 flex items-center justify-center">
+          <UIDonutChart
+            data={emergencyProgressData}
+            totalValue={Math.max(target, 1)}
+            size={130}
+            strokeWidth={16}
+            animationDuration={0.8}
+            animationDelayPerSegment={0.06}
+            centerContent={
+              <div className="flex flex-col items-center justify-center">
+                <p className="text-lg font-extrabold text-gray-800">
+                  {Math.round(Math.max(0, Math.min(100, readinessPct)))}%
+                </p>
+                <p className="text-[10px] text-gray-500">Funded</p>
+              </div>
+            }
+          />
+        </div>
         <div className="mt-4 grid grid-cols-3 gap-2">
           <div className="rounded-xl border border-gray-200 bg-white p-3 text-center">
             <p className="text-[10px] text-gray-500">Savings A/c</p>
@@ -1404,6 +1489,11 @@ const HRACalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
   const salaryLimit = basicSalary * (isMetro === "yes" ? 0.5 : 0.4);
   const exemptHra = Math.max(0, Math.min(hraReceived, rentMinus10pct, salaryLimit));
   const taxableHra = Math.max(0, hraReceived - exemptHra);
+  const exemptPct = hraReceived > 0 ? (exemptHra / hraReceived) * 100 : 0;
+  const hraBreakdownData = [
+    { value: Math.max(0, exemptHra), color: GREEN, label: "Exempt" },
+    { value: Math.max(0, taxableHra), color: OG, label: "Taxable" },
+  ];
 
   useEffect(() => {
     onContextUpdate(`HRA Calculator: basic ${fmtShort(basicSalary)}, HRA ${fmtShort(hraReceived)}, rent ${fmtShort(rentPaid)}, exempt ${fmtShort(exemptHra)}.`);
@@ -1444,6 +1534,24 @@ const HRACalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
           { label: `${isMetro === "yes" ? "50%" : "40%"} Salary Limit`, value: salaryLimit, color: MB },
           { label: "Exempt HRA", value: exemptHra, color: GREEN },
         ]} />
+        <div className="mt-4 flex items-center justify-center">
+          <UIDonutChart
+            data={hraBreakdownData}
+            totalValue={Math.max(hraReceived, 1)}
+            size={130}
+            strokeWidth={16}
+            animationDuration={0.8}
+            animationDelayPerSegment={0.06}
+            centerContent={
+              <div className="flex flex-col items-center justify-center">
+                <p className="text-lg font-extrabold text-gray-800">
+                  {Math.round(Math.max(0, Math.min(100, exemptPct)))}%
+                </p>
+                <p className="text-[10px] text-gray-500">Exempt</p>
+              </div>
+            }
+          />
+        </div>
         <BenchmarkBand
           label="Rent-to-Salary Ratio"
           value={basicSalary > 0 ? (rentPaid / basicSalary) * 100 : 0}
@@ -1476,6 +1584,11 @@ const SSYCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
     corpus *= (1 + interestRate / 100);
   }
   const gains = corpus - totalInvested;
+  const gainPct = corpus > 0 ? (gains / corpus) * 100 : 0;
+  const ssyBreakdownData = [
+    { value: Math.max(0, totalInvested), color: DB, label: "Invested" },
+    { value: Math.max(0, gains), color: OG, label: "Gains" },
+  ];
 
   useEffect(() => {
     onContextUpdate(`SSY Calculator: age ${girlAge}, yearly ${fmtShort(yearlyContribution)}, maturity ${fmtShort(corpus)}.`);
@@ -1504,6 +1617,21 @@ const SSYCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
           { label: "Interest Gains", value: gains, color: OG },
           { label: "Maturity Corpus", value: corpus, color: GREEN },
         ]} />
+        <div className="mt-4 flex items-center justify-center">
+          <UIDonutChart
+            data={ssyBreakdownData}
+            size={130}
+            strokeWidth={16}
+            animationDuration={0.8}
+            animationDelayPerSegment={0.06}
+            centerContent={
+              <div className="flex flex-col items-center justify-center">
+                <p className="text-lg font-extrabold text-gray-800">{Math.round(gainPct)}%</p>
+                <p className="text-[10px] text-gray-500">Gain Share</p>
+              </div>
+            }
+          />
+        </div>
         <ScenarioComparison
           title="Rate Sensitivity (Maturity)"
           scenarios={[
@@ -1558,6 +1686,12 @@ const MonthlySavingsGoalCalc = ({ onContextUpdate }: { onContextUpdate: (s: stri
   })();
 
   const projected = fvExisting + sipFutureValueWithStepUp(monthlyNeed, stepUpPct, returnRate, years);
+  const goalProgress = Math.max(0, Math.min(projected, targetAmount));
+  const progressPct = targetAmount > 0 ? (goalProgress / targetAmount) * 100 : 0;
+  const goalProgressData = [
+    { value: goalProgress, color: GREEN, label: "Projected" },
+    { value: Math.max(0, targetAmount - goalProgress), color: OG, label: "Gap" },
+  ];
   const requiredSipAtReturn = (testReturn: number) => {
     const tr = Math.max(0.1, testReturn);
     const testFvExisting = existingCorpus * Math.pow(1 + tr / 100, years);
@@ -1608,6 +1742,24 @@ const MonthlySavingsGoalCalc = ({ onContextUpdate }: { onContextUpdate: (s: stri
           { label: "Projected Total", value: projected, color: OG },
           { label: "Residual Gap", value: Math.max(0, targetAmount - projected), color: "#ef4444" },
         ]} />
+        <div className="mt-4 flex items-center justify-center">
+          <UIDonutChart
+            data={goalProgressData}
+            totalValue={Math.max(targetAmount, 1)}
+            size={130}
+            strokeWidth={16}
+            animationDuration={0.8}
+            animationDelayPerSegment={0.06}
+            centerContent={
+              <div className="flex flex-col items-center justify-center">
+                <p className="text-lg font-extrabold text-gray-800">
+                  {Math.round(Math.max(0, Math.min(100, progressPct)))}%
+                </p>
+                <p className="text-[10px] text-gray-500">On Track</p>
+              </div>
+            }
+          />
+        </div>
         <ScenarioComparison
           title="Return Assumption Sensitivity (Required SIP)"
           scenarios={[
@@ -1648,6 +1800,11 @@ const TaxCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
   const taxAfter  = computeTax(taxable) * 1.04;
   const saved     = taxBefore - taxAfter;
   const effRate   = ((taxAfter / income) * 100).toFixed(1);
+  const savedPct = taxBefore > 0 ? (saved / taxBefore) * 100 : 0;
+  const taxImpactData = [
+    { value: Math.max(0, taxAfter), color: OG, label: "Tax Payable" },
+    { value: Math.max(0, saved), color: GREEN, label: "Tax Saved" },
+  ];
 
   useEffect(() => {
     onContextUpdate(`Tax Calculator: Income ${fmtShort(income)}, deductions ${fmtShort(dedns+stdDedn)}, tax payable ${fmtShort(taxAfter)}, saved ${fmtShort(saved)}`);
@@ -1680,6 +1837,24 @@ const TaxCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
           { label: "Taxable Income", value: taxable, color: MB },
           { label: "Tax Payable", value: taxAfter, color: OG },
         ]} />
+        <div className="mt-4 flex items-center justify-center">
+          <UIDonutChart
+            data={taxImpactData}
+            totalValue={Math.max(taxBefore, 1)}
+            size={130}
+            strokeWidth={16}
+            animationDuration={0.8}
+            animationDelayPerSegment={0.06}
+            centerContent={
+              <div className="flex flex-col items-center justify-center">
+                <p className="text-lg font-extrabold text-gray-800">
+                  {Math.round(Math.max(0, Math.min(100, savedPct)))}%
+                </p>
+                <p className="text-[10px] text-gray-500">Tax Saved</p>
+              </div>
+            }
+          />
+        </div>
         <InsightBanner text={insight} />
       </div>
     </div>
