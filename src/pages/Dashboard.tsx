@@ -830,6 +830,268 @@ const RentVsBuyCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => vo
   );
 };
 
+const SavingsSchemeCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  const [mode, setMode] = useState<"lumpsum" | "monthly" | "yearly">("lumpsum");
+  const [amount, setAmount] = useState(500000);
+  const [years, setYears] = useState(10);
+  const [fdRate, setFdRate] = useState(7);
+  const [rdRate, setRdRate] = useState(6.7);
+  const [ppfRate, setPpfRate] = useState(7.1);
+  const [npsRate, setNpsRate] = useState(10);
+  const [inflation, setInflation] = useState(6);
+  const [npsAnnuityPct, setNpsAnnuityPct] = useState(40);
+
+  const annualAmount = mode === "yearly" ? amount : mode === "monthly" ? amount * 12 : amount;
+  const months = years * 12;
+
+  const fdMaturity = mode === "lumpsum"
+    ? amount * Math.pow(1 + fdRate / 400, years * 4)
+    : sipFutureValueWithStepUp(mode === "monthly" ? amount : amount / 12, 0, fdRate, years);
+
+  const rdMaturity = mode === "monthly"
+    ? sipFutureValueWithStepUp(amount, 0, rdRate, years)
+    : sipFutureValueWithStepUp(amount / 12, 0, rdRate, years);
+
+  let ppfCorpus = mode === "lumpsum" ? amount : 0;
+  for (let y = 0; y < years; y += 1) {
+    const yearlyContrib = mode === "yearly" ? Math.min(150000, amount) : mode === "monthly" ? Math.min(150000, amount * 12) : 0;
+    ppfCorpus = (ppfCorpus + yearlyContrib) * (1 + ppfRate / 100);
+  }
+
+  let npsCorpus = mode === "lumpsum" ? amount : 0;
+  for (let y = 0; y < years; y += 1) {
+    const contrib = mode === "monthly" ? amount * 12 : mode === "yearly" ? amount : 0;
+    npsCorpus = (npsCorpus + contrib) * (1 + npsRate / 100);
+  }
+  const npsLumpsum = npsCorpus * (1 - npsAnnuityPct / 100);
+  const npsAnnuity = npsCorpus * (npsAnnuityPct / 100);
+
+  const real = (n: number) => n / Math.pow(1 + inflation / 100, years);
+
+  useEffect(() => {
+    onContextUpdate(
+      `Savings Schemes: mode ${mode}, amount ${fmtShort(amount)}, ${years}yr; FD ${fmtShort(fdMaturity)}, PPF ${fmtShort(ppfCorpus)}, NPS ${fmtShort(npsCorpus)}.`
+    );
+  }, [mode, amount, years, fdMaturity, ppfCorpus, npsCorpus]);
+
+  const best = [
+    { name: "FD", value: fdMaturity },
+    { name: "RD", value: rdMaturity },
+    { name: "PPF", value: ppfCorpus },
+    { name: "NPS", value: npsCorpus },
+  ].sort((a, b) => b.value - a.value)[0];
+
+  const insight = `**India savings comparison (${years} years):**\n\n• FD maturity: **${fmtShort(fdMaturity)}**\n• RD maturity: **${fmtShort(rdMaturity)}**\n• PPF maturity (annual cap ₹1.5L): **${fmtShort(ppfCorpus)}**\n• NPS corpus estimate: **${fmtShort(npsCorpus)}** (Lumpsum ${fmtShort(npsLumpsum)} + Annuity ${fmtShort(npsAnnuity)})\n• Inflation-adjusted best corpus: **${fmtShort(real(best.value))}**\n\n**Interpretation**: ${best.name} gives the highest projected maturity under current assumptions.`;
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        <FieldRow label="Contribution Mode">
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { id: "lumpsum", label: "Lumpsum" },
+              { id: "monthly", label: "Monthly" },
+              { id: "yearly", label: "Yearly" },
+            ].map((m) => (
+              <button
+                key={m.id}
+                onClick={() => setMode(m.id as "lumpsum" | "monthly" | "yearly")}
+                className="rounded-xl border-2 px-3 py-2 text-sm font-semibold"
+                style={{ borderColor: mode === m.id ? OG : "#e5e7eb", background: mode === m.id ? OG_PALE : "#fff", color: mode === m.id ? OG : "#6b7280" }}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+        </FieldRow>
+        <FieldRow label={mode === "lumpsum" ? "One-time Amount" : mode === "monthly" ? "Monthly Contribution" : "Yearly Contribution"}>
+          <NumField value={amount} onChange={setAmount} min={500} max={5000000} step={500} prefix="₹" />
+          <p className="text-xs text-right text-gray-400 mt-0.5">Annualized: {fmtShort(annualAmount)}</p>
+        </FieldRow>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Duration"><NumField value={years} onChange={setYears} min={1} max={30} step={1} suffix="yrs" /></FieldRow>
+          <FieldRow label="Inflation"><NumField value={inflation} onChange={setInflation} min={3} max={10} step={0.5} suffix="%" /></FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="FD Rate"><NumField value={fdRate} onChange={setFdRate} min={4} max={10} step={0.1} suffix="%" /></FieldRow>
+          <FieldRow label="RD Rate"><NumField value={rdRate} onChange={setRdRate} min={4} max={10} step={0.1} suffix="%" /></FieldRow>
+          <FieldRow label="PPF Rate"><NumField value={ppfRate} onChange={setPpfRate} min={6} max={9} step={0.1} suffix="%" /></FieldRow>
+          <FieldRow label="NPS Return"><NumField value={npsRate} onChange={setNpsRate} min={7} max={15} step={0.1} suffix="%" /></FieldRow>
+        </div>
+        <FieldRow label="NPS Mandatory Annuity Portion">
+          <NumField value={npsAnnuityPct} onChange={setNpsAnnuityPct} min={40} max={100} step={1} suffix="%" />
+        </FieldRow>
+      </div>
+      <div>
+        <div className="rounded-2xl p-5 mb-4 text-white" style={{ background: `linear-gradient(135deg, ${DB}, ${MB})` }}>
+          <p className="text-xs text-white/60 uppercase font-semibold">Maturity Snapshot</p>
+          <p className="text-3xl font-extrabold mt-1 mb-3">{best.name} leads at {fmtShort(best.value)}</p>
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">FD</p><p className="text-sm font-bold">{fmtShort(fdMaturity)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">RD</p><p className="text-sm font-bold">{fmtShort(rdMaturity)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">PPF</p><p className="text-sm font-bold">{fmtShort(ppfCorpus)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">NPS</p><p className="text-sm font-bold">{fmtShort(npsCorpus)}</p></div>
+          </div>
+        </div>
+        <BarChart data={[
+          { label: "FD", value: fdMaturity, color: DB },
+          { label: "PPF", value: ppfCorpus, color: GREEN },
+          { label: "NPS", value: npsCorpus, color: OG },
+        ]} />
+        <InsightBanner text={insight} />
+      </div>
+    </div>
+  );
+};
+
+const EmergencyFundCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  const [monthlyExpense, setMonthlyExpense] = useState(50000);
+  const [dependents, setDependents] = useState(2);
+  const [jobStability, setJobStability] = useState("medium");
+  const [existingFund, setExistingFund] = useState(80000);
+  const [monthlyContribution, setMonthlyContribution] = useState(10000);
+  const [savingsRate, setSavingsRate] = useState(6.5);
+
+  const monthsTarget = jobStability === "high" ? 6 : jobStability === "medium" ? 9 : 12;
+  const dependentAdj = dependents >= 3 ? 1.25 : dependents === 2 ? 1.15 : 1;
+  const target = monthlyExpense * monthsTarget * dependentAdj;
+  const gap = Math.max(0, target - existingFund);
+  const monthlyReturn = savingsRate / 12 / 100;
+
+  let months = 0;
+  let corpus = existingFund;
+  while (corpus < target && months < 600) {
+    corpus = corpus * (1 + monthlyReturn) + monthlyContribution;
+    months += 1;
+  }
+
+  const allocation = {
+    savings: target * 0.4,
+    liquid: target * 0.4,
+    fd: target * 0.2,
+  };
+
+  useEffect(() => {
+    onContextUpdate(
+      `Emergency Fund: monthly expense ${fmtShort(monthlyExpense)}, target ${fmtShort(target)}, existing ${fmtShort(existingFund)}, gap ${fmtShort(gap)}, completion ${months} months.`
+    );
+  }, [monthlyExpense, target, existingFund, gap, months]);
+
+  const insight = `**Emergency buffer plan:**\n\n• Recommended corpus: **${fmtShort(target)}** (${monthsTarget} months adjusted for dependents)\n• Current corpus: **${fmtShort(existingFund)}** | Gap: **${fmtShort(gap)}**\n• At ${fmtShort(monthlyContribution)}/month, estimated completion time: **${months} months**\n• Suggested split: Savings ${fmtShort(allocation.savings)} | Liquid Fund ${fmtShort(allocation.liquid)} | FD ${fmtShort(allocation.fd)}\n\n**Rule**: Never invest emergency corpus in equities. Keep withdrawals possible within 24 hours.`;
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        <FieldRow label="Monthly Household Expenses">
+          <NumField value={monthlyExpense} onChange={setMonthlyExpense} min={5000} max={500000} step={500} prefix="₹" />
+        </FieldRow>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Dependents"><NumField value={dependents} onChange={setDependents} min={0} max={8} step={1} /></FieldRow>
+          <FieldRow label="Job Stability">
+            <SelectField
+              value={jobStability}
+              onChange={setJobStability}
+              options={[
+                { value: "high", label: "High (stable income)" },
+                { value: "medium", label: "Medium" },
+                { value: "low", label: "Low (volatile income)" },
+              ]}
+            />
+          </FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Existing Emergency Fund"><NumField value={existingFund} onChange={setExistingFund} min={0} max={10000000} step={1000} prefix="₹" /></FieldRow>
+          <FieldRow label="Monthly Contribution"><NumField value={monthlyContribution} onChange={setMonthlyContribution} min={500} max={300000} step={500} prefix="₹" /></FieldRow>
+        </div>
+        <FieldRow label="Expected Return (savings/liquid)">
+          <NumField value={savingsRate} onChange={setSavingsRate} min={3} max={9} step={0.1} suffix="%" />
+        </FieldRow>
+      </div>
+      <div>
+        <div className="rounded-2xl p-5 mb-4 text-white" style={{ background: `linear-gradient(135deg, ${GREEN}, #047857)` }}>
+          <p className="text-xs text-white/60 uppercase font-semibold">Emergency Readiness</p>
+          <p className="text-3xl font-extrabold mt-1 mb-3">{fmtShort(target)}</p>
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Current</p><p className="text-sm font-bold">{fmtShort(existingFund)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Gap</p><p className="text-sm font-bold">{fmtShort(gap)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Months Target</p><p className="text-sm font-bold">{monthsTarget}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Completion ETA</p><p className="text-sm font-bold">{months} mo</p></div>
+          </div>
+        </div>
+        <InsightBanner text={insight} />
+      </div>
+    </div>
+  );
+};
+
+const InsuranceNeedCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  const [age, setAge] = useState(32);
+  const [annualIncome, setAnnualIncome] = useState(1200000);
+  const [existingTermCover, setExistingTermCover] = useState(0);
+  const [outstandingLoans, setOutstandingLoans] = useState(1500000);
+  const [dependents, setDependents] = useState(2);
+  const [yearsToSupport, setYearsToSupport] = useState(20);
+  const [existingInvestments, setExistingInvestments] = useState(800000);
+  const [medicalInflation, setMedicalInflation] = useState(10);
+  const [existingHealthCover, setExistingHealthCover] = useState(500000);
+
+  const incomeProtectionNeed = annualIncome * yearsToSupport * 0.7;
+  const dependentBuffer = dependents * annualIncome;
+  const totalLifeNeed = Math.max(0, incomeProtectionNeed + outstandingLoans + dependentBuffer - existingInvestments);
+  const additionalTermNeed = Math.max(0, totalLifeNeed - existingTermCover);
+
+  const baseHealthNeed = 1000000 + dependents * 300000;
+  const futureHealthNeed = baseHealthNeed * Math.pow(1 + medicalInflation / 100, 5);
+  const additionalHealthNeed = Math.max(0, futureHealthNeed - existingHealthCover);
+
+  useEffect(() => {
+    onContextUpdate(
+      `Insurance Need: age ${age}, life cover need ${fmtShort(totalLifeNeed)}, additional term ${fmtShort(additionalTermNeed)}, health top-up need ${fmtShort(additionalHealthNeed)}.`
+    );
+  }, [age, totalLifeNeed, additionalTermNeed, additionalHealthNeed]);
+
+  const insight = `**Insurance adequacy check:**\n\n• Total life cover need estimate: **${fmtShort(totalLifeNeed)}**\n• Additional term cover required: **${fmtShort(additionalTermNeed)}**\n• Health cover target (5-year medical inflation adjusted): **${fmtShort(futureHealthNeed)}**\n• Additional health cover/top-up needed: **${fmtShort(additionalHealthNeed)}**\n\n**Guidance**: Prioritize pure term plan + family floater with super top-up. Avoid mixing insurance with investment products.`;
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Age"><NumField value={age} onChange={setAge} min={18} max={70} step={1} suffix="yrs" /></FieldRow>
+          <FieldRow label="Dependents"><NumField value={dependents} onChange={setDependents} min={0} max={8} step={1} /></FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Annual Income"><NumField value={annualIncome} onChange={setAnnualIncome} min={100000} max={10000000} step={10000} prefix="₹" /></FieldRow>
+          <FieldRow label="Years of Income Support"><NumField value={yearsToSupport} onChange={setYearsToSupport} min={5} max={35} step={1} suffix="yrs" /></FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Outstanding Loans"><NumField value={outstandingLoans} onChange={setOutstandingLoans} min={0} max={50000000} step={10000} prefix="₹" /></FieldRow>
+          <FieldRow label="Existing Investments"><NumField value={existingInvestments} onChange={setExistingInvestments} min={0} max={50000000} step={10000} prefix="₹" /></FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Existing Term Cover"><NumField value={existingTermCover} onChange={setExistingTermCover} min={0} max={100000000} step={100000} prefix="₹" /></FieldRow>
+          <FieldRow label="Existing Health Cover"><NumField value={existingHealthCover} onChange={setExistingHealthCover} min={0} max={10000000} step={50000} prefix="₹" /></FieldRow>
+        </div>
+        <FieldRow label="Medical Inflation">
+          <NumField value={medicalInflation} onChange={setMedicalInflation} min={5} max={15} step={0.5} suffix="%" />
+        </FieldRow>
+      </div>
+      <div>
+        <div className="rounded-2xl p-5 mb-4 text-white" style={{ background: `linear-gradient(135deg, ${OG}, #c44d12)` }}>
+          <p className="text-xs text-white/60 uppercase font-semibold">Coverage Snapshot</p>
+          <p className="text-3xl font-extrabold mt-1 mb-3">{fmtShort(additionalTermNeed)}</p>
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Life Need</p><p className="text-sm font-bold">{fmtShort(totalLifeNeed)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Addl Term</p><p className="text-sm font-bold">{fmtShort(additionalTermNeed)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Health Target</p><p className="text-sm font-bold">{fmtShort(futureHealthNeed)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Health Gap</p><p className="text-sm font-bold">{fmtShort(additionalHealthNeed)}</p></div>
+          </div>
+        </div>
+        <InsightBanner text={insight} />
+      </div>
+    </div>
+  );
+};
+
 /* Tax Saving */
 const TaxCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
   const [income, setI]  = useState(1200000);
@@ -1362,10 +1624,13 @@ const PLANNER_TABS = [
 ═══════════════════════════════════════════════════════════ */
 
 const CALC_TABS = [
-  { id: "emi",    label: "Home / Car Loan",      icon: Home,       comp: EMICalc      },
-  { id: "sip",    label: "SIP & Mutual Funds",   icon: TrendingUp, comp: SIPCalc      },
-  { id: "rentbuy",label: "Rent vs Buy",          icon: Home,       comp: RentVsBuyCalc },
-  { id: "tax",    label: "Tax Savings",          icon: Shield,     comp: TaxCalc      },
+  { id: "emi",      label: "Home / Car Loan",      icon: Home,       comp: EMICalc           },
+  { id: "sip",      label: "SIP & Mutual Funds",   icon: TrendingUp, comp: SIPCalc           },
+  { id: "rentbuy",  label: "Rent vs Buy",          icon: Home,       comp: RentVsBuyCalc      },
+  { id: "savings",  label: "FD / PPF / NPS / RD",  icon: Target,     comp: SavingsSchemeCalc  },
+  { id: "emergency",label: "Emergency Fund",       icon: Shield,     comp: EmergencyFundCalc  },
+  { id: "insurance",label: "Insurance Need",       icon: Shield,     comp: InsuranceNeedCalc  },
+  { id: "tax",      label: "Tax Savings",          icon: Shield,     comp: TaxCalc            },
 ];
 
 const MAIN_TABS = [
