@@ -2488,9 +2488,11 @@ const Dashboard = () => {
   const { user, signOut }         = useAuth();
   const [mainTab, setMainTab]     = useState("guru");
   const [calcTab, setCalcTab]     = useState("emi");
+  const [plannerTab, setPlannerTab] = useState("goal");
   const [calcCtx, setCalcCtx]     = useState("");
 
   const activeCalc = CALC_TABS.find(t => t.id === calcTab)!;
+  const activePlanner = PLANNER_TABS.find(t => t.id === plannerTab)!;
   const calcCategories = Array.from(new Set(CALC_TABS.map((t) => t.category)));
 
   return (
@@ -2668,12 +2670,68 @@ const Dashboard = () => {
 
           {/* ARTHAPLANNER TAB */}
           {mainTab === "planner" && (
-            <PlannerWorkspace
-              userId={user?.id}
-              initialName={user?.name}
-              initialEmail={user?.email}
-              onContextUpdate={setCalcCtx}
-            />
+            <div>
+              <div className="flex flex-wrap gap-2 mb-6">
+                {PLANNER_TABS.map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => setPlannerTab(t.id)}
+                    className="px-4 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all"
+                    style={{
+                      borderColor: plannerTab === t.id ? GREEN : "#e5e7eb",
+                      background: plannerTab === t.id ? "#ecfdf5" : "#fff",
+                      color: plannerTab === t.id ? GREEN : "#6b7280",
+                    }}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+              <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-lg font-bold text-gray-900">ArthaPlanner — {activePlanner.label}</h2>
+                    <p className="text-sm text-gray-400">Detailed planner questionnaire with realistic assumptions</p>
+                  </div>
+                  <button onClick={() => setMainTab("guru")}
+                    className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl text-white"
+                    style={{ background: `linear-gradient(135deg, ${OG}, #c44d12)` }}
+                  >
+                    <Sparkles size={12} />Ask ArthaGuru
+                  </button>
+                </div>
+                <activePlanner.comp onContextUpdate={setCalcCtx} />
+              </div>
+
+              {/* Life stage guide */}
+              <div className="mt-6 grid sm:grid-cols-4 gap-3">
+                {[
+                  { age: "20s", icon: "🚀", title: "Build Foundation", tips: ["Start SIP early", "Get term insurance", "Build emergency fund"] },
+                  { age: "30s", icon: "🏗️", title: "Grow Aggressively", tips: ["Buy home (if needed)", "Increase SIP by 10%/yr", "Start NPS for tax"] },
+                  { age: "40s", icon: "⚖️", title: "Protect & Optimize", tips: ["Reduce equity to 60%", "Pay off debts", "Review insurance covers"] },
+                  { age: "50s+", icon: "🌴", title: "Secure & Harvest", tips: ["Shift to debt funds", "Plan withdrawals", "Transfer wealth plan"] },
+                ].map(s => (
+                  <div key={s.age} className="rounded-2xl bg-white border border-gray-100 shadow-sm p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-xl">{s.icon}</span>
+                      <div>
+                        <p className="text-xs font-bold text-gray-400">Age</p>
+                        <p className="font-extrabold text-gray-900">{s.age}</p>
+                      </div>
+                    </div>
+                    <p className="text-sm font-bold mb-2" style={{ color: DB }}>{s.title}</p>
+                    <ul className="space-y-1">
+                      {s.tips.map(tip => (
+                        <li key={tip} className="flex items-start gap-1.5 text-xs text-gray-500">
+                          <span className="size-1.5 rounded-full shrink-0 mt-1.5" style={{ background: OG }} />
+                          {tip}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
         </div>
