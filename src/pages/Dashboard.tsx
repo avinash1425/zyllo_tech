@@ -291,6 +291,59 @@ const BarChart = ({ data }: { data: { label: string; value: number; color: strin
   );
 };
 
+const BenchmarkBand = ({ value, min, max, goodMax, label, format }: {
+  value: number;
+  min: number;
+  max: number;
+  goodMax: number;
+  label: string;
+  format?: (n: number) => string;
+}) => {
+  const clamped = Math.max(min, Math.min(max, value));
+  const pct = ((clamped - min) / (max - min)) * 100;
+  const goodPct = ((goodMax - min) / (max - min)) * 100;
+  return (
+    <div className="rounded-xl border border-gray-200 bg-white p-3">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-xs font-semibold text-gray-600">{label}</p>
+        <p className="text-xs font-bold text-gray-800">{format ? format(value) : value.toFixed(1)}</p>
+      </div>
+      <div className="relative h-2.5 rounded-full overflow-hidden bg-gray-100">
+        <div className="absolute inset-y-0 left-0 bg-green-300" style={{ width: `${Math.max(0, Math.min(100, goodPct))}%` }} />
+        <div className="absolute inset-y-0 right-0 bg-red-200" style={{ width: `${Math.max(0, 100 - goodPct)}%` }} />
+        <div className="absolute top-1/2 -translate-y-1/2 h-4 w-1.5 rounded-full bg-gray-900" style={{ left: `calc(${pct}% - 3px)` }} />
+      </div>
+      <div className="flex justify-between text-[10px] text-gray-400 mt-1">
+        <span>{format ? format(min) : min}</span>
+        <span>Good ≤ {format ? format(goodMax) : goodMax}</span>
+        <span>{format ? format(max) : max}</span>
+      </div>
+    </div>
+  );
+};
+
+const ScenarioComparison = ({ title, scenarios }: { title: string; scenarios: Array<{ label: string; value: number; color: string }> }) => {
+  const max = Math.max(1, ...scenarios.map((s) => s.value));
+  return (
+    <div className="rounded-2xl border border-gray-200 bg-white p-4 mt-4">
+      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3">{title}</p>
+      <div className="space-y-2">
+        {scenarios.map((s) => (
+          <div key={s.label}>
+            <div className="flex justify-between text-xs mb-1">
+              <span className="font-medium text-gray-600">{s.label}</span>
+              <span className="font-bold" style={{ color: s.color }}>{fmtShort(s.value)}</span>
+            </div>
+            <div className="h-2.5 rounded-full bg-gray-100 overflow-hidden">
+              <div className="h-full rounded-full transition-all duration-700" style={{ width: `${(s.value / max) * 100}%`, background: s.color }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 /* ═══════════════════════════════════════════════════════════
    SHARED INPUT COMPONENTS
 ═══════════════════════════════════════════════════════════ */
@@ -1146,6 +1199,10 @@ const HomeLoanEligibilityCalc = ({ onContextUpdate }: { onContextUpdate: (s: str
   const maxPropertyValue = downPaymentPct >= 100 ? eligibleLoan : eligibleLoan / (1 - downPaymentPct / 100);
   const maxTotalObligation = netMonthlyIncome * foirLimit / 100;
   const usedPct = maxTotalObligation > 0 ? (existingObligations / maxTotalObligation) * 100 : 0;
+  const eligibilityAt = (testRate: number) => {
+    const tr = testRate / 12 / 100;
+    return tr === 0 ? eligibleEmi * n : eligibleEmi * ((Math.pow(1 + tr, n) - 1) / (tr * Math.pow(1 + tr, n)));
+  };
 
   useEffect(() => {
     onContextUpdate(
@@ -1193,6 +1250,22 @@ const HomeLoanEligibilityCalc = ({ onContextUpdate }: { onContextUpdate: (s: str
             </div>
           </div>
         </div>
+        <BenchmarkBand
+          label="FOIR Stress Meter"
+          value={foirLimit}
+          min={30}
+          max={60}
+          goodMax={45}
+          format={(n) => `${n.toFixed(0)}%`}
+        />
+        <ScenarioComparison
+          title="Rate Sensitivity (Loan Eligibility)"
+          scenarios={[
+            { label: `${(loanRate - 1).toFixed(1)}% (Best Case)`, value: eligibilityAt(Math.max(loanRate - 1, 1)), color: GREEN },
+            { label: `${loanRate.toFixed(1)}% (Base Case)`, value: eligibilityAt(loanRate), color: DB },
+            { label: `${(loanRate + 1).toFixed(1)}% (Stress Case)`, value: eligibilityAt(loanRate + 1), color: OG },
+          ]}
+        />
         <InsightBanner text={insight} />
       </div>
     </div>
@@ -1211,6 +1284,10 @@ const CreditCardEMICalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
   const total = emi * months;
   const interest = total - principal;
   const principalPct = total > 0 ? (principal / total) * 100 : 0;
+  const emiAt = (testMonths: number) => {
+    const tm = Math.max(1, testMonths);
+    return r === 0 ? principal / tm : principal * r * Math.pow(1 + r, tm) / (Math.pow(1 + r, tm) - 1);
+  };
 
   useEffect(() => {
     onContextUpdate(`Credit Card EMI: outstanding ${fmtShort(outstanding)}, rate ${annualRate}%, tenure ${months}m, EMI ${fmtShort(emi)}.`);
@@ -1252,6 +1329,22 @@ const CreditCardEMICalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
             </div>
           </div>
         </div>
+        <BenchmarkBand
+          label="APR Risk Band"
+          value={annualRate}
+          min={10}
+          max={48}
+          goodMax={18}
+          format={(n) => `${n.toFixed(1)}%`}
+        />
+        <ScenarioComparison
+          title="Tenure Trade-off (EMI vs Cost)"
+          scenarios={[
+            { label: "6 Months", value: emiAt(6), color: GREEN },
+            { label: "12 Months", value: emiAt(12), color: DB },
+            { label: "24 Months", value: emiAt(24), color: OG },
+          ]}
+        />
         <InsightBanner text={insight} />
       </div>
     </div>
@@ -1309,6 +1402,14 @@ const HRACalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
           { label: `${isMetro === "yes" ? "50%" : "40%"} Salary Limit`, value: salaryLimit, color: MB },
           { label: "Exempt HRA", value: exemptHra, color: GREEN },
         ]} />
+        <BenchmarkBand
+          label="Rent-to-Salary Ratio"
+          value={basicSalary > 0 ? (rentPaid / basicSalary) * 100 : 0}
+          min={0}
+          max={100}
+          goodMax={40}
+          format={(n) => `${n.toFixed(1)}%`}
+        />
         <InsightBanner text={insight} />
       </div>
     </div>
@@ -1361,6 +1462,28 @@ const SSYCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
           { label: "Interest Gains", value: gains, color: OG },
           { label: "Maturity Corpus", value: corpus, color: GREEN },
         ]} />
+        <ScenarioComparison
+          title="Rate Sensitivity (Maturity)"
+          scenarios={[
+            { label: `${Math.max(0, interestRate - 1).toFixed(1)}%`, value: (() => {
+              let c = 0;
+              for (let y = 0; y < maturityYears; y += 1) {
+                if (y < investYears) c += Math.min(150000, yearlyContribution);
+                c *= (1 + Math.max(0, interestRate - 1) / 100);
+              }
+              return c;
+            })(), color: OG },
+            { label: `${interestRate.toFixed(1)}%`, value: corpus, color: DB },
+            { label: `${(interestRate + 1).toFixed(1)}%`, value: (() => {
+              let c = 0;
+              for (let y = 0; y < maturityYears; y += 1) {
+                if (y < investYears) c += Math.min(150000, yearlyContribution);
+                c *= (1 + (interestRate + 1) / 100);
+              }
+              return c;
+            })(), color: GREEN },
+          ]}
+        />
         <InsightBanner text={insight} />
       </div>
     </div>
@@ -1393,6 +1516,21 @@ const MonthlySavingsGoalCalc = ({ onContextUpdate }: { onContextUpdate: (s: stri
   })();
 
   const projected = fvExisting + sipFutureValueWithStepUp(monthlyNeed, stepUpPct, returnRate, years);
+  const requiredSipAtReturn = (testReturn: number) => {
+    const tr = Math.max(0.1, testReturn);
+    const testFvExisting = existingCorpus * Math.pow(1 + tr / 100, years);
+    const testGap = Math.max(0, targetAmount - testFvExisting);
+    if (testGap <= 0) return 0;
+    let low = 0;
+    let high = 1000000;
+    for (let i = 0; i < 36; i += 1) {
+      const mid = (low + high) / 2;
+      const fv = sipFutureValueWithStepUp(mid, stepUpPct, tr, years);
+      if (fv >= testGap) high = mid;
+      else low = mid;
+    }
+    return Math.round(high);
+  };
 
   useEffect(() => {
     onContextUpdate(`Monthly Savings Goal: target ${fmtShort(targetAmount)}, years ${years}, required SIP ${fmtShort(monthlyNeed)}.`);
@@ -1428,6 +1566,14 @@ const MonthlySavingsGoalCalc = ({ onContextUpdate }: { onContextUpdate: (s: stri
           { label: "Projected Total", value: projected, color: OG },
           { label: "Residual Gap", value: Math.max(0, targetAmount - projected), color: "#ef4444" },
         ]} />
+        <ScenarioComparison
+          title="Return Assumption Sensitivity (Required SIP)"
+          scenarios={[
+            { label: `${Math.max(0, returnRate - 2).toFixed(1)}% Return`, value: requiredSipAtReturn(returnRate - 2), color: OG },
+            { label: `${returnRate.toFixed(1)}% Return`, value: requiredSipAtReturn(returnRate), color: DB },
+            { label: `${(returnRate + 2).toFixed(1)}% Return`, value: requiredSipAtReturn(returnRate + 2), color: GREEN },
+          ]}
+        />
         <InsightBanner text={insight} />
       </div>
     </div>
