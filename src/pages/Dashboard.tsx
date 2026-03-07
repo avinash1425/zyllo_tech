@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   Send, Sparkles, Calculator, LogOut,
-  TrendingUp, Shield, Home, Target,
+  TrendingUp, Shield, Home, Car, Target,
   RefreshCw, Zap, BookOpen,
   ArrowRight, Check, X, AlertCircle,
 } from "lucide-react";
@@ -30,6 +30,16 @@ const fmtShort = (n: number) => {
     : a >= 1e3 ? (a / 1e3).toFixed(1).replace(/\.?0+$/, "") + "K"
     : Math.round(a).toString();
   return (n < 0 ? "-₹" : "₹") + s;
+};
+
+const sipFutureValueWithStepUp = (monthly: number, annualStepUpPct: number, annualReturnPct: number, years: number) => {
+  const monthlyReturn = annualReturnPct / 12 / 100;
+  let corpus = 0;
+  for (let y = 0; y < years; y += 1) {
+    const sip = monthly * Math.pow(1 + annualStepUpPct / 100, y);
+    for (let m = 0; m < 12; m += 1) corpus = corpus * (1 + monthlyReturn) + sip;
+  }
+  return corpus;
 };
 
 /* ═══════════════════════════════════════════════════════════
@@ -292,18 +302,37 @@ const FieldRow = ({ label, children }: { label: string; children: React.ReactNod
   </div>
 );
 
-const NumField = ({ value, onChange, min = 0, max, step = 1, prefix, suffix }: {
-  value: number; onChange: (v: number) => void; min?: number; max?: number; step?: number; prefix?: string; suffix?: string;
+const NumField = ({ value, onChange, min = 0, max, step = 1, prefix, suffix, readOnly = false }: {
+  value: number; onChange: (v: number) => void; min?: number; max?: number; step?: number; prefix?: string; suffix?: string; readOnly?: boolean;
 }) => (
   <div className="relative">
     {prefix && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400 pointer-events-none select-none">{prefix}</span>}
     <input type="number" value={value} min={min} max={max} step={step}
       onChange={e => onChange(Number(e.target.value) || 0)}
+      readOnly={readOnly}
       className="w-full rounded-xl border-2 border-gray-200 bg-white py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:border-orange-300 transition-colors"
       style={{ paddingLeft: prefix ? "1.8rem" : "0.75rem", paddingRight: suffix ? "2.5rem" : "0.75rem" }}
     />
     {suffix && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400 pointer-events-none select-none">{suffix}</span>}
   </div>
+);
+
+const SelectField = ({ value, onChange, options }: {
+  value: string;
+  onChange: (v: string) => void;
+  options: Array<{ value: string; label: string }>;
+}) => (
+  <select
+    value={value}
+    onChange={(e) => onChange(e.target.value)}
+    className="w-full rounded-xl border-2 border-gray-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:border-orange-300 transition-colors"
+  >
+    {options.map((opt) => (
+      <option key={opt.value} value={opt.value}>
+        {opt.label}
+      </option>
+    ))}
+  </select>
 );
 
 const RangeSlider = ({ value, onChange, min = 0, max = 100, step = 1 }: {
@@ -331,31 +360,118 @@ const InsightBanner = ({ text }: { text: string }) => (
 
 /* EMI */
 const EMICalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
-  const [principal, setP] = useState(2500000);
-  const [rate, setR]      = useState(8.75);
-  const [tenure, setT]    = useState(20);
-
-  const r  = rate / 12 / 100;
-  const n  = tenure * 12;
-  const emi = r === 0 ? principal / n : principal * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
-  const total   = emi * n;
-  const interest = total - principal;
-  const pPct    = Math.round(principal / total * 100);
+  const [loanType, setLoanType] = useState<"home" | "car">("home");
+  const [assetCost, setAssetCost] = useState(8500000);
+  const [downPct, setDownPct] = useState(20);
+  const [rate, setR] = useState(8.75);
+  const [tenure, setT] = useState(20);
+  const [processingFeePct, setProcessingFeePct] = useState(0.5);
+  const [insuranceOneTime, setInsuranceOneTime] = useState(50000);
+  const [monthlyIncome, setMonthlyIncome] = useState(120000);
+  const [existingEmi, setExistingEmi] = useState(0);
+  const [annualPrepay, setAnnualPrepay] = useState(100000);
 
   useEffect(() => {
-    onContextUpdate(`EMI Calculator: Loan ₹${fmtShort(principal)}, Rate ${rate}%, Tenure ${tenure}yr. EMI=${fmtShort(emi)}, Total interest=${fmtShort(interest)}`);
-  }, [principal, rate, tenure]);
+    if (loanType === "home") {
+      setAssetCost(8500000);
+      setR(8.75);
+      setT(20);
+      setDownPct(20);
+      setProcessingFeePct(0.5);
+      setInsuranceOneTime(50000);
+      setAnnualPrepay(100000);
+    } else {
+      setAssetCost(1400000);
+      setR(9.5);
+      setT(7);
+      setDownPct(15);
+      setProcessingFeePct(1);
+      setInsuranceOneTime(25000);
+      setAnnualPrepay(30000);
+    }
+  }, [loanType]);
 
-  const insight = `**Your home loan reality check:**\n\n• You'll pay **${fmtShort(interest)} in interest** — ${(interest/principal*100).toFixed(0)}% extra over the loan amount\n• Reducing tenure from ${tenure} to ${Math.max(10, tenure-5)} years saves **${fmtShort(interest - (principal * r * Math.pow(1+r,(tenure-5)*12) / (Math.pow(1+r,(tenure-5)*12)-1) * (tenure-5)*12 - principal))} in interest**\n• Keep EMI ≤ 40% of take-home salary. Your current EMI is ${fmtShort(emi)}/month\n\n**Smart move**: Pay one extra EMI per year — saves 3–4 years of loan tenure.`;
+  const downPayment = assetCost * downPct / 100;
+  const processingFee = (assetCost - downPayment) * processingFeePct / 100;
+  const principal = Math.max(0, assetCost - downPayment + processingFee + insuranceOneTime);
+
+  const r = rate / 12 / 100;
+  const n = tenure * 12;
+  const emi = r === 0 ? principal / Math.max(1, n) : principal * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+  const total = emi * n;
+  const interest = Math.max(0, total - principal);
+  const pPct = total > 0 ? Math.round(principal / total * 100) : 0;
+
+  const annualPrepayImpact = (() => {
+    if (annualPrepay <= 0 || principal <= 0 || emi <= 0) return { interest: interest, months: n };
+    let bal = principal;
+    let paidInterest = 0;
+    let month = 0;
+    while (bal > 1 && month < n * 2) {
+      const intPart = bal * r;
+      const principalPart = Math.min(bal, emi - intPart);
+      bal -= principalPart;
+      paidInterest += intPart;
+      month += 1;
+      if (month % 12 === 0 && bal > 0) {
+        bal = Math.max(0, bal - annualPrepay);
+      }
+    }
+    return { interest: paidInterest, months: month };
+  })();
+
+  const totalMonthlyObligation = emi + existingEmi;
+  const foir = monthlyIncome > 0 ? (totalMonthlyObligation / monthlyIncome) * 100 : 0;
+
+  useEffect(() => {
+    onContextUpdate(
+      `${loanType.toUpperCase()} Loan: Asset ${fmtShort(assetCost)}, down payment ${fmtShort(downPayment)}, financed ${fmtShort(principal)}, rate ${rate}%, tenure ${tenure}yr, EMI ${fmtShort(emi)}, FOIR ${foir.toFixed(1)}%.`
+    );
+  }, [loanType, assetCost, downPayment, principal, rate, tenure, emi, foir]);
+
+  const insight = `**${loanType === "home" ? "Home" : "Car"} loan assessment:**\n\n• Financed amount: **${fmtShort(principal)}** after down payment + charges\n• EMI: **${fmtShort(emi)}** and total interest outgo: **${fmtShort(interest)}**\n• Debt load (FOIR): **${foir.toFixed(1)}%** including existing EMIs ${foir <= 40 ? "✅ within a safer range" : "⚠️ above ideal limit"}\n• With annual prepayment of ${fmtShort(annualPrepay)}, you may save about **${fmtShort(Math.max(0, interest - annualPrepayImpact.interest))}** in interest and close roughly **${Math.max(0, n - annualPrepayImpact.months)} months** earlier\n\n**Practical tip**: Keep fixed obligations below 40% of net income and maintain at least 6 months EMI + expense emergency buffer.`;
 
   return (
     <div className="grid lg:grid-cols-2 gap-6">
       <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={() => setLoanType("home")}
+            className="flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-2.5 text-sm font-semibold transition-all"
+            style={{ borderColor: loanType === "home" ? OG : "#e5e7eb", background: loanType === "home" ? OG_PALE : "#fff", color: loanType === "home" ? OG : "#6b7280" }}
+          >
+            <Home size={14} />Home Loan
+          </button>
+          <button
+            onClick={() => setLoanType("car")}
+            className="flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-2.5 text-sm font-semibold transition-all"
+            style={{ borderColor: loanType === "car" ? OG : "#e5e7eb", background: loanType === "car" ? OG_PALE : "#fff", color: loanType === "car" ? OG : "#6b7280" }}
+          >
+            <Car size={14} />Car Loan
+          </button>
+        </div>
+        <FieldRow label={loanType === "home" ? "Property Cost" : "Vehicle On-road Price"}>
+          <NumField value={assetCost} onChange={setAssetCost} min={300000} max={200000000} step={100000} prefix="₹" />
+          <RangeSlider value={assetCost} onChange={setAssetCost} min={loanType === "home" ? 1000000 : 300000} max={loanType === "home" ? 30000000 : 5000000} step={50000} />
+          <p className="text-xs text-right text-gray-400 font-medium mt-0.5">{fmtShort(assetCost)}</p>
+        </FieldRow>
+        <FieldRow label="Down Payment">
+          <NumField value={downPct} onChange={setDownPct} min={5} max={70} step={1} suffix="%" />
+          <RangeSlider value={downPct} onChange={setDownPct} min={5} max={70} step={1} />
+          <p className="text-xs text-right text-gray-400 font-medium mt-0.5">{fmtShort(downPayment)} ({downPct}%)</p>
+        </FieldRow>
         <FieldRow label="Loan Amount">
-          <NumField value={principal} onChange={setP} min={100000} max={100000000} step={100000} prefix="₹" />
-          <RangeSlider value={principal} onChange={setP} min={500000} max={20000000} step={100000} />
+          <NumField value={principal} onChange={() => {}} min={100000} max={100000000} step={100000} prefix="₹" readOnly />
           <p className="text-xs text-right text-gray-400 font-medium mt-0.5">{fmtShort(principal)}</p>
         </FieldRow>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Processing Fee">
+            <NumField value={processingFeePct} onChange={setProcessingFeePct} min={0} max={3} step={0.1} suffix="%" />
+          </FieldRow>
+          <FieldRow label="Insurance / Other Charges">
+            <NumField value={insuranceOneTime} onChange={setInsuranceOneTime} min={0} max={3000000} step={5000} prefix="₹" />
+          </FieldRow>
+        </div>
         <FieldRow label="Annual Interest Rate">
           <NumField value={rate} onChange={setR} min={4} max={20} step={0.25} suffix="%" />
           <RangeSlider value={rate} onChange={setR} min={6} max={18} step={0.25} />
@@ -363,6 +479,17 @@ const EMICalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
         <FieldRow label="Loan Tenure">
           <NumField value={tenure} onChange={setT} min={1} max={30} step={1} suffix="yrs" />
           <RangeSlider value={tenure} onChange={setT} min={1} max={30} step={1} />
+        </FieldRow>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Net Monthly Income">
+            <NumField value={monthlyIncome} onChange={setMonthlyIncome} min={10000} max={2000000} step={1000} prefix="₹" />
+          </FieldRow>
+          <FieldRow label="Existing EMIs">
+            <NumField value={existingEmi} onChange={setExistingEmi} min={0} max={500000} step={500} prefix="₹" />
+          </FieldRow>
+        </div>
+        <FieldRow label="Annual Prepayment Plan">
+          <NumField value={annualPrepay} onChange={setAnnualPrepay} min={0} max={3000000} step={5000} prefix="₹" />
         </FieldRow>
       </div>
       <div>
@@ -378,6 +505,11 @@ const EMICalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
             <div>
               <p className="text-xs text-gray-500 font-medium">Monthly EMI</p>
               <p className="text-2xl font-extrabold" style={{ color: OG }}>{fmtShort(emi)}</p>
+            </div>
+            <div className="rounded-xl p-3" style={{ background: "#f8fafc" }}>
+              <p className="text-xs text-gray-500">Debt Ratio (FOIR)</p>
+              <p className="text-lg font-extrabold" style={{ color: foir <= 40 ? GREEN : "#dc2626" }}>{foir.toFixed(1)}%</p>
+              <p className="text-[11px] text-gray-500">Existing EMIs + new EMI / net income</p>
             </div>
             <div className="flex gap-3 text-xs">
               <div><span className="size-2.5 rounded-full inline-block mr-1" style={{ background: DB }} /><span className="text-gray-500">Principal</span><p className="font-bold text-gray-800">{fmtShort(principal)}</p></div>
@@ -397,44 +529,102 @@ const EMICalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
 
 /* SIP */
 const SIPCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
-  const [monthly, setM]  = useState(5000);
-  const [rate, setR]     = useState(12);
-  const [years, setY]    = useState(15);
-  const [lump, setL]     = useState(0);
+  const [monthly, setM] = useState(8000);
+  const [stepUp, setStepUp] = useState(10);
+  const [rate, setR] = useState(12);
+  const [years, setY] = useState(15);
+  const [lump, setL] = useState(0);
+  const [inflation, setInflation] = useState(6);
+  const [monthlyIncome, setMonthlyIncome] = useState(90000);
+  const [monthlyExpenses, setMonthlyExpenses] = useState(55000);
+  const [existingInvestments, setExistingInvestments] = useState(500000);
+  const [targetCorpus, setTargetCorpus] = useState(5000000);
+  const [profile, setProfile] = useState<"conservative" | "balanced" | "aggressive">("balanced");
 
-  const n   = years * 12;
-  const r   = rate / 12 / 100;
-  const sipFV   = r === 0 ? monthly * n : monthly * (Math.pow(1+r,n)-1) / r * (1+r);
-  const lumpFV  = lump * Math.pow(1+rate/100, years);
-  const total   = sipFV + lumpFV;
-  const invested= monthly * n + lump;
-  const gains   = total - invested;
-  const multiplier = (total / invested).toFixed(1);
+  const monthlyReturn = rate / 12 / 100;
+  const months = years * 12;
+  let invested = lump + existingInvestments;
+  let corpus = lump + existingInvestments;
+  for (let y = 0; y < years; y += 1) {
+    const yearlySip = monthly * Math.pow(1 + stepUp / 100, y);
+    for (let m = 0; m < 12; m += 1) {
+      corpus = corpus * (1 + monthlyReturn) + yearlySip;
+      invested += yearlySip;
+    }
+  }
+  const total = corpus;
+  const gains = total - invested;
+  const realCorpus = total / Math.pow(1 + inflation / 100, years);
+  const multiplier = invested > 0 ? (total / invested).toFixed(1) : "0";
+  const monthlySurplus = Math.max(0, monthlyIncome - monthlyExpenses);
+  const sipShare = monthlyIncome > 0 ? (monthly / monthlyIncome) * 100 : 0;
+  const inflationAdjustedTarget = targetCorpus * Math.pow(1 + inflation / 100, years);
+  const targetGap = Math.max(0, inflationAdjustedTarget - total);
 
   useEffect(() => {
-    onContextUpdate(`SIP Calculator: ₹${fmtShort(monthly)}/mo + ₹${fmtShort(lump)} lumpsum, ${rate}% return, ${years}yr. Corpus=${fmtShort(total)}, Gains=${fmtShort(gains)}`);
-  }, [monthly, rate, years, lump]);
+    onContextUpdate(
+      `SIP Planner: profile ${profile}, SIP ${fmtShort(monthly)}/mo with ${stepUp}% step-up, return ${rate}%, tenure ${years}yr, corpus ${fmtShort(total)}, real corpus ${fmtShort(realCorpus)}.`
+    );
+  }, [monthly, stepUp, rate, years, lump, inflation, profile, total, realCorpus]);
 
-  const insight = `**${multiplier}× wealth multiplier in ${years} years:**\n\n• Invested **${fmtShort(invested)}** → grew to **${fmtShort(total)}**\n• Wealth gain of **${fmtShort(gains)}** — that's the power of compounding\n• If you increase SIP by just ₹500/year, final corpus grows by ~${fmtShort(gains * 0.12)} more\n\n**Benchmark**: Nifty 50 has delivered ~13.5% CAGR over 20 years. Your ${rate}% assumption is ${rate <= 12 ? "conservative — actual returns may be higher" : "aggressive — consider 11–12% for planning"}.`;
+  const insight = `**SIP realism check:**\n\n• Corpus in ${years} years: **${fmtShort(total)}** (inflation-adjusted value today: **${fmtShort(realCorpus)}**)\n• You invest **${fmtShort(invested)}** and create wealth gain of **${fmtShort(gains)}**\n• SIP is **${sipShare.toFixed(1)}% of monthly income** and monthly surplus is **${fmtShort(monthlySurplus)}**\n• Goal shortfall vs inflation-adjusted target: **${fmtShort(targetGap)}**\n\n**Action**: ${targetGap > 0 ? `Increase SIP by at least ${fmtShort(Math.max(500, targetGap / (years * 12 * 2)))} and review yearly step-up.` : "You are on track for your target if you stay consistent."}`;
 
   return (
     <div className="grid lg:grid-cols-2 gap-6">
       <div className="space-y-4">
+        <FieldRow label="Investor Profile">
+          <SelectField
+            value={profile}
+            onChange={(v) => {
+              const p = v as "conservative" | "balanced" | "aggressive";
+              setProfile(p);
+              if (p === "conservative") setR(10);
+              if (p === "balanced") setR(12);
+              if (p === "aggressive") setR(14);
+            }}
+            options={[
+              { value: "conservative", label: "Conservative (lower risk)" },
+              { value: "balanced", label: "Balanced (moderate risk)" },
+              { value: "aggressive", label: "Aggressive (higher risk)" },
+            ]}
+          />
+        </FieldRow>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Monthly Income">
+            <NumField value={monthlyIncome} onChange={setMonthlyIncome} min={10000} max={2000000} step={1000} prefix="₹" />
+          </FieldRow>
+          <FieldRow label="Monthly Expenses">
+            <NumField value={monthlyExpenses} onChange={setMonthlyExpenses} min={0} max={2000000} step={1000} prefix="₹" />
+          </FieldRow>
+        </div>
         <FieldRow label="Monthly SIP">
           <NumField value={monthly} onChange={setM} min={500} max={500000} step={500} prefix="₹" />
           <RangeSlider value={monthly} onChange={setM} min={500} max={100000} step={500} />
           <p className="text-xs text-right text-gray-400 mt-0.5">{fmtShort(monthly)}/month</p>
         </FieldRow>
+        <FieldRow label="Annual SIP Step-up">
+          <NumField value={stepUp} onChange={setStepUp} min={0} max={25} step={1} suffix="%" />
+          <RangeSlider value={stepUp} onChange={setStepUp} min={0} max={25} step={1} />
+        </FieldRow>
         <FieldRow label="One-time Lumpsum (optional)">
           <NumField value={lump} onChange={setL} min={0} max={10000000} step={10000} prefix="₹" />
+        </FieldRow>
+        <FieldRow label="Existing Investments (already accumulated)">
+          <NumField value={existingInvestments} onChange={setExistingInvestments} min={0} max={100000000} step={10000} prefix="₹" />
         </FieldRow>
         <FieldRow label="Expected Annual Return">
           <NumField value={rate} onChange={setR} min={6} max={25} step={0.5} suffix="%" />
           <RangeSlider value={rate} onChange={setR} min={6} max={20} step={0.5} />
         </FieldRow>
+        <FieldRow label="Expected Inflation">
+          <NumField value={inflation} onChange={setInflation} min={3} max={12} step={0.5} suffix="%" />
+        </FieldRow>
         <FieldRow label="Investment Duration">
           <NumField value={years} onChange={setY} min={1} max={40} step={1} suffix="yrs" />
           <RangeSlider value={years} onChange={setY} min={1} max={40} step={1} />
+        </FieldRow>
+        <FieldRow label="Target Corpus (Today's Value)">
+          <NumField value={targetCorpus} onChange={setTargetCorpus} min={100000} max={300000000} step={100000} prefix="₹" />
         </FieldRow>
       </div>
       <div>
@@ -456,10 +646,183 @@ const SIPCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
             </div>
           </div>
         </div>
+        <div className="rounded-2xl p-4 mb-4 border border-blue-100 bg-blue-50">
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <p className="text-gray-500">Inflation-adjusted corpus</p>
+              <p className="font-extrabold text-gray-800">{fmtShort(realCorpus)}</p>
+            </div>
+            <div>
+              <p className="text-gray-500">Inflation-adjusted target</p>
+              <p className="font-extrabold text-gray-800">{fmtShort(inflationAdjustedTarget)}</p>
+            </div>
+            <div>
+              <p className="text-gray-500">Monthly surplus</p>
+              <p className="font-extrabold text-gray-800">{fmtShort(monthlySurplus)}</p>
+            </div>
+            <div>
+              <p className="text-gray-500">Target gap</p>
+              <p className="font-extrabold" style={{ color: targetGap > 0 ? "#dc2626" : GREEN }}>{fmtShort(targetGap)}</p>
+            </div>
+          </div>
+        </div>
         <BarChart data={[
           { label: "Amount Invested", value: invested, color: DB },
           { label: "Wealth Gained", value: gains, color: OG },
           { label: "Total Corpus", value: total, color: GREEN },
+        ]} />
+        <InsightBanner text={insight} />
+      </div>
+    </div>
+  );
+};
+
+/* Rent vs Buy */
+const RentVsBuyCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  const [homePrice, setHomePrice] = useState(7500000);
+  const [downPct, setDownPct] = useState(20);
+  const [loanRate, setLoanRate] = useState(8.75);
+  const [loanTenure, setLoanTenure] = useState(20);
+  const [monthlyRent, setMonthlyRent] = useState(25000);
+  const [rentIncrease, setRentIncrease] = useState(7);
+  const [homeAppreciation, setHomeAppreciation] = useState(6);
+  const [maintenancePct, setMaintenancePct] = useState(1.5);
+  const [propertyTaxPct, setPropertyTaxPct] = useState(0.2);
+  const [upfrontPct, setUpfrontPct] = useState(7);
+  const [investReturn, setInvestReturn] = useState(11);
+  const [analysisYears, setAnalysisYears] = useState(10);
+
+  const downPayment = homePrice * downPct / 100;
+  const upfrontCost = homePrice * upfrontPct / 100;
+  const principal = Math.max(0, homePrice - downPayment);
+  const rm = loanRate / 12 / 100;
+  const nm = loanTenure * 12;
+  const emi = rm === 0 ? principal / Math.max(1, nm) : principal * rm * Math.pow(1 + rm, nm) / (Math.pow(1 + rm, nm) - 1);
+
+  const outstandingAfter = (months: number) => {
+    if (months <= 0) return principal;
+    if (rm === 0) return Math.max(0, principal - emi * months);
+    const factor = Math.pow(1 + rm, months);
+    return Math.max(0, principal * factor - emi * (factor - 1) / rm);
+  };
+
+  let totalRentPaid = 0;
+  let currentRent = monthlyRent;
+  for (let y = 0; y < analysisYears; y += 1) {
+    totalRentPaid += currentRent * 12;
+    currentRent *= (1 + rentIncrease / 100);
+  }
+
+  let totalBuyOutflow = downPayment + upfrontCost;
+  const monthlyMaintenance = homePrice * maintenancePct / 100 / 12;
+  const monthlyTax = homePrice * propertyTaxPct / 100 / 12;
+  totalBuyOutflow += (emi + monthlyMaintenance + monthlyTax) * 12 * analysisYears;
+
+  const monthsElapsed = Math.min(analysisYears * 12, loanTenure * 12);
+  const outstanding = outstandingAfter(monthsElapsed);
+  const futureHomeValue = homePrice * Math.pow(1 + homeAppreciation / 100, analysisYears);
+  const buyNetWorth = Math.max(0, futureHomeValue - outstanding);
+
+  let rentCorpus = downPayment + upfrontCost;
+  const investMonthly = investReturn / 12 / 100;
+  for (let y = 0; y < analysisYears; y += 1) {
+    const yearlyRent = monthlyRent * Math.pow(1 + rentIncrease / 100, y) * 12;
+    const yearlyBuy = (emi + monthlyMaintenance + monthlyTax) * 12;
+    const yearlySavings = Math.max(0, yearlyBuy - yearlyRent);
+    for (let m = 0; m < 12; m += 1) {
+      rentCorpus = rentCorpus * (1 + investMonthly) + yearlySavings / 12;
+    }
+  }
+
+  const decision = buyNetWorth >= rentCorpus ? "buy" : "rent";
+  const edge = Math.abs(buyNetWorth - rentCorpus);
+
+  useEffect(() => {
+    onContextUpdate(
+      `Rent vs Buy: home ${fmtShort(homePrice)}, down ${downPct}%, EMI ${fmtShort(emi)}, rent ${fmtShort(monthlyRent)}, ${analysisYears}yr -> ${decision.toUpperCase()} better by ${fmtShort(edge)}.`
+    );
+  }, [homePrice, downPct, emi, monthlyRent, analysisYears, decision, edge]);
+
+  const insight = `**Rent vs buy analysis (${analysisYears} years):**\n\n• Buying builds projected net equity of **${fmtShort(buyNetWorth)}**\n• Renting + investing surplus builds projected corpus of **${fmtShort(rentCorpus)}**\n• Current model suggests **${decision === "buy" ? "Buy" : "Rent"} is ahead by ${fmtShort(edge)}**\n• Includes down payment, registration/upfront costs, EMI, maintenance, property tax, rent escalation, and investment return assumptions\n\n**Rule of thumb**: Buy when you can hold 8-10+ years and EMI stays comfortable; rent when mobility is important or market prices are stretched.`;
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        <FieldRow label="House Price">
+          <NumField value={homePrice} onChange={setHomePrice} min={1500000} max={30000000} step={100000} prefix="₹" />
+          <RangeSlider value={homePrice} onChange={setHomePrice} min={1500000} max={30000000} step={100000} />
+        </FieldRow>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Down Payment">
+            <NumField value={downPct} onChange={setDownPct} min={5} max={70} step={1} suffix="%" />
+          </FieldRow>
+          <FieldRow label="Upfront Cost (stamp + reg + misc)">
+            <NumField value={upfrontPct} onChange={setUpfrontPct} min={3} max={12} step={0.5} suffix="%" />
+          </FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Loan Interest Rate">
+            <NumField value={loanRate} onChange={setLoanRate} min={6} max={15} step={0.1} suffix="%" />
+          </FieldRow>
+          <FieldRow label="Loan Tenure">
+            <NumField value={loanTenure} onChange={setLoanTenure} min={5} max={30} step={1} suffix="yrs" />
+          </FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Monthly Rent">
+            <NumField value={monthlyRent} onChange={setMonthlyRent} min={5000} max={300000} step={500} prefix="₹" />
+          </FieldRow>
+          <FieldRow label="Rent Increase">
+            <NumField value={rentIncrease} onChange={setRentIncrease} min={0} max={15} step={0.5} suffix="%" />
+          </FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Home Appreciation">
+            <NumField value={homeAppreciation} onChange={setHomeAppreciation} min={0} max={15} step={0.5} suffix="%" />
+          </FieldRow>
+          <FieldRow label="Investment Return (if renting)">
+            <NumField value={investReturn} onChange={setInvestReturn} min={4} max={16} step={0.5} suffix="%" />
+          </FieldRow>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          <FieldRow label="Maintenance">
+            <NumField value={maintenancePct} onChange={setMaintenancePct} min={0.5} max={4} step={0.1} suffix="%" />
+          </FieldRow>
+          <FieldRow label="Property Tax">
+            <NumField value={propertyTaxPct} onChange={setPropertyTaxPct} min={0} max={1.5} step={0.1} suffix="%" />
+          </FieldRow>
+          <FieldRow label="Analysis Period">
+            <NumField value={analysisYears} onChange={setAnalysisYears} min={3} max={30} step={1} suffix="yrs" />
+          </FieldRow>
+        </div>
+      </div>
+      <div>
+        <div className="rounded-2xl p-5 mb-4 text-white" style={{ background: `linear-gradient(135deg, ${DB}, #0f2540)` }}>
+          <p className="text-xs font-semibold text-white/60 uppercase tracking-wide mb-1">Decision Snapshot</p>
+          <p className="text-3xl font-extrabold mb-3">{decision === "buy" ? "Buying Looks Better" : "Renting Looks Better"}</p>
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.08)" }}>
+              <p className="text-[10px] text-white/50">Buy Net Worth</p>
+              <p className="text-sm font-bold text-white/90">{fmtShort(buyNetWorth)}</p>
+            </div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.08)" }}>
+              <p className="text-[10px] text-white/50">Rent + Invest Corpus</p>
+              <p className="text-sm font-bold text-white/90">{fmtShort(rentCorpus)}</p>
+            </div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.08)" }}>
+              <p className="text-[10px] text-white/50">EMI</p>
+              <p className="text-sm font-bold text-white/90">{fmtShort(emi)}/mo</p>
+            </div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.08)" }}>
+              <p className="text-[10px] text-white/50">Edge</p>
+              <p className="text-sm font-bold text-white/90">{fmtShort(edge)}</p>
+            </div>
+          </div>
+        </div>
+        <BarChart data={[
+          { label: "Total Rent Paid", value: totalRentPaid, color: OG },
+          { label: "Total Buy Outflow", value: totalBuyOutflow, color: DB },
+          { label: "Future House Value", value: futureHomeValue, color: GREEN },
         ]} />
         <InsightBanner text={insight} />
       </div>
@@ -643,14 +1006,366 @@ const GoalEngine = ({ onContextUpdate }: { onContextUpdate: (s: string) => void 
   );
 };
 
+const HomeGoalPlanner = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  const [cityTier, setCityTier] = useState("tier1");
+  const [propertyType, setPropertyType] = useState("apartment");
+  const [purpose, setPurpose] = useState("self");
+  const [homeCostToday, setHomeCostToday] = useState(8000000);
+  const [yearsToBuy, setYearsToBuy] = useState(7);
+  const [homeInflation, setHomeInflation] = useState(7);
+  const [downPct, setDownPct] = useState(20);
+  const [existingDownCorpus, setExistingDownCorpus] = useState(600000);
+  const [monthlySIP, setMonthlySIP] = useState(25000);
+  const [annualStepUp, setAnnualStepUp] = useState(8);
+  const [returnRate, setReturnRate] = useState(11);
+  const [loanRate, setLoanRate] = useState(8.75);
+  const [loanTenure, setLoanTenure] = useState(20);
+  const [monthlyIncome, setMonthlyIncome] = useState(140000);
+  const [existingEmi, setExistingEmi] = useState(10000);
+
+  const futureCost = homeCostToday * Math.pow(1 + homeInflation / 100, yearsToBuy);
+  const requiredDown = futureCost * downPct / 100;
+  const downCorpusFuture = existingDownCorpus * Math.pow(1 + returnRate / 100, yearsToBuy)
+    + sipFutureValueWithStepUp(monthlySIP, annualStepUp, returnRate, yearsToBuy);
+  const downGap = Math.max(0, requiredDown - downCorpusFuture);
+  const additionalSipNeeded = downGap > 0 ? downGap / Math.max(12, yearsToBuy * 12) : 0;
+
+  const loanPrincipal = Math.max(0, futureCost - requiredDown);
+  const rm = loanRate / 12 / 100;
+  const n = loanTenure * 12;
+  const emi = rm === 0 ? loanPrincipal / Math.max(1, n) : loanPrincipal * rm * Math.pow(1 + rm, n) / (Math.pow(1 + rm, n) - 1);
+  const projectedIncomeAtPurchase = monthlyIncome * Math.pow(1 + 7 / 100, yearsToBuy);
+  const foir = projectedIncomeAtPurchase > 0 ? ((emi + existingEmi) / projectedIncomeAtPurchase) * 100 : 0;
+
+  useEffect(() => {
+    onContextUpdate(
+      `Home Goal Planner: ${cityTier}, ${propertyType}, purpose ${purpose}, target purchase ${yearsToBuy} years, future cost ${fmtShort(futureCost)}, down payment need ${fmtShort(requiredDown)}, EMI at purchase ${fmtShort(emi)}.`
+    );
+  }, [cityTier, propertyType, purpose, yearsToBuy, futureCost, requiredDown, emi]);
+
+  const insight = `**Home goal readiness (${yearsToBuy} years):**\n\n• Future home cost estimate: **${fmtShort(futureCost)}**\n• Required down payment (${downPct}%): **${fmtShort(requiredDown)}**\n• Projected down corpus: **${fmtShort(downCorpusFuture)}**\n• Expected EMI at purchase: **${fmtShort(emi)}** | Projected FOIR: **${foir.toFixed(1)}%**\n\n**Action**: ${downGap > 0 ? `Increase monthly savings by ~${fmtShort(additionalSipNeeded)} for down payment readiness.` : "Down payment plan looks on track."}`;
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        <div className="grid grid-cols-3 gap-3">
+          <FieldRow label="City Category">
+            <SelectField
+              value={cityTier}
+              onChange={setCityTier}
+              options={[
+                { value: "tier1", label: "Tier-1 Metro" },
+                { value: "tier2", label: "Tier-2 City" },
+                { value: "tier3", label: "Tier-3 / Town" },
+              ]}
+            />
+          </FieldRow>
+          <FieldRow label="Property Type">
+            <SelectField
+              value={propertyType}
+              onChange={setPropertyType}
+              options={[
+                { value: "apartment", label: "Apartment" },
+                { value: "villa", label: "Villa / Independent House" },
+                { value: "plot", label: "Plot + Construction" },
+              ]}
+            />
+          </FieldRow>
+          <FieldRow label="Purpose">
+            <SelectField
+              value={purpose}
+              onChange={setPurpose}
+              options={[
+                { value: "self", label: "Self Occupied" },
+                { value: "upgrade", label: "Upgrade / Larger Home" },
+                { value: "investment", label: "Investment Property" },
+              ]}
+            />
+          </FieldRow>
+        </div>
+        <FieldRow label="Current Property Cost">
+          <NumField value={homeCostToday} onChange={setHomeCostToday} min={1500000} max={50000000} step={100000} prefix="₹" />
+        </FieldRow>
+        <div className="grid grid-cols-3 gap-3">
+          <FieldRow label="Years to Buy"><NumField value={yearsToBuy} onChange={setYearsToBuy} min={1} max={20} step={1} suffix="yrs" /></FieldRow>
+          <FieldRow label="Property Inflation"><NumField value={homeInflation} onChange={setHomeInflation} min={3} max={12} step={0.5} suffix="%" /></FieldRow>
+          <FieldRow label="Down Payment"><NumField value={downPct} onChange={setDownPct} min={10} max={50} step={1} suffix="%" /></FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Existing Down Payment Corpus"><NumField value={existingDownCorpus} onChange={setExistingDownCorpus} min={0} max={50000000} step={10000} prefix="₹" /></FieldRow>
+          <FieldRow label="Monthly Savings for Down Payment"><NumField value={monthlySIP} onChange={setMonthlySIP} min={500} max={300000} step={500} prefix="₹" /></FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Step-up on Savings"><NumField value={annualStepUp} onChange={setAnnualStepUp} min={0} max={20} step={1} suffix="%" /></FieldRow>
+          <FieldRow label="Expected Return"><NumField value={returnRate} onChange={setReturnRate} min={5} max={16} step={0.5} suffix="%" /></FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Home Loan Interest"><NumField value={loanRate} onChange={setLoanRate} min={6} max={14} step={0.1} suffix="%" /></FieldRow>
+          <FieldRow label="Loan Tenure"><NumField value={loanTenure} onChange={setLoanTenure} min={10} max={30} step={1} suffix="yrs" /></FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Current Monthly Income"><NumField value={monthlyIncome} onChange={setMonthlyIncome} min={10000} max={2000000} step={1000} prefix="₹" /></FieldRow>
+          <FieldRow label="Existing EMIs"><NumField value={existingEmi} onChange={setExistingEmi} min={0} max={500000} step={500} prefix="₹" /></FieldRow>
+        </div>
+      </div>
+      <div>
+        <div className="rounded-2xl p-5 mb-4 text-white" style={{ background: `linear-gradient(135deg, ${DB}, #0f2540)` }}>
+          <p className="text-xs text-white/60 uppercase font-semibold">Home Goal Summary</p>
+          <p className="text-3xl font-extrabold mt-1 mb-3">{fmtShort(futureCost)}</p>
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.08)" }}><p className="text-[10px] text-white/50">Down Payment Need</p><p className="text-sm font-bold">{fmtShort(requiredDown)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.08)" }}><p className="text-[10px] text-white/50">Projected Corpus</p><p className="text-sm font-bold">{fmtShort(downCorpusFuture)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.08)" }}><p className="text-[10px] text-white/50">EMI at Purchase</p><p className="text-sm font-bold">{fmtShort(emi)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.08)" }}><p className="text-[10px] text-white/50">Projected FOIR</p><p className="text-sm font-bold" style={{ color: foir <= 40 ? "#86efac" : "#fca5a5" }}>{foir.toFixed(1)}%</p></div>
+          </div>
+        </div>
+        <InsightBanner text={insight} />
+      </div>
+    </div>
+  );
+};
+
+const EducationGoalPlanner = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  const [courseType, setCourseType] = useState("undergrad");
+  const [studyLocation, setStudyLocation] = useState("india-private");
+  const [childAge, setChildAge] = useState(5);
+  const [startAge, setStartAge] = useState(18);
+  const [durationYears, setDurationYears] = useState(4);
+  const [currentAnnualCost, setCurrentAnnualCost] = useState(400000);
+  const [educationInflation, setEducationInflation] = useState(9);
+  const [existingCorpus, setExistingCorpus] = useState(300000);
+  const [monthlySIP, setMonthlySIP] = useState(18000);
+  const [stepUp, setStepUp] = useState(10);
+  const [returnRate, setReturnRate] = useState(11);
+  const [postGoalReturn, setPostGoalReturn] = useState(6);
+
+  useEffect(() => {
+    if (studyLocation === "india-gov") {
+      setCurrentAnnualCost((v) => Math.min(v, 250000));
+      setEducationInflation(7.5);
+    } else if (studyLocation === "india-private") {
+      setCurrentAnnualCost((v) => Math.max(350000, v));
+      setEducationInflation(9);
+    } else {
+      setCurrentAnnualCost((v) => Math.max(1500000, v));
+      setEducationInflation(10);
+    }
+    if (courseType === "professional") {
+      setDurationYears((d) => Math.max(d, 5));
+    } else if (courseType === "postgrad") {
+      setDurationYears((d) => Math.min(Math.max(d, 2), 3));
+    }
+  }, [studyLocation, courseType]);
+
+  const yearsToGoal = Math.max(0, startAge - childAge);
+  const firstYearCost = currentAnnualCost * Math.pow(1 + educationInflation / 100, yearsToGoal);
+  let totalCourseCostAtGoal = 0;
+  for (let i = 0; i < durationYears; i += 1) {
+    const yrCost = firstYearCost * Math.pow(1 + educationInflation / 100, i);
+    totalCourseCostAtGoal += yrCost / Math.pow(1 + postGoalReturn / 100, i);
+  }
+
+  const futureCorpus = existingCorpus * Math.pow(1 + returnRate / 100, yearsToGoal)
+    + sipFutureValueWithStepUp(monthlySIP, stepUp, returnRate, yearsToGoal);
+  const gap = Math.max(0, totalCourseCostAtGoal - futureCorpus);
+  const addlSip = gap > 0 ? gap / Math.max(12, yearsToGoal * 12) : 0;
+
+  useEffect(() => {
+    onContextUpdate(
+      `Child Education Planner: ${courseType}, ${studyLocation}, child age ${childAge}, start age ${startAge}, years ${yearsToGoal}, target corpus ${fmtShort(totalCourseCostAtGoal)}, projected corpus ${fmtShort(futureCorpus)}.`
+    );
+  }, [courseType, studyLocation, childAge, startAge, yearsToGoal, totalCourseCostAtGoal, futureCorpus]);
+
+  const insight = `**Child education projection:**\n\n• Education starts in **${yearsToGoal} years**\n• First-year cost estimate: **${fmtShort(firstYearCost)}**\n• Total course corpus needed today-at-goal value: **${fmtShort(totalCourseCostAtGoal)}**\n• Projected corpus: **${fmtShort(futureCorpus)}**\n\n**Action**: ${gap > 0 ? `Increase SIP by around ${fmtShort(addlSip)} per month.` : "Current plan looks sufficient for this goal."}`;
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Course Type">
+            <SelectField
+              value={courseType}
+              onChange={setCourseType}
+              options={[
+                { value: "undergrad", label: "Undergraduate" },
+                { value: "postgrad", label: "Postgraduate" },
+                { value: "professional", label: "Professional / Medical / MBA" },
+              ]}
+            />
+          </FieldRow>
+          <FieldRow label="Study Location">
+            <SelectField
+              value={studyLocation}
+              onChange={setStudyLocation}
+              options={[
+                { value: "india-gov", label: "India - Public / Government" },
+                { value: "india-private", label: "India - Private" },
+                { value: "abroad", label: "Abroad" },
+              ]}
+            />
+          </FieldRow>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          <FieldRow label="Child Age"><NumField value={childAge} onChange={setChildAge} min={0} max={18} step={1} suffix="yrs" /></FieldRow>
+          <FieldRow label="Education Starts At"><NumField value={startAge} onChange={setStartAge} min={16} max={25} step={1} suffix="yrs" /></FieldRow>
+          <FieldRow label="Course Duration"><NumField value={durationYears} onChange={setDurationYears} min={1} max={7} step={1} suffix="yrs" /></FieldRow>
+        </div>
+        <FieldRow label="Current Annual Education Cost">
+          <NumField value={currentAnnualCost} onChange={setCurrentAnnualCost} min={100000} max={5000000} step={10000} prefix="₹" />
+        </FieldRow>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Education Inflation"><NumField value={educationInflation} onChange={setEducationInflation} min={5} max={15} step={0.5} suffix="%" /></FieldRow>
+          <FieldRow label="Expected Return (till goal)"><NumField value={returnRate} onChange={setReturnRate} min={6} max={16} step={0.5} suffix="%" /></FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Existing Corpus"><NumField value={existingCorpus} onChange={setExistingCorpus} min={0} max={30000000} step={10000} prefix="₹" /></FieldRow>
+          <FieldRow label="Monthly SIP"><NumField value={monthlySIP} onChange={setMonthlySIP} min={500} max={300000} step={500} prefix="₹" /></FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="SIP Step-up"><NumField value={stepUp} onChange={setStepUp} min={0} max={20} step={1} suffix="%" /></FieldRow>
+          <FieldRow label="Return During Payout"><NumField value={postGoalReturn} onChange={setPostGoalReturn} min={4} max={10} step={0.5} suffix="%" /></FieldRow>
+        </div>
+      </div>
+      <div>
+        <div className="rounded-2xl p-5 mb-4 text-white" style={{ background: `linear-gradient(135deg, ${GREEN}, #047857)` }}>
+          <p className="text-xs text-white/70 uppercase font-semibold">Education Goal Summary</p>
+          <p className="text-3xl font-extrabold mt-1 mb-3">{fmtShort(totalCourseCostAtGoal)}</p>
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Years Remaining</p><p className="text-sm font-bold">{yearsToGoal}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">First-year Cost</p><p className="text-sm font-bold">{fmtShort(firstYearCost)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Projected Corpus</p><p className="text-sm font-bold">{fmtShort(futureCorpus)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Gap</p><p className="text-sm font-bold">{fmtShort(gap)}</p></div>
+          </div>
+        </div>
+        <InsightBanner text={insight} />
+      </div>
+    </div>
+  );
+};
+
+const RetirementGoalPlanner = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  const [lifestyle, setLifestyle] = useState("comfortable");
+  const [currentAge, setCurrentAge] = useState(30);
+  const [retirementAge, setRetirementAge] = useState(60);
+  const [lifeExpectancy, setLifeExpectancy] = useState(85);
+  const [monthlyExpenseToday, setMonthlyExpenseToday] = useState(70000);
+  const [replacementPct, setReplacementPct] = useState(80);
+  const [inflationPre, setInflationPre] = useState(6);
+  const [inflationPost, setInflationPost] = useState(5);
+  const [returnPre, setReturnPre] = useState(11);
+  const [returnPost, setReturnPost] = useState(7);
+  const [existingCorpus, setExistingCorpus] = useState(900000);
+  const [monthlyInvest, setMonthlyInvest] = useState(25000);
+  const [stepUp, setStepUp] = useState(10);
+  const [expectedMonthlyPensionToday, setExpectedMonthlyPensionToday] = useState(12000);
+
+  useEffect(() => {
+    if (lifestyle === "basic") setReplacementPct(65);
+    if (lifestyle === "comfortable") setReplacementPct(80);
+    if (lifestyle === "premium") setReplacementPct(95);
+  }, [lifestyle]);
+
+  const yearsToRetire = Math.max(0, retirementAge - currentAge);
+  const yearsAfterRetire = Math.max(1, lifeExpectancy - retirementAge);
+  const expenseAtRetire = monthlyExpenseToday * (replacementPct / 100) * Math.pow(1 + inflationPre / 100, yearsToRetire);
+  const annualExpenseAtRetire = expenseAtRetire * 12;
+
+  const realRatePost = ((1 + returnPost / 100) / (1 + inflationPost / 100)) - 1;
+  const annuityFactor = Math.abs(realRatePost) < 1e-6
+    ? yearsAfterRetire
+    : (1 - Math.pow(1 + realRatePost, -yearsAfterRetire)) / realRatePost;
+  const requiredCorpus = annualExpenseAtRetire * annuityFactor;
+
+  const pensionAtRetire = expectedMonthlyPensionToday * Math.pow(1 + inflationPre / 100, yearsToRetire) * 12;
+  const pensionPV = pensionAtRetire * annuityFactor;
+  const corpusNeededFromInvestments = Math.max(0, requiredCorpus - pensionPV);
+
+  const projectedCorpus = existingCorpus * Math.pow(1 + returnPre / 100, yearsToRetire)
+    + sipFutureValueWithStepUp(monthlyInvest, stepUp, returnPre, yearsToRetire);
+  const gap = Math.max(0, corpusNeededFromInvestments - projectedCorpus);
+  const addlSip = gap > 0 ? gap / Math.max(12, yearsToRetire * 12) : 0;
+
+  useEffect(() => {
+    onContextUpdate(
+      `Retirement Planner: lifestyle ${lifestyle}, age ${currentAge}->${retirementAge}, required corpus ${fmtShort(corpusNeededFromInvestments)}, projected corpus ${fmtShort(projectedCorpus)}, gap ${fmtShort(gap)}.`
+    );
+  }, [lifestyle, currentAge, retirementAge, corpusNeededFromInvestments, projectedCorpus, gap]);
+
+  const insight = `**Retirement readiness:**\n\n• Expense needed at retirement (monthly): **${fmtShort(expenseAtRetire)}**\n• Corpus needed (net of pension): **${fmtShort(corpusNeededFromInvestments)}**\n• Projected corpus by retirement: **${fmtShort(projectedCorpus)}**\n• Gap: **${fmtShort(gap)}** over ${yearsToRetire} years\n\n**Action**: ${gap > 0 ? `Increase retirement investing by ~${fmtShort(addlSip)} per month or postpone retirement by 2-3 years.` : "Plan is broadly on track if assumptions hold."}`;
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        <FieldRow label="Lifestyle Target">
+          <SelectField
+            value={lifestyle}
+            onChange={setLifestyle}
+            options={[
+              { value: "basic", label: "Basic (frugal)" },
+              { value: "comfortable", label: "Comfortable" },
+              { value: "premium", label: "Premium / Travel-heavy" },
+            ]}
+          />
+        </FieldRow>
+        <div className="grid grid-cols-3 gap-3">
+          <FieldRow label="Current Age"><NumField value={currentAge} onChange={setCurrentAge} min={18} max={59} step={1} suffix="yrs" /></FieldRow>
+          <FieldRow label="Retirement Age"><NumField value={retirementAge} onChange={setRetirementAge} min={45} max={75} step={1} suffix="yrs" /></FieldRow>
+          <FieldRow label="Life Expectancy"><NumField value={lifeExpectancy} onChange={setLifeExpectancy} min={70} max={100} step={1} suffix="yrs" /></FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Monthly Expense Today"><NumField value={monthlyExpenseToday} onChange={setMonthlyExpenseToday} min={10000} max={1000000} step={1000} prefix="₹" /></FieldRow>
+          <FieldRow label="Replacement Ratio"><NumField value={replacementPct} onChange={setReplacementPct} min={50} max={120} step={1} suffix="%" /></FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Inflation (Pre-retirement)"><NumField value={inflationPre} onChange={setInflationPre} min={3} max={10} step={0.5} suffix="%" /></FieldRow>
+          <FieldRow label="Inflation (Post-retirement)"><NumField value={inflationPost} onChange={setInflationPost} min={2} max={9} step={0.5} suffix="%" /></FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Return (Accumulation)"><NumField value={returnPre} onChange={setReturnPre} min={6} max={16} step={0.5} suffix="%" /></FieldRow>
+          <FieldRow label="Return (Retirement phase)"><NumField value={returnPost} onChange={setReturnPost} min={4} max={10} step={0.5} suffix="%" /></FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Existing Retirement Corpus"><NumField value={existingCorpus} onChange={setExistingCorpus} min={0} max={500000000} step={10000} prefix="₹" /></FieldRow>
+          <FieldRow label="Current Monthly Investment"><NumField value={monthlyInvest} onChange={setMonthlyInvest} min={500} max={500000} step={500} prefix="₹" /></FieldRow>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="Annual Step-up"><NumField value={stepUp} onChange={setStepUp} min={0} max={20} step={1} suffix="%" /></FieldRow>
+          <FieldRow label="Expected Pension (today value)"><NumField value={expectedMonthlyPensionToday} onChange={setExpectedMonthlyPensionToday} min={0} max={300000} step={500} prefix="₹" /></FieldRow>
+        </div>
+      </div>
+      <div>
+        <div className="rounded-2xl p-5 mb-4 text-white" style={{ background: `linear-gradient(135deg, ${MB}, ${DB})` }}>
+          <p className="text-xs text-white/60 uppercase font-semibold">Retirement Summary</p>
+          <p className="text-3xl font-extrabold mt-1 mb-3">{fmtShort(corpusNeededFromInvestments)}</p>
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Years to Retire</p><p className="text-sm font-bold">{yearsToRetire}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Expense at Retirement</p><p className="text-sm font-bold">{fmtShort(expenseAtRetire)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Projected Corpus</p><p className="text-sm font-bold">{fmtShort(projectedCorpus)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Gap</p><p className="text-sm font-bold">{fmtShort(gap)}</p></div>
+          </div>
+        </div>
+        <InsightBanner text={insight} />
+      </div>
+    </div>
+  );
+};
+
+const PLANNER_TABS = [
+  { id: "goal", label: "Goal Builder", comp: GoalEngine },
+  { id: "home", label: "Buy Home Plan", comp: HomeGoalPlanner },
+  { id: "education", label: "Child Education Plan", comp: EducationGoalPlanner },
+  { id: "retirement", label: "Retirement Plan", comp: RetirementGoalPlanner },
+];
+
 /* ═══════════════════════════════════════════════════════════
    MAIN DASHBOARD
 ═══════════════════════════════════════════════════════════ */
 
 const CALC_TABS = [
-  { id: "emi",  label: "Home / Car Loan",   icon: Home,       comp: EMICalc  },
-  { id: "sip",  label: "SIP & Mutual Funds",icon: TrendingUp, comp: SIPCalc  },
-  { id: "tax",  label: "Tax Savings",       icon: Shield,     comp: TaxCalc  },
+  { id: "emi",    label: "Home / Car Loan",      icon: Home,       comp: EMICalc      },
+  { id: "sip",    label: "SIP & Mutual Funds",   icon: TrendingUp, comp: SIPCalc      },
+  { id: "rentbuy",label: "Rent vs Buy",          icon: Home,       comp: RentVsBuyCalc },
+  { id: "tax",    label: "Tax Savings",          icon: Shield,     comp: TaxCalc      },
 ];
 
 const MAIN_TABS = [
@@ -663,9 +1378,11 @@ const Dashboard = () => {
   const { user, signOut }         = useAuth();
   const [mainTab, setMainTab]     = useState("guru");
   const [calcTab, setCalcTab]     = useState("emi");
+  const [plannerTab, setPlannerTab] = useState("goal");
   const [calcCtx, setCalcCtx]     = useState("");
 
   const activeCalc = CALC_TABS.find(t => t.id === calcTab)!;
+  const activePlanner = PLANNER_TABS.find(t => t.id === plannerTab)!;
 
   return (
     <div className="min-h-screen bg-gray-50/80">
@@ -829,11 +1546,27 @@ const Dashboard = () => {
           {/* ARTHAPLANNER TAB */}
           {mainTab === "planner" && (
             <div>
+              <div className="flex flex-wrap gap-2 mb-6">
+                {PLANNER_TABS.map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => setPlannerTab(t.id)}
+                    className="px-4 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all"
+                    style={{
+                      borderColor: plannerTab === t.id ? GREEN : "#e5e7eb",
+                      background: plannerTab === t.id ? "#ecfdf5" : "#fff",
+                      color: plannerTab === t.id ? GREEN : "#6b7280",
+                    }}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
               <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-8">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h2 className="text-lg font-bold text-gray-900">ArthaPlanner — Financial Life Goals</h2>
-                    <p className="text-sm text-gray-400">Goal-based planning from your 20s to retirement</p>
+                    <h2 className="text-lg font-bold text-gray-900">ArthaPlanner — {activePlanner.label}</h2>
+                    <p className="text-sm text-gray-400">Detailed planner questionnaire with realistic assumptions</p>
                   </div>
                   <button onClick={() => setMainTab("guru")}
                     className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl text-white"
@@ -842,7 +1575,7 @@ const Dashboard = () => {
                     <Sparkles size={12} />Ask ArthaGuru
                   </button>
                 </div>
-                <GoalEngine onContextUpdate={setCalcCtx} />
+                <activePlanner.comp onContextUpdate={setCalcCtx} />
               </div>
 
               {/* Life stage guide */}

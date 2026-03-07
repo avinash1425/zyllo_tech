@@ -27,8 +27,8 @@ const startups = [
     color: "from-orange-600/20 to-orange-900/10",
     accentColor: "text-orange-400",
     borderColor: "border-orange-500/30",
-    href: "/arthaai/",
-    isExternal: true,
+    href: "/arthaai",
+    isExternal: false,
   },
 ];
 
