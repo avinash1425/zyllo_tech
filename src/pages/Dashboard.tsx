@@ -2107,6 +2107,373 @@ const PLANNER_TABS = [
   { id: "retirement", label: "Retirement Plan", comp: RetirementGoalPlanner },
 ];
 
+type PlannerGoal = {
+  id: string;
+  type: string;
+  name: string;
+  targetAmount: number;
+  targetYear: number;
+  currentSavings: number;
+  priority: "high" | "medium" | "low";
+  notes: string;
+};
+
+type PlannerProfile = {
+  fullName: string;
+  email: string;
+  phone: string;
+  city: string;
+  familyMembers: number;
+  monthlyIncome: number;
+  monthlyExpenses: number;
+  existingCorpus: number;
+  riskProfile: "conservative" | "balanced" | "aggressive";
+  notes: string;
+};
+
+const plannerReturn = (risk: PlannerProfile["riskProfile"]) => {
+  if (risk === "conservative") return 8;
+  if (risk === "aggressive") return 13;
+  return 11;
+};
+
+const requiredMonthlyForGoal = (targetAmount: number, currentSavings: number, yearsLeft: number, annualReturn: number) => {
+  const y = Math.max(1, yearsLeft);
+  const futureCurrent = currentSavings * Math.pow(1 + annualReturn / 100, y);
+  const gap = Math.max(0, targetAmount - futureCurrent);
+  if (gap <= 0) return 0;
+  const r = annualReturn / 12 / 100;
+  const n = y * 12;
+  return r === 0 ? gap / n : gap * r / ((Math.pow(1 + r, n) - 1) * (1 + r));
+};
+
+const PlannerWorkspace = ({
+  userId,
+  initialName,
+  initialEmail,
+  onContextUpdate,
+}: {
+  userId?: string;
+  initialName?: string;
+  initialEmail?: string;
+  onContextUpdate: (s: string) => void;
+}) => {
+  const yearNow = new Date().getFullYear();
+  const [step, setStep] = useState("profile");
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [status, setStatus] = useState<string>("");
+  const [profile, setProfile] = useState<PlannerProfile>({
+    fullName: initialName ?? "",
+    email: initialEmail ?? "",
+    phone: "",
+    city: "",
+    familyMembers: 3,
+    monthlyIncome: 120000,
+    monthlyExpenses: 70000,
+    existingCorpus: 300000,
+    riskProfile: "balanced",
+    notes: "",
+  });
+  const [goals, setGoals] = useState<PlannerGoal[]>([
+    { id: "goal-home", type: "home", name: "Buy Home", targetAmount: 9000000, targetYear: yearNow + 8, currentSavings: 500000, priority: "high", notes: "" },
+    { id: "goal-edu", type: "education", name: "Child Education", targetAmount: 3500000, targetYear: yearNow + 12, currentSavings: 200000, priority: "high", notes: "" },
+    { id: "goal-ret", type: "retirement", name: "Retirement", targetAmount: 25000000, targetYear: yearNow + 25, currentSavings: 600000, priority: "high", notes: "" },
+  ]);
+  const [reportText, setReportText] = useState("");
+
+  const expectedReturn = plannerReturn(profile.riskProfile);
+  const goalRows = goals.map((g) => {
+    const yearsLeft = Math.max(1, g.targetYear - yearNow);
+    const requiredMonthly = requiredMonthlyForGoal(g.targetAmount, g.currentSavings, yearsLeft, expectedReturn);
+    const progressPct = Math.max(0, Math.min(100, (g.currentSavings / Math.max(1, g.targetAmount)) * 100));
+    return { ...g, yearsLeft, requiredMonthly, progressPct };
+  });
+
+  const totalRequiredMonthly = goalRows.reduce((sum, g) => sum + g.requiredMonthly, 0);
+  const monthlySurplus = Math.max(0, profile.monthlyIncome - profile.monthlyExpenses);
+  const coveragePct = monthlySurplus > 0 ? Math.min(100, (totalRequiredMonthly / monthlySurplus) * 100) : 0;
+  const topGapGoals = [...goalRows].sort((a, b) => b.requiredMonthly - a.requiredMonthly).slice(0, 5);
+
+  useEffect(() => {
+    onContextUpdate(
+      `Planner Workspace: ${goals.length} goals, risk ${profile.riskProfile}, required monthly ${fmtShort(totalRequiredMonthly)}, surplus ${fmtShort(monthlySurplus)}.`
+    );
+  }, [goals.length, profile.riskProfile, totalRequiredMonthly, monthlySurplus]);
+
+  useEffect(() => {
+    if (!userId) return;
+    let cancelled = false;
+    const load = async () => {
+      setLoading(true);
+      const { data, error } = await (supabase as any)
+        .from("planner_journeys")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (!cancelled && !error && data) {
+        setProfile((prev) => ({
+          ...prev,
+          fullName: data.full_name ?? prev.fullName,
+          email: data.email ?? prev.email,
+          phone: data.phone ?? prev.phone,
+          city: data.city ?? prev.city,
+          familyMembers: Number(data.family_members ?? prev.familyMembers),
+          monthlyIncome: Number(data.monthly_income ?? prev.monthlyIncome),
+          monthlyExpenses: Number(data.monthly_expenses ?? prev.monthlyExpenses),
+          existingCorpus: Number(data.existing_corpus ?? prev.existingCorpus),
+          riskProfile: (data.risk_profile ?? prev.riskProfile) as PlannerProfile["riskProfile"],
+          notes: data.profile_data?.notes ?? prev.notes,
+        }));
+        if (Array.isArray(data.goals) && data.goals.length > 0) setGoals(data.goals as PlannerGoal[]);
+        if (data.report_text) setReportText(data.report_text);
+      }
+      if (!cancelled) setLoading(false);
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  const savePlanner = async (withReport?: string) => {
+    if (!userId) {
+      setStatus("Login required to save planner data.");
+      return;
+    }
+    setSaving(true);
+    setStatus("");
+    const payload = {
+      user_id: userId,
+      full_name: profile.fullName,
+      email: profile.email,
+      phone: profile.phone,
+      city: profile.city,
+      family_members: profile.familyMembers,
+      monthly_income: profile.monthlyIncome,
+      monthly_expenses: profile.monthlyExpenses,
+      existing_corpus: profile.existingCorpus,
+      risk_profile: profile.riskProfile,
+      profile_data: { notes: profile.notes },
+      goals,
+      report_text: withReport ?? reportText,
+      report_json: {
+        totalRequiredMonthly,
+        monthlySurplus,
+        expectedReturn,
+        generated_at: new Date().toISOString(),
+      },
+    };
+    const { error } = await (supabase as any).from("planner_journeys").upsert(payload, { onConflict: "user_id" });
+    setSaving(false);
+    if (error) setStatus(`Save failed: ${error.message}`);
+    else setStatus("Planner data saved.");
+  };
+
+  const generateReport = async () => {
+    const highPriority = goalRows.filter((g) => g.priority === "high");
+    const totalTarget = goalRows.reduce((sum, g) => sum + g.targetAmount, 0);
+    const text = [
+      `Financial Planning Report for ${profile.fullName || "User"}`,
+      `Risk profile: ${profile.riskProfile} | Expected return used: ${expectedReturn}%`,
+      `Monthly income: ${fmtShort(profile.monthlyIncome)} | Monthly expenses: ${fmtShort(profile.monthlyExpenses)} | Surplus: ${fmtShort(monthlySurplus)}`,
+      `Goals selected: ${goals.length} | Combined target: ${fmtShort(totalTarget)}`,
+      `Total monthly investment required to stay on track: ${fmtShort(totalRequiredMonthly)}`,
+      monthlySurplus >= totalRequiredMonthly
+        ? "Status: Current surplus can support the required plan."
+        : `Status: Shortfall of ${fmtShort(totalRequiredMonthly - monthlySurplus)} per month. Increase income, reduce expenses, or extend timelines.`,
+      highPriority.length > 0 ? `High-priority goals: ${highPriority.map((g) => g.name).join(", ")}` : "No goals marked high priority.",
+      "Action Plan:",
+      "1. Protect family with emergency fund + term and health insurance.",
+      "2. Automate monthly investments immediately after salary credit.",
+      "3. Review goal assumptions every quarter and adjust SIP step-up annually.",
+      "4. Keep tax planning (80C/80D/NPS/HRA) integrated with annual goal funding.",
+    ].join("\n");
+    setReportText(text);
+    await savePlanner(text);
+    setStep("report");
+  };
+
+  const addGoal = () => {
+    const id = `goal-${Date.now()}`;
+    setGoals((prev) => [
+      ...prev,
+      {
+        id,
+        type: "custom",
+        name: "New Goal",
+        targetAmount: 1000000,
+        targetYear: yearNow + 5,
+        currentSavings: 0,
+        priority: "medium",
+        notes: "",
+      },
+    ]);
+  };
+
+  const steps = [
+    { id: "profile", label: "Profile" },
+    { id: "cashflow", label: "Family & Cashflow" },
+    { id: "goals", label: "Goals Setup" },
+    { id: "dashboard", label: "Consolidated Dashboard" },
+    { id: "report", label: "Report" },
+  ];
+
+  return (
+    <div className="grid lg:grid-cols-[270px_minmax(0,1fr)] gap-5">
+      <aside className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 h-fit lg:sticky lg:top-24">
+        <p className="text-xs font-bold uppercase tracking-wide text-gray-500 mb-3">Planner Steps</p>
+        <div className="space-y-2">
+          {steps.map((s, idx) => (
+            <button
+              key={s.id}
+              onClick={() => setStep(s.id)}
+              className="w-full flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold text-left"
+              style={{ borderColor: step === s.id ? GREEN : "#e5e7eb", background: step === s.id ? "#ecfdf5" : "#fff", color: step === s.id ? GREEN : "#6b7280" }}
+            >
+              <span className="size-5 rounded-full bg-gray-100 text-[11px] font-bold flex items-center justify-center">{idx + 1}</span>
+              {s.label}
+            </button>
+          ))}
+        </div>
+        <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs">
+          <p className="font-semibold text-gray-600 mb-1">Plan Health</p>
+          <p className="text-gray-500">Surplus: {fmtShort(monthlySurplus)}</p>
+          <p className="text-gray-500">Needed: {fmtShort(totalRequiredMonthly)}</p>
+          <p className="text-gray-500">Coverage: {coveragePct.toFixed(0)}%</p>
+        </div>
+        <button
+          onClick={() => savePlanner()}
+          disabled={saving || loading}
+          className="w-full mt-3 rounded-xl px-3 py-2.5 text-sm font-bold text-white disabled:opacity-60"
+          style={{ background: `linear-gradient(135deg, ${DB}, #0f2540)` }}
+        >
+          {saving ? "Saving..." : "Save Planner Data"}
+        </button>
+        {status && <p className="text-[11px] text-gray-500 mt-2">{status}</p>}
+      </aside>
+
+      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-8">
+        {step === "profile" && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-gray-900">Personal Profile</h3>
+            <div className="grid md:grid-cols-2 gap-3">
+              <FieldRow label="Full Name"><input className="w-full rounded-xl border-2 border-gray-200 px-3 py-2.5 text-sm font-semibold" value={profile.fullName} onChange={(e) => setProfile((p) => ({ ...p, fullName: e.target.value }))} /></FieldRow>
+              <FieldRow label="Email"><input className="w-full rounded-xl border-2 border-gray-200 px-3 py-2.5 text-sm font-semibold" value={profile.email} onChange={(e) => setProfile((p) => ({ ...p, email: e.target.value }))} /></FieldRow>
+              <FieldRow label="Phone"><input className="w-full rounded-xl border-2 border-gray-200 px-3 py-2.5 text-sm font-semibold" value={profile.phone} onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))} /></FieldRow>
+              <FieldRow label="City"><input className="w-full rounded-xl border-2 border-gray-200 px-3 py-2.5 text-sm font-semibold" value={profile.city} onChange={(e) => setProfile((p) => ({ ...p, city: e.target.value }))} /></FieldRow>
+              <FieldRow label="Risk Profile">
+                <SelectField
+                  value={profile.riskProfile}
+                  onChange={(v) => setProfile((p) => ({ ...p, riskProfile: v as PlannerProfile["riskProfile"] }))}
+                  options={[
+                    { value: "conservative", label: "Conservative" },
+                    { value: "balanced", label: "Balanced" },
+                    { value: "aggressive", label: "Aggressive" },
+                  ]}
+                />
+              </FieldRow>
+              <FieldRow label="Family Members"><NumField value={profile.familyMembers} onChange={(v) => setProfile((p) => ({ ...p, familyMembers: v }))} min={1} max={12} step={1} /></FieldRow>
+            </div>
+          </div>
+        )}
+
+        {step === "cashflow" && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-gray-900">Family Cashflow</h3>
+            <div className="grid md:grid-cols-3 gap-3">
+              <FieldRow label="Monthly Income"><NumField value={profile.monthlyIncome} onChange={(v) => setProfile((p) => ({ ...p, monthlyIncome: v }))} min={10000} max={5000000} step={1000} prefix="₹" /></FieldRow>
+              <FieldRow label="Monthly Expenses"><NumField value={profile.monthlyExpenses} onChange={(v) => setProfile((p) => ({ ...p, monthlyExpenses: v }))} min={0} max={5000000} step={1000} prefix="₹" /></FieldRow>
+              <FieldRow label="Existing Investment Corpus"><NumField value={profile.existingCorpus} onChange={(v) => setProfile((p) => ({ ...p, existingCorpus: v }))} min={0} max={100000000} step={10000} prefix="₹" /></FieldRow>
+            </div>
+            <FieldRow label="Notes">
+              <textarea className="w-full rounded-xl border-2 border-gray-200 px-3 py-2.5 text-sm font-medium" rows={4} value={profile.notes} onChange={(e) => setProfile((p) => ({ ...p, notes: e.target.value }))} />
+            </FieldRow>
+            <div className="grid sm:grid-cols-3 gap-3">
+              <div className="rounded-xl border border-gray-200 p-3"><p className="text-xs text-gray-500">Income</p><p className="font-extrabold text-gray-900">{fmtShort(profile.monthlyIncome)}</p></div>
+              <div className="rounded-xl border border-gray-200 p-3"><p className="text-xs text-gray-500">Expenses</p><p className="font-extrabold text-gray-900">{fmtShort(profile.monthlyExpenses)}</p></div>
+              <div className="rounded-xl border border-gray-200 p-3"><p className="text-xs text-gray-500">Surplus</p><p className="font-extrabold" style={{ color: monthlySurplus > 0 ? GREEN : "#ef4444" }}>{fmtShort(monthlySurplus)}</p></div>
+            </div>
+          </div>
+        )}
+
+        {step === "goals" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-900">Goals Setup</h3>
+              <button onClick={addGoal} className="rounded-xl border border-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50">+ Add Goal</button>
+            </div>
+            <div className="space-y-3">
+              {goals.map((goal) => (
+                <div key={goal.id} className="rounded-2xl border border-gray-200 p-4">
+                  <div className="grid md:grid-cols-6 gap-3">
+                    <FieldRow label="Goal Name"><input className="w-full rounded-xl border-2 border-gray-200 px-3 py-2 text-sm font-semibold" value={goal.name} onChange={(e) => setGoals((prev) => prev.map((g) => g.id === goal.id ? { ...g, name: e.target.value } : g))} /></FieldRow>
+                    <FieldRow label="Type">
+                      <SelectField value={goal.type} onChange={(v) => setGoals((prev) => prev.map((g) => g.id === goal.id ? { ...g, type: v } : g))}
+                        options={[{ value: "home", label: "Home" }, { value: "education", label: "Education" }, { value: "retirement", label: "Retirement" }, { value: "emergency", label: "Emergency" }, { value: "wedding", label: "Wedding" }, { value: "custom", label: "Custom" }]} />
+                    </FieldRow>
+                    <FieldRow label="Target Amount"><NumField value={goal.targetAmount} onChange={(v) => setGoals((prev) => prev.map((g) => g.id === goal.id ? { ...g, targetAmount: v } : g))} min={10000} max={1000000000} step={10000} prefix="₹" /></FieldRow>
+                    <FieldRow label="Target Year"><NumField value={goal.targetYear} onChange={(v) => setGoals((prev) => prev.map((g) => g.id === goal.id ? { ...g, targetYear: v } : g))} min={yearNow + 1} max={yearNow + 50} step={1} /></FieldRow>
+                    <FieldRow label="Current Savings"><NumField value={goal.currentSavings} onChange={(v) => setGoals((prev) => prev.map((g) => g.id === goal.id ? { ...g, currentSavings: v } : g))} min={0} max={1000000000} step={10000} prefix="₹" /></FieldRow>
+                    <FieldRow label="Priority">
+                      <SelectField value={goal.priority} onChange={(v) => setGoals((prev) => prev.map((g) => g.id === goal.id ? { ...g, priority: v as PlannerGoal["priority"] } : g))}
+                        options={[{ value: "high", label: "High" }, { value: "medium", label: "Medium" }, { value: "low", label: "Low" }]} />
+                    </FieldRow>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {step === "dashboard" && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-gray-900">Consolidated Dashboard</h3>
+            <div className="grid sm:grid-cols-4 gap-3">
+              <div className="rounded-xl border border-gray-200 p-3"><p className="text-xs text-gray-500">Goals</p><p className="font-extrabold text-gray-900">{goals.length}</p></div>
+              <div className="rounded-xl border border-gray-200 p-3"><p className="text-xs text-gray-500">Required / month</p><p className="font-extrabold text-gray-900">{fmtShort(totalRequiredMonthly)}</p></div>
+              <div className="rounded-xl border border-gray-200 p-3"><p className="text-xs text-gray-500">Available surplus</p><p className="font-extrabold text-gray-900">{fmtShort(monthlySurplus)}</p></div>
+              <div className="rounded-xl border border-gray-200 p-3"><p className="text-xs text-gray-500">Coverage</p><p className="font-extrabold" style={{ color: coveragePct <= 100 ? GREEN : "#ef4444" }}>{coveragePct.toFixed(0)}%</p></div>
+            </div>
+            <BarChart data={topGapGoals.map((g) => ({ label: g.name, value: g.requiredMonthly, color: g.priority === "high" ? OG : g.priority === "medium" ? MB : GREEN }))} />
+            <BenchmarkBand
+              label="Monthly Plan Feasibility"
+              value={coveragePct}
+              min={0}
+              max={200}
+              goodMax={100}
+              format={(n) => `${n.toFixed(0)}%`}
+            />
+          </div>
+        )}
+
+        {step === "report" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-900">Planning Report</h3>
+              <button onClick={generateReport} className="rounded-xl px-3 py-2 text-xs font-bold text-white" style={{ background: `linear-gradient(135deg, ${OG}, #c44d12)` }}>
+                Generate / Refresh Report
+              </button>
+            </div>
+            <textarea
+              className="w-full min-h-[320px] rounded-2xl border-2 border-gray-200 p-4 text-sm text-gray-700"
+              value={reportText}
+              onChange={(e) => setReportText(e.target.value)}
+              placeholder="Report will be generated here. Later this can be replaced with LLM/MCP generated advisory."
+            />
+            <div className="flex gap-2">
+              <button onClick={() => savePlanner(reportText)} className="rounded-xl border border-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50">
+                Save Report
+              </button>
+              <button onClick={() => setStep("dashboard")} className="rounded-xl border border-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50">
+                Back to Dashboard
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 /* ═══════════════════════════════════════════════════════════
    MAIN DASHBOARD
 ═══════════════════════════════════════════════════════════ */
@@ -2136,11 +2503,9 @@ const Dashboard = () => {
   const { user, signOut }         = useAuth();
   const [mainTab, setMainTab]     = useState("guru");
   const [calcTab, setCalcTab]     = useState("emi");
-  const [plannerTab, setPlannerTab] = useState("goal");
   const [calcCtx, setCalcCtx]     = useState("");
 
   const activeCalc = CALC_TABS.find(t => t.id === calcTab)!;
-  const activePlanner = PLANNER_TABS.find(t => t.id === plannerTab)!;
   const calcCategories = Array.from(new Set(CALC_TABS.map((t) => t.category)));
 
   return (
@@ -2318,68 +2683,12 @@ const Dashboard = () => {
 
           {/* ARTHAPLANNER TAB */}
           {mainTab === "planner" && (
-            <div>
-              <div className="flex flex-wrap gap-2 mb-6">
-                {PLANNER_TABS.map((t) => (
-                  <button
-                    key={t.id}
-                    onClick={() => setPlannerTab(t.id)}
-                    className="px-4 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all"
-                    style={{
-                      borderColor: plannerTab === t.id ? GREEN : "#e5e7eb",
-                      background: plannerTab === t.id ? "#ecfdf5" : "#fff",
-                      color: plannerTab === t.id ? GREEN : "#6b7280",
-                    }}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-              <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h2 className="text-lg font-bold text-gray-900">ArthaPlanner — {activePlanner.label}</h2>
-                    <p className="text-sm text-gray-400">Detailed planner questionnaire with realistic assumptions</p>
-                  </div>
-                  <button onClick={() => setMainTab("guru")}
-                    className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl text-white"
-                    style={{ background: `linear-gradient(135deg, ${OG}, #c44d12)` }}
-                  >
-                    <Sparkles size={12} />Ask ArthaGuru
-                  </button>
-                </div>
-                <activePlanner.comp onContextUpdate={setCalcCtx} />
-              </div>
-
-              {/* Life stage guide */}
-              <div className="mt-6 grid sm:grid-cols-4 gap-3">
-                {[
-                  { age: "20s", icon: "🚀", title: "Build Foundation", tips: ["Start SIP early", "Get term insurance", "Build emergency fund"] },
-                  { age: "30s", icon: "🏗️", title: "Grow Aggressively", tips: ["Buy home (if needed)", "Increase SIP by 10%/yr", "Start NPS for tax"] },
-                  { age: "40s", icon: "⚖️", title: "Protect & Optimize", tips: ["Reduce equity to 60%", "Pay off debts", "Review insurance covers"] },
-                  { age: "50s+", icon: "🌴", title: "Secure & Harvest", tips: ["Shift to debt funds", "Plan withdrawals", "Transfer wealth plan"] },
-                ].map(s => (
-                  <div key={s.age} className="rounded-2xl bg-white border border-gray-100 shadow-sm p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-xl">{s.icon}</span>
-                      <div>
-                        <p className="text-xs font-bold text-gray-400">Age</p>
-                        <p className="font-extrabold text-gray-900">{s.age}</p>
-                      </div>
-                    </div>
-                    <p className="text-sm font-bold mb-2" style={{ color: DB }}>{s.title}</p>
-                    <ul className="space-y-1">
-                      {s.tips.map(tip => (
-                        <li key={tip} className="flex items-start gap-1.5 text-xs text-gray-500">
-                          <span className="size-1.5 rounded-full shrink-0 mt-1.5" style={{ background: OG }} />
-                          {tip}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <PlannerWorkspace
+              userId={user?.id}
+              initialName={user?.name}
+              initialEmail={user?.email}
+              onContextUpdate={setCalcCtx}
+            />
           )}
 
         </div>
