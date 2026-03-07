@@ -1624,14 +1624,14 @@ const PLANNER_TABS = [
 ═══════════════════════════════════════════════════════════ */
 
 const CALC_TABS = [
-  { id: "emi",      label: "Home / Car Loan",      icon: Home,       comp: EMICalc           },
-  { id: "sip",      label: "SIP & Mutual Funds",   icon: TrendingUp, comp: SIPCalc           },
-  { id: "rentbuy",  label: "Rent vs Buy",          icon: Home,       comp: RentVsBuyCalc      },
-  { id: "savings",  label: "FD / PPF / NPS / RD",  icon: Target,     comp: SavingsSchemeCalc  },
-  { id: "emergency",label: "Emergency Fund",       icon: Shield,     comp: EmergencyFundCalc  },
-  { id: "insurance",label: "Insurance Need",       icon: Shield,     comp: InsuranceNeedCalc  },
-  { id: "tax",      label: "Tax Savings",          icon: Shield,     comp: TaxCalc            },
-];
+  { id: "emi",       label: "Home / Car Loan",      icon: Home,       comp: EMICalc,          category: "Borrowing & Housing" },
+  { id: "rentbuy",   label: "Rent vs Buy",          icon: Home,       comp: RentVsBuyCalc,    category: "Borrowing & Housing" },
+  { id: "sip",       label: "SIP & Mutual Funds",   icon: TrendingUp, comp: SIPCalc,          category: "Wealth & Investments" },
+  { id: "savings",   label: "FD / PPF / NPS / RD",  icon: Target,     comp: SavingsSchemeCalc,category: "Wealth & Investments" },
+  { id: "emergency", label: "Emergency Fund",       icon: Shield,     comp: EmergencyFundCalc,category: "Protection & Essentials" },
+  { id: "insurance", label: "Insurance Need",       icon: Shield,     comp: InsuranceNeedCalc,category: "Protection & Essentials" },
+  { id: "tax",       label: "Tax Savings",          icon: Shield,     comp: TaxCalc,          category: "Tax & Compliance" },
+] as const;
 
 const MAIN_TABS = [
   { id: "guru",    label: "ArthaGuru AI",   icon: Sparkles,   color: OG },
@@ -1648,6 +1648,7 @@ const Dashboard = () => {
 
   const activeCalc = CALC_TABS.find(t => t.id === calcTab)!;
   const activePlanner = PLANNER_TABS.find(t => t.id === plannerTab)!;
+  const calcCategories = Array.from(new Set(CALC_TABS.map((t) => t.category)));
 
   return (
     <div className="min-h-screen bg-gray-50/80">
@@ -1765,45 +1766,59 @@ const Dashboard = () => {
 
           {/* ARTHACALC TAB */}
           {mainTab === "calc" && (
-            <div>
-              {/* Calculator sub-tabs */}
-              <div className="flex flex-wrap gap-2 mb-6">
-                {CALC_TABS.map(t => (
-                  <button key={t.id} onClick={() => setCalcTab(t.id)}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all"
-                    style={{
-                      borderColor: calcTab === t.id ? OG : "#e5e7eb",
-                      background: calcTab === t.id ? OG_PALE : "#fff",
-                      color: calcTab === t.id ? OG : "#6b7280",
-                    }}
-                  >
-                    <t.icon size={14} />{t.label}
-                  </button>
-                ))}
-              </div>
+            <div className="grid lg:grid-cols-[280px_minmax(0,1fr)] gap-5">
+              <aside className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 h-fit lg:sticky lg:top-24">
+                <p className="text-xs font-bold uppercase tracking-wide text-gray-500 mb-3">Calculator Library</p>
+                <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+                  {calcCategories.map((cat) => (
+                    <div key={cat}>
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-2 px-2">{cat}</p>
+                      <div className="space-y-1.5">
+                        {CALC_TABS.filter((t) => t.category === cat).map((t) => (
+                          <button
+                            key={t.id}
+                            onClick={() => setCalcTab(t.id)}
+                            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold border transition-all text-left"
+                            style={{
+                              borderColor: calcTab === t.id ? OG : "#e5e7eb",
+                              background: calcTab === t.id ? OG_PALE : "#fff",
+                              color: calcTab === t.id ? OG : "#6b7280",
+                            }}
+                          >
+                            <t.icon size={14} />
+                            <span>{t.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </aside>
 
-              <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h2 className="text-lg font-bold text-gray-900">{activeCalc.label}</h2>
-                    <p className="text-sm text-gray-400">AI-powered insights after every calculation</p>
+              <div>
+                <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900">{activeCalc.label}</h2>
+                      <p className="text-sm text-gray-400">AI-powered insights after every calculation</p>
+                    </div>
+                    <button onClick={() => setMainTab("guru")}
+                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-colors text-white"
+                      style={{ background: `linear-gradient(135deg, ${OG}, #c44d12)` }}
+                    >
+                      <Sparkles size={12} />Ask ArthaGuru
+                    </button>
                   </div>
-                  <button onClick={() => setMainTab("guru")}
-                    className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-colors text-white"
-                    style={{ background: `linear-gradient(135deg, ${OG}, #c44d12)` }}
-                  >
-                    <Sparkles size={12} />Ask ArthaGuru
+                  <activeCalc.comp onContextUpdate={setCalcCtx} />
+                </div>
+
+                <div className="mt-4 flex items-center gap-2 rounded-2xl border border-blue-100 bg-blue-50 p-3 text-xs text-blue-700">
+                  <AlertCircle size={13} className="shrink-0" />
+                  <span>Calculations are for planning purposes only. Consult a SEBI-registered advisor before investing.</span>
+                  <button onClick={() => setMainTab("guru")} className="ml-auto flex items-center gap-1 font-semibold shrink-0 hover:underline">
+                    Ask ArthaGuru <ArrowRight size={11} />
                   </button>
                 </div>
-                <activeCalc.comp onContextUpdate={setCalcCtx} />
-              </div>
-
-              <div className="mt-4 flex items-center gap-2 rounded-2xl border border-blue-100 bg-blue-50 p-3 text-xs text-blue-700">
-                <AlertCircle size={13} className="shrink-0" />
-                <span>Calculations are for planning purposes only. Consult a SEBI-registered advisor before investing.</span>
-                <button onClick={() => setMainTab("guru")} className="ml-auto flex items-center gap-1 font-semibold shrink-0 hover:underline">
-                  Ask ArthaGuru <ArrowRight size={11} />
-                </button>
               </div>
             </div>
           )}
