@@ -218,10 +218,18 @@
       .chat-main { height: 500px; }
     }
   </style>
+  <style>
+    /* Hide own nav when embedded inside React shell */
+    html.embedded .navbar,
+    html.embedded .nav-mobile { display: none !important; }
+    html.embedded body { padding-top: 0 !important; }
+    html.embedded .guru-hero { padding-top: 40px; }
+  </style>
 </head>
 <body>
 
 <!-- ── Navigation ── -->
+<script>if(new URLSearchParams(location.search).has('embed')){document.documentElement.classList.add('embedded')}</script>
 <nav class="navbar" id="navbar">
   <div class="container nav-inner">
     <a href="index.html" class="nav-logo">
