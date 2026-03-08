@@ -3946,18 +3946,29 @@ const Dashboard = () => {
               </aside>
 
               <div>
-                <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-8">
+                <div ref={calcResultRef} className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-8">
                   <div className="flex items-center justify-between mb-6">
                     <div>
                       <h2 className="text-lg font-bold text-gray-900">{activeCalc.label}</h2>
                       <p className="text-sm text-gray-400">AI-powered insights after every calculation</p>
                     </div>
-                    <button onClick={() => setMainTab("guru")}
-                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-colors text-white"
-                      style={{ background: `linear-gradient(135deg, ${OG}, #c44d12)` }}
-                    >
-                      <Sparkles size={12} />Ask ArthaGuru
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={exportPDF}
+                        disabled={exporting}
+                        className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border-2 transition-all disabled:opacity-50"
+                        style={{ borderColor: DB, color: DB, background: "#f0f7ff" }}
+                      >
+                        <Download size={12} className={exporting ? "animate-bounce" : ""} />
+                        {exporting ? "Exporting…" : "Download PDF"}
+                      </button>
+                      <button onClick={() => setMainTab("guru")}
+                        className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-colors text-white"
+                        style={{ background: `linear-gradient(135deg, ${OG}, #c44d12)` }}
+                      >
+                        <Sparkles size={12} />Ask ArthaGuru
+                      </button>
+                    </div>
                   </div>
                   <activeCalc.comp onContextUpdate={setCalcCtx} />
                 </div>
