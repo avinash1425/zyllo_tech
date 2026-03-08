@@ -13,6 +13,39 @@
 'use strict';
 
 /* ══════════════════════════════════════
+   AI INSIGHTS (shared with calculators)
+══════════════════════════════════════ */
+const PLANNER_SUPABASE_URL = 'https://zfjeflpvwizlteflypsx.supabase.co';
+const PLANNER_SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmamVmbHB2d2l6bHRlZmx5cHN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzI3NDQsImV4cCI6MjA4ODIwODc0NH0.ByQFv9bNnc1ibdeE1nWoHhqIKFw-mGxFbb2nsPc7F_s';
+
+if (!window.fetchAIInsights) {
+  window.fetchAIInsights = async function(calculatorType, resultElementId) {
+    const el = document.getElementById(resultElementId);
+    if (!el) return;
+    const resultData = el.innerText.replace(/\n{3,}/g, '\n').trim().slice(0, 1500);
+    let insightsEl = el.querySelector('.ai-insights-box');
+    if (!insightsEl) {
+      insightsEl = document.createElement('div');
+      insightsEl.className = 'ai-insights-box';
+      insightsEl.style.cssText = 'margin-top:16px; padding:14px 16px; background:linear-gradient(135deg,rgba(224,92,26,0.08),rgba(255,255,255,0.05)); border:1px solid rgba(224,92,26,0.25); border-radius:12px; font-size:0.84rem; color:rgba(255,255,255,0.9); line-height:1.7;';
+      el.appendChild(insightsEl);
+    }
+    insightsEl.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:1.1rem;">🤖</span><strong style="color:rgba(224,92,26,0.9);">ArthaGuru AI Insights</strong><span style="font-size:0.75rem;color:rgba(255,255,255,0.5);">Analyzing...</span></div>';
+    try {
+      const res = await fetch(`${PLANNER_SUPABASE_URL}/functions/v1/arthaai-insights`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${PLANNER_SUPABASE_ANON}`, 'apikey': PLANNER_SUPABASE_ANON },
+        body: JSON.stringify({ calculatorType, resultData }),
+      });
+      if (!res.ok) throw new Error('AI unavailable');
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      insightsEl.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:1.1rem;">🤖</span><strong style="color:rgba(224,92,26,0.9);">ArthaGuru AI Insights</strong></div><div style="white-space:pre-line;">' + data.insights + '</div>';
+    } catch (e) { insightsEl.innerHTML = '<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:1.1rem;">🤖</span><strong style="color:rgba(224,92,26,0.9);">ArthaGuru AI Insights</strong><span style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-left:auto;">Unavailable</span></div>'; }
+  };
+}
+
+/* ══════════════════════════════════════
    GLOBAL: PLANNER TAB SWITCHER
 ══════════════════════════════════════ */
 window.switchPlannerTab = function(tabName) {
