@@ -699,7 +699,39 @@ window.toggleGratuityType = function(type) {
 };
 
 /* ══════════════════════════════════════
-   PDF EXPORT
+   WHATSAPP SHARE
+══════════════════════════════════════ */
+window.shareViaWhatsApp = function(elementId, title) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+
+  // Extract key numbers from the result container
+  const statEls = el.querySelectorAll('.stat-value, .stat-big, .big-stat, [class*="stat"]');
+  const labelEls = el.querySelectorAll('.stat-label, .stat-sub, [class*="label"]');
+  let lines = [];
+
+  statEls.forEach((s, i) => {
+    const val = s.textContent.trim();
+    const label = labelEls[i] ? labelEls[i].textContent.trim() : '';
+    if (val) lines.push(label ? `${label}: ${val}` : val);
+  });
+
+  // Fallback: grab text from the element if no stats found
+  if (lines.length === 0) {
+    const text = el.innerText.replace(/\n{3,}/g, '\n\n').trim();
+    lines = text.split('\n').filter(l => l.trim()).slice(0, 12);
+  }
+
+  const msg = `📊 *ArthaAI — ${title || 'Financial Report'}*\n\n` +
+    lines.slice(0, 10).join('\n') +
+    `\n\n🔗 Try it free: https://zyllo-spark-studio.lovable.app/arthaai` +
+    `\n_Powered by ArthaAI · Zyllo Tech_`;
+
+  const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+};
+
+
 ══════════════════════════════════════ */
 window.exportPDF = async function(elementId, filename) {
   const el = document.getElementById(elementId);

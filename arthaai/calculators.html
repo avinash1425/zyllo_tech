@@ -41,9 +41,13 @@
     .donut-label { font-size: 0.68rem; color: rgba(255,255,255,0.6); margin-top: 2px; }
     .legend-row { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: rgba(255,255,255,0.8); }
     .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .pdf-download-btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-top:20px; padding:12px; border:1.5px dashed rgba(255,255,255,0.3); border-radius:var(--radius-lg); background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.8); font-size:0.82rem; font-weight:600; cursor:pointer; transition:var(--transition); }
+    .pdf-download-btn, .whatsapp-share-btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-top:12px; padding:12px; border:1.5px dashed rgba(255,255,255,0.3); border-radius:var(--radius-lg); background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.8); font-size:0.82rem; font-weight:600; cursor:pointer; transition:var(--transition); }
     .pdf-download-btn:hover { background:rgba(255,255,255,0.12); border-color:rgba(255,255,255,0.5); color:#fff; }
+    .whatsapp-share-btn { border-color:rgba(37,211,102,0.4); background:rgba(37,211,102,0.08); }
+    .whatsapp-share-btn:hover { background:rgba(37,211,102,0.18); border-color:rgba(37,211,102,0.7); color:#25d366; }
     .pdf-download-btn.loading { pointer-events:none; opacity:0.6; }
+    .action-btn-row { display:flex; gap:10px; margin-top:16px; }
+    .action-btn-row .pdf-download-btn, .action-btn-row .whatsapp-share-btn { width:auto; flex:1; margin-top:0; }
     @media (max-width: 768px) { .calc-layout { grid-template-columns: 1fr; } }
     /* Hide own nav when embedded inside React shell */
     html.embedded .nav,
@@ -210,7 +214,10 @@
                 <thead><tr><th>Year</th><th>Principal Paid</th><th>Interest Paid</th><th>Balance</th></tr></thead>
                 <tbody id="emi-breakdown-body"></tbody>
               </table>
-            <button class="pdf-download-btn" onclick="exportPDF('emi-result','ArthaAI_EMI_Calculator')">📥 Download PDF Report</button>
+            <div class="action-btn-row">
+              <button class="pdf-download-btn" onclick="exportPDF('emi-result','ArthaAI_EMI_Calculator')">📥 Download PDF</button>
+              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('emi-result','EMI Calculator')">💬 Share via WhatsApp</button>
+            </div>
           </div>
           </div>
           <div class="notice notice-info mt-16">
@@ -286,7 +293,10 @@
               <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:10px;">YEAR-WISE GROWTH</div>
               <div id="sip-year-bars" style="display:flex; flex-direction:column; gap:8px;"></div>
             </div>
-            <button class="pdf-download-btn" onclick="exportPDF('sip-result','ArthaAI_SIP_Calculator')">📥 Download PDF Report</button>
+            <div class="action-btn-row">
+              <button class="pdf-download-btn" onclick="exportPDF('sip-result','ArthaAI_SIP_Calculator')">📥 Download PDF</button>
+              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('sip-result','SIP Calculator')">💬 Share via WhatsApp</button>
+            </div>
           </div>
           <div class="card-mb mt-16">
             <h4 style="font-size:0.85rem; margin-bottom:12px; color:var(--db);">Power of Compounding</h4>
@@ -358,7 +368,10 @@
                 <tbody id="tax-breakdown-body"></tbody>
               </table>
             </div>
-            <button class="pdf-download-btn" onclick="exportPDF('tax-result','ArthaAI_Tax_Savings')">📥 Download PDF Report</button>
+            <div class="action-btn-row">
+              <button class="pdf-download-btn" onclick="exportPDF('tax-result','ArthaAI_Tax_Savings')">📥 Download PDF</button>
+              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('tax-result','Tax Savings Calculator')">💬 Share via WhatsApp</button>
+            </div>
           </div>
           <div class="card-mb mt-16">
             <h4 style="font-size:0.85rem; margin-bottom:10px; color:var(--db);">💡 Tax Saving Tips</h4>
@@ -450,7 +463,10 @@
                 </tbody>
               </table>
             </div>
-            <button class="pdf-download-btn" onclick="exportPDF('fd-result','ArthaAI_FD_PPF_NPS')">📥 Download PDF Report</button>
+            <div class="action-btn-row">
+              <button class="pdf-download-btn" onclick="exportPDF('fd-result','ArthaAI_FD_PPF_NPS')">📥 Download PDF</button>
+              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('fd-result','FD/PPF/NPS Comparator')">💬 Share via WhatsApp</button>
+            </div>
           </div>
         </div>
       </div>
@@ -526,7 +542,10 @@
               </div>
               <div id="ret-readiness-text" style="font-size:0.82rem; color:rgba(255,255,255,0.75);">Start investing today to secure your retirement</div>
             </div>
-            <button class="pdf-download-btn" onclick="exportPDF('ret-result','ArthaAI_Retirement')">📥 Download PDF Report</button>
+            <div class="action-btn-row">
+              <button class="pdf-download-btn" onclick="exportPDF('ret-result','ArthaAI_Retirement')">📥 Download PDF</button>
+              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('ret-result','Retirement Planner')">💬 Share via WhatsApp</button>
+            </div>
           </div>
           <div class="card-mb mt-16">
             <h4 style="font-size:0.85rem; margin-bottom:8px; color:var(--db);">🧮 The 25× Rule of Thumb</h4>
@@ -597,7 +616,10 @@
             <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
               <div id="rvb-detail" style="font-size:0.82rem; color:rgba(255,255,255,0.75); line-height:1.7;"></div>
             </div>
-            <button class="pdf-download-btn" onclick="exportPDF('rvb-result','ArthaAI_Rent_vs_Buy')">📥 Download PDF Report</button>
+            <div class="action-btn-row">
+              <button class="pdf-download-btn" onclick="exportPDF('rvb-result','ArthaAI_Rent_vs_Buy')">📥 Download PDF</button>
+              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('rvb-result','Rent vs Buy Analyser')">💬 Share via WhatsApp</button>
+            </div>
           </div>
           <div class="card-mb mt-16">
             <h4 style="font-size:0.85rem; margin-bottom:8px; color:var(--db);">📌 The Price-to-Rent Ratio</h4>
@@ -688,7 +710,10 @@
           <div class="notice notice-info mt-16">
             <span>💡</span>
             <span>Gold should be 5-10% of your portfolio. Prefer Sovereign Gold Bonds (SGB) for 2.5% annual interest + zero capital gains tax on maturity.</span>
-            <button class="pdf-download-btn" onclick="exportPDF('gold-result','ArthaAI_Gold_Investment')">📥 Download PDF Report</button>
+            <div class="action-btn-row">
+              <button class="pdf-download-btn" onclick="exportPDF('gold-result','ArthaAI_Gold_Investment')">📥 Download PDF</button>
+              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('gold-result','Gold Investment Calculator')">💬 Share via WhatsApp</button>
+            </div>
           </div>
         </div>
       </div>
@@ -780,7 +805,10 @@
           <div class="notice notice-info mt-16">
             <span>💡</span>
             <span>Pay interest during the moratorium period to avoid ballooning. Section 80E deduction has no upper limit — claim the full interest for up to 8 years.</span>
-            <button class="pdf-download-btn" onclick="exportPDF('edu-result','ArthaAI_Education_Loan')">📥 Download PDF Report</button>
+            <div class="action-btn-row">
+              <button class="pdf-download-btn" onclick="exportPDF('edu-result','ArthaAI_Education_Loan')">📥 Download PDF</button>
+              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('edu-result','Education Loan Calculator')">💬 Share via WhatsApp</button>
+            </div>
           </div>
         </div>
       </div>
@@ -844,7 +872,10 @@
               <div class="check-item"><div class="check-icon">✓</div> Tax-exempt up to ₹20 Lakhs for non-govt employees</div>
               <div class="check-item"><div class="check-icon">✓</div> Govt employees: full gratuity is tax-exempt</div>
               <div class="check-item"><div class="check-icon">✓</div> Covered establishments use 26-day divisor; non-covered use 30</div>
-            <button class="pdf-download-btn" onclick="exportPDF('grat-result','ArthaAI_Gratuity')">📥 Download PDF Report</button>
+            <div class="action-btn-row">
+              <button class="pdf-download-btn" onclick="exportPDF('grat-result','ArthaAI_Gratuity')">📥 Download PDF</button>
+              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('grat-result','Gratuity Calculator')">💬 Share via WhatsApp</button>
+            </div>
           </div>
           </div>
         </div>

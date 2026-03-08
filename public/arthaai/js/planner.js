@@ -540,7 +540,36 @@ if (typeof formatINRShort === 'undefined') {
 }
 
 /* ══════════════════════════════════════
-   PDF EXPORT FOR PLANNER
+   WHATSAPP SHARE (PLANNER)
+══════════════════════════════════════ */
+window.shareViaWhatsApp = function(elementId, title) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+
+  const statEls = el.querySelectorAll('.stat-value, .stat-big, .big-stat, [class*="stat"]');
+  const labelEls = el.querySelectorAll('.stat-label, .stat-sub, [class*="label"]');
+  let lines = [];
+
+  statEls.forEach((s, i) => {
+    const val = s.textContent.trim();
+    const label = labelEls[i] ? labelEls[i].textContent.trim() : '';
+    if (val) lines.push(label ? `${label}: ${val}` : val);
+  });
+
+  if (lines.length === 0) {
+    const text = el.innerText.replace(/\n{3,}/g, '\n\n').trim();
+    lines = text.split('\n').filter(l => l.trim()).slice(0, 12);
+  }
+
+  const msg = `📊 *ArthaAI — ${title || 'Financial Plan'}*\n\n` +
+    lines.slice(0, 10).join('\n') +
+    `\n\n🔗 Try it free: https://zyllo-spark-studio.lovable.app/arthaai` +
+    `\n_Powered by ArthaAI · Zyllo Tech_`;
+
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+};
+
+
 ══════════════════════════════════════ */
 window.exportPlannerPDF = async function(elementId, filename) {
   const el = document.getElementById(elementId);
