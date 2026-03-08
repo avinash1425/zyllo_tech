@@ -25,7 +25,7 @@ fi
 echo "======================================================"
 echo " ArthaAI AWS Deployment  |  Account: $ACCOUNT_ID"
 echo " Region: $REGION  |  SES Region: $SES_REGION"
-echo " AI Engine: Google Gemini 1.5 Flash (Free)"
+echo " AI Engine: Google Gemini 2.0 Flash (Free)"
 echo "======================================================"
 
 # -----------------------------------------------------------------
@@ -53,7 +53,7 @@ exports.handler = async (event) => {
     const { messages = [] } = JSON.parse(event.body || "{}");
     if (!messages.length) return { statusCode: 400, headers: CORS_HEADERS, body: JSON.stringify({ error: "messages required" }) };
     const contents = messages.map(m => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] }));
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ system_instruction: { parts: [{ text: SYSTEM_PROMPT }] }, contents, generationConfig: { temperature: 0.7, maxOutputTokens: 1024 } }),
@@ -229,7 +229,7 @@ echo "✅  arthaai-notify: $NOTIFY_ARN"
 # -----------------------------------------------------------------
 echo ""
 echo "▶  [8/8] Attaching SES permissions..."
-ROLE_NAME=$(echo $ROLE_ARN | cut -d'/' -f2)
+ROLE_NAME=$(echo $ROLE_ARN | awk -F'/' '{print $NF}')
 aws iam attach-role-policy \
   --role-name $ROLE_NAME \
   --policy-arn arn:aws:iam::aws:policy/AmazonSESFullAccess \

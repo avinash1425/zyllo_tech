@@ -558,6 +558,7 @@ if (typeof formatINRShort === 'undefined') {
     if (a >= 1e5) return '₹' + (a / 1e5).toFixed(2) + ' L';
     return '₹' + Math.round(a).toLocaleString('en-IN');
   };
+}
 
 /* ══════════════════════════════════════
    SUPABASE SAVE PLAN
@@ -622,7 +623,7 @@ window.savePlannerToSupabase = async function() {
           liabilities: { homeloan: gn('nw-homeloan'), carloan: gn('nw-carloan'), personalloan: gn('nw-personalloan'), creditcard: gn('nw-creditcard'), other: gn('nw-otherliab') }
         }
       },
-      goals: window._selectedGoals || [],
+      goals: [...selectedGoals],
       report_text: `ArthaPlanner snapshot saved on ${new Date().toLocaleDateString('en-IN')}`
     };
 
@@ -653,4 +654,3 @@ window.savePlannerToSupabase = async function() {
     alert('Could not save plan: ' + err.message);
   }
 };
-}

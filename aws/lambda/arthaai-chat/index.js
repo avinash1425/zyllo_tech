@@ -1,6 +1,6 @@
 /**
  * ArthaAI Chat — AWS Lambda Handler
- * Powered by Google Gemini 1.5 Flash (free tier — no credit card required).
+ * Powered by Google Gemini 2.0 Flash (free tier — no credit card required).
  * Get your free API key: https://aistudio.google.com/app/apikey
  *
  * Deployed in: ap-south-2 (Asia Pacific – Hyderabad)
@@ -88,7 +88,7 @@ exports.handler = async (event) => {
     };
 
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
