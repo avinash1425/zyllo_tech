@@ -692,10 +692,11 @@ window.calculateGratuity = function () {
   show('grat-result');
 };
 
-function toggleGratuityType(type) {
+window.toggleGratuityType = function(type) {
   gratuityType = type;
   document.querySelectorAll('.tag-pill[data-gratuitytype]').forEach(b => b.classList.toggle('active', b.getAttribute('data-gratuitytype') === type));
-}
+  calculateGratuity();
+};
 
 /* ══════════════════════════════════════
    INIT: Event listeners & sync
