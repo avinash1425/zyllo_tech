@@ -1135,7 +1135,7 @@ const GURU_SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXB
 
 let chatHistory = []; // { role: 'user'|'assistant', content: string }
 
-const CHAT_LANGUAGE_KEY = 'arthaai-chat-language';
+const CHAT_LANGUAGE_KEY = 'arthaai-language'; // unified key shared across all modules
 const LANGUAGE_CONFIG = {
   en: { label: 'English', promptName: 'English' },
   hi: { label: 'हिन्दी', promptName: 'Hindi' },
@@ -1180,6 +1180,9 @@ function initLanguageSelector() {
   const applyLanguage = () => {
     selectedLanguage = langSelect.value;
     localStorage.setItem(CHAT_LANGUAGE_KEY, selectedLanguage);
+    localStorage.setItem('arthaai-chat-language', selectedLanguage); // backward compat
+    // Sync nav selectors
+    document.querySelectorAll('.nav-lang-select, .mobile-lang-wrap select').forEach(s => { s.value = selectedLanguage; });
     const languageLabel = LANGUAGE_CONFIG[selectedLanguage]?.label || 'English';
     if (status) status.textContent = `Online · ${languageLabel}`;
     if (chatInput) {
