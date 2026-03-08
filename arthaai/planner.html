@@ -9,6 +9,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <style>
+    .pdf-download-btn { display:inline-flex; align-items:center; gap:8px; margin-top:16px; padding:10px 20px; background:rgba(255,255,255,0.15); border:1.5px solid rgba(255,255,255,0.3); border-radius:var(--radius-sm); color:#fff; font-size:0.82rem; font-weight:600; cursor:pointer; transition:var(--transition); backdrop-filter:blur(4px); }
+    .pdf-download-btn:hover { background:rgba(255,255,255,0.25); border-color:var(--og); color:var(--og-pale); }
+    .pdf-download-btn.loading { opacity:0.6; pointer-events:none; }
+  </style>
   <style>
     .goal-card { border: 2px solid var(--gray-200); border-radius: var(--radius-lg); padding: 20px; cursor: pointer; transition: var(--transition); position: relative; }
     .goal-card:hover { border-color: var(--og); background: var(--og-pale); }
@@ -46,10 +53,18 @@
     .input-prefix-sm input { padding-left: 28px; }
     .input-prefix-sm::before { content: '₹'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-weight: 600; color: var(--gray-400); font-size: 0.85rem; pointer-events: none; }
   </style>
+  <style>
+    /* Hide own nav when embedded inside React shell */
+    html.embedded .nav,
+    html.embedded .nav-mobile { display: none !important; }
+    html.embedded body { padding-top: 0 !important; }
+    html.embedded .page-header { padding-top: 40px; }
+  </style>
 </head>
 <body>
 
 <!-- NAVIGATION -->
+<script>if(new URLSearchParams(location.search).has('embed')){document.documentElement.classList.add('embedded')}</script>
 <nav class="nav" id="mainNav">
   <div class="container">
     <div class="nav-inner">
@@ -298,6 +313,8 @@
                 </div>
               </div>
             </div>
+              <button class="pdf-download-btn" onclick="exportPlannerPDF('budget-result','ArthaAI_Budget_Report')">📥 Download PDF Report</button>
+            </div>
             <div class="card mt-16">
               <h4 style="font-size:0.88rem; margin-bottom:10px;">📌 The 50-30-20 Rule</h4>
               <div style="font-size:0.82rem; color:var(--gray-600); line-height:1.7;">
@@ -352,8 +369,9 @@
                 <div class="result-item"><h5>Gap to Fill</h5><p class="og" id="ef-gap">₹2,40,000</p></div>
               </div>
               <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
-                <div id="ef-timeline" style="font-size:0.9rem; color:rgba(255,255,255,0.85);"></div>
+              <div id="ef-timeline" style="font-size:0.9rem; color:rgba(255,255,255,0.85);"></div>
               </div>
+              <button class="pdf-download-btn" onclick="exportPlannerPDF('ef-result','ArthaAI_Emergency_Fund')">📥 Download PDF Report</button>
             </div>
             <div class="card-mb mt-16">
               <h4 style="font-size:0.85rem; margin-bottom:10px; color:var(--db);">✅ Where to Keep Your Emergency Fund</h4>
@@ -484,8 +502,9 @@
               </div>
               <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
                 <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:8px;">ASSET ALLOCATION</div>
-                <div id="nw-allocation" style="display:flex; flex-direction:column; gap:6px;"></div>
+              <div id="nw-allocation" style="display:flex; flex-direction:column; gap:6px;"></div>
               </div>
+              <button class="pdf-download-btn" onclick="exportPlannerPDF('nw-result','ArthaAI_Net_Worth')">📥 Download PDF Report</button>
             </div>
             <div class="card-mb mt-16">
               <h4 style="font-size:0.85rem; margin-bottom:8px; color:var(--db);">📈 Net Worth Benchmarks</h4>
@@ -505,28 +524,53 @@
   </div>
 </section>
 
-<!-- SAVE PLAN CTA -->
-<section style="padding: 40px 0; background: linear-gradient(135deg, #fff7f0 0%, #fff 100%); border-top: 1px solid #ffe0cc;">
-  <div class="container" style="text-align:center;">
-    <h3 style="font-size:1.3rem; margin-bottom:8px; color:var(--og-dark);">Save your complete financial plan to your account</h3>
-    <p style="color:var(--gray-600); margin-bottom:20px; font-size:0.95rem;">All your goals, budget, emergency fund, and net worth data — backed up securely.</p>
-    <button id="savePlannerBtn" class="btn btn-primary" onclick="savePlannerToSupabase()" style="font-size:1rem; padding:14px 36px;">
-      💾 Save My Plan
-    </button>
-    <p style="margin-top:12px; font-size:0.8rem; color:var(--gray-500);">You need to be logged in to save. Your data stays private and secure.</p>
-  </div>
-</section>
-
 <!-- FOOTER -->
 <footer class="footer">
   <div class="container">
     <div class="footer-grid">
-      <div class="footer-brand"><div class="nav-logo"><div class="nav-logo-icon">A</div><span class="nav-logo-text" style="color:white;">Artha<span>AI</span></span></div><p>India's first AI-powered personal finance guidance platform — multilingual, unbiased, and built for Bharat.</p></div>
-      <div class="footer-col"><h4>Modules</h4><a href="calculators.html" class="footer-link">ArthaCalc</a><a href="planner.html" class="footer-link">ArthaPlanner</a><a href="guru.html" class="footer-link">ArthaGuru</a><a href="index.html#pricing" class="footer-link">Pricing</a></div>
-      <div class="footer-col"><h4>Company</h4><a href="https://zyllotech.com" class="footer-link">Zyllo Tech</a><a href="mailto:info@zyllotech.com" class="footer-link">Contact Us</a><a href="#" class="footer-link">Privacy Policy</a></div>
-      <div class="footer-col"><h4>DPDP &amp; Legal</h4><a href="#" class="footer-link">Data Policy</a><a href="#" class="footer-link">Disclaimer</a><a href="#" class="footer-link">SEBI Notice</a></div>
+      <div class="footer-brand">
+        <div class="nav-logo" style="margin-bottom:0;">
+          <div class="nav-logo-icon">A</div>
+          <span class="nav-logo-text" style="color:white;">Artha<span>AI</span></span>
+        </div>
+        <p>India's first AI-powered personal finance guidance platform — multilingual, unbiased, and built for Bharat. Smart Money Guidance for Every Indian.</p>
+        <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+          <span class="badge badge-db badge-sm">DPIIT Startup India</span>
+          <span class="badge badge-og badge-sm">Made in India</span>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="calculators.html" class="footer-link">ArthaCalc</a>
+        <a href="planner.html" class="footer-link">ArthaPlanner</a>
+        <a href="guru.html" class="footer-link">ArthaGuru</a>
+        <a href="index.html#pricing" class="footer-link">Pricing</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="https://zyllotech.com" class="footer-link">Zyllo Tech</a>
+        <a href="#" class="footer-link">About ArthaAI</a>
+        <a href="#" class="footer-link">Blog</a>
+        <a href="mailto:info@zyllotech.com" class="footer-link">Contact Us</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="#" class="footer-link">Privacy Policy</a>
+        <a href="#" class="footer-link">Terms of Service</a>
+        <a href="#" class="footer-link">DPDP Compliance</a>
+        <a href="#" class="footer-link">Disclaimer</a>
+      </div>
     </div>
-    <div class="footer-bottom"><div>© 2026 Zyllo Tech Software Solutions Pvt Ltd · ArthaAI is a financial education platform, not a SEBI-registered Investment Adviser.</div></div>
+    <div class="footer-bottom">
+      <div>
+        <div>© 2026 Zyllo Tech Software Solutions Pvt Ltd · CIN: U62013AP2026PTC124120</div>
+        <div style="margin-top:4px; font-size:0.75rem; opacity:0.7;">ArthaAI is a financial education platform, not a SEBI-registered Investment Adviser. All content is educational only. Past performance is not indicative of future results.</div>
+      </div>
+      <div>
+        <a href="https://zyllotech.com">zyllotech.com</a> &nbsp;·&nbsp;
+        <a href="mailto:info@zyllotech.com">info@zyllotech.com</a>
+      </div>
+    </div>
   </div>
 </footer>
 

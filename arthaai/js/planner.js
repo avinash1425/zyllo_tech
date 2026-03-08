@@ -561,96 +561,80 @@ if (typeof formatINRShort === 'undefined') {
 }
 
 /* ══════════════════════════════════════
-   SUPABASE SAVE PLAN
+   PDF EXPORT FOR PLANNER
 ══════════════════════════════════════ */
-const PLANNER_SUPABASE_URL  = 'https://zfjeflpvwizlteflypsx.supabase.co';
-const PLANNER_SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmamVmbHB2d2l6bHRlZmx5cHN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzI3NDQsImV4cCI6MjA4ODIwODc0NH0.ByQFv9bNnc1ibdeE1nWoHhqIKFw-mGxFbb2nsPc7F_s';
+window.exportPlannerPDF = async function(elementId, filename) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
 
-/**
- * Collect data from all planner tabs and save to Supabase planner_journeys table.
- * Requires the user to be authenticated (Supabase session must exist).
- */
-window.savePlannerToSupabase = async function() {
-  const btn = document.getElementById('savePlannerBtn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  const btn = el.querySelector('.pdf-download-btn');
+  if (btn) { btn.classList.add('loading'); btn.textContent = '⏳ Generating PDF…'; }
 
   try {
-    /* 1. Get current auth session */
-    const sessionRes = await fetch(`${PLANNER_SUPABASE_URL}/auth/v1/user`, {
-      headers: { 'apikey': PLANNER_SUPABASE_ANON, 'Authorization': `Bearer ${PLANNER_SUPABASE_ANON}` }
+    if (btn) btn.style.display = 'none';
+
+    const canvas = await html2canvas(el, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#1A3A5C',
+      logging: false,
     });
-    const sessionData = await sessionRes.json();
 
-    /* Check for a stored access token (set during login) */
-    let accessToken = PLANNER_SUPABASE_ANON;
-    const stored = Object.keys(localStorage)
-      .find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
-    if (stored) {
-      try {
-        const parsed = JSON.parse(localStorage.getItem(stored));
-        if (parsed?.access_token) accessToken = parsed.access_token;
-      } catch (_) {}
-    }
+    if (btn) btn.style.display = '';
 
-    /* 2. Verify the user is logged in */
-    const meRes  = await fetch(`${PLANNER_SUPABASE_URL}/auth/v1/user`, {
-      headers: { 'apikey': PLANNER_SUPABASE_ANON, 'Authorization': `Bearer ${accessToken}` }
-    });
-    const meData = await meRes.json();
-
-    if (!meData?.id) {
-      alert('Please log in to save your plan. Your plan data is still visible on this page.');
-      if (btn) { btn.disabled = false; btn.textContent = '💾 Save My Plan'; }
+    if (!window.jspdf) {
+      showToast('PDF library still loading. Please try again in a moment.', 'warning');
       return;
     }
+    const { jsPDF } = window.jspdf;
+    const imgData = canvas.toDataURL('image/png');
+    const imgW = canvas.width;
+    const imgH = canvas.height;
 
-    /* 3. Collect planner data from the page */
-    const g = (id) => { const el = document.getElementById(id); return el ? (el.value || el.textContent || '') : ''; };
-    const gn = (id) => parseFloat(document.getElementById(id)?.value) || 0;
+    const pdfW = 210;
+    const margin = 12;
+    const contentW = pdfW - margin * 2;
+    const contentH = (imgH * contentW) / imgW;
 
-    const plannerData = {
-      monthly_income:   gn('income-salary') + gn('income-business') + gn('income-freelance') + gn('income-rent') + gn('income-other'),
-      monthly_expenses: gn('exp-rent') + gn('exp-food') + gn('exp-transport') + gn('exp-health') + gn('exp-entertainment') + gn('exp-shopping') + gn('exp-utilities') + gn('exp-subscriptions') + gn('exp-other'),
-      existing_corpus:  gn('nw-cash') + gn('nw-stocks') + gn('nw-mf') + gn('nw-ppf') + gn('nw-epf') + gn('nw-fd') + gn('nw-realestate') + gn('nw-gold') + gn('nw-crypto') + gn('nw-other'),
-      risk_profile:     'balanced',
-      profile_data: {
-        budget: {
-          income: { salary: gn('income-salary'), business: gn('income-business'), freelance: gn('income-freelance'), rent: gn('income-rent'), other: gn('income-other') },
-          expenses: { rent: gn('exp-rent'), food: gn('exp-food'), transport: gn('exp-transport'), health: gn('exp-health'), entertainment: gn('exp-entertainment'), shopping: gn('exp-shopping'), utilities: gn('exp-utilities'), subscriptions: gn('exp-subscriptions'), other: gn('exp-other') }
-        },
-        netWorth: {
-          assets: { cash: gn('nw-cash'), stocks: gn('nw-stocks'), mf: gn('nw-mf'), ppf: gn('nw-ppf'), epf: gn('nw-epf'), fd: gn('nw-fd'), realestate: gn('nw-realestate'), gold: gn('nw-gold'), crypto: gn('nw-crypto'), other: gn('nw-other') },
-          liabilities: { homeloan: gn('nw-homeloan'), carloan: gn('nw-carloan'), personalloan: gn('nw-personalloan'), creditcard: gn('nw-creditcard'), other: gn('nw-otherliab') }
-        }
-      },
-      goals: [...selectedGoals],
-      report_text: `ArthaPlanner snapshot saved on ${new Date().toLocaleDateString('en-IN')}`
-    };
+    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
 
-    /* 4. Upsert to planner_journeys (unique per user_id) */
-    const upsertRes = await fetch(`${PLANNER_SUPABASE_URL}/rest/v1/planner_journeys?on_conflict=user_id`, {
-      method: 'POST',
-      headers: {
-        'apikey': PLANNER_SUPABASE_ANON,
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'resolution=merge-duplicates,return=minimal'
-      },
-      body: JSON.stringify({ user_id: meData.id, ...plannerData })
-    });
+    // Header branding
+    pdf.setFillColor(26, 58, 92);
+    pdf.rect(0, 0, 210, 28, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(16);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('ArthaAI — ArthaPlanner', margin, 14);
+    pdf.setFontSize(8);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text('Smart Money Guidance for Every Indian', margin, 20);
+    pdf.setTextColor(224, 92, 26);
+    pdf.text('by Zyllo Tech Software Solutions Pvt Ltd', margin, 24);
 
-    if (!upsertRes.ok) {
-      const err = await upsertRes.text();
-      throw new Error(err);
+    // Planner result image
+    const startY = 34;
+    const maxH = 297 - startY - 20;
+    if (contentH > maxH) {
+      const scale = maxH / contentH;
+      pdf.addImage(imgData, 'PNG', margin, startY, contentW * scale, maxH);
+    } else {
+      pdf.addImage(imgData, 'PNG', margin, startY, contentW, contentH);
     }
 
-    if (btn) { btn.disabled = false; btn.textContent = '✅ Plan Saved!'; }
-    setTimeout(() => { if (btn) btn.textContent = '💾 Save My Plan'; }, 3000);
-    if (typeof window.showToast === 'function') window.showToast('Plan saved to your account!', 'success');
+    // Footer
+    pdf.setFillColor(245, 245, 245);
+    pdf.rect(0, 285, 210, 12, 'F');
+    pdf.setTextColor(120, 120, 120);
+    pdf.setFontSize(6.5);
+    pdf.text('Disclaimer: ArthaAI planners are for educational purposes only. Not financial advice. Consult a SEBI-registered adviser.', margin, 290);
+    pdf.text('Generated on ' + new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }) + ' · arthaai.zyllotech.com', margin, 294);
 
+    pdf.save((filename || 'ArthaAI_Planner_Report') + '.pdf');
+    if (window.showToast) showToast('PDF downloaded successfully!', 'success');
   } catch (err) {
-    console.error('Save plan error:', err);
-    if (btn) { btn.disabled = false; btn.textContent = '💾 Save My Plan'; }
-    alert('Could not save plan: ' + err.message);
+    console.error('PDF export error:', err);
+    if (window.showToast) showToast('PDF generation failed. Please try again.', 'error');
+  } finally {
+    if (btn) { btn.classList.remove('loading'); btn.textContent = '📥 Download PDF Report'; }
   }
 };
