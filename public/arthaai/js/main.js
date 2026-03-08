@@ -323,6 +323,24 @@ document.querySelectorAll('form.calc-form, form.planner-form').forEach(form => {
   form.addEventListener('submit', e => e.preventDefault());
 });
 
+/* ══════════════════════════════════════
+   11. CALCULATOR TAB SWITCHER
+   Handles .tab-btn[data-tab] → .tab-panel#tab-{name}
+══════════════════════════════════════ */
+(function initCalcTabs() {
+  const buttons = document.querySelectorAll('.tab-btn[data-tab]');
+  if (!buttons.length) return;
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-tab');
+      buttons.forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.tab-panel').forEach(p => {
+        p.classList.toggle('active', p.id === 'tab-' + target);
+      });
+    });
+  });
+})();
+
 
 console.log('%cArthaAI by Zyllo Tech Software Solutions Pvt Ltd', 'color:#E05C1A;font-weight:700;font-size:14px;');
 console.log('%cSmart Money Guidance for Every Indian 🇮🇳', 'color:#1A3A5C;font-size:12px;');
