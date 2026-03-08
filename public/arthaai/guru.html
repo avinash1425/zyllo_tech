@@ -1128,6 +1128,64 @@ const GURU_SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXB
 
 let chatHistory = []; // { role: 'user'|'assistant', content: string }
 
+const CHAT_LANGUAGE_KEY = 'arthaai-chat-language';
+const LANGUAGE_CONFIG = {
+  en: { label: 'English', promptName: 'English' },
+  hi: { label: 'हिन्दी', promptName: 'Hindi' },
+  te: { label: 'తెలుగు', promptName: 'Telugu' },
+  ta: { label: 'தமிழ்', promptName: 'Tamil' },
+  mr: { label: 'मराठी', promptName: 'Marathi' },
+  bn: { label: 'বাংলা', promptName: 'Bengali' },
+  gu: { label: 'ગુજરાતી', promptName: 'Gujarati' },
+  kn: { label: 'ಕನ್ನಡ', promptName: 'Kannada' },
+  ml: { label: 'മലയാളം', promptName: 'Malayalam' },
+  pa: { label: 'ਪੰਜਾਬੀ', promptName: 'Punjabi' },
+  or: { label: 'ଓଡ଼ିଆ', promptName: 'Odia' },
+  as: { label: 'অসমীয়া', promptName: 'Assamese' },
+  ur: { label: 'اردو', promptName: 'Urdu' },
+  sa: { label: 'संस्कृतम्', promptName: 'Sanskrit' },
+  mai: { label: 'मैथिली', promptName: 'Maithili' },
+  kok: { label: 'कोंकणी', promptName: 'Konkani' },
+  doi: { label: 'डोगरी', promptName: 'Dogri' },
+  bho: { label: 'भोजपुरी', promptName: 'Bhojpuri' },
+  ne: { label: 'नेपाली', promptName: 'Nepali' },
+};
+
+let selectedLanguage = 'en';
+
+function resolveInitialLanguage() {
+  const saved = localStorage.getItem(CHAT_LANGUAGE_KEY);
+  if (saved && LANGUAGE_CONFIG[saved]) return saved;
+
+  const browserLang = (navigator.language || 'en').split('-')[0].toLowerCase();
+  return LANGUAGE_CONFIG[browserLang] ? browserLang : 'en';
+}
+
+function initLanguageSelector() {
+  const langSelect = document.getElementById('langSelect');
+  const chatInput = document.getElementById('chatInput');
+  const status = document.querySelector('.chat-status');
+  if (!langSelect) return;
+
+  selectedLanguage = resolveInitialLanguage();
+  langSelect.value = selectedLanguage;
+
+  const applyLanguage = () => {
+    selectedLanguage = langSelect.value;
+    localStorage.setItem(CHAT_LANGUAGE_KEY, selectedLanguage);
+    const languageLabel = LANGUAGE_CONFIG[selectedLanguage]?.label || 'English';
+    if (status) status.textContent = `Online · ${languageLabel}`;
+    if (chatInput) {
+      chatInput.placeholder = `Ask anything about personal finance in ${languageLabel}…`;
+    }
+  };
+
+  langSelect.addEventListener('change', applyLanguage);
+  applyLanguage();
+}
+
+initLanguageSelector();
+
 function addMessage(text, isUser = false, tag = '') {
   const container = document.getElementById('chatMessages');
   const now = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
