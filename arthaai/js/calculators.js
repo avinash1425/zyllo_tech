@@ -76,6 +76,7 @@ window.calculateEMI = function () {
   // Yearly breakdown table
   buildEMITable(P, r, n, emi);
   show('emi-result');
+  fetchAIInsights('EMI Calculator', 'emi-result');
 };
 
 function buildEMITable(P, r, n, emi) {
@@ -189,6 +190,7 @@ window.calculateSIP = function () {
   // Year-wise growth bars
   buildSIPBars(mode, amount, r, years, stepUp);
   show('sip-result');
+  fetchAIInsights('SIP/Lumpsum Calculator', 'sip-result');
 };
 
 function buildSIPBars(mode, amount, r, years, stepUp) {
@@ -302,6 +304,7 @@ window.calculateTax = function () {
   }
 
   show('tax-result');
+  fetchAIInsights('Tax Savings Calculator (Old vs New Regime)', 'tax-result');
 };
 
 /* ══════════════════════════════════════
@@ -369,6 +372,7 @@ window.calculateFD = function () {
   }
 
   show('fd-result');
+  fetchAIInsights('FD/PPF/NPS/RD Comparator', 'fd-result');
 };
 
 window.setFDType = function (type) {
@@ -441,6 +445,7 @@ window.calculateRetirement = function () {
   }
 
   show('ret-result');
+  fetchAIInsights('Retirement Corpus Planner', 'ret-result');
 };
 
 /* ══════════════════════════════════════
@@ -525,6 +530,7 @@ window.calculateRentVsBuy = function () {
   }
 
   show('rvb-result');
+  fetchAIInsights('Rent vs Buy Analyser', 'rvb-result');
 };
 
 /* ══════════════════════════════════════
@@ -575,6 +581,7 @@ window.calculateGold = function () {
   if (ic) { ic.setAttribute('stroke-dasharray', `${investedArc} ${C}`); ic.setAttribute('stroke-dashoffset', `-${gainsArc}`); }
 
   show('gold-result');
+  fetchAIInsights('Gold Investment Calculator', 'gold-result');
 };
 
 window.toggleGoldMode = function(mode) {
@@ -635,6 +642,7 @@ window.calculateEduLoan = function () {
   `);
 
   show('edu-result');
+  fetchAIInsights('Education Loan Calculator', 'edu-result');
 };
 
 /* ══════════════════════════════════════
@@ -690,6 +698,7 @@ window.calculateGratuity = function () {
   html('grat-projection-bars', barsHtml);
 
   show('grat-result');
+  fetchAIInsights('Gratuity Calculator', 'grat-result');
 };
 
 window.toggleGratuityType = function(type) {
@@ -810,6 +819,99 @@ window.exportPDF = async function(elementId, filename) {
 };
 
 /* ══════════════════════════════════════
+   AI INSIGHTS — Post-Calculation Tips
+══════════════════════════════════════ */
+const SUPABASE_URL = 'https://zfjeflpvwizlteflypsx.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmamVmbHB2d2l6bHRlZmx5cHN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzI3NDQsImV4cCI6MjA4ODIwODc0NH0.ByQFv9bNnc1ibdeE1nWoHhqIKFw-mGxFbb2nsPc7F_s';
+
+window.fetchAIInsights = async function(calculatorType, resultElementId) {
+  const el = document.getElementById(resultElementId);
+  if (!el) return;
+
+  // Extract text data from result element
+  const resultData = el.innerText.replace(/\n{3,}/g, '\n').trim().slice(0, 1500);
+
+  // Find or create insights container
+  let insightsEl = el.querySelector('.ai-insights-box');
+  if (!insightsEl) {
+    insightsEl = document.createElement('div');
+    insightsEl.className = 'ai-insights-box';
+    insightsEl.style.cssText = 'margin-top:16px; padding:14px 16px; background:linear-gradient(135deg,rgba(224,92,26,0.08),rgba(255,255,255,0.05)); border:1px solid rgba(224,92,26,0.25); border-radius:12px; font-size:0.84rem; color:rgba(255,255,255,0.9); line-height:1.7;';
+    el.appendChild(insightsEl);
+  }
+  insightsEl.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:1.1rem;">🤖</span><strong style="color:rgba(224,92,26,0.9);">ArthaGuru AI Insights</strong><span class="ai-loading" style="font-size:0.75rem;color:rgba(255,255,255,0.5);">Analyzing...</span></div>';
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/arthaai-insights`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON}`,
+        'apikey': SUPABASE_ANON,
+      },
+      body: JSON.stringify({ calculatorType, resultData }),
+    });
+
+    if (!res.ok) throw new Error('AI unavailable');
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    insightsEl.innerHTML = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="font-size:1.1rem;">🤖</span><strong style="color:rgba(224,92,26,0.9);">ArthaGuru AI Insights</strong></div><div style="white-space:pre-line;">${data.insights}</div>`;
+  } catch (err) {
+    insightsEl.innerHTML = `<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:1.1rem;">🤖</span><strong style="color:rgba(224,92,26,0.9);">ArthaGuru AI Insights</strong><span style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-left:auto;">Unavailable</span></div>`;
+  }
+};
+
+/* ══════════════════════════════════════
+   LIVE MARKET DATA
+══════════════════════════════════════ */
+window.arthaMarketData = null;
+
+window.fetchMarketData = async function() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/arthaai-market-data`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON}`,
+        'apikey': SUPABASE_ANON,
+      },
+      body: JSON.stringify({ type: 'all' }),
+    });
+    if (!res.ok) throw new Error('Market data unavailable');
+    window.arthaMarketData = await res.json();
+
+    // Auto-fill current rates into calculators if available
+    const md = window.arthaMarketData;
+    if (md.rbiRates) {
+      // Update FD rate default
+      const fdRate = document.getElementById('fd-rate');
+      if (fdRate && !fdRate.dataset.userModified) {
+        fdRate.value = md.rbiRates.fdRateRange?.split('–')[1] || '7.0';
+        const fdRateRange = document.getElementById('fd-rate-range');
+        if (fdRateRange) fdRateRange.value = fdRate.value;
+      }
+    }
+    if (md.goldPrices) {
+      const goldEl = document.getElementById('gold-price');
+      if (goldEl && !goldEl.dataset.userModified) {
+        goldEl.value = md.goldPrices.gold24k || 7850;
+      }
+    }
+
+    // Show market data banner
+    const banner = document.getElementById('market-data-banner');
+    if (banner && md.rbiRates) {
+      banner.innerHTML = `<span>📡 Live: Repo ${md.rbiRates.repoRate}% · PPF ${md.rbiRates.ppfRate}% · Gold ₹${(md.goldPrices?.gold24k || 0).toLocaleString('en-IN')}/g</span>`;
+      banner.style.display = 'flex';
+    }
+  } catch (err) {
+    console.warn('Market data fetch failed:', err.message);
+  }
+};
+
+
+/* ══════════════════════════════════════
    INIT: Event listeners & sync
 ══════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
@@ -875,4 +977,7 @@ document.addEventListener('DOMContentLoaded', () => {
   calculateGold();
   calculateEduLoan();
   calculateGratuity();
+
+  // Fetch live market data
+  fetchMarketData();
 });
