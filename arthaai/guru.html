@@ -1145,8 +1145,8 @@ function hideTyping() {
 /* ── Conversation history for multi-turn context ── */
 const conversationHistory = [];
 
-const SUPABASE_URL = 'https://zfjeflpvwizlteflypsx.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmamVmbHB2d2l6bHRlZmx5cHN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzI3NDQsImV4cCI6MjA4ODIwODc0NH0.ByQFv9bNnc1ibdeE1nWoHhqIKFw-mGxFbb2nsPc7F_s';
+/* ── AWS API Gateway endpoint for ArthaGuru AI chat ── */
+const ARTHAGURU_API_URL = 'REPLACE_WITH_API_GATEWAY_URL';
 
 async function sendMessage() {
   const input = document.getElementById('chatInput');
@@ -1161,12 +1161,10 @@ async function sendMessage() {
   conversationHistory.push({ role: 'user', content: text });
 
   try {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/arthaai-chat`, {
+    const response = await fetch(ARTHAGURU_API_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ messages: conversationHistory })
     });
