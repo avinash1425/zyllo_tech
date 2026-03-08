@@ -577,12 +577,13 @@ window.calculateGold = function () {
   show('gold-result');
 };
 
-function toggleGoldMode(mode) {
+window.toggleGoldMode = function(mode) {
   goldMode = mode;
   document.querySelectorAll('.tag-pill[data-goldmode]').forEach(b => b.classList.toggle('active', b.getAttribute('data-goldmode') === mode));
   const label = $('gold-amount-label');
   if (label) label.textContent = mode === 'sip' ? 'Monthly Investment' : 'Lumpsum Investment';
-}
+  calculateGold();
+};
 
 /* ══════════════════════════════════════
    8. EDUCATION LOAN CALCULATOR
@@ -691,10 +692,11 @@ window.calculateGratuity = function () {
   show('grat-result');
 };
 
-function toggleGratuityType(type) {
+window.toggleGratuityType = function(type) {
   gratuityType = type;
   document.querySelectorAll('.tag-pill[data-gratuitytype]').forEach(b => b.classList.toggle('active', b.getAttribute('data-gratuitytype') === type));
-}
+  calculateGratuity();
+};
 
 /* ══════════════════════════════════════
    INIT: Event listeners & sync
@@ -752,7 +754,15 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => toggleGratuityType(btn.getAttribute('data-gratuitytype')));
   });
 
-  // Run default calculations
+  // Run default calculations for all tabs
   calculateEMI();
   calculateSIP();
+  calculateTax();
+  calculateFD();
+  calculateRetirement();
+  calculateRentVsBuy();
+  calculateGold();
+  calculateEduLoan();
+  calculateGratuity();
+});
 });
