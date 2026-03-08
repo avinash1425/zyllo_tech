@@ -369,5 +369,34 @@ document.querySelectorAll('form.calc-form, form.planner-form').forEach(form => {
 })();
 
 
+/* ══════════════════════════════════════
+   DARK MODE TOGGLE
+══════════════════════════════════════ */
+(function initDarkMode() {
+  // Check saved preference or system preference
+  const saved = localStorage.getItem('arthaai-theme');
+  if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('dark');
+  }
+
+  // Toggle function
+  window.toggleDarkMode = function() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('arthaai-theme', isDark ? 'dark' : 'light');
+    // Update all toggle button icons
+    document.querySelectorAll('.dark-toggle').forEach(btn => {
+      btn.textContent = isDark ? '☀️' : '🌙';
+    });
+  };
+
+  // Set initial icon state
+  document.addEventListener('DOMContentLoaded', () => {
+    const isDark = document.documentElement.classList.contains('dark');
+    document.querySelectorAll('.dark-toggle').forEach(btn => {
+      btn.textContent = isDark ? '☀️' : '🌙';
+    });
+  });
+})();
+
 console.log('%cArthaAI by Zyllo Tech Software Solutions Pvt Ltd', 'color:#E05C1A;font-weight:700;font-size:14px;');
 console.log('%cSmart Money Guidance for Every Indian 🇮🇳', 'color:#1A3A5C;font-size:12px;');

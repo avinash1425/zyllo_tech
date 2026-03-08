@@ -72,6 +72,112 @@
   --g900: var(--gray-900);
 }
 
+/* --- Dark Mode --- */
+html.dark {
+  --og: #F07030;
+  --og-dark: #E05C1A;
+  --og-light: rgba(240,112,48,0.15);
+  --og-pale: rgba(240,112,48,0.08);
+  --db: #e2ecf5;
+  --db-dark: #0d1b2a;
+  --db-light: #a3c4e0;
+  --mb: #4da6cc;
+  --mb-light: rgba(77,166,204,0.12);
+  --mb-pale: rgba(77,166,204,0.06);
+  --white: #0f1923;
+  --gray-50: #141f2b;
+  --gray-100: #1a2736;
+  --gray-200: #243342;
+  --gray-300: #35485a;
+  --gray-400: #6b8299;
+  --gray-500: #8fa3b8;
+  --gray-600: #b0c4d8;
+  --gray-700: #cddae8;
+  --gray-800: #e2ecf5;
+  --gray-900: #f0f5fa;
+  --green: #34d399;
+  --green-light: rgba(52,211,153,0.15);
+  --red: #f87171;
+  --red-light: rgba(248,113,113,0.15);
+  --yellow: #fbbf24;
+  --yellow-light: rgba(251,191,36,0.15);
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+  --shadow: 0 1px 3px rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.15);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.15);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.25), 0 4px 6px rgba(0,0,0,0.15);
+  --shadow-xl: 0 20px 25px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.15);
+  --shadow-card: 0 2px 8px rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.15);
+  --shadow-card-hover: 0 8px 24px rgba(0,0,0,0.3), 0 3px 8px rgba(0,0,0,0.2);
+
+  /* Update shorthand aliases */
+  --g50: var(--gray-50);
+  --g100: var(--gray-100);
+  --g200: var(--gray-200);
+  --g300: var(--gray-300);
+  --g400: var(--gray-400);
+  --g500: var(--gray-500);
+  --g600: var(--gray-600);
+  --g700: var(--gray-700);
+  --g800: var(--gray-800);
+  --g900: var(--gray-900);
+}
+
+/* Dark mode overrides for elements using hardcoded colors */
+html.dark body { background: #0f1923; color: var(--gray-800); }
+html.dark .nav { background: rgba(15,25,35,0.95); border-bottom-color: var(--gray-200); }
+html.dark .nav.scrolled { box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+html.dark .nav-logo-text { color: var(--gray-900); }
+html.dark .nav-link { color: var(--gray-500); }
+html.dark .nav-link:hover { color: var(--gray-800); background: var(--gray-100); }
+html.dark .nav-mobile { background: var(--gray-50); border-color: var(--gray-200); }
+html.dark .hero { background: linear-gradient(160deg, #0d1b2a 0%, #162636 55%, #0f1923 100%); }
+html.dark .hero::before { background: radial-gradient(circle, rgba(240,112,48,0.08) 0%, transparent 70%); }
+html.dark .hero::after { background: radial-gradient(circle, rgba(77,166,204,0.08) 0%, transparent 70%); }
+html.dark .card, html.dark .how-step { background: var(--gray-50); border-color: var(--gray-200); }
+html.dark .card:hover, html.dark .how-step:hover { border-color: var(--og); }
+html.dark .problem-card { background: var(--gray-50); border-left-color: var(--og); }
+html.dark .module-card-1 { background: linear-gradient(135deg, rgba(240,112,48,0.08) 0%, rgba(240,112,48,0.04) 100%); border-color: rgba(240,112,48,0.2); }
+html.dark .module-card-2 { background: linear-gradient(135deg, rgba(77,166,204,0.08) 0%, rgba(77,166,204,0.04) 100%); border-color: rgba(77,166,204,0.2); }
+html.dark .module-card-3 { background: linear-gradient(135deg, rgba(52,211,153,0.08) 0%, rgba(52,211,153,0.04) 100%); border-color: rgba(52,211,153,0.2); }
+html.dark .page-header { background: linear-gradient(135deg, #0d1b2a 0%, #162636 100%); }
+html.dark .cta-section { background: linear-gradient(135deg, #0d1b2a 0%, #162636 100%); }
+html.dark .footer { background: #080f16; }
+html.dark .feature-icon-og { background: rgba(240,112,48,0.15); }
+html.dark .feature-icon-db { background: rgba(46,134,171,0.12); }
+html.dark .feature-icon-mb { background: rgba(77,166,204,0.12); }
+html.dark .feature-icon-green { background: rgba(52,211,153,0.12); }
+html.dark .tabs { border-bottom-color: var(--gray-200); }
+html.dark .tab-btn { color: var(--gray-500); }
+html.dark .tab-btn.active { color: var(--og); border-bottom-color: var(--og); }
+html.dark .form-input, html.dark .budget-amount-input, html.dark select { background: var(--gray-100); border-color: var(--gray-200); color: var(--gray-800); }
+html.dark .form-input:focus, html.dark .budget-amount-input:focus { border-color: var(--og); }
+html.dark .btn-ghost { color: var(--gray-600); border-color: var(--gray-200); }
+html.dark .btn-ghost:hover { background: var(--gray-100); color: var(--gray-800); }
+html.dark .float-badge { background: var(--gray-50); color: var(--gray-800); }
+html.dark .pricing-card { background: var(--gray-50); border-color: var(--gray-200); }
+html.dark .pricing-card.featured { background: linear-gradient(135deg, #0d1b2a 0%, #162636 100%); border-color: var(--og); }
+html.dark .budget-row { border-color: var(--gray-200); }
+html.dark .divider { border-color: var(--gray-200); }
+
+/* Dark mode toggle button */
+.dark-toggle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--gray-200);
+  background: var(--gray-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+.dark-toggle:hover { background: var(--gray-100); border-color: var(--gray-300); }
+html.dark .dark-toggle { background: var(--gray-100); border-color: var(--gray-300); }
+
 /* --- Reset & Base --- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
