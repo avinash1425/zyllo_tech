@@ -528,6 +528,175 @@ window.calculateRentVsBuy = function () {
 };
 
 /* ══════════════════════════════════════
+   7. GOLD INVESTMENT CALCULATOR
+══════════════════════════════════════ */
+let goldMode = 'sip';
+
+window.calculateGold = function () {
+  const amount = num('gold-amount') || 5000;
+  const years = num('gold-years') || 10;
+  const cagr = num('gold-return') || 11;
+  const goldPrice = num('gold-price') || 7200;
+
+  let invested, futureValue;
+  if (goldMode === 'sip') {
+    invested = amount * 12 * years;
+    const monthlyReturn = cagr / 12 / 100;
+    const n = years * 12;
+    futureValue = amount * ((Math.pow(1 + monthlyReturn, n) - 1) / monthlyReturn) * (1 + monthlyReturn);
+  } else {
+    invested = amount;
+    futureValue = amount * Math.pow(1 + cagr / 100, years);
+  }
+
+  const gains = futureValue - invested;
+  const gainPct = invested > 0 ? Math.round((gains / futureValue) * 100) : 0;
+  const goldGrams = futureValue / goldPrice;
+  const projectedPrice = goldPrice * Math.pow(1 + cagr / 100, years);
+
+  html('gold-total', formatINR(futureValue, 0));
+  html('gold-total-sub', `${goldMode === 'sip' ? 'Gold SIP' : 'Lumpsum'} for ${years} years at ${cagr}% CAGR`);
+  html('gold-invested', formatINR(invested, 0));
+  html('gold-gains', formatINR(gains, 0));
+  html('gold-grams', goldGrams.toFixed(1) + 'g');
+  html('gold-gain-pct', gainPct + '%');
+  html('gold-projection', `
+    <p>Projected gold price in ${years}yr: <strong>₹${Math.round(projectedPrice).toLocaleString('en-IN')}/g</strong></p>
+    <p style="margin-top:6px; font-size:0.8rem; opacity:0.7;">Approx gold equivalent: ${goldGrams.toFixed(1)}g at today's price (₹${goldPrice.toLocaleString('en-IN')}/g)</p>
+  `);
+
+  // Donut
+  const C = 2 * Math.PI * 60;
+  const gainsArc = C * (gainPct / 100);
+  const investedArc = C * ((100 - gainPct) / 100);
+  const gc = $('gold-donut-gains');
+  const ic = $('gold-donut-invested');
+  if (gc) { gc.setAttribute('stroke-dasharray', `${gainsArc} ${C}`); gc.setAttribute('stroke-dashoffset', '0'); }
+  if (ic) { ic.setAttribute('stroke-dasharray', `${investedArc} ${C}`); ic.setAttribute('stroke-dashoffset', `-${gainsArc}`); }
+
+  show('gold-result');
+};
+
+function toggleGoldMode(mode) {
+  goldMode = mode;
+  document.querySelectorAll('.tag-pill[data-goldmode]').forEach(b => b.classList.toggle('active', b.getAttribute('data-goldmode') === mode));
+  const label = $('gold-amount-label');
+  if (label) label.textContent = mode === 'sip' ? 'Monthly Investment' : 'Lumpsum Investment';
+}
+
+/* ══════════════════════════════════════
+   8. EDUCATION LOAN CALCULATOR
+══════════════════════════════════════ */
+window.calculateEduLoan = function () {
+  const P = num('edu-amount') || 2000000;
+  const annualRate = num('edu-rate') || 10.5;
+  const tenure = num('edu-tenure') || 7;
+  const moratorium = num('edu-moratorium') || 1;
+  const taxBracket = num('edu-taxbracket') || 20;
+
+  const r = annualRate / 100 / 12;
+  const n = tenure * 12;
+
+  // Moratorium interest accrual
+  const effectivePrincipal = P * Math.pow(1 + annualRate / 100, moratorium);
+  const extraInterest = effectivePrincipal - P;
+
+  // EMI on effective principal
+  const emi = effectivePrincipal * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+  const totalPayment = emi * n;
+  const totalInterest = totalPayment - effectivePrincipal + extraInterest;
+  const taxSaved = totalInterest * (taxBracket / 100);
+
+  const principalPct = Math.round((P / (P + totalInterest)) * 100);
+
+  html('edu-emi', formatINR(emi, 0));
+  html('edu-emi-sub', `₹${(P / 100000).toFixed(0)}L at ${annualRate}% for ${tenure} years`);
+  html('edu-principal-show', formatINR(P, 0));
+  html('edu-interest-show', formatINR(totalInterest, 0));
+  html('edu-tax-saved', formatINR(taxSaved, 0));
+  html('edu-principal-pct', principalPct + '%');
+
+  // Donut
+  const C = 2 * Math.PI * 60;
+  const interestPct = 100 - principalPct;
+  const intArc = C * (interestPct / 100);
+  const priArc = C * (principalPct / 100);
+  const ec = $('edu-donut-interest');
+  const pc = $('edu-donut-principal');
+  if (ec) { ec.setAttribute('stroke-dasharray', `${intArc} ${C}`); ec.setAttribute('stroke-dashoffset', '0'); }
+  if (pc) { pc.setAttribute('stroke-dasharray', `${priArc} ${C}`); pc.setAttribute('stroke-dashoffset', `-${intArc}`); }
+
+  // Moratorium comparison table
+  html('edu-moratorium-body', `
+    <tr><td>No Moratorium</td><td>${formatINR(P, 0)}</td></tr>
+    <tr><td>After ${moratorium}yr moratorium</td><td>${formatINR(effectivePrincipal, 0)}</td></tr>
+    <tr><td>Extra Interest Accrued</td><td style="color:#ef4444;">${formatINR(extraInterest, 0)}</td></tr>
+  `);
+
+  show('edu-result');
+};
+
+/* ══════════════════════════════════════
+   9. GRATUITY CALCULATOR
+══════════════════════════════════════ */
+let gratuityType = 'covered';
+
+window.calculateGratuity = function () {
+  const salary = num('grat-salary') || 60000;
+  const years = num('grat-years') || 12;
+  const divisor = gratuityType === 'covered' ? 26 : 30;
+  const taxExemptLimit = 2000000; // ₹20L
+
+  const gratuity = (15 * salary * years) / divisor;
+  const exempt = Math.min(gratuity, taxExemptLimit);
+  const taxable = Math.max(0, gratuity - taxExemptLimit);
+  const eligible = years >= 5;
+
+  html('grat-amount', formatINR(gratuity, 0));
+  html('grat-sub', `Formula: (15 × ₹${salary.toLocaleString('en-IN')} × ${years}) ÷ ${divisor}`);
+  html('grat-exempt', formatINR(exempt, 0));
+  html('grat-taxable', formatINR(taxable, 0));
+
+  // Eligibility
+  html('grat-eligibility', eligible
+    ? `<span style="color:#4ade80;">✅ Eligible</span> — Minimum 5 years of continuous service met.`
+    : `<span style="color:#ef4444;">❌ Not Eligible</span> — Need at least 5 years of continuous service (currently ${years}).`
+  );
+
+  // Projection bars
+  const milestones = [5, 10, 15, 20, 25].filter(y => y !== years);
+  milestones.push(years);
+  milestones.sort((a, b) => a - b);
+  const maxGrat = (15 * salary * Math.max(...milestones)) / divisor;
+
+  let barsHtml = '';
+  milestones.forEach(y => {
+    const g = (15 * salary * y) / divisor;
+    const pct = maxGrat > 0 ? (g / maxGrat) * 100 : 0;
+    const isCurrentYear = y === years;
+    barsHtml += `
+      <div>
+        <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:3px; color:rgba(255,255,255,${isCurrentYear ? '1' : '0.6'});">
+          <span>${y} yrs${isCurrentYear ? ' ←' : ''}</span>
+          <span style="font-weight:${isCurrentYear ? '700' : '400'};">${formatINR(g, 0)}</span>
+        </div>
+        <div style="height:6px; background:rgba(255,255,255,0.15); border-radius:99px; overflow:hidden;">
+          <div style="height:100%; width:${pct}%; background:${isCurrentYear ? 'var(--og)' : 'rgba(255,255,255,0.35)'}; border-radius:99px;"></div>
+        </div>
+      </div>
+    `;
+  });
+  html('grat-projection-bars', barsHtml);
+
+  show('grat-result');
+};
+
+function toggleGratuityType(type) {
+  gratuityType = type;
+  document.querySelectorAll('.tag-pill[data-gratuitytype]').forEach(b => b.classList.toggle('active', b.getAttribute('data-gratuitytype') === type));
+}
+
+/* ══════════════════════════════════════
    INIT: Event listeners & sync
 ══════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
@@ -539,6 +708,9 @@ document.addEventListener('DOMContentLoaded', () => {
     ['sip-period-range', 'sip-period'],
     ['fd-rate-range', 'fd-rate'],
     ['fd-period-range', 'fd-period'],
+    ['gold-years-range', 'gold-years'],
+    ['edu-rate-range', 'edu-rate'],
+    ['grat-years-range', 'grat-years'],
   ];
   pairs.forEach(([rangeId, inputId]) => {
     if (window.syncRange) {
@@ -568,6 +740,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // FD type toggle
   document.querySelectorAll('.tag-pill[data-fdtype]').forEach(btn => {
     btn.addEventListener('click', () => setFDType(btn.getAttribute('data-fdtype')));
+  });
+
+  // Gold mode toggle
+  document.querySelectorAll('.tag-pill[data-goldmode]').forEach(btn => {
+    btn.addEventListener('click', () => toggleGoldMode(btn.getAttribute('data-goldmode')));
+  });
+
+  // Gratuity type toggle
+  document.querySelectorAll('.tag-pill[data-gratuitytype]').forEach(btn => {
+    btn.addEventListener('click', () => toggleGratuityType(btn.getAttribute('data-gratuitytype')));
   });
 
   // Run default calculations
