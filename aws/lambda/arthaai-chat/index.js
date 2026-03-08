@@ -1,100 +1,122 @@
 /**
  * ArthaAI Chat — AWS Lambda Handler
- * Calls Anthropic claude-haiku-4-5 with the full ArthaGuru system prompt.
- * Deployed in ap-south-2 (Asia Pacific – Hyderabad) for Indian users.
+ * Powered by Google Gemini 1.5 Flash (free tier — no credit card required).
+ * Get your free API key: https://aistudio.google.com/app/apikey
  *
- * Environment variables required:
- *   ANTHROPIC_API_KEY  — your Anthropic API key from console.anthropic.com
+ * Deployed in: ap-south-2 (Asia Pacific – Hyderabad)
+ * Runtime: Node.js 22.x
+ * Env vars required: GEMINI_API_KEY
  */
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Content-Type": "application/json",
 };
 
-const SYSTEM_PROMPT = `You are ArthaGuru — an AI-powered personal finance advisor built exclusively for India by Zyllo Tech. You are knowledgeable, empathetic, and practical.
+const SYSTEM_PROMPT = `You are ArthaGuru, a friendly and knowledgeable AI financial advisor specialising in Indian personal finance. You provide warm, practical guidance on:
 
-Your core identity:
-- You speak the language of everyday Indians — simple, direct, no jargon
-- You are completely unbiased: zero commission, zero product push
-- You are deeply knowledgeable about Indian finance: tax laws, investment products, regulations
-- You can converse in Hindi, Telugu, Bengali, Tamil, Marathi, or English — match the user's language
+• Budgeting and saving strategies tailored to Indian households
+• SIP, mutual funds, ELSS, PPF, NPS, and other Indian investment vehicles
+• Tax planning under the Indian Income Tax Act (80C, 80D, HRA, etc.)
+• Emergency fund building, debt management, and loan advice
+• Financial goal planning — home, education, retirement
+• Stock market basics (NSE/BSE), index funds, and risk management
+• Insurance — term life, health, and general
 
-Key knowledge areas:
-- Tax: Section 80C (₹1.5L), 80D (health insurance), 80CCD(1B) NPS (₹50K extra), HRA, home loan interest 24(b), standard deduction ₹50K
-- Investments: Mutual funds (ELSS, index, large/mid/small cap, debt, hybrid), PPF, NPS, FD, RD, SGB, REITs
-- Insurance: Term insurance (must-have), health insurance, ULIP vs Term+MF comparison
-- Loans: Home, car, personal, education — EMI calculation, prepayment strategies
-- Goals: Emergency fund (6 months expenses), retirement corpus (25x annual expenses), children education, home purchase
-- Budgeting: 50/30/20 rule adapted for India, zero-based budgeting, envelope method
+Always:
+- Give advice in INR (₹) and Indian context
+- Be encouraging, never condescending
+- Recommend consulting a SEBI-registered financial advisor for large decisions
+- Keep responses concise but complete (under 300 words unless deep detail is needed)
+- Use simple language — avoid heavy jargon
+- If unsure, say so honestly rather than guessing
 
-Rules:
-1. Never recommend specific mutual fund scheme names or specific stocks
-2. Always add a brief disclaimer for major investment decisions: "Consult a SEBI-registered advisor"
-3. Give specific ₹ numbers and percentages when helpful
-4. Keep responses focused — max 250 words unless the question needs more depth
-5. Use bullet points for lists — easier to scan
-6. Always end complex advice with a clear "Next Step" or action item
-7. Be encouraging, not preachy`;
+You are part of the ArthaAI platform by Zyllotech.`;
 
 exports.handler = async (event) => {
   // Handle CORS preflight
-  const method = event.httpMethod || event.requestContext?.http?.method || "POST";
+  const method =
+    event.httpMethod ||
+    event.requestContext?.http?.method ||
+    "POST";
+
   if (method === "OPTIONS") {
     return { statusCode: 200, headers: CORS_HEADERS, body: "" };
   }
 
   try {
-    const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-    if (!ANTHROPIC_API_KEY) {
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    if (!GEMINI_API_KEY) {
       return {
         statusCode: 500,
         headers: CORS_HEADERS,
-        body: JSON.stringify({ error: "ANTHROPIC_API_KEY not configured in Lambda environment" }),
+        body: JSON.stringify({
+          error: "GEMINI_API_KEY environment variable not set.",
+        }),
       };
     }
 
     const body = JSON.parse(event.body || "{}");
-    const { messages = [], calcContext = "" } = body;
+    const userMessages = body.messages || [];
 
-    const systemPrompt = calcContext
-      ? `${SYSTEM_PROMPT}\n\nCurrent calculator context (reference if relevant):\n${calcContext}`
-      : SYSTEM_PROMPT;
-
-    const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 1024,
-        system: systemPrompt,
-        messages,
-      }),
-    });
-
-    const data = await anthropicRes.json();
-
-    if (!anthropicRes.ok) {
-      throw new Error(data.error?.message || `Anthropic API error ${anthropicRes.status}`);
+    if (!userMessages.length) {
+      return {
+        statusCode: 400,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ error: "messages array is required." }),
+      };
     }
+
+    // Convert to Gemini contents format
+    // Gemini uses "user" / "model" roles (not "assistant")
+    const contents = userMessages.map((m) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }],
+    }));
+
+    const geminiPayload = {
+      system_instruction: {
+        parts: [{ text: SYSTEM_PROMPT }],
+      },
+      contents,
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 1024,
+      },
+    };
+
+    const geminiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(geminiPayload),
+      }
+    );
+
+    if (!geminiRes.ok) {
+      const errText = await geminiRes.text();
+      throw new Error(`Gemini API error ${geminiRes.status}: ${errText}`);
+    }
+
+    const geminiData = await geminiRes.json();
+    const replyText =
+      geminiData?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "Sorry, I could not generate a response. Please try again.";
 
     return {
       statusCode: 200,
       headers: CORS_HEADERS,
-      body: JSON.stringify({ message: data.content[0].text }),
+      body: JSON.stringify({ message: replyText }),
     };
   } catch (err) {
     console.error("ArthaGuru Lambda error:", err);
     return {
       statusCode: 500,
       headers: CORS_HEADERS,
-      body: JSON.stringify({ error: err.message || "Internal server error" }),
+      body: JSON.stringify({ error: err.message }),
     };
   }
 };
