@@ -604,8 +604,8 @@ window.shareViaWhatsApp = function(elementId, title) {
 
   window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
 };
-
-
+/* ══════════════════════════════════════
+   PDF EXPORT FOR PLANNER
 ══════════════════════════════════════ */
 window.exportPlannerPDF = async function(elementId, filename) {
   const el = document.getElementById(elementId);

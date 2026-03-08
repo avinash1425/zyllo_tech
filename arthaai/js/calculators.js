@@ -740,7 +740,8 @@ window.shareViaWhatsApp = function(elementId, title) {
   window.open(url, '_blank');
 };
 
-
+/* ══════════════════════════════════════
+   PDF EXPORT
 ══════════════════════════════════════ */
 window.exportPDF = async function(elementId, filename) {
   const el = document.getElementById(elementId);
