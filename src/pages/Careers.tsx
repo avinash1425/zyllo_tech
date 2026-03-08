@@ -300,21 +300,37 @@ const CareersPage = () => {
         <div className="container mx-auto px-4 sm:px-6">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-3">Why Zyllo Tech</p>
               <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-6">
-                Why professionals choose <span className="text-gradient">Zyllo Tech</span>
+                Build products that matter with a team that <span className="text-gradient">cares</span>
               </h2>
-              <div className="space-y-4 text-muted-foreground">
+              <div className="space-y-5 text-muted-foreground">
                 <div className="flex items-start gap-3">
-                  <Rocket className="h-5 w-5 mt-0.5 text-primary" />
-                  <p>High-impact product work in AI-powered automation and cloud-native engineering.</p>
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                    <Rocket className="h-4.5 w-4.5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground mb-0.5">High-Impact Engineering</p>
+                    <p className="text-sm">Work on AI-powered automation, cloud-native platforms, and real-world product delivery.</p>
+                  </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Users className="h-5 w-5 mt-0.5 text-primary" />
-                  <p>Transparent culture, mentorship support, and clear growth tracks.</p>
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                    <Users className="h-4.5 w-4.5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground mb-0.5">Growth-Oriented Culture</p>
+                    <p className="text-sm">Transparent culture, mentorship, code reviews, and clear career growth tracks.</p>
+                  </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <ShieldCheck className="h-5 w-5 mt-0.5 text-primary" />
-                  <p>Flexible remote-friendly work, strong engineering practices, and ownership mindset.</p>
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                    <ShieldCheck className="h-4.5 w-4.5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground mb-0.5">Flexible & Remote-First</p>
+                    <p className="text-sm">Remote-friendly work, strong engineering practices, and an ownership mindset.</p>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -323,9 +339,9 @@ const CareersPage = () => {
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="overflow-hidden rounded-2xl border border-border"
+              className="overflow-hidden rounded-2xl border border-border shadow-lg"
             >
-              <img src={careersBanner} alt="Careers at Zyllo Tech" className="h-80 w-full object-cover" />
+              <img src={careersHero} alt="Zyllo Tech engineering team collaborating in a modern office" className="h-80 w-full object-cover" loading="lazy" />
             </motion.div>
           </div>
         </div>
