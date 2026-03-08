@@ -9,6 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js" defer></script>
   <style>
     .calc-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
     .calc-desc { background: var(--og-pale); border: 1px solid #f5d8c8; border-radius: var(--radius-lg); padding: 20px; margin-bottom: 24px; font-size: 0.88rem; color: var(--gray-600); line-height: 1.7; }
@@ -33,6 +35,9 @@
     .donut-label { font-size: 0.68rem; color: rgba(255,255,255,0.6); margin-top: 2px; }
     .legend-row { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: rgba(255,255,255,0.8); }
     .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .pdf-download-btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-top:20px; padding:12px; border:1.5px dashed rgba(255,255,255,0.3); border-radius:var(--radius-lg); background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.8); font-size:0.82rem; font-weight:600; cursor:pointer; transition:var(--transition); }
+    .pdf-download-btn:hover { background:rgba(255,255,255,0.12); border-color:rgba(255,255,255,0.5); color:#fff; }
+    .pdf-download-btn.loading { pointer-events:none; opacity:0.6; }
     @media (max-width: 768px) { .calc-layout { grid-template-columns: 1fr; } }
     /* Hide own nav when embedded inside React shell */
     html.embedded .nav,
