@@ -1,9 +1,9 @@
 /**
- * ArthaAI — calculators.js
+ * ArthaAI — calculators.js (v2 — Fixed & Enhanced)
  * Full calculator logic for ArthaCalc module:
  *   1. EMI Calculator
  *   2. SIP / Lumpsum Calculator
- *   3. Tax Savings (Old vs New Regime)
+ *   3. Tax Savings (Old vs New Regime — FY 2025-26)
  *   4. FD / PPF / NPS / RD Comparator
  *   5. Retirement Corpus Planner
  *   6. Rent vs Buy Analyser
@@ -13,373 +13,338 @@
 'use strict';
 
 /* ══════════════════════════════════════
-   GLOBAL: TAB SWITCHER
+   HELPERS
 ══════════════════════════════════════ */
-window.switchCalcTab = function(tabName) {
-  document.querySelectorAll('.calc-tab-btn').forEach(b =>
-    b.classList.toggle('active', b.getAttribute('data-calc') === tabName)
-  );
-  document.querySelectorAll('.calc-panel').forEach(p =>
-    p.classList.toggle('active', p.id === 'calc-' + tabName)
-  );
+const $ = (id) => document.getElementById(id);
+const num = (id) => parseFloat($(id)?.value) || 0;
+const html = (id, h) => { const el = $(id); if (el) el.innerHTML = h; };
+const setV = (id, v) => { const el = $(id); if (el) el.value = v; };
+const show = (id) => {
+  const el = $(id);
+  if (el) {
+    el.style.display = '';
+    el.style.opacity = '0';
+    requestAnimationFrame(() => {
+      el.style.transition = 'opacity .4s ease';
+      el.style.opacity = '1';
+    });
+  }
 };
 
 /* ══════════════════════════════════════
-   GLOBAL: LOAN TYPE PRESETS (EMI)
-══════════════════════════════════════ */
-window.setLoanPreset = function(type) {
-  document.querySelectorAll('.loan-preset-btn').forEach(b =>
-    b.classList.toggle('active', b.getAttribute('data-preset') === type)
-  );
-  const presets = {
-    home:      { principal: 3000000,  rate: 8.5,  tenure: 240 },
-    car:       { principal: 700000,   rate: 9.0,  tenure: 60  },
-    personal:  { principal: 300000,   rate: 12.0, tenure: 36  },
-    education: { principal: 1000000,  rate: 10.5, tenure: 84  }
-  };
-  const p = presets[type];
-  if (!p) return;
-  setVal('emiPrincipal',   p.principal);
-  setVal('emiRate',        p.rate);
-  setVal('emiTenure',      p.tenure);
-  setVal('emiPrincipalRange', p.principal);
-  setVal('emiRateRange',     p.rate);
-  setVal('emiTenureRange',   p.tenure);
-  calculateEMI();
-};
-
-/* ═══════════════════════════════════════════
    1. EMI CALCULATOR
-═══════════════════════════════════════════ */
-window.calculateEMI = function() {
-  const P = parseNum('emiPrincipal') || 3000000;
-  const r = (parseNum('emiRate') || 8.5) / 100 / 12;
-  const n = parseNum('emiTenure') || 240;
+══════════════════════════════════════ */
+window.calculateEMI = function () {
+  const P = num('emi-principal') || 3000000;
+  const annualRate = num('emi-rate') || 8.5;
+  const r = annualRate / 100 / 12;
+  const tenureYears = num('emi-tenure') || 20;
+  const n = tenureYears * 12;
+
+  // Auto-fill months
+  setV('emi-tenure-months', n);
 
   if (P <= 0 || r <= 0 || n <= 0) return;
 
-  const emi       = P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
-  const total     = emi * n;
-  const interest  = total - P;
+  const emi = P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+  const total = emi * n;
+  const interest = total - P;
   const principalPct = Math.round((P / total) * 100);
-  const interestPct  = 100 - principalPct;
+  const interestPct = 100 - principalPct;
 
-  setHTML('emiMonthly',      formatINR(emi, 0));
-  setHTML('emiTotalPayment', formatINR(total, 0));
-  setHTML('emiTotalInterest',formatINR(interest, 0));
+  html('emi-monthly', formatINR(emi, 0));
+  html('emi-total-interest', formatINR(interest, 0));
+  html('emi-total-amount', formatINR(total, 0));
+  html('emi-principal-display', formatINR(P, 0));
+  html('emi-interest-pct', interestPct + '%');
 
-  // Donut chart
-  if (window.drawDonut) {
-    drawDonut('emiDonut', principalPct, interestPct, ['#1A3A5C', '#E05C1A']);
+  // Update SVG donut circles
+  const C = 2 * Math.PI * 60; // circumference, r=60
+  const interestArc = C * (interestPct / 100);
+  const principalArc = C * (principalPct / 100);
+  const intCircle = $('emi-donut-interest');
+  const priCircle = $('emi-donut-principal');
+  if (intCircle) {
+    intCircle.setAttribute('stroke-dasharray', `${interestArc} ${C}`);
+    intCircle.setAttribute('stroke-dashoffset', '0');
+  }
+  if (priCircle) {
+    priCircle.setAttribute('stroke-dasharray', `${principalArc} ${C}`);
+    priCircle.setAttribute('stroke-dashoffset', `-${interestArc}`);
   }
 
-  // Donut labels
-  setHTML('emiPrincipalPct', principalPct + '%');
-  setHTML('emiInterestPct',  interestPct  + '%');
-
-  // Yearly table
+  // Yearly breakdown table
   buildEMITable(P, r, n, emi);
-
-  // Animate result reveal
-  revealResult('emiResult');
+  show('emi-result');
 };
 
 function buildEMITable(P, r, n, emi) {
-  const tbody = document.getElementById('emiTableBody');
+  const tbody = $('emi-breakdown-body');
   if (!tbody) return;
   tbody.innerHTML = '';
-
   let balance = P;
-  let cumPrincipal = 0, cumInterest = 0;
-
   for (let yr = 1; yr <= Math.ceil(n / 12); yr++) {
-    const monthsThisYear = Math.min(12, n - (yr - 1) * 12);
-    let yrPrincipal = 0, yrInterest = 0;
-    for (let m = 0; m < monthsThisYear; m++) {
+    const months = Math.min(12, n - (yr - 1) * 12);
+    let yrPri = 0, yrInt = 0;
+    for (let m = 0; m < months; m++) {
       const intPart = balance * r;
       const priPart = emi - intPart;
-      yrInterest  += intPart;
-      yrPrincipal += priPart;
-      balance     -= priPart;
+      yrInt += intPart;
+      yrPri += priPart;
+      balance -= priPart;
     }
-    cumPrincipal += yrPrincipal;
-    cumInterest  += yrInterest;
-
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
+    tbody.innerHTML += `<tr>
       <td>Year ${yr}</td>
-      <td>${formatINR(yrPrincipal, 0)}</td>
-      <td>${formatINR(yrInterest, 0)}</td>
-      <td>${formatINR(cumPrincipal, 0)}</td>
+      <td>${formatINR(yrPri, 0)}</td>
+      <td>${formatINR(yrInt, 0)}</td>
       <td>${formatINR(Math.max(balance, 0), 0)}</td>
-    `;
-    tbody.appendChild(tr);
+    </tr>`;
   }
 }
 
-/* ═══════════════════════════════════════════
+/* EMI Loan presets */
+window.setLoanPreset = function (type) {
+  document.querySelectorAll('.tag-pill[data-preset]').forEach(b =>
+    b.classList.toggle('active', b.getAttribute('data-preset') === type)
+  );
+  const presets = {
+    home:      { principal: 3000000, rate: 8.5, tenure: 20 },
+    car:       { principal: 700000,  rate: 9.0, tenure: 5  },
+    personal:  { principal: 300000,  rate: 12.0, tenure: 3  },
+    education: { principal: 1000000, rate: 10.5, tenure: 7  },
+  };
+  const p = presets[type];
+  if (!p) return;
+  setV('emi-principal', p.principal);
+  setV('emi-rate', p.rate);
+  setV('emi-rate-range', p.rate);
+  setV('emi-tenure', p.tenure);
+  setV('emi-tenure-range', p.tenure);
+  setV('emi-tenure-months', p.tenure * 12);
+  calculateEMI();
+};
+
+/* ══════════════════════════════════════
    2. SIP / LUMPSUM CALCULATOR
-═══════════════════════════════════════════ */
-window.toggleSIPMode = function(mode) {
-  document.querySelectorAll('.sip-mode-btn').forEach(b =>
+══════════════════════════════════════ */
+window.toggleSIPMode = function (mode) {
+  document.querySelectorAll('.tag-pill[data-mode]').forEach(b =>
     b.classList.toggle('active', b.getAttribute('data-mode') === mode)
   );
-  const sipRow  = document.getElementById('sipInputRow');
-  const stepRow = document.getElementById('sipStepUpRow');
-  if (mode === 'lumpsum') {
-    if (sipRow)  sipRow.style.display  = 'none';
-    if (stepRow) stepRow.style.display = 'none';
-  } else {
-    if (sipRow)  sipRow.style.display  = '';
-    if (stepRow) stepRow.style.display = '';
-  }
+  const label = $('sip-amount-label');
+  if (label) label.textContent = mode === 'lumpsum' ? 'Lumpsum Amount' : 'Monthly SIP Amount';
+  // Show/hide step-up row for lumpsum mode
+  const stepRow = $('sip-stepup');
+  if (stepRow) stepRow.closest('.form-group').style.display = mode === 'lumpsum' ? 'none' : '';
   calculateSIP();
 };
 
-window.calculateSIP = function() {
-  const mode     = document.querySelector('.sip-mode-btn.active')?.getAttribute('data-mode') || 'sip';
-  const amount   = parseNum('sipAmount')  || 5000;
-  const rate     = parseNum('sipReturn')  || 12;
-  const years    = parseNum('sipPeriod')  || 10;
-  const stepUp   = parseNum('sipStepUp')  || 0;
-  const lumpsum  = parseNum('sipLumpsum') || 100000;
-  const r        = rate / 100;
+window.calculateSIP = function () {
+  const modeBtn = document.querySelector('.tag-pill[data-mode].active');
+  const mode = modeBtn?.getAttribute('data-mode') || 'sip';
+  const amount = num('sip-amount') || 5000;
+  const rate = num('sip-return') || 12;
+  const years = num('sip-period') || 10;
+  const stepUp = num('sip-stepup') || 0;
+  const r = rate / 100;
+  const rMonthly = r / 12;
 
-  let invested, returns, total;
+  let invested, total;
 
-  if (mode === 'sip') {
-    const rMonthly = r / 12;
-    const n        = years * 12;
-
-    if (stepUp > 0) {
-      // Step-up SIP
-      let corpus = 0;
-      let monthlyAmt = amount;
-      let inv = 0;
-      for (let yr = 0; yr < years; yr++) {
-        if (yr > 0) monthlyAmt *= (1 + stepUp / 100);
-        for (let m = 0; m < 12; m++) {
-          corpus = (corpus + monthlyAmt) * (1 + rMonthly);
-          inv   += monthlyAmt;
-        }
+  if (mode === 'lumpsum') {
+    total = amount * Math.pow(1 + r, years);
+    invested = amount;
+  } else if (stepUp > 0) {
+    // Step-up SIP: increase monthly SIP by stepUp% every year
+    let corpus = 0, monthlyAmt = amount, inv = 0;
+    for (let yr = 0; yr < years; yr++) {
+      if (yr > 0) monthlyAmt *= (1 + stepUp / 100);
+      for (let m = 0; m < 12; m++) {
+        corpus = (corpus + monthlyAmt) * (1 + rMonthly);
+        inv += monthlyAmt;
       }
-      invested = inv;
-      total    = corpus;
-    } else {
-      // Regular SIP
-      total    = amount * ((Math.pow(1 + rMonthly, n) - 1) / rMonthly) * (1 + rMonthly);
-      invested = amount * n;
     }
+    invested = inv;
+    total = corpus;
   } else {
-    // Lumpsum
-    total    = lumpsum * Math.pow(1 + r, years);
-    invested = lumpsum;
+    // Regular SIP formula
+    const n = years * 12;
+    total = amount * ((Math.pow(1 + rMonthly, n) - 1) / rMonthly) * (1 + rMonthly);
+    invested = amount * n;
   }
 
-  returns = total - invested;
+  const gains = total - invested;
+  const xirr = invested > 0
+    ? ((Math.pow(total / invested, 1 / years) - 1) * 100).toFixed(1)
+    : '0';
 
-  setHTML('sipTotalInvested',  formatINR(invested, 0));
-  setHTML('sipEstReturns',     formatINR(returns,  0));
-  setHTML('sipTotalValue',     formatINR(total,    0));
-  setHTML('sipXIRR',           (((total / invested) ** (1 / years) - 1) * 100).toFixed(1) + '%');
+  html('sip-maturity', formatINR(total, 0));
+  html('sip-maturity-sub',
+    `In ${years} years · ${mode === 'lumpsum' ? formatINR(amount, 0) + ' lumpsum' : formatINR(amount, 0) + '/month'}${stepUp > 0 ? ' with ' + stepUp + '% step-up' : ''} at ${rate}%`
+  );
+  html('sip-invested', formatINR(invested, 0));
+  html('sip-gains', formatINR(gains, 0));
+  html('sip-cagr', xirr + '%');
 
-  // Year-wise bar chart
-  buildSIPBars(mode, amount, r, years, stepUp, lumpsum);
-  revealResult('sipResult');
+  // Year-wise growth bars
+  buildSIPBars(mode, amount, r, years, stepUp);
+  show('sip-result');
 };
 
-function buildSIPBars(mode, amount, r, years, stepUp, lumpsum) {
-  const container = document.getElementById('sipBars');
+function buildSIPBars(mode, amount, r, years, stepUp) {
+  const container = $('sip-year-bars');
   if (!container) return;
   container.innerHTML = '';
-
   const rMonthly = r / 12;
-  let   maxVal   = 0;
 
-  // Calculate end values per year
   const yearVals = [];
+  let maxVal = 0;
   for (let yr = 1; yr <= years; yr++) {
-    let val, inv;
+    let v, inv;
     if (mode === 'lumpsum') {
-      val = lumpsum * Math.pow(1 + r, yr);
-      inv = lumpsum;
+      v = amount * Math.pow(1 + r, yr);
+      inv = amount;
     } else if (stepUp > 0) {
-      let corpus = 0, monthlyAmt = amount, invAmt = 0;
+      let corpus = 0, mAmt = amount, invA = 0;
       for (let y = 0; y < yr; y++) {
-        if (y > 0) monthlyAmt *= (1 + stepUp / 100);
-        for (let m = 0; m < 12; m++) {
-          corpus = (corpus + monthlyAmt) * (1 + rMonthly);
-          invAmt += monthlyAmt;
-        }
+        if (y > 0) mAmt *= (1 + stepUp / 100);
+        for (let m = 0; m < 12; m++) { corpus = (corpus + mAmt) * (1 + rMonthly); invA += mAmt; }
       }
-      val = corpus; inv = invAmt;
+      v = corpus; inv = invA;
     } else {
       const n = yr * 12;
-      val = amount * ((Math.pow(1 + rMonthly, n) - 1) / rMonthly) * (1 + rMonthly);
+      v = amount * ((Math.pow(1 + rMonthly, n) - 1) / rMonthly) * (1 + rMonthly);
       inv = amount * n;
     }
-    yearVals.push({ year: yr, val, inv });
-    if (val > maxVal) maxVal = val;
+    yearVals.push({ year: yr, val: v, inv });
+    if (v > maxVal) maxVal = v;
   }
 
-  // Build bars (only show every 2nd year if > 10 years)
-  const step = years > 10 ? 2 : 1;
+  const step = years > 15 ? 3 : years > 10 ? 2 : 1;
   yearVals.forEach(({ year, val, inv }) => {
     if (year % step !== 0 && year !== years) return;
-    const pct   = Math.round((val / maxVal) * 100);
-    const invPct= Math.round((inv / val) * pct);
-    const div   = document.createElement('div');
-    div.className = 'sip-bar-item';
-    div.innerHTML = `
-      <div class="sip-bar-wrap" title="${formatINR(val,0)}">
-        <div class="sip-bar" style="height:${pct}%">
-          <div class="sip-bar-inv" style="height:${invPct}%"></div>
+    const pct = Math.round((val / maxVal) * 100);
+    container.innerHTML += `
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+        <span style="min-width:32px; font-size:.75rem; color:rgba(255,255,255,.6); text-align:right;">Y${year}</span>
+        <div style="flex:1; height:8px; background:rgba(255,255,255,.12); border-radius:4px; overflow:hidden;">
+          <div style="width:${pct}%; height:100%; background:var(--og); border-radius:4px; transition:width .5s;"></div>
         </div>
-      </div>
-      <span class="sip-bar-label">Y${year}</span>
-    `;
-    container.appendChild(div);
+        <span style="min-width:80px; text-align:right; font-size:.75rem; font-weight:600; color:rgba(255,255,255,.85);">${formatINRShort(val)}</span>
+      </div>`;
   });
 }
 
-/* ═══════════════════════════════════════════
+/* ══════════════════════════════════════
    3. TAX SAVINGS CALCULATOR
-═══════════════════════════════════════════ */
-window.calculateTax = function() {
-  const income     = parseNum('taxIncome')  || 1000000;
-  const c80c       = Math.min(parseNum('tax80C')   || 0, 150000);
-  const c80d       = Math.min(parseNum('tax80D')   || 0, 75000);
-  const nps80ccd   = Math.min(parseNum('taxNPS')   || 0, 50000);
-  const hra        = parseNum('taxHRA')     || 0;
-  const empType    = document.getElementById('taxEmpType')?.value || 'salaried';
-  const stdDeduct  = empType === 'salaried' ? 50000 : 0;
+   Updated for FY 2025-26 slabs
+══════════════════════════════════════ */
+window.calculateTax = function () {
+  const income = num('tax-income') || 1200000;
+  const c80c = Math.min(num('tax-80c') || 0, 150000);
+  const c80d = Math.min(num('tax-80d') || 0, 100000);
+  const nps80ccd = Math.min(num('tax-nps') || 0, 50000);
+  const hra = num('tax-hra') || 0;
+  const empType = $('tax-type')?.value || 'salaried';
 
-  // ── OLD REGIME ──
-  const oldDeductions = stdDeduct + c80c + c80d + nps80ccd + hra;
-  const oldTaxable    = Math.max(0, income - oldDeductions);
-  const oldTax        = calcOldRegimeTax(oldTaxable);
+  /* ── OLD REGIME ── */
+  const oldStdDedn = empType === 'salaried' ? 50000 : 0;
+  const oldDeductions = oldStdDedn + c80c + c80d + nps80ccd + hra;
+  const oldTaxable = Math.max(0, income - oldDeductions);
 
-  // ── NEW REGIME ──
-  const newStd     = empType === 'salaried' ? 75000 : 0;
-  const newTaxable = Math.max(0, income - newStd);
-  const newTax     = calcNewRegimeTax(newTaxable);
+  let oldTax = 0;
+  if (oldTaxable > 1000000) oldTax += (oldTaxable - 1000000) * 0.30;
+  if (oldTaxable > 500000)  oldTax += (Math.min(oldTaxable, 1000000) - 500000) * 0.20;
+  if (oldTaxable > 250000)  oldTax += (Math.min(oldTaxable, 500000)  - 250000) * 0.05;
+  // 87A rebate (old regime): up to ₹5L taxable → zero tax
+  const oldFinal = oldTaxable <= 500000 ? 0 : Math.round(oldTax * 1.04);
 
-  // Rebate u/s 87A
-  const oldFinal = oldTaxable <= 500000   ? 0 : applyHECess(oldTax);
-  const newFinal = newTaxable <= 700000   ? 0 : applyHECess(newTax);
+  /* ── NEW REGIME (FY 2025-26) ── */
+  const newStdDedn = empType === 'salaried' ? 75000 : 0;
+  const newTaxable = Math.max(0, income - newStdDedn);
+
+  let newTax = 0;
+  if (newTaxable > 2400000) newTax += (newTaxable - 2400000) * 0.30;
+  if (newTaxable > 2000000) newTax += (Math.min(newTaxable, 2400000) - 2000000) * 0.25;
+  if (newTaxable > 1600000) newTax += (Math.min(newTaxable, 2000000) - 1600000) * 0.20;
+  if (newTaxable > 1200000) newTax += (Math.min(newTaxable, 1600000) - 1200000) * 0.15;
+  if (newTaxable > 800000)  newTax += (Math.min(newTaxable, 1200000) - 800000)  * 0.10;
+  if (newTaxable > 400000)  newTax += (Math.min(newTaxable, 800000)  - 400000)  * 0.05;
+  // 87A rebate (new regime FY 2025-26): up to ₹12L taxable → zero tax
+  const newFinal = newTaxable <= 1200000 ? 0 : Math.round(newTax * 1.04);
 
   const saving = Math.abs(oldFinal - newFinal);
   const winner = newFinal <= oldFinal ? 'New Regime' : 'Old Regime';
-  const winnerClass = newFinal <= oldFinal ? 'new' : 'old';
 
-  setHTML('oldRegimeTax',  formatINR(oldFinal, 0));
-  setHTML('newRegimeTax',  formatINR(newFinal, 0));
-  setHTML('taxSaving',     formatINR(saving,   0));
-  setHTML('taxWinner',     `<span class="tax-winner ${winnerClass}">${winner} saves ₹${formatINR(saving,0)}</span>`);
+  html('tax-saved', formatINR(saving, 0));
+  html('tax-saved-sub', `${winner} saves you ${formatINR(saving, 0)}`);
+  html('tax-old', formatINR(oldFinal, 0));
+  html('tax-new', formatINR(newFinal, 0));
 
-  // Deductions breakdown
-  buildTaxDeductionsTable(income, stdDeduct, c80c, c80d, nps80ccd, hra, oldDeductions);
-  revealResult('taxResult');
+  // Deductions breakdown table
+  const tbody = $('tax-breakdown-body');
+  if (tbody) {
+    const items = [
+      ['Standard Deduction', oldStdDedn, '₹50K (Old) / ₹75K (New)'],
+      ['80C Investments', c80c, 'ELSS · PPF · EPF · LIC · Home Loan'],
+      ['80D Health Insurance', c80d, 'Self ₹25K + Parents ₹50K (Sr Citizen)'],
+      ['80CCD(1B) NPS', nps80ccd, 'Additional ₹50K over 80C'],
+      ['HRA Exemption', hra, 'Actual HRA exempt amount'],
+    ].filter(i => i[1] > 0);
+
+    tbody.innerHTML = items.map(([name, amt, note]) =>
+      `<tr><td>${name}</td><td>${formatINR(amt, 0)}</td><td style="font-size:.8rem; opacity:.75">${note}</td></tr>`
+    ).join('') +
+    `<tr style="font-weight:700; background:rgba(255,255,255,.08)">
+       <td colspan="2" style="color:#22c55e">✅ ${winner} → Tax: ${formatINR(Math.min(oldFinal, newFinal), 0)}</td>
+       <td style="font-size:.8rem">Includes 4% HE Cess</td>
+     </tr>`;
+  }
+
+  show('tax-result');
 };
 
-function calcOldRegimeTax(taxable) {
-  let tax = 0;
-  const slabs = [[250000,0],[500000,.05],[1000000,.2],[Infinity,.3]];
-  let prev = 0;
-  for (const [limit, rate] of slabs) {
-    if (taxable <= prev) break;
-    tax += Math.min(taxable, limit) - prev;
-    if (rate) tax = (prev === 0 ? 0 : tax) + (Math.min(taxable, limit) - prev) * rate;
-    prev = limit;
-  }
-  // Recalculate properly
-  tax = 0;
-  if (taxable > 1000000) tax += (taxable - 1000000) * 0.30;
-  if (taxable > 500000)  tax += (Math.min(taxable, 1000000) - 500000) * 0.20;
-  if (taxable > 250000)  tax += (Math.min(taxable, 500000)  - 250000) * 0.05;
-  return tax;
-}
-
-function calcNewRegimeTax(taxable) {
-  let tax = 0;
-  if (taxable > 1500000) tax += (taxable - 1500000) * 0.30;
-  if (taxable > 1200000) tax += (Math.min(taxable, 1500000) - 1200000) * 0.20;
-  if (taxable > 1000000) tax += (Math.min(taxable, 1200000) - 1000000) * 0.15;
-  if (taxable > 700000)  tax += (Math.min(taxable, 1000000) - 700000)  * 0.10;
-  if (taxable > 300000)  tax += (Math.min(taxable, 700000)  - 300000)  * 0.05;
-  return tax;
-}
-
-function applyHECess(tax) {
-  return Math.round(tax + tax * 0.04); // 4% Health & Education Cess
-}
-
-function buildTaxDeductionsTable(income, std, c80c, c80d, nps, hra, total) {
-  const tbody = document.getElementById('taxDeductionsBody');
-  if (!tbody) return;
-  const items = [
-    ['Standard Deduction', std, '— (New: ₹75,000)'],
-    ['80C Investments', c80c, 'ELSS / PPF / EPF / LIC'],
-    ['80D Health Insurance', c80d, 'Self + Parents'],
-    ['80CCD(1B) NPS', nps, 'Additional pension contribution'],
-    ['HRA Exemption', hra, 'Actual / Calculated exempt amount'],
-  ];
-  tbody.innerHTML = items.filter(i => i[1] > 0).map(([name, amt, note]) => `
-    <tr>
-      <td>${name}</td>
-      <td>${formatINR(amt,0)}</td>
-      <td style="color:var(--g500);font-size:.82rem">${note}</td>
-    </tr>
-  `).join('') + `<tr style="font-weight:700;background:var(--g50)">
-    <td>Total Deductions</td>
-    <td>${formatINR(total,0)}</td>
-    <td>Taxable: ${formatINR(Math.max(0, income - total), 0)}</td>
-  </tr>`;
-}
-
-/* ═══════════════════════════════════════════
+/* ══════════════════════════════════════
    4. FD / PPF / NPS / RD COMPARATOR
-═══════════════════════════════════════════ */
-window.calculateFD = function() {
-  const type       = document.querySelector('.fd-type-btn.active')?.getAttribute('data-type') || 'fd';
-  const principal  = parseNum('fdPrincipal') || 100000;
-  const rate       = parseNum('fdRate')      || 7;
-  const years      = parseNum('fdPeriod')    || 5;
-  const freq       = parseInt(document.getElementById('fdFreq')?.value || '4');
+══════════════════════════════════════ */
+window.calculateFD = function () {
+  const typeBtn = document.querySelector('.tag-pill[data-fdtype].active');
+  const type = typeBtn?.getAttribute('data-fdtype') || 'fd';
+  const principal = num('fd-amount') || 100000;
+  const rate = num('fd-rate') || 7;
+  const years = num('fd-period') || 5;
+  const freq = parseInt($('fd-compound')?.value || '4');
+
   let maturity, interest, effectiveRate;
 
-  switch(type) {
+  switch (type) {
     case 'fd': {
-      // Compound interest with frequency
-      maturity      = principal * Math.pow(1 + rate / 100 / freq, freq * years);
-      interest      = maturity - principal;
+      maturity = principal * Math.pow(1 + rate / 100 / freq, freq * years);
+      interest = maturity - principal;
       effectiveRate = (Math.pow(1 + rate / 100 / freq, freq) - 1) * 100;
       break;
     }
     case 'ppf': {
-      // PPF: compounded annually, invested at start of year
-      const r = rate / 100;
-      maturity = 0;
-      for (let yr = 1; yr <= years; yr++) {
-        maturity = (maturity + principal) * (1 + r);
-      }
-      interest      = maturity - principal * years;
+      const annualCap = 150000;
+      const yearlyInvest = Math.min(principal, annualCap);
+      let corpus = 0;
+      for (let yr = 0; yr < years; yr++) corpus = (corpus + yearlyInvest) * (1 + rate / 100);
+      maturity = corpus;
+      interest = maturity - yearlyInvest * years;
       effectiveRate = rate;
       break;
     }
     case 'rd': {
-      // RD: monthly deposits
-      const rMonthly = rate / 100 / 12;
-      const n        = years * 12;
-      maturity       = principal * ((Math.pow(1 + rMonthly, n) - 1) / rMonthly) * (1 + rMonthly);
-      interest       = maturity - principal * n;
-      effectiveRate  = rate;
+      const rM = rate / 100 / 12;
+      const n = years * 12;
+      maturity = principal * ((Math.pow(1 + rM, n) - 1) / rM) * (1 + rM);
+      interest = maturity - principal * n;
+      effectiveRate = rate;
       break;
     }
     case 'nps': {
-      // NPS Tier I: market return (use rate input as expected return)
-      maturity      = principal * Math.pow(1 + rate / 100, years);
-      interest      = maturity - principal;
+      maturity = principal * Math.pow(1 + rate / 100, years);
+      interest = maturity - principal;
       effectiveRate = rate;
       break;
     }
@@ -387,205 +352,222 @@ window.calculateFD = function() {
       maturity = principal; interest = 0; effectiveRate = 0;
   }
 
-  setHTML('fdMaturityAmt',  formatINR(maturity,      0));
-  setHTML('fdInterestEarned', formatINR(interest,    0));
-  setHTML('fdEffectiveRate',  effectiveRate.toFixed(2) + '%');
+  html('fd-maturity', formatINR(maturity, 0));
+  html('fd-principal-show', type === 'rd' ? formatINR(principal * years * 12, 0) : type === 'ppf' ? formatINR(Math.min(principal, 150000) * years, 0) : formatINR(principal, 0));
+  html('fd-interest-show', formatINR(interest, 0));
+  html('fd-effective', effectiveRate.toFixed(2) + '%');
 
-  // Quick comparison table
-  buildFDComparisonTable(principal, rate, years);
-  revealResult('fdResult');
+  // Show/hide compounding dropdown (only for FD)
+  const compGroup = $('fd-compound-group');
+  if (compGroup) compGroup.style.display = type === 'fd' ? '' : 'none';
+
+  // Update labels based on type
+  const amtLabel = $('fd-amount-label');
+  if (amtLabel) {
+    const labels = { fd: 'Deposit Amount', ppf: 'Yearly Contribution (max ₹1.5L)', rd: 'Monthly Deposit', nps: 'Lumpsum Investment' };
+    amtLabel.textContent = labels[type] || 'Amount';
+  }
+
+  show('fd-result');
 };
 
-function buildFDComparisonTable(principal, rate, years) {
-  const tbody = document.getElementById('fdCompTable');
-  if (!tbody) return;
-  const r = rate / 100;
-  const rM = r / 12;
-  const n  = years * 12;
-
-  const fdMat   = principal * Math.pow(1 + r / 4, 4 * years);
-  let   ppfMat  = 0;
-  for (let yr = 1; yr <= years; yr++) ppfMat = (ppfMat + principal) * (1 + r);
-  const rdMat   = principal * ((Math.pow(1 + rM, n) - 1) / rM) * (1 + rM);
-  const npsMat  = principal * Math.pow(1 + (rate + 2) / 100, years); // NPS typically outperforms FD by ~2%
-
-  const rows = [
-    { name: 'Fixed Deposit (FD)',       mat: fdMat,  risk: 'Nil',   tax: 'As per slab',   lock: 'Flexible'    },
-    { name: 'Public Provident Fund (PPF)', mat: ppfMat,risk:'Nil',  tax: 'Tax-Free (EEE)', lock: '15 years'   },
-    { name: 'Recurring Deposit (RD)',    mat: rdMat,  risk: 'Nil',   tax: 'As per slab',   lock: 'Flexible'    },
-    { name: 'NPS Tier I (est.)',         mat: npsMat, risk: 'Low',   tax: 'Partial',        lock: 'Till age 60' },
-  ];
-
-  const maxMat = Math.max(...rows.map(r => r.mat));
-  tbody.innerHTML = rows.map(row => `
-    <tr ${row.mat === maxMat ? 'class="best-row"' : ''}>
-      <td>${row.name} ${row.mat === maxMat ? '<span style="color:#16a34a;font-size:.78rem">★ Best</span>' : ''}</td>
-      <td><strong>${formatINR(row.mat, 0)}</strong></td>
-      <td>${formatINR(row.mat - principal, 0)}</td>
-      <td>${row.risk}</td>
-      <td>${row.tax}</td>
-      <td>${row.lock}</td>
-    </tr>
-  `).join('');
-}
-
-window.setFDType = function(type) {
-  document.querySelectorAll('.fd-type-btn').forEach(b =>
-    b.classList.toggle('active', b.getAttribute('data-type') === type)
+window.setFDType = function (type) {
+  document.querySelectorAll('.tag-pill[data-fdtype]').forEach(b =>
+    b.classList.toggle('active', b.getAttribute('data-fdtype') === type)
   );
   calculateFD();
 };
 
-/* ═══════════════════════════════════════════
+/* ══════════════════════════════════════
    5. RETIREMENT CORPUS CALCULATOR
-═══════════════════════════════════════════ */
-window.calculateRetirement = function() {
-  const currentAge    = parseNum('retCurrentAge')    || 30;
-  const retireAge     = parseNum('retRetireAge')      || 60;
-  const lifeExp       = parseNum('retLifeExp')        || 85;
-  const monthlyExp    = parseNum('retMonthlyExp')     || 50000;
-  const currentSaving = parseNum('retCurrentSaving')  || 500000;
-  const inflation     = (parseNum('retInflation')     || 6)  / 100;
-  const preSavingROI  = (parseNum('retPreROI')        || 12) / 100;
-  const postSavingROI = (parseNum('retPostROI')       || 7)  / 100;
+══════════════════════════════════════ */
+window.calculateRetirement = function () {
+  const currentAge    = num('ret-age')        || 30;
+  const retireAge     = num('ret-retire-age') || 60;
+  const lifeExp       = num('ret-life')       || 85;
+  const monthlyExp    = num('ret-expenses')   || 50000;
+  const currentSaving = num('ret-savings')    || 0;
+  const inflation     = (num('ret-inflation') || 6) / 100;
+  const roi           = (num('ret-roi')       || 12) / 100;
+  const postROI       = 0.07; // assumed 7% post-retirement
 
-  const yearsToRetire  = retireAge  - currentAge;
-  const yearsInRetire  = lifeExp    - retireAge;
+  const yearsToRetire = retireAge - currentAge;
+  const yearsInRetire = lifeExp - retireAge;
   if (yearsToRetire <= 0 || yearsInRetire <= 0) return;
 
-  // Future monthly expense at retirement (inflation-adjusted)
+  // Inflation-adjusted future monthly expense
   const futureMonthlyExp = monthlyExp * Math.pow(1 + inflation, yearsToRetire);
-  // Corpus needed to sustain retirement (Present Value of annuity at post-retirement ROI)
-  const rReal = (postSavingROI - inflation) / (1 + inflation); // real rate
+
+  // Required corpus using real rate of return
+  const rReal = ((1 + postROI) / (1 + inflation)) - 1;
   let corpusNeeded;
-  if (rReal > 0) {
+  if (Math.abs(rReal) > 0.001) {
     corpusNeeded = futureMonthlyExp * 12 * ((1 - Math.pow(1 + rReal, -yearsInRetire)) / rReal);
   } else {
     corpusNeeded = futureMonthlyExp * 12 * yearsInRetire;
   }
 
   // Future value of current savings
-  const fvCurrentSavings = currentSaving * Math.pow(1 + preSavingROI, yearsToRetire);
-  // Gap
-  const gap = Math.max(0, corpusNeeded - fvCurrentSavings);
-  // Monthly SIP needed to fill the gap
-  const rMonthly = preSavingROI / 12;
-  const n        = yearsToRetire * 12;
+  const fvSavings = currentSaving * Math.pow(1 + roi, yearsToRetire);
+  const gap = Math.max(0, corpusNeeded - fvSavings);
+
+  // Monthly SIP to fill the gap
+  const rMonthly = roi / 12;
+  const n = yearsToRetire * 12;
   const monthlySIP = gap > 0
     ? gap * rMonthly / ((Math.pow(1 + rMonthly, n) - 1) * (1 + rMonthly))
     : 0;
 
-  // Readiness %
-  const readiness = Math.min(100, Math.round((fvCurrentSavings / corpusNeeded) * 100));
+  const readiness = Math.min(100, Math.round((fvSavings / Math.max(1, corpusNeeded)) * 100));
 
-  setHTML('retCorpusNeeded',   formatINRShort(corpusNeeded));
-  setHTML('retFutureExpense',  formatINR(futureMonthlyExp, 0) + '/mo');
-  setHTML('retFVSavings',      formatINRShort(fvCurrentSavings));
-  setHTML('retMonthlySIP',     formatINR(monthlySIP, 0));
-  setHTML('retReadinessPct',   readiness + '%');
+  html('ret-corpus', formatINRShort(corpusNeeded));
+  html('ret-monthly-need', formatINR(futureMonthlyExp, 0) + '/mo');
+  html('ret-years', yearsToRetire + ' yrs');
+  html('ret-monthly-sip', formatINR(monthlySIP, 0));
 
-  const bar = document.getElementById('retReadinessBar');
-  if (bar) {
-    bar.style.width = readiness + '%';
-    bar.style.background = readiness >= 70 ? '#22c55e' : readiness >= 40 ? '#f59e0b' : '#ef4444';
+  // Readiness bar
+  const fillBar = $('ret-readiness-fill');
+  if (fillBar) {
+    fillBar.style.width = readiness + '%';
+    fillBar.style.background = readiness >= 70 ? '#22c55e' : readiness >= 40 ? '#f59e0b' : '#ef4444';
+  }
+  const readText = $('ret-readiness-text');
+  if (readText) {
+    readText.textContent = readiness >= 80
+      ? `${readiness}% ready — on track! Maintain your investments.`
+      : readiness >= 40
+        ? `${readiness}% ready — invest ${formatINR(monthlySIP, 0)}/month to catch up.`
+        : `${readiness}% ready — start investing ${formatINR(monthlySIP, 0)}/month now to build your corpus.`;
   }
 
-  revealResult('retResult');
+  show('ret-result');
 };
 
-/* ═══════════════════════════════════════════
+/* ══════════════════════════════════════
    6. RENT vs BUY ANALYSER
-═══════════════════════════════════════════ */
-window.calculateRentVsBuy = function() {
-  const propPrice   = parseNum('rvbPropertyPrice') || 6000000;
-  const downPct     = (parseNum('rvbDownPayment')  || 20) / 100;
-  const loanRate    = (parseNum('rvbLoanRate')     || 8.5) / 100;
-  const loanYears   = parseNum('rvbLoanTenure')    || 20;
-  const rent        = parseNum('rvbMonthlyRent')   || 20000;
-  const rentIncrease= (parseNum('rvbRentIncrease') || 6)  / 100;
-  const appreciation= (parseNum('rvbAppreciation') || 7)  / 100;
-  const years       = parseNum('rvbHorizon')       || 10;
+══════════════════════════════════════ */
+window.calculateRentVsBuy = function () {
+  const propPrice   = num('rvb-price')        || 7500000;
+  const downPayment = num('rvb-down')         || 1500000;
+  const loanRate    = (num('rvb-loan-rate')   || 8.5) / 100;
+  const loanYears   = num('rvb-tenure')       || 20;
+  const rent        = num('rvb-rent')         || 25000;
+  const rentInc     = (num('rvb-rent-inc')    || 5) / 100;
+  const appreciation= (num('rvb-appreciation')|| 5) / 100;
+  const analysisYrs = 15; // standard 15-year analysis
 
-  const downPayment = propPrice * downPct;
-  const loanAmt     = propPrice - downPayment;
-  const rMonthly    = loanRate / 12;
-  const n           = loanYears * 12;
-  const emi         = loanAmt * rMonthly * Math.pow(1 + rMonthly, n) / (Math.pow(1 + rMonthly, n) - 1);
+  const loanAmt = Math.max(0, propPrice - downPayment);
+  const rM = loanRate / 12;
+  const n = loanYears * 12;
+  const emi = rM === 0
+    ? loanAmt / Math.max(1, n)
+    : loanAmt * rM * Math.pow(1 + rM, n) / (Math.pow(1 + rM, n) - 1);
 
-  // Buying costs over horizon
-  const totalEMI        = emi * Math.min(years, loanYears) * 12;
-  const maintenancePA   = propPrice * 0.01; // 1% p.a. maintenance
-  const totalMaintenance= maintenancePA * years;
-  const propFutureValue = propPrice * Math.pow(1 + appreciation, years);
-  const equityBuilt     = propFutureValue - Math.max(0, loanAmt - (emi * 12 * years - loanAmt * (Math.pow(1 + rMonthly, years * 12) - 1) / (Math.pow(1 + rMonthly, loanYears * 12) - 1)));
-  const buyNetCost      = downPayment + totalEMI + totalMaintenance - propFutureValue;
+  // ── BUYING COSTS over analysis period ──
+  const emiMonths = Math.min(analysisYrs, loanYears) * 12;
+  const totalEMI = emi * emiMonths;
+  const maintenancePA = propPrice * 0.01;
+  const totalMaint = maintenancePA * analysisYrs;
+  const regStampDuty = propPrice * 0.07; // ~7% stamp+registration
+  const buyOutflow = downPayment + totalEMI + totalMaint + regStampDuty;
+  const futureValue = propPrice * Math.pow(1 + appreciation, analysisYrs);
 
-  // Renting costs over horizon
-  let totalRent = 0, currentRent = rent * 12;
-  for (let yr = 0; yr < years; yr++) {
-    totalRent   += currentRent;
-    currentRent *= (1 + rentIncrease);
+  // Outstanding balance at analysis end
+  const outstandingAfterMonths = (months) => {
+    if (rM === 0) return Math.max(0, loanAmt - emi * months);
+    const factor = Math.pow(1 + rM, months);
+    return Math.max(0, loanAmt * factor - emi * (factor - 1) / rM);
+  };
+  const outstanding = outstandingAfterMonths(emiMonths);
+  const buyNetWorth = futureValue - outstanding;
+
+  // ── RENTING COSTS over analysis period ──
+  let totalRent = 0, curRent = rent * 12;
+  for (let yr = 0; yr < analysisYrs; yr++) {
+    totalRent += curRent;
+    curRent *= (1 + rentInc);
   }
-  // Opportunity cost: down payment could have been invested
-  const investedDP       = downPayment * Math.pow(1.12, years); // 12% equity return assumption
-  const rentOpportunityCost = totalRent - (investedDP - downPayment);
-  const rentNetCost      = totalRent;
 
-  const isBuyBetter = buyNetCost < rentNetCost;
-  const difference  = Math.abs(buyNetCost - rentNetCost);
+  // Opportunity: invest down payment + stamp duty at ~11% equity return
+  const investReturn = 0.11;
+  let rentCorpus = downPayment + regStampDuty;
+  const monthlyInvReturn = investReturn / 12;
+  for (let yr = 0; yr < analysisYrs; yr++) {
+    const yearlyRent = rent * Math.pow(1 + rentInc, yr) * 12;
+    const yearlyBuy = (emi + maintenancePA / 12) * 12;
+    const savings = Math.max(0, yearlyBuy - yearlyRent);
+    for (let m = 0; m < 12; m++) {
+      rentCorpus = rentCorpus * (1 + monthlyInvReturn) + savings / 12;
+    }
+  }
 
-  setHTML('rvbEMI',             formatINR(emi, 0));
-  setHTML('rvbTotalBuyCost',    formatINR(Math.max(0, buyNetCost), 0));
-  setHTML('rvbTotalRentCost',   formatINR(totalRent, 0));
-  setHTML('rvbFutureValue',     formatINR(propFutureValue, 0));
-  setHTML('rvbVerdict', isBuyBetter
-    ? `<div class="verdict-card buy">🏠 <strong>Buying is better</strong> over ${years} years — you save approx. ${formatINR(difference,0)} compared to renting.</div>`
-    : `<div class="verdict-card rent">🏢 <strong>Renting is better</strong> over ${years} years — you save approx. ${formatINR(difference,0)} compared to buying. Invest the down payment instead.</div>`
-  );
+  const isBuyBetter = buyNetWorth >= rentCorpus;
+  const edge = Math.abs(buyNetWorth - rentCorpus);
 
-  revealResult('rvbResult');
+  html('rvb-winner', isBuyBetter ? '🏠 Buying Looks Better' : '🏢 Renting Looks Better');
+  html('rvb-sub', `Over ${analysisYrs} years, better by ~${formatINRShort(edge)}`);
+  html('rvb-buy-cost', formatINR(buyOutflow, 0));
+  html('rvb-rent-cost', formatINR(totalRent, 0));
+
+  const detail = $('rvb-detail');
+  if (detail) {
+    detail.innerHTML = `
+      <p>📌 <strong>EMI:</strong> ${formatINR(emi, 0)}/month for ${loanYears} years</p>
+      <p>📌 <strong>Future Property Value:</strong> ${formatINR(futureValue, 0)}</p>
+      <p>📌 <strong>Buy Net Worth:</strong> ${formatINR(buyNetWorth, 0)} (value minus outstanding loan)</p>
+      <p>📌 <strong>Rent + Invest Corpus:</strong> ${formatINR(rentCorpus, 0)} (DP + savings invested at ${(investReturn * 100).toFixed(0)}%)</p>
+      <p style="margin-top:10px; padding:8px; background:rgba(255,255,255,.08); border-radius:8px;">
+        ${isBuyBetter
+          ? '<strong style="color:#22c55e">✅ Buying builds equity.</strong> Hold 10+ years for best value.'
+          : '<strong style="color:#f59e0b">💡 Renting + Investing wins.</strong> Invest the down payment in equity mutual funds.'}
+      </p>
+    `;
+  }
+
+  show('rvb-result');
 };
 
 /* ══════════════════════════════════════
-   HELPERS
-══════════════════════════════════════ */
-function setVal(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.value = val;
-}
-
-function setHTML(id, html) {
-  const el = document.getElementById(id);
-  if (el) el.innerHTML = html;
-}
-
-function revealResult(id) {
-  const el = document.getElementById(id);
-  if (el && !el.classList.contains('visible')) {
-    el.classList.add('visible');
-    el.style.display = '';
-    el.style.opacity  = '0';
-    requestAnimationFrame(() => {
-      el.style.transition = 'opacity .4s ease';
-      el.style.opacity    = '1';
-    });
-  }
-}
-
-/* ══════════════════════════════════════
-   INIT: Sync range sliders on load
+   INIT: Event listeners & sync
 ══════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
-  // EMI
-  ['emiPrincipal','emiRate','emiTenure'].forEach(id => {
-    window.syncRange && syncRange(id + 'Range', id);
-    syncRange(id, id + 'Range');
+  // Sync range sliders ↔ inputs
+  const pairs = [
+    ['emi-rate-range', 'emi-rate'],
+    ['emi-tenure-range', 'emi-tenure'],
+    ['sip-return-range', 'sip-return'],
+    ['sip-period-range', 'sip-period'],
+    ['fd-rate-range', 'fd-rate'],
+    ['fd-period-range', 'fd-period'],
+  ];
+  pairs.forEach(([rangeId, inputId]) => {
+    if (window.syncRange) {
+      syncRange(rangeId, inputId);
+      syncRange(inputId, rangeId);
+    }
   });
 
-  // SIP
-  ['sipAmount','sipReturn','sipPeriod'].forEach(id => {
-    window.syncRange && syncRange(id + 'Range', id);
-    syncRange(id, id + 'Range');
+  // Tenure years → months auto-sync
+  const tenureInput = $('emi-tenure');
+  if (tenureInput) {
+    tenureInput.addEventListener('input', () => {
+      setV('emi-tenure-months', (parseFloat(tenureInput.value) || 0) * 12);
+    });
+  }
+
+  // EMI loan preset buttons
+  document.querySelectorAll('.tag-pill[data-preset]').forEach(btn => {
+    btn.addEventListener('click', () => setLoanPreset(btn.getAttribute('data-preset')));
+  });
+
+  // SIP mode toggle
+  document.querySelectorAll('.tag-pill[data-mode]').forEach(btn => {
+    btn.addEventListener('click', () => toggleSIPMode(btn.getAttribute('data-mode')));
+  });
+
+  // FD type toggle
+  document.querySelectorAll('.tag-pill[data-fdtype]').forEach(btn => {
+    btn.addEventListener('click', () => setFDType(btn.getAttribute('data-fdtype')));
   });
 
   // Run default calculations
