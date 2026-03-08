@@ -30,6 +30,10 @@ window.switchPlannerTab = function(tabName) {
 let selectedGoals = new Set();
 
 window.toggleGoal = function(el, goalId) {
+  // Support both toggleGoal(el) and toggleGoal(el, goalId)
+  if (!goalId) goalId = el.getAttribute('data-goal');
+  if (!goalId) return;
+
   if (selectedGoals.has(goalId)) {
     selectedGoals.delete(goalId);
     el.classList.remove('selected');
@@ -41,10 +45,11 @@ window.toggleGoal = function(el, goalId) {
 };
 
 window.calculateGoal = function() {
-  const goalName = document.getElementById('goalName')?.value || 'My Goal';
-  const target   = parseFloat(document.getElementById('goalAmount')?.value) || 1000000;
-  const years    = parseFloat(document.getElementById('goalYears')?.value)  || 5;
-  const saved    = parseFloat(document.getElementById('goalSaved')?.value)  || 0;
+  const goalName = document.getElementById('goal-name')?.value || 'My Goal';
+  const target   = parseFloat(document.getElementById('goal-amount')?.value) || 1000000;
+  const targetYear = parseFloat(document.getElementById('goal-year')?.value) || (new Date().getFullYear() + 5);
+  const years    = Math.max(1, targetYear - new Date().getFullYear());
+  const saved    = parseFloat(document.getElementById('goal-saved')?.value)  || 0;
   const rate     = 12; // assume 12% p.a. equity return
 
   if (target <= 0 || years <= 0) return;
@@ -58,25 +63,22 @@ window.calculateGoal = function() {
     ? remaining * rMonthly / ((Math.pow(1 + rMonthly, n) - 1) * (1 + rMonthly))
     : 0;
 
-  const lumpSumNeeded = remaining > 0
-    ? remaining / Math.pow(1 + rate / 100, years)
-    : 0;
+  const totalInvested = monthlySIP * n;
 
-  setHTML('goalResultName',    goalName);
-  setHTML('goalSIPNeeded',     formatINR(monthlySIP, 0));
-  setHTML('goalLumpNeeded',    formatINR(lumpSumNeeded, 0));
-  setHTML('goalTargetAmt',     formatINR(target, 0));
-  setHTML('goalFVSavings',     formatINR(fvSaved, 0));
-  setHTML('goalRemainingCorpus', formatINR(remaining, 0));
+  setHTML('goal-monthly-sip',  formatINR(monthlySIP, 0));
+  setHTML('goal-result-sub',   `${goalName} — ${years} years at 12% expected returns`);
+  setHTML('goal-target-show',  formatINR(target, 0));
+  setHTML('goal-years',        years + ' yrs');
+  setHTML('goal-total-invest', formatINR(totalInvested, 0));
 
-  revealPlanner('goalResult');
+  revealPlanner('goal-result');
 };
 
 function renderSelectedGoalsList() {
   const container = document.getElementById('selectedGoalsList');
   if (!container) return;
   if (selectedGoals.size === 0) {
-    container.innerHTML = '<p style="color:var(--g400);font-size:.85rem">Select goals above to see them here.</p>';
+    container.innerHTML = '<p style="color:var(--gray-400);font-size:.85rem">Select goals above to see them here.</p>';
     return;
   }
   const goalNames = {
@@ -103,111 +105,98 @@ window.removeGoal = function(id) {
 /* ═══════════════════════════════════════════
    2. BUDGET BUILDER (50-30-20 Rule)
 ═══════════════════════════════════════════ */
-window.updateBudget = function() {
-  const income = parseFloat(document.getElementById('budgetIncome')?.value) || 0;
+window.updateBudgetChart = function() {
+  const income = parseFloat(document.getElementById('budget-income')?.value) || 0;
   if (income <= 0) return;
 
-  // Collect categories
-  const needsTotal   = sumCategory('needs');
-  const wantsTotal   = sumCategory('wants');
-  const savingsTotal = sumCategory('savings');
-  const totalSpent   = needsTotal + wantsTotal + savingsTotal;
+  // Collect from budget inputs — HTML uses IDs like b-rent, b-groceries etc
+  const needsTotal = (parseFloat(document.getElementById('b-rent')?.value) || 0)
+                   + (parseFloat(document.getElementById('b-groceries')?.value) || 0)
+                   + (parseFloat(document.getElementById('b-transport')?.value) || 0)
+                   + (parseFloat(document.getElementById('b-utilities')?.value) || 0);
+
+  const wantsTotal = (parseFloat(document.getElementById('b-dining')?.value) || 0)
+                   + (parseFloat(document.getElementById('b-entertainment')?.value) || 0)
+                   + (parseFloat(document.getElementById('b-shopping')?.value) || 0);
+
+  const savingsTotal = (parseFloat(document.getElementById('b-investments')?.value) || 0)
+                     + (parseFloat(document.getElementById('b-emergency')?.value) || 0);
+
+  const totalSpent = needsTotal + wantsTotal + savingsTotal;
 
   const needsPct   = income > 0 ? Math.round((needsTotal   / income) * 100) : 0;
   const wantsPct   = income > 0 ? Math.round((wantsTotal   / income) * 100) : 0;
   const savingsPct = income > 0 ? Math.round((savingsTotal / income) * 100) : 0;
   const surplus    = income - totalSpent;
 
-  // Update totals
-  setHTML('budgetNeedsTotal',   formatINR(needsTotal, 0));
-  setHTML('budgetWantsTotal',   formatINR(wantsTotal, 0));
-  setHTML('budgetSavingsTotal', formatINR(savingsTotal, 0));
-  setHTML('budgetSurplus',      formatINR(surplus, 0));
+  // Update result box values
+  setHTML('budget-balance',     formatINR(surplus, 0));
+  const balSub = document.getElementById('budget-balance-sub');
+  if (balSub) balSub.textContent = surplus >= 0 ? 'Monthly surplus' : 'Monthly deficit ⚠️';
+
+  setHTML('budget-needs',   formatINR(needsTotal, 0));
+  setHTML('budget-wants',   formatINR(wantsTotal, 0));
+  setHTML('budget-savings', formatINR(savingsTotal, 0));
 
   // Update 50-30-20 health bars
-  updateBudgetBar('needsBar',   needsPct,   50,  'Needs (target: 50%)');
-  updateBudgetBar('wantsBar',   wantsPct,   30,  'Wants (target: 30%)');
-  updateBudgetBar('savingsBar', savingsPct, 20,  'Savings (target: 20%)');
+  updateBudgetBar('budget-needs-bar',   needsPct,   50);
+  updateBudgetBar('budget-wants-bar',   wantsPct,   30);
+  updateBudgetBar('budget-savings-bar', savingsPct, 20);
 
-  setHTML('budgetNeedsPct',   needsPct   + '%');
-  setHTML('budgetWantsPct',   wantsPct   + '%');
-  setHTML('budgetSavingsPct', savingsPct + '%');
+  setHTML('budget-needs-pct',   needsPct   + '%');
+  setHTML('budget-wants-pct',   wantsPct   + '%');
+  setHTML('budget-savings-pct', savingsPct + '%');
 
-  // Overall health grade
-  const grade = getBudgetGrade(needsPct, wantsPct, savingsPct);
-  setHTML('budgetGrade', grade.label);
-  const gradeEl = document.getElementById('budgetGrade');
-  if (gradeEl) gradeEl.className = 'budget-grade grade-' + grade.level;
-
-  revealPlanner('budgetResult');
+  revealPlanner('budget-result');
 };
 
-function sumCategory(cat) {
-  let total = 0;
-  document.querySelectorAll(`[data-budget-cat="${cat}"]`).forEach(el => {
-    total += parseFloat(el.value) || 0;
-  });
-  return total;
-}
+// Alias for backward compat
+window.updateBudget = window.updateBudgetChart;
 
-function updateBudgetBar(id, pct, target, label) {
+window.updateBudgetSuggestions = function() {
+  const income = parseFloat(document.getElementById('budget-income')?.value) || 0;
+  // Update suggested labels
+  setHTML('bs-rent', `Suggested: ${formatINR(income * 0.25, 0)}`);
+  setHTML('bs-groceries', `Suggested: ${formatINR(income * 0.10, 0)}`);
+  setHTML('bs-transport', `Suggested: ${formatINR(income * 0.0625, 0)}`);
+  setHTML('bs-savings', `Suggested: ${formatINR(income * 0.20, 0)}`);
+};
+
+function updateBudgetBar(id, pct, target) {
   const bar = document.getElementById(id);
   if (!bar) return;
-  bar.style.width    = Math.min(pct, 100) + '%';
-  bar.style.background = pct <= target ? '#22c55e' : pct <= target * 1.25 ? '#f59e0b' : '#ef4444';
-  bar.title = `${label} — Current: ${pct}%`;
-}
-
-function getBudgetGrade(needs, wants, savings) {
-  const score = (needs <= 50 ? 1 : 0) + (wants <= 30 ? 1 : 0) + (savings >= 20 ? 1 : 0);
-  if (score === 3) return { label: '🟢 Excellent — You\'re following the 50-30-20 rule!', level: 'green'  };
-  if (score === 2) return { label: '🟡 Good — Minor adjustments needed.',                  level: 'yellow' };
-  return           { label: '🔴 Needs Work — Review your spending categories.',            level: 'red'    };
+  bar.style.width = Math.min(pct, 100) + '%';
+  if (id.includes('savings')) {
+    // For savings, green if >= target
+    bar.style.background = pct >= target ? '#22c55e' : pct >= target * 0.5 ? '#f59e0b' : '#ef4444';
+  } else {
+    // For needs/wants, green if <= target
+    bar.style.background = pct <= target ? '#22c55e' : pct <= target * 1.25 ? '#f59e0b' : '#ef4444';
+  }
 }
 
 /* ═══════════════════════════════════════════
    3. EMERGENCY FUND CALCULATOR
 ═══════════════════════════════════════════ */
 window.calculateEmergencyFund = function() {
-  const expenses   = parseFloat(document.getElementById('efExpenses')?.value)    || 30000;
-  const months     = parseFloat(document.getElementById('efMonths')?.value)      || 6;
-  const currentSav = parseFloat(document.getElementById('efCurrentSav')?.value)  || 0;
-  const monthly    = parseFloat(document.getElementById('efMonthlyContrib')?.value) || 5000;
+  const expenses   = parseFloat(document.getElementById('ef-expenses')?.value)   || 40000;
+  const months     = parseFloat(document.getElementById('ef-months')?.value)     || 6;
+  const currentSav = parseFloat(document.getElementById('ef-current')?.value)    || 0;
+  const monthly    = parseFloat(document.getElementById('ef-monthly')?.value)    || 5000;
 
   const target   = expenses * months;
   const gap      = Math.max(0, target - currentSav);
   const timeline = gap > 0 && monthly > 0 ? Math.ceil(gap / monthly) : 0;
 
-  setHTML('efTarget',       formatINR(target, 0));
-  setHTML('efCurrentSaved', formatINR(currentSav, 0));
-  setHTML('efGap',          formatINR(gap, 0));
-  setHTML('efTimeline',     timeline > 0 ? `${timeline} months` : '✅ Already funded!');
+  setHTML('ef-target',     formatINR(target, 0));
+  setHTML('ef-saved-show', formatINR(currentSav, 0));
+  setHTML('ef-gap',        formatINR(gap, 0));
 
-  const pct   = Math.min(100, Math.round((currentSav / target) * 100));
-  const bar   = document.getElementById('efProgressBar');
-  if (bar) {
-    bar.style.width      = pct + '%';
-    bar.style.background = pct >= 100 ? '#22c55e' : pct >= 50 ? '#f59e0b' : '#ef4444';
-  }
-  setHTML('efProgressPct', pct + '%');
+  const timelineText = gap <= 0 ? '✅ Fully funded! Great job!' :
+    `⏳ At ${formatINR(monthly, 0)}/month, you'll reach your target in <strong>${timeline} months</strong> (${Math.ceil(timeline / 12)} year${timeline > 12 ? 's' : ''}).`;
+  setHTML('ef-timeline', timelineText);
 
-  // Recommendations
-  const recList = [
-    { label: 'Liquid Funds (Instant Redemption)', note: 'Best option — slightly higher returns than savings, T+0 redemption' },
-    { label: 'Savings Account (HDFC/SBI)', note: '2.5–3.5% p.a. — fully liquid, DICGC insured' },
-    { label: 'Sweep-in FD', note: 'Auto-linked FD to savings — earns FD rate with savings liquidity' },
-  ];
-  const rContainer = document.getElementById('efRecommendations');
-  if (rContainer) {
-    rContainer.innerHTML = recList.map(r => `
-      <div class="ef-rec-item">
-        <strong>${r.label}</strong>
-        <span>${r.note}</span>
-      </div>
-    `).join('');
-  }
-
-  revealPlanner('efResult');
+  revealPlanner('ef-result');
 };
 
 /* ═══════════════════════════════════════════
@@ -221,24 +210,29 @@ window.setDebtMethod = function(method) {
   document.querySelectorAll('.debt-method-btn').forEach(b =>
     b.classList.toggle('active', b.getAttribute('data-method') === method)
   );
+  // Also toggle by ID
+  const avEl = document.getElementById('method-avalanche');
+  const snEl = document.getElementById('method-snowball');
+  if (avEl) avEl.classList.toggle('active', method === 'avalanche');
+  if (snEl) snEl.classList.toggle('active', method === 'snowball');
   if (debtList.length > 0) calculateDebtPlan();
 };
 
 window.addDebt = function() {
-  const name    = document.getElementById('debtName')?.value   || 'Loan';
-  const balance = parseFloat(document.getElementById('debtBalance')?.value)  || 0;
-  const rate    = parseFloat(document.getElementById('debtRate')?.value)     || 0;
-  const minPay  = parseFloat(document.getElementById('debtMinPay')?.value)   || 0;
+  const name    = document.getElementById('debt-name')?.value   || 'Loan';
+  const balance = parseFloat(document.getElementById('debt-balance')?.value)  || 0;
+  const rate    = parseFloat(document.getElementById('debt-rate')?.value)     || 0;
+  const minPay  = parseFloat(document.getElementById('debt-min')?.value)      || 0;
 
   if (balance <= 0 || rate <= 0) {
-    showToast && showToast('Please enter valid balance and interest rate.', 'error');
+    if (window.showToast) showToast('Please enter valid balance and interest rate.', 'error');
     return;
   }
 
   debtList.push({ id: Date.now(), name, balance, rate, minPay });
   renderDebtList();
   // Clear inputs
-  ['debtName','debtBalance','debtRate','debtMinPay'].forEach(id => {
+  ['debt-name','debt-balance','debt-rate','debt-min'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -250,26 +244,27 @@ window.removeDebt = function(id) {
   renderDebtList();
   if (debtList.length > 0) calculateDebtPlan();
   else {
-    const res = document.getElementById('debtResult');
+    const res = document.getElementById('debt-result');
     if (res) res.style.display = 'none';
   }
 };
 
 function renderDebtList() {
-  const container = document.getElementById('debtListItems');
+  const container = document.getElementById('debt-list');
   if (!container) return;
   if (debtList.length === 0) {
-    container.innerHTML = '<p style="color:var(--g400);font-size:.85rem;text-align:center;padding:1rem">No debts added yet. Add your first debt above.</p>';
+    container.innerHTML = '<p style="color:var(--gray-400);font-size:.85rem;text-align:center;padding:1rem">No debts added yet. Add your first debt above.</p>';
     return;
   }
   container.innerHTML = debtList.map(d => `
     <div class="debt-item">
-      <div class="debt-item-info">
-        <strong>${d.name}</strong>
-        <span>${formatINR(d.balance, 0)} @ ${d.rate}% p.a.</span>
+      <div class="debt-item-header">
+        <div>
+          <strong>${d.name}</strong>
+          <span style="font-size:0.82rem; color:var(--gray-500); margin-left:8px;">${formatINR(d.balance, 0)} @ ${d.rate}% p.a. · Min: ${formatINR(d.minPay, 0)}/mo</span>
+        </div>
+        <button class="debt-item-remove" onclick="removeDebt(${d.id})">✕ Remove</button>
       </div>
-      <span class="debt-item-min">Min: ${formatINR(d.minPay, 0)}/mo</span>
-      <button class="debt-remove-btn" onclick="removeDebt(${d.id})">✕</button>
     </div>
   `).join('');
 }
@@ -277,28 +272,25 @@ function renderDebtList() {
 window.calculateDebtPlan = function() {
   if (debtList.length === 0) return;
 
-  const budget = parseFloat(document.getElementById('debtBudget')?.value) || 0;
+  const budget = parseFloat(document.getElementById('debt-monthly-budget')?.value) || 0;
   const totalMin = debtList.reduce((a, d) => a + d.minPay, 0);
   if (budget < totalMin) {
-    setHTML('debtError', `⚠️ Monthly budget (${formatINR(budget,0)}) is less than total minimum payments (${formatINR(totalMin,0)}). Please increase your budget.`);
-    revealPlanner('debtResult');
+    setHTML('debt-freedom-date', '⚠️');
+    setHTML('debt-freedom-sub', `Monthly budget (${formatINR(budget,0)}) is less than total minimum payments (${formatINR(totalMin,0)}). Please increase.`);
+    revealPlanner('debt-result');
     return;
   }
-  setHTML('debtError', '');
 
   // Clone debts for simulation
   let debts = debtList.map(d => ({ ...d }));
   let months = 0;
   let totalInterest = 0;
-  const maxMonths = 600; // 50 years safety cap
+  const maxMonths = 600;
+  const originalTotal = debtList.reduce((a, d) => a + d.balance, 0);
 
-  // Sort by method
   const sortDebts = () => {
-    if (debtMethod === 'avalanche') {
-      debts.sort((a, b) => b.rate - a.rate);      // highest rate first
-    } else {
-      debts.sort((a, b) => a.balance - b.balance); // lowest balance first
-    }
+    if (debtMethod === 'avalanche') debts.sort((a, b) => b.rate - a.rate);
+    else debts.sort((a, b) => a.balance - b.balance);
   };
 
   sortDebts();
@@ -307,7 +299,6 @@ window.calculateDebtPlan = function() {
     months++;
     let extra = budget - debts.reduce((a, d) => a + Math.min(d.minPay, d.balance > 0 ? d.balance : 0), 0);
 
-    // Pay minimums first + accrue interest
     debts.forEach(d => {
       if (d.balance <= 0) return;
       const interest  = d.balance * d.rate / 100 / 12;
@@ -317,7 +308,6 @@ window.calculateDebtPlan = function() {
       if (d.balance < 0.01) d.balance = 0;
     });
 
-    // Apply extra to priority debt
     sortDebts();
     for (const d of debts) {
       if (d.balance <= 0) continue;
@@ -335,17 +325,13 @@ window.calculateDebtPlan = function() {
   freedomDate.setMonth(freedomDate.getMonth() + months);
   const fdStr  = freedomDate.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
 
-  setHTML('debtFreedomDate',   fdStr);
-  setHTML('debtMonths',        `${years > 0 ? years + ' yr' : ''} ${mths > 0 ? mths + ' mo' : ''}`);
-  setHTML('debtTotalInterest', formatINR(totalInterest, 0));
-  setHTML('debtTotalPaid',     formatINR(totalInterest + debtList.reduce((a,d) => a + d.balance, 0) + debtList.reduce((a,d) => a + d.balance, 0), 0));
+  setHTML('debt-freedom-date',  fdStr);
+  setHTML('debt-freedom-sub',   `Using ${debtMethod} method`);
+  setHTML('debt-total-amount',  formatINR(originalTotal, 0));
+  setHTML('debt-interest-saved', formatINR(totalInterest, 0));
+  setHTML('debt-payoff-time',   `${years > 0 ? years + ' yr ' : ''}${mths > 0 ? mths + ' mo' : ''}`);
 
-  const methodTip = debtMethod === 'avalanche'
-    ? '📉 <strong>Avalanche method:</strong> You pay the highest-interest debt first. This saves the most money in interest.'
-    : '⚡ <strong>Snowball method:</strong> You pay the smallest balance first. This builds momentum and motivation.';
-  setHTML('debtMethodTip', methodTip);
-
-  revealPlanner('debtResult');
+  revealPlanner('debt-result');
 };
 
 /* ═══════════════════════════════════════════
@@ -403,31 +389,33 @@ const lifeStageContent = {
 };
 
 window.showLifeStage = function(stage) {
-  document.querySelectorAll('.life-stage-card').forEach(c =>
-    c.classList.toggle('active', c.getAttribute('data-stage') === stage)
-  );
+  document.querySelectorAll('.lifestage-card').forEach(c => {
+    const s = c.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+    c.classList.toggle('active', s === stage);
+  });
 
   const content = lifeStageContent[stage];
   if (!content) return;
 
-  const detailContainer = document.getElementById('lifeStageDetail');
+  const detailContainer = document.getElementById('lifestage-detail');
   if (!detailContainer) return;
 
-  detailContainer.innerHTML = `
-    <div class="life-stage-detail-header">
-      <span class="life-stage-emoji">${content.icon}</span>
+  const contentEl = document.getElementById('lifestage-content') || detailContainer;
+  contentEl.innerHTML = `
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;">
+      <span style="font-size:2.5rem;">${content.icon}</span>
       <div>
-        <h3>${content.title}</h3>
-        <p>${content.subtitle}</p>
+        <h3 style="margin-bottom:4px;">${content.title}</h3>
+        <p style="color:var(--gray-500);font-size:0.9rem;">${content.subtitle}</p>
       </div>
     </div>
-    <div class="life-milestones">
+    <div style="display:flex;flex-direction:column;gap:10px;">
       ${content.milestones.map((m, i) => `
         <div class="milestone-item" style="animation-delay:${i * 80}ms">
-          <div class="milestone-icon">${m.icon}</div>
-          <div class="milestone-content">
-            <h4>${m.title}</h4>
-            <p>${m.desc}</p>
+          <div class="milestone-icon" style="background:var(--og-light);">${m.icon}</div>
+          <div>
+            <h4 style="font-size:0.9rem;margin-bottom:4px;">${m.title}</h4>
+            <p style="font-size:0.82rem;color:var(--gray-500);margin:0;">${m.desc}</p>
           </div>
         </div>
       `).join('')}
@@ -442,59 +430,56 @@ window.showLifeStage = function(stage) {
    6. NET WORTH TRACKER
 ═══════════════════════════════════════════ */
 window.calculateNetWorth = function() {
-  // Assets
+  // Assets — using actual HTML element IDs (hyphenated)
   const assets = {
-    'Savings & Current Account' : getVal('nwSavings'),
-    'Fixed Deposits'            : getVal('nwFD'),
-    'Mutual Funds'              : getVal('nwMF'),
-    'Direct Stocks / ETFs'      : getVal('nwStocks'),
-    'PPF / EPF / NPS'           : getVal('nwPPF'),
-    'Real Estate (market value)': getVal('nwRealEstate'),
-    'Gold / Silver'             : getVal('nwGold'),
-    'Vehicle (current value)'   : getVal('nwVehicle'),
-    'Other Assets'              : getVal('nwOther'),
+    'Savings & Bank Accounts'   : getVal('nw-savings'),
+    'Fixed Deposits / RD'       : getVal('nw-fd'),
+    'Mutual Funds'              : getVal('nw-mf'),
+    'Direct Stocks / ETFs'      : getVal('nw-stocks'),
+    'PPF / EPF / NPS'           : getVal('nw-ppf'),
+    'Real Estate (market value)': getVal('nw-realestate'),
+    'Gold / Jewellery'          : getVal('nw-gold'),
+    'Vehicle (current value)'   : getVal('nw-vehicle'),
   };
 
   // Liabilities
   const liabilities = {
-    'Home Loan Outstanding'     : getVal('nwHomeLoan'),
-    'Car Loan Outstanding'      : getVal('nwCarLoan'),
-    'Personal Loan'             : getVal('nwPersonalLoan'),
-    'Credit Card Outstanding'   : getVal('nwCreditCard'),
-    'Education Loan'            : getVal('nwEduLoan'),
-    'Other Loans'               : getVal('nwOtherLoan'),
+    'Home Loan Outstanding'     : getVal('nw-homeloan'),
+    'Car / Vehicle Loan'        : getVal('nw-carloan'),
+    'Personal Loan'             : getVal('nw-personalloan'),
+    'Credit Card Outstanding'   : getVal('nw-cc'),
+    'Education Loan'            : getVal('nw-educloan'),
+    'Other Loans'               : getVal('nw-other'),
   };
 
   const totalAssets      = Object.values(assets).reduce((a, b) => a + b, 0);
   const totalLiabilities = Object.values(liabilities).reduce((a, b) => a + b, 0);
   const netWorth         = totalAssets - totalLiabilities;
 
-  setHTML('nwTotalAssets',      formatINR(totalAssets,      0));
-  setHTML('nwTotalLiabilities', formatINR(totalLiabilities, 0));
-  setHTML('nwNetWorth',         formatINR(netWorth,         0));
+  setHTML('nw-value',            formatINR(netWorth, 0));
+  setHTML('nw-total-assets',     formatINR(totalAssets, 0));
+  setHTML('nw-total-liabilities', formatINR(totalLiabilities, 0));
 
-  const nwEl = document.getElementById('nwNetWorth');
-  if (nwEl) {
-    nwEl.style.color = netWorth >= 0 ? '#16a34a' : '#dc2626';
-  }
+  const nwEl = document.getElementById('nw-value');
+  if (nwEl) nwEl.style.color = netWorth >= 0 ? '#22c55e' : '#ef4444';
 
   // Net worth interpretation
   let msg = '';
-  if (netWorth < 0)       msg = '⚠️ Negative net worth — focus on clearing debt before investing.';
-  else if (netWorth < 100000)  msg = '🌱 You\'re starting your journey. Keep building consistently.';
+  if (netWorth < 0)           msg = '⚠️ Negative net worth — focus on clearing debt before investing.';
+  else if (netWorth < 100000) msg = '🌱 You\'re starting your journey. Keep building consistently.';
   else if (netWorth < 1000000) msg = '📈 Good progress! Stay consistent with investments.';
-  else if (netWorth < 10000000)msg = '💪 Solid net worth! Focus on accelerating growth.';
-  else                    msg = '🏆 Excellent! You\'re in the top percentile of Indian savers.';
-  setHTML('nwMessage', msg);
+  else if (netWorth < 10000000) msg = '💪 Solid net worth! Focus on accelerating growth.';
+  else                         msg = '🏆 Excellent! You\'re in the top percentile of Indian savers.';
+  setHTML('nw-health', msg);
 
-  // Asset allocation chart (simple text-based bars)
+  // Asset allocation
   buildAssetAllocation(assets, totalAssets);
 
-  revealPlanner('nwResult');
+  revealPlanner('nw-result');
 };
 
 function buildAssetAllocation(assets, total) {
-  const container = document.getElementById('nwAssetAllocation');
+  const container = document.getElementById('nw-allocation');
   if (!container || total === 0) return;
 
   const colors = ['#1A3A5C','#2E86AB','#E05C1A','#22c55e','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#64748b'];
@@ -503,16 +488,10 @@ function buildAssetAllocation(assets, total) {
   container.innerHTML = entries.map(([name, value], i) => {
     const pct = Math.round((value / total) * 100);
     return `
-      <div class="allocation-row">
-        <div class="alloc-label">
-          <span class="alloc-dot" style="background:${colors[i % colors.length]}"></span>
-          ${name}
-        </div>
-        <div class="alloc-bar-wrap">
-          <div class="alloc-bar" style="width:${pct}%;background:${colors[i % colors.length]}"></div>
-        </div>
-        <div class="alloc-pct">${pct}%</div>
-        <div class="alloc-val">${formatINRShort(value)}</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:0.78rem;">
+        <span style="width:8px;height:8px;border-radius:50%;background:${colors[i % colors.length]};flex-shrink:0;"></span>
+        <span style="flex:1;color:rgba(255,255,255,0.75);">${name}</span>
+        <span style="font-weight:600;color:rgba(255,255,255,0.9);">${pct}%</span>
       </div>
     `;
   }).join('');

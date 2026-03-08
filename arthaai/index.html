@@ -8,6 +8,12 @@
   <meta property="og:title" content="ArthaAI — Smart Money Guidance for Every Indian">
   <meta property="og:description" content="India's first AI-powered personal finance guidance platform — multilingual, unbiased, and built for Bharat.">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://zyllo-spark-studio.lovable.app/arthaai/">
+  <meta property="og:image" content="https://zyllo-spark-studio.lovable.app/zyllo-logo.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ArthaAI — Smart Money Guidance for Every Indian">
+  <meta name="twitter:description" content="India's first AI-powered personal finance guidance platform — multilingual, unbiased, and built for Bharat.">
+  <link rel="canonical" href="https://zyllo-spark-studio.lovable.app/arthaai/">
   <title>ArthaAI — Smart Money Guidance for Every Indian</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,18 +34,23 @@
     .how-step:hover { border-color: var(--og); box-shadow: var(--shadow-card-hover); transform: translateX(4px); }
     .how-connector { width: 2px; background: var(--og); opacity: 0.25; height: 20px; margin-left: 21px; }
     .timeline { position: relative; }
-    .timeline { position: relative; }
     .timeline::before { content: ''; position: absolute; left: 20px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--og), var(--mb)); border-radius: 2px; }
     .timeline-item { position: relative; padding-left: 56px; padding-bottom: 28px; }
     .timeline-dot { position: absolute; left: 11px; top: 4px; width: 20px; height: 20px; border-radius: 50%; background: var(--og); border: 3px solid var(--white); box-shadow: 0 0 0 3px var(--og-light); }
     .timeline-date { font-size: 0.78rem; font-weight: 700; color: var(--og); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
     .timeline-title { font-size: 0.95rem; font-weight: 700; color: var(--db); margin-bottom: 4px; }
     .timeline-desc { font-size: 0.85rem; color: var(--gray-500); }
+    /* Hide own nav & adjust body when embedded inside React shell */
+    html.embedded .nav,
+    html.embedded .nav-mobile { display: none !important; }
+    html.embedded body { padding-top: 0 !important; }
+    html.embedded .hero { padding-top: 40px; }
   </style>
 </head>
 <body>
 
 <!-- ====== NAVIGATION ====== -->
+<script>if(new URLSearchParams(location.search).has('embed')){document.documentElement.classList.add('embedded')}</script>
 <nav class="nav" id="mainNav">
   <div class="container">
     <div class="nav-inner">
