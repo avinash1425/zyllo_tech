@@ -84,6 +84,10 @@
       guruSel.value = val;
       guruSel.dispatchEvent(new Event('change'));
     }
+    // Trigger i18n translation
+    if (window.arthaI18n && window.arthaI18n.translate) {
+      window.arthaI18n.translate(val);
+    }
   }
 
   // Expose for other scripts
