@@ -720,6 +720,10 @@ window.exportPDF = async function(elementId, filename) {
 
     if (btn) btn.style.display = '';
 
+    if (!window.jspdf) {
+      showToast('PDF library still loading. Please try again in a moment.', 'warning');
+      return;
+    }
     const { jsPDF } = window.jspdf;
     const imgData = canvas.toDataURL('image/png');
     const imgW = canvas.width;
