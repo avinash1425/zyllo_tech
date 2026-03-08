@@ -9,7 +9,12 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { messages, calcContext, stream: enableStream } = await req.json();
+    const { messages, calcContext, stream: enableStream, language, languageName } = await req.json();
+    const normalizedLanguage = typeof language === "string" ? language.toLowerCase() : "en";
+    const preferredLanguageName =
+      typeof languageName === "string" && languageName.trim().length > 0
+        ? languageName.trim()
+        : "English";
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
