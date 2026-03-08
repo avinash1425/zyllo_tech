@@ -195,19 +195,40 @@
     .chat-disclaimer { padding: .5rem 1rem; font-size: .72rem; color: var(--g400); text-align: center; border-top: 1px solid var(--g100); }
 
     /* ── Glossary ── */
-    .glossary-search-wrap { max-width: 520px; margin: 0 auto 2rem; position: relative; }
+    .glossary-search-wrap { max-width: 580px; margin: 0 auto 1.5rem; position: relative; }
     .glossary-search { width: 100%; padding: .9rem 1.2rem .9rem 3rem; border: 2px solid var(--g200); border-radius: 100px; font-size: .95rem; outline: none; transition: border-color .2s; }
     .glossary-search:focus { border-color: var(--og); }
     .glossary-search-icon { position: absolute; left: 1.1rem; top: 50%; transform: translateY(-50%); color: var(--g400); font-size: 1rem; }
+    .glossary-stats { text-align: center; margin-bottom: 1.2rem; font-size: .82rem; color: var(--g400); }
+    .glossary-stats strong { color: var(--og); }
+    .glossary-category-bar { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; margin-bottom: 1rem; }
+    .cat-btn { padding: .35rem .8rem; border: 1px solid var(--g200); border-radius: 100px; background: #fff; font-size: .75rem; font-weight: 600; color: var(--g500); cursor: pointer; transition: all .2s; }
+    .cat-btn:hover, .cat-btn.active { background: var(--og); color: #fff; border-color: var(--og); }
     .glossary-alpha { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; margin-bottom: 1.5rem; }
     .alpha-btn { width: 34px; height: 34px; border: 1px solid var(--g200); border-radius: 8px; background: #fff; font-size: .82rem; font-weight: 600; color: var(--g500); cursor: pointer; transition: all .2s; }
     .alpha-btn:hover, .alpha-btn.active { background: var(--og); color: #fff; border-color: var(--og); }
     .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .glossary-item { background: #fff; border: 1px solid var(--g200); border-radius: 12px; padding: 1.1rem 1.3rem; transition: all .2s; cursor: pointer; }
+    .glossary-item { background: #fff; border: 1px solid var(--g200); border-radius: 12px; padding: 1.1rem 1.3rem; transition: all .3s; cursor: pointer; position: relative; }
     .glossary-item:hover { border-color: var(--og); box-shadow: var(--shadow-sm); }
-    .glossary-item h4 { color: var(--db); font-size: .92rem; font-weight: 600; margin-bottom: .3rem; }
-    .glossary-item p { color: var(--g500); font-size: .82rem; line-height: 1.5; margin: 0; }
-    .glossary-item .term-letter { display: inline-block; background: var(--og); color: #fff; width: 24px; height: 24px; border-radius: 6px; font-size: .75rem; font-weight: 700; text-align: center; line-height: 24px; margin-right: .4rem; float: left; margin-top: .1rem; }
+    .glossary-item.expanded { border-color: var(--og); box-shadow: 0 4px 20px rgba(224,92,26,0.12); grid-column: 1 / -1; }
+    .glossary-item h4 { color: var(--db); font-size: .92rem; font-weight: 600; margin-bottom: .3rem; display: flex; align-items: center; gap: .4rem; }
+    .glossary-item .term-letter { display: inline-flex; align-items: center; justify-content: center; background: var(--og); color: #fff; width: 24px; height: 24px; border-radius: 6px; font-size: .75rem; font-weight: 700; flex-shrink: 0; }
+    .glossary-item .term-cat { font-size: .65rem; background: var(--g100); color: var(--g500); padding: .15rem .5rem; border-radius: 100px; margin-left: auto; font-weight: 500; flex-shrink: 0; }
+    .glossary-item .term-summary { color: var(--g500); font-size: .82rem; line-height: 1.5; margin: 0; }
+    .glossary-item .term-expand-icon { position: absolute; top: 1.1rem; right: 1rem; color: var(--g300); font-size: .7rem; transition: transform .3s; }
+    .glossary-item.expanded .term-expand-icon { transform: rotate(180deg); color: var(--og); }
+    .glossary-detail { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--g100); }
+    .glossary-item.expanded .glossary-detail { display: block; }
+    .glossary-detail .detail-section { margin-bottom: .8rem; }
+    .glossary-detail .detail-label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--og); margin-bottom: .3rem; }
+    .glossary-detail .detail-text { font-size: .84rem; color: var(--g600); line-height: 1.6; }
+    .glossary-detail .detail-text ul { padding-left: 1.2rem; margin: .3rem 0; }
+    .glossary-detail .detail-text li { margin-bottom: .2rem; }
+    .glossary-detail .detail-example { background: var(--g50); border-left: 3px solid var(--og); padding: .6rem .8rem; border-radius: 0 8px 8px 0; font-size: .82rem; color: var(--g700); margin: .4rem 0; }
+    .glossary-detail .detail-tip { background: #fffbeb; border-left: 3px solid #f59e0b; padding: .6rem .8rem; border-radius: 0 8px 8px 0; font-size: .82rem; color: #92400e; margin: .4rem 0; }
+    .glossary-detail .related-tags { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .3rem; }
+    .glossary-detail .related-tag { font-size: .72rem; padding: .2rem .5rem; background: var(--g100); border-radius: 4px; color: var(--g600); cursor: pointer; transition: all .2s; }
+    .glossary-detail .related-tag:hover { background: var(--og); color: #fff; }
 
     /* ── Responsive ── */
     @media (max-width: 1024px) {
