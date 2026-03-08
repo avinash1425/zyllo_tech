@@ -105,6 +105,7 @@ window.calculateGoal = function() {
   setHTML('goal-total-invest', formatINR(totalInvested, 0));
 
   revealPlanner('goal-result');
+  if (window.fetchAIInsights) fetchAIInsights('Goal Planner (SIP Calculator)', 'goal-result');
 };
 
 function renderSelectedGoalsList() {
@@ -367,6 +368,7 @@ window.calculateDebtPlan = function() {
   setHTML('debt-payoff-time',   `${years > 0 ? years + ' yr ' : ''}${mths > 0 ? mths + ' mo' : ''}`);
 
   revealPlanner('debt-result');
+  if (window.fetchAIInsights) fetchAIInsights('Debt Repayment Planner', 'debt-result');
 };
 
 /* ═══════════════════════════════════════════
