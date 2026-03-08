@@ -5,7 +5,7 @@ import {
   TrendingUp, Shield, Home, Car, Target,
   RefreshCw, Zap, BookOpen,
   ArrowRight, Check, X, AlertCircle,
-  GraduationCap, Award, Gem,
+  GraduationCap, Award, Gem, Wallet,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -3537,6 +3537,152 @@ const GratuityCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => voi
 };
 
 /* ═══════════════════════════════════════════════════════════
+   SALARY BREAKUP (CTC → IN-HAND) CALCULATOR
+═══════════════════════════════════════════════════════════ */
+const SalaryBreakupCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  const [ctc, setCTC] = useState(1200000);
+  const [basicPct, setBasicPct] = useState(40);
+  const [hraPct, setHraPct] = useState(50); // % of basic
+  const [specialAllowancePct, setSpecialAllowancePct] = useState(100); // remainder flag
+  const [pfContribPct, setPfContribPct] = useState(12);
+  const [professionalTax, setProfessionalTax] = useState(2400);
+  const [bonusPA, setBonusPA] = useState(0);
+  const [variablePayPct, setVariablePayPct] = useState(10);
+  const [taxRegime, setTaxRegime] = useState<"old" | "new">("new");
+
+  const monthly = ctc / 12;
+  const basic = ctc * basicPct / 100;
+  const basicMonthly = basic / 12;
+  const hra = basic * hraPct / 100;
+  const hraMonthly = hra / 12;
+  const variablePay = ctc * variablePayPct / 100;
+  const epfEmployee = Math.min(basic, 180000) * pfContribPct / 100; // PF on basic, capped at ₹15K/mo ceiling
+  const epfEmployer = epfEmployee; // employer matches
+  const specialAllowance = Math.max(0, ctc - basic - hra - variablePay - epfEmployer - bonusPA);
+  const specialMonthly = specialAllowance / 12;
+
+  // Gross salary = CTC - employer PF - bonus/variable (paid separately)
+  const grossMonthly = basicMonthly + hraMonthly + specialMonthly;
+  const epfEmployeeMonthly = epfEmployee / 12;
+  const ptMonthly = professionalTax / 12;
+
+  // Simple tax estimate
+  const stdDeduction = taxRegime === "new" ? 75000 : 50000;
+  const taxableIncome = Math.max(0, ctc - epfEmployer - stdDeduction - (taxRegime === "old" ? Math.min(150000, epfEmployee) : 0));
+
+  let incomeTax = 0;
+  if (taxRegime === "new") {
+    if (taxableIncome > 2400000) incomeTax += (taxableIncome - 2400000) * 0.30;
+    if (taxableIncome > 2000000) incomeTax += (Math.min(taxableIncome, 2400000) - 2000000) * 0.25;
+    if (taxableIncome > 1600000) incomeTax += (Math.min(taxableIncome, 2000000) - 1600000) * 0.20;
+    if (taxableIncome > 1200000) incomeTax += (Math.min(taxableIncome, 1600000) - 1200000) * 0.15;
+    if (taxableIncome > 800000) incomeTax += (Math.min(taxableIncome, 1200000) - 800000) * 0.10;
+    if (taxableIncome > 400000) incomeTax += (Math.min(taxableIncome, 800000) - 400000) * 0.05;
+    if (taxableIncome <= 1200000) incomeTax = 0; // 87A rebate
+  } else {
+    if (taxableIncome > 1000000) incomeTax += (taxableIncome - 1000000) * 0.30;
+    if (taxableIncome > 500000) incomeTax += (Math.min(taxableIncome, 1000000) - 500000) * 0.20;
+    if (taxableIncome > 250000) incomeTax += (Math.min(taxableIncome, 500000) - 250000) * 0.05;
+    if (taxableIncome <= 500000) incomeTax = 0;
+  }
+  incomeTax = Math.round(incomeTax * 1.04); // + 4% cess
+  const taxMonthly = incomeTax / 12;
+
+  const inHandMonthly = grossMonthly - epfEmployeeMonthly - ptMonthly - taxMonthly;
+  const inHandAnnual = inHandMonthly * 12;
+
+  const breakdownData = [
+    { value: basic, color: DB, label: "Basic" },
+    { value: hra, color: OG, label: "HRA" },
+    { value: specialAllowance, color: MB, label: "Special Allow." },
+    { value: epfEmployee + epfEmployer, color: "#6366f1", label: "EPF (Both)" },
+    { value: incomeTax, color: "#ef4444", label: "Tax" },
+  ].filter(d => d.value > 0);
+
+  useEffect(() => {
+    onContextUpdate(`Salary: CTC ${fmtShort(ctc)}, in-hand ${fmtShort(inHandAnnual)}/yr (${fmtShort(inHandMonthly)}/mo), tax ${fmtShort(incomeTax)}.`);
+  }, [ctc, inHandAnnual, inHandMonthly, incomeTax]);
+
+  const insight = `**CTC to In-Hand Breakdown:**\n\n• **CTC**: ${fmt(ctc, 0)}/year (${fmt(monthly, 0)}/month)\n• **Basic**: ${fmt(basic, 0)} (${basicPct}% of CTC)\n• **HRA**: ${fmt(hra, 0)} (${hraPct}% of Basic)\n• **Special Allowance**: ${fmt(specialAllowance, 0)}\n\n**Deductions:**\n• EPF (Employee): ${fmt(epfEmployee, 0)}/yr\n• Professional Tax: ${fmt(professionalTax, 0)}/yr\n• Income Tax (${taxRegime} regime): ~${fmt(incomeTax, 0)}/yr\n\n**Monthly In-Hand: ${fmt(inHandMonthly, 0)}** (${Math.round(inHandAnnual / ctc * 100)}% of CTC)\n\n**Tip**: ${taxRegime === "new" ? "New regime is simpler but offers fewer deductions." : "Old regime benefits those with HRA, 80C, 80D investments."} EPF employer contribution (${fmtShort(epfEmployer)}) is part of your CTC but not in-hand.`;
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <button onClick={() => setTaxRegime("new")}
+            className="flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-2.5 text-sm font-semibold transition-all"
+            style={{ borderColor: taxRegime === "new" ? OG : "#e5e7eb", background: taxRegime === "new" ? OG_PALE : "#fff", color: taxRegime === "new" ? OG : "#6b7280" }}>
+            New Regime
+          </button>
+          <button onClick={() => setTaxRegime("old")}
+            className="flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-2.5 text-sm font-semibold transition-all"
+            style={{ borderColor: taxRegime === "old" ? OG : "#e5e7eb", background: taxRegime === "old" ? OG_PALE : "#fff", color: taxRegime === "old" ? OG : "#6b7280" }}>
+            Old Regime
+          </button>
+        </div>
+        <FieldRow label="Annual CTC"><NumField value={ctc} onChange={setCTC} min={200000} max={10000000} step={50000} prefix="₹" /><RangeSlider value={ctc} onChange={setCTC} min={200000} max={5000000} step={50000} /></FieldRow>
+        <FieldRow label="Basic (% of CTC)"><NumField value={basicPct} onChange={setBasicPct} min={20} max={60} step={1} suffix="%" /><RangeSlider value={basicPct} onChange={setBasicPct} min={20} max={60} step={1} /></FieldRow>
+        <FieldRow label="HRA (% of Basic)"><NumField value={hraPct} onChange={setHraPct} min={0} max={100} step={5} suffix="%" /><RangeSlider value={hraPct} onChange={setHraPct} min={0} max={100} step={5} /></FieldRow>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldRow label="EPF Contribution"><NumField value={pfContribPct} onChange={setPfContribPct} min={0} max={12} step={1} suffix="%" /></FieldRow>
+          <FieldRow label="Professional Tax (Annual)"><NumField value={professionalTax} onChange={setProfessionalTax} min={0} max={5000} step={200} prefix="₹" /></FieldRow>
+        </div>
+        <FieldRow label="Variable Pay (% of CTC)"><NumField value={variablePayPct} onChange={setVariablePayPct} min={0} max={30} step={1} suffix="%" /><RangeSlider value={variablePayPct} onChange={setVariablePayPct} min={0} max={30} step={1} /></FieldRow>
+        <FieldRow label="Annual Bonus (Fixed)"><NumField value={bonusPA} onChange={setBonusPA} min={0} max={500000} step={5000} prefix="₹" /></FieldRow>
+      </div>
+      <div>
+        <div className="rounded-2xl p-5 mb-4 text-white" style={{ background: `linear-gradient(135deg, ${OG}, #c44d12)` }}>
+          <p className="text-xs text-white/60 uppercase font-semibold">Monthly In-Hand Salary</p>
+          <p className="text-3xl font-extrabold mt-1 mb-3">{fmt(inHandMonthly, 0)}</p>
+          <div className="grid grid-cols-3 gap-3 text-center">
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.15)" }}><p className="text-[10px] text-white/60">CTC/month</p><p className="text-sm font-bold">{fmtShort(monthly)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.15)" }}><p className="text-[10px] text-white/60">Deductions</p><p className="text-sm font-bold">{fmtShort(epfEmployeeMonthly + ptMonthly + taxMonthly)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.15)" }}><p className="text-[10px] text-white/60">% of CTC</p><p className="text-sm font-bold">{Math.round(inHandAnnual / ctc * 100)}%</p></div>
+          </div>
+        </div>
+        <div className="mt-4 flex items-center justify-center">
+          <UIDonutChart data={breakdownData} size={140} strokeWidth={16} animationDuration={0.8} animationDelayPerSegment={0.06}
+            centerContent={<div className="flex flex-col items-center justify-center"><p className="text-lg font-extrabold text-gray-800">{fmtShort(inHandMonthly)}</p><p className="text-[10px] text-gray-500">In-Hand</p></div>} />
+        </div>
+        {/* Monthly payslip breakdown */}
+        <div className="mt-4 rounded-xl border border-gray-200 overflow-hidden">
+          <div className="bg-gray-50 px-4 py-2 text-xs font-bold text-gray-500 uppercase tracking-wide">Monthly Payslip</div>
+          {[
+            { label: "Basic Salary", value: basicMonthly, color: DB },
+            { label: "HRA", value: hraMonthly, color: OG },
+            { label: "Special Allowance", value: specialMonthly, color: MB },
+          ].map(r => (
+            <div key={r.label} className="flex items-center justify-between px-4 py-2 border-t border-gray-100">
+              <div className="flex items-center gap-2"><div className="size-2 rounded-full" style={{ background: r.color }} /><span className="text-xs text-gray-600">{r.label}</span></div>
+              <span className="text-xs font-bold text-gray-800">{fmt(r.value, 0)}</span>
+            </div>
+          ))}
+          <div className="flex items-center justify-between px-4 py-2 border-t border-gray-200 bg-gray-50">
+            <span className="text-xs font-bold text-gray-700">Gross Salary</span>
+            <span className="text-xs font-bold text-gray-900">{fmt(grossMonthly, 0)}</span>
+          </div>
+          {[
+            { label: "EPF (Employee)", value: -epfEmployeeMonthly },
+            { label: "Professional Tax", value: -ptMonthly },
+            { label: `Income Tax (${taxRegime})`, value: -taxMonthly },
+          ].map(r => (
+            <div key={r.label} className="flex items-center justify-between px-4 py-2 border-t border-gray-100">
+              <span className="text-xs text-gray-600">{r.label}</span>
+              <span className="text-xs font-bold text-red-500">{fmt(r.value, 0)}</span>
+            </div>
+          ))}
+          <div className="flex items-center justify-between px-4 py-2.5 border-t-2 border-gray-300" style={{ background: OG_PALE }}>
+            <span className="text-sm font-extrabold" style={{ color: OG }}>Net In-Hand</span>
+            <span className="text-sm font-extrabold" style={{ color: OG }}>{fmt(inHandMonthly, 0)}</span>
+          </div>
+        </div>
+        <InsightBanner text={insight} />
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════
    MAIN DASHBOARD
 ═══════════════════════════════════════════════════════════ */
 
@@ -3545,15 +3691,16 @@ const CALC_TABS = [
   { id: "eligibility",label:"Home Loan Eligibility",icon: Home,       comp: HomeLoanEligibilityCalc, category: "Borrowing & Housing" },
   { id: "rentbuy",   label: "Rent vs Buy",          icon: Home,       comp: RentVsBuyCalc,    category: "Borrowing & Housing" },
   { id: "ccemi",     label: "Credit Card EMI",      icon: Calculator, comp: CreditCardEMICalc,category: "Borrowing & Housing" },
+  { id: "eduloan",   label: "Education Loan",       icon: GraduationCap, comp: EducationLoanCalc, category: "Borrowing & Housing" },
   { id: "sip",       label: "SIP & Mutual Funds",   icon: TrendingUp, comp: SIPCalc,          category: "Wealth & Investments" },
   { id: "monthlygoal",label:"Monthly Savings Goal", icon: Target,     comp: MonthlySavingsGoalCalc, category: "Wealth & Investments" },
   { id: "savings",   label: "FD / PPF / NPS / RD",  icon: Target,     comp: SavingsSchemeCalc,category: "Wealth & Investments" },
   { id: "gold",      label: "Gold Investment",       icon: Gem,        comp: GoldInvestmentCalc,category: "Wealth & Investments" },
   { id: "ssy",       label: "Sukanya Samriddhi (SSY)", icon: Target,  comp: SSYCalc,          category: "Wealth & Investments" },
-  { id: "eduloan",   label: "Education Loan",       icon: GraduationCap, comp: EducationLoanCalc, category: "Borrowing & Housing" },
+  { id: "salary",    label: "Salary Breakup",       icon: Wallet,     comp: SalaryBreakupCalc,category: "Employment Benefits" },
+  { id: "gratuity",  label: "Gratuity",             icon: Award,      comp: GratuityCalc,     category: "Employment Benefits" },
   { id: "emergency", label: "Emergency Fund",       icon: Shield,     comp: EmergencyFundCalc,category: "Protection & Essentials" },
   { id: "insurance", label: "Insurance Need",       icon: Shield,     comp: InsuranceNeedCalc,category: "Protection & Essentials" },
-  { id: "gratuity",  label: "Gratuity",             icon: Award,      comp: GratuityCalc,     category: "Employment Benefits" },
   { id: "hra",       label: "HRA Exemption",        icon: Shield,     comp: HRACalc,          category: "Tax & Compliance" },
   { id: "tax",       label: "Tax Savings",          icon: Shield,     comp: TaxCalc,          category: "Tax & Compliance" },
 ] as const;
