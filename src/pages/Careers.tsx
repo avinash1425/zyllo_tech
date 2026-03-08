@@ -404,7 +404,9 @@ const CareersPage = () => {
           >
             <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
               <div className="flex-1">
-                <div className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-primary mb-4">
+                <div className="overflow-hidden rounded-xl border border-border mb-6">
+                  <img src={careersOjt} alt="Graduate engineers learning together at Zyllo Tech" className="h-52 w-full object-cover" loading="lazy" />
+                </div>
                   <GraduationCap className="h-4 w-4" /> Graduate & OJT Programme
                 </div>
                 <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-3">
