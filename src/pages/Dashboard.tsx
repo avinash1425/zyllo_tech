@@ -3720,6 +3720,9 @@ const Dashboard = () => {
   const [plannerTab, setPlannerTab] = useState("goal");
   const [calcCtx, setCalcCtx]     = useState("");
   const [exporting, setExporting] = useState(false);
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareLeft, setCompareLeft] = useState("emi");
+  const [compareRight, setCompareRight] = useState("sip");
   const calcResultRef = useRef<HTMLDivElement>(null);
 
   const exportPDF = async () => {
