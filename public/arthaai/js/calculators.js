@@ -977,4 +977,7 @@ document.addEventListener('DOMContentLoaded', () => {
   calculateGold();
   calculateEduLoan();
   calculateGratuity();
+
+  // Fetch live market data
+  fetchMarketData();
 });
