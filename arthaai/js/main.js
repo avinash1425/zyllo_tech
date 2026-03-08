@@ -11,9 +11,11 @@
    1. NAVIGATION
 ══════════════════════════════════════ */
 (function initNav() {
-  const navbar   = document.getElementById('navbar');
-  const toggle   = document.getElementById('navToggle');
-  const navLinks = document.getElementById('navLinks');
+  // Support both navbar IDs used across pages
+  const navbar   = document.getElementById('navbar') || document.getElementById('mainNav');
+  const toggle   = document.getElementById('navToggle') || document.getElementById('hamburger');
+  const navLinks = document.getElementById('navLinks') || document.querySelector('.nav-links');
+  const navMobile = document.getElementById('navMobile');
 
   if (!navbar) return;
 
@@ -25,20 +27,31 @@
   handleScroll(); // run once on load
 
   // Mobile hamburger toggle
-  if (toggle && navLinks) {
+  if (toggle) {
     toggle.addEventListener('click', () => {
-      const open = navLinks.classList.toggle('open');
-      toggle.classList.toggle('open', open);
-      toggle.setAttribute('aria-expanded', open);
+      // Support both nav-mobile pattern and nav-links pattern
+      if (navMobile) {
+        const open = navMobile.classList.toggle('open');
+        toggle.classList.toggle('open', open);
+        toggle.setAttribute('aria-expanded', String(open));
+      } else if (navLinks) {
+        const open = navLinks.classList.toggle('open');
+        toggle.classList.toggle('open', open);
+        toggle.setAttribute('aria-expanded', String(open));
+      }
     });
 
     // Close nav when a link is clicked (mobile)
-    navLinks.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        navLinks.classList.remove('open');
-        toggle.classList.remove('open');
+    const linksContainer = navMobile || navLinks;
+    if (linksContainer) {
+      linksContainer.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          if (navMobile) navMobile.classList.remove('open');
+          if (navLinks) navLinks.classList.remove('open');
+          toggle.classList.remove('open');
+        });
       });
-    });
+    }
 
     // Close nav when clicking outside
     document.addEventListener('click', (e) => {
@@ -73,18 +86,25 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
    3. SCROLL ANIMATIONS (Intersection Observer)
 ══════════════════════════════════════ */
 (function initScrollAnimations() {
-  // Classes that trigger animation when in view
   const animatables = document.querySelectorAll(
-    '.fade-in, .slide-in-left, .slide-in-right, .scale-in, ' +
+    '.fade-in, .slide-in-left, .slide-in-right, .scale-in, .fade-up-stagger, ' +
     '.feature-card, .module-card, .pricing-card, .step-item, ' +
-    '.learn-card, .rp-card, .stat-item'
+    '.learn-card, .rp-card, .stat-item, .card, .section-header, ' +
+    '.problem-card, .lang-pill, .hero-content, .hero-visual'
   );
 
   if (!animatables.length || !('IntersectionObserver' in window)) {
-    // Fallback: show everything
     animatables.forEach(el => el.style.opacity = '1');
     return;
   }
+
+  // Add default animation class if element doesn't have one
+  animatables.forEach(el => {
+    const hasAnim = el.classList.contains('fade-in') || el.classList.contains('slide-in-left') ||
+                    el.classList.contains('slide-in-right') || el.classList.contains('scale-in') ||
+                    el.classList.contains('fade-up-stagger');
+    if (!hasAnim) el.classList.add('fade-in');
+  });
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -94,13 +114,20 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       }
     });
   }, {
-    threshold: 0.12,
-    rootMargin: '0px 0px -40px 0px'
+    threshold: 0.1,
+    rootMargin: '0px 0px -60px 0px'
   });
 
   animatables.forEach((el, i) => {
-    // Stagger cards in a grid
-    el.style.transitionDelay = (i % 4) * 80 + 'ms';
+    // Stagger siblings in grids
+    const parent = el.parentElement;
+    if (parent) {
+      const siblings = Array.from(parent.children).filter(c => animatables.length && c.matches('.card, .pricing-card, .module-card, .problem-card, .step-item, .lang-pill, .feature-card'));
+      const idx = siblings.indexOf(el);
+      if (idx > -1) {
+        el.style.transitionDelay = (idx * 100) + 'ms';
+      }
+    }
     observer.observe(el);
   });
 })();
