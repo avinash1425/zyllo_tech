@@ -1107,27 +1107,12 @@ function loadComparison(key) {
 loadComparison('ulip');
 
 /* ═══════════════════════════════════════
-   CHAT
+   CHAT — Real AI Streaming via ArthaGuru
 ═══════════════════════════════════════ */
-const chatResponses = {
-  'sip': { tag: 'Mutual Funds', text: 'A <strong>SIP (Systematic Investment Plan)</strong> lets you invest a fixed amount in a mutual fund at regular intervals — typically monthly. Instead of timing the market, you benefit from <strong>Rupee Cost Averaging</strong>: you buy more units when markets are low and fewer when high, automatically averaging out your cost over time.<br><br>Benefits:<ul><li>Start with as little as ₹500/month</li><li>No need to watch the market</li><li>Disciplined wealth creation over 10–15 years</li><li>Compounding works in your favour</li></ul>' },
-  'mutual fund': { tag: 'Mutual Funds', text: 'A <strong>mutual fund</strong> pools money from thousands of investors to create a diversified portfolio managed by a professional fund manager. When you invest ₹10,000, you get "units" of the fund proportional to the current NAV.<br><br>Key types: <ul><li><strong>Equity funds</strong> — invest in stocks, higher returns, higher risk</li><li><strong>Debt funds</strong> — invest in bonds, lower risk</li><li><strong>Hybrid funds</strong> — mix of both</li><li><strong>ELSS</strong> — tax-saving equity funds</li></ul>' },
-  'term insurance': { tag: 'Insurance', text: '<strong>Term insurance</strong> is pure life cover. You pay a premium, and if you pass away during the policy term, your family receives a large "sum assured". There is no maturity benefit — it is pure protection, which is why premiums are very affordable.<br><br><strong>₹1 Crore cover</strong> for a healthy 30-year-old costs just <strong>₹8,000–12,000/year</strong>. Compare this to ULIP or endowment plans that charge ₹1L+/year for the same cover. Always choose term + mutual fund over any bundled product.' },
-  'ulip': { tag: 'Insurance', text: '<strong>ULIP (Unit Linked Insurance Plan)</strong> combines life insurance with investments — but charges heavy fees (3–4%/year) including premium allocation, fund management, mortality, and admin charges.<br><br>In Year 1, only 60–70% of your premium actually gets invested. Compare this to a mutual fund where 99.5% is invested immediately.<br><br>💡 Almost always better to: Buy <strong>Term Insurance</strong> (₹10K/year for ₹1Cr cover) + invest the rest in <strong>Mutual Funds</strong>.' },
-  'tax': { tag: 'Tax Planning', text: 'The two key income tax regimes in India for FY 2025-26:<br><br><strong>Old Regime:</strong> Higher tax rates but allows deductions (80C ₹1.5L, 80D ₹25K, HRA, etc.)<br><strong>New Regime:</strong> Lower tax rates but most deductions not available<br><br>💡 <strong>Quick guide:</strong> If your total deductions exceed ₹2L–2.5L, Old Regime usually saves more. Otherwise, New Regime is simpler and often cheaper. Use the ArthaCalc Tax Savings calculator for your exact numbers!' },
-  '80c': { tag: 'Tax Planning', text: '<strong>Section 80C</strong> allows you to deduct up to ₹1.5 lakh from your taxable income through certain investments/payments:<br><ul><li><strong>ELSS (best for wealth)</strong> — 3Y lock-in, market returns</li><li><strong>PPF</strong> — tax-free, safe, 15Y lock-in</li><li><strong>NPS</strong> — pension, extra ₹50K under 80CCD(1B)</li><li><strong>EPF</strong> — automatic for salaried</li><li><strong>Home Loan Principal</strong></li><li><strong>Life Insurance Premium</strong></li><li><strong>Children\'s Tuition Fees</strong></li></ul>' },
-  'nav': { tag: 'Mutual Funds', text: '<strong>NAV (Net Asset Value)</strong> is the price of one unit of a mutual fund on any given day. It is calculated as:<br><br><code>NAV = (Total Assets − Liabilities) ÷ Total Units</code><br><br>A lower NAV does NOT mean a fund is cheaper or better value — just like a stock price alone doesn\'t tell you if it\'s undervalued. What matters is the <strong>performance consistency</strong> and <strong>expense ratio</strong> of the fund.' },
-  'expense ratio': { tag: 'Mutual Funds', text: 'The <strong>expense ratio</strong> is the annual fee a mutual fund charges for managing your money, expressed as a percentage of AUM.<br><br>Example: A 1.5% expense ratio means if you have ₹1L invested, ₹1,500/year is deducted (automatically — you don\'t pay separately).<br><br>💡 Over 20 years, the difference between 0.5% and 1.5% expense ratio compounds to a <strong>massive</strong> wealth difference — up to 20% less corpus. Always prefer Direct Plans over Regular Plans, which have 0.5–1% lower expense ratios.' },
-  'default': { tag: 'ArthaGuru', text: 'Great question! I can help you understand this better. As an educational platform, I can explain financial concepts, compare products, and help you understand how different financial instruments work — but I cannot recommend specific products or give personalized investment advice.<br><br>Try asking me about: <ul><li>Mutual fund types and how they work</li><li>Term vs ULIP vs Endowment comparison</li><li>Tax saving options under 80C</li><li>How SIP compounding works</li></ul>' }
-};
+const GURU_SUPABASE_URL = 'https://zfjeflpvwizlteflypsx.supabase.co';
+const GURU_SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmamVmbHB2d2l6bHRlZmx5cHN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzI3NDQsImV4cCI6MjA4ODIwODc0NH0.ByQFv9bNnc1ibdeE1nWoHhqIKFw-mGxFbb2nsPc7F_s';
 
-function getBotResponse(msg) {
-  const lower = msg.toLowerCase();
-  for (const [key, resp] of Object.entries(chatResponses)) {
-    if (key !== 'default' && lower.includes(key)) return resp;
-  }
-  return chatResponses['default'];
-}
+let chatHistory = []; // { role: 'user'|'assistant', content: string }
 
 function addMessage(text, isUser = false, tag = '') {
   const container = document.getElementById('chatMessages');
@@ -1135,13 +1120,29 @@ function addMessage(text, isUser = false, tag = '') {
   const div = document.createElement('div');
   div.className = 'msg ' + (isUser ? 'user' : 'bot');
   if (isUser) {
-    div.innerHTML = `<div class="msg-avatar user">A</div><div><div class="msg-bubble">${text}</div><div class="msg-time">${now}</div></div>`;
+    div.innerHTML = `<div class="msg-avatar user">A</div><div><div class="msg-bubble">${escapeHtml(text)}</div><div class="msg-time">${now}</div></div>`;
   } else {
     div.innerHTML = `<div class="msg-avatar bot">🧠</div><div><div class="msg-bubble">${tag ? `<span class="msg-tag">${tag}</span><br>` : ''}${text}</div><div class="msg-time">${now}</div></div>`;
   }
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
   return div;
+}
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function formatMarkdown(text) {
+  // Simple markdown → HTML
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^- (.+)/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
+    .replace(/\n/g, '<br>');
 }
 
 function showTyping() {
@@ -1159,19 +1160,126 @@ function hideTyping() {
   if (el) el.remove();
 }
 
-function sendMessage() {
+let isSending = false;
+
+async function sendMessage() {
   const input = document.getElementById('chatInput');
   const text = input.value.trim();
-  if (!text) return;
+  if (!text || isSending) return;
   input.value = '';
   input.style.height = 'auto';
+  isSending = true;
+
   addMessage(text, true);
+  chatHistory.push({ role: 'user', content: text });
   showTyping();
-  setTimeout(() => {
+
+  // Disable send button
+  const sendBtn = document.querySelector('.chat-send-btn');
+  if (sendBtn) sendBtn.style.opacity = '0.5';
+
+  try {
+    const res = await fetch(`${GURU_SUPABASE_URL}/functions/v1/arthaai-chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${GURU_SUPABASE_ANON}`,
+        'apikey': GURU_SUPABASE_ANON,
+      },
+      body: JSON.stringify({
+        messages: chatHistory,
+        stream: true,
+      }),
+    });
+
     hideTyping();
-    const resp = getBotResponse(text);
-    addMessage(resp.text, false, resp.tag);
-  }, 1200 + Math.random() * 800);
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'AI unavailable' }));
+      addMessage(`⚠️ ${err.error || 'Something went wrong. Please try again.'}`, false, 'Error');
+      isSending = false;
+      if (sendBtn) sendBtn.style.opacity = '1';
+      return;
+    }
+
+    // Stream SSE response
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let fullContent = '';
+    let msgDiv = null;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      let newlineIdx;
+      while ((newlineIdx = buffer.indexOf('\n')) !== -1) {
+        let line = buffer.slice(0, newlineIdx);
+        buffer = buffer.slice(newlineIdx + 1);
+        if (line.endsWith('\r')) line = line.slice(0, -1);
+        if (line.startsWith(':') || line.trim() === '') continue;
+        if (!line.startsWith('data: ')) continue;
+
+        const jsonStr = line.slice(6).trim();
+        if (jsonStr === '[DONE]') break;
+
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const content = parsed.choices?.[0]?.delta?.content;
+          if (content) {
+            fullContent += content;
+            if (!msgDiv) {
+              msgDiv = addMessage(formatMarkdown(fullContent), false, 'ArthaGuru');
+            } else {
+              const bubble = msgDiv.querySelector('.msg-bubble');
+              if (bubble) bubble.innerHTML = `<span class="msg-tag">ArthaGuru</span><br>${formatMarkdown(fullContent)}`;
+            }
+            const container = document.getElementById('chatMessages');
+            container.scrollTop = container.scrollHeight;
+          }
+        } catch {
+          buffer = line + '\n' + buffer;
+          break;
+        }
+      }
+    }
+
+    // Final flush
+    if (buffer.trim()) {
+      for (let raw of buffer.split('\n')) {
+        if (!raw || !raw.startsWith('data: ')) continue;
+        const jsonStr = raw.slice(6).trim();
+        if (jsonStr === '[DONE]') continue;
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const content = parsed.choices?.[0]?.delta?.content;
+          if (content) {
+            fullContent += content;
+            if (msgDiv) {
+              const bubble = msgDiv.querySelector('.msg-bubble');
+              if (bubble) bubble.innerHTML = `<span class="msg-tag">ArthaGuru</span><br>${formatMarkdown(fullContent)}`;
+            }
+          }
+        } catch {}
+      }
+    }
+
+    if (fullContent) {
+      chatHistory.push({ role: 'assistant', content: fullContent });
+    } else if (!msgDiv) {
+      addMessage('Sorry, I could not generate a response. Please try again.', false, 'ArthaGuru');
+    }
+
+  } catch (err) {
+    hideTyping();
+    console.error('Chat error:', err);
+    addMessage('⚠️ Connection error. Please check your internet and try again.', false, 'Error');
+  } finally {
+    isSending = false;
+    if (sendBtn) sendBtn.style.opacity = '1';
+  }
 }
 
 function askQuestion(q) {
@@ -1187,7 +1295,6 @@ function handleChatKey(e) {
     e.preventDefault();
     sendMessage();
   }
-  // Auto-resize
   const el = e.target;
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 120) + 'px';
