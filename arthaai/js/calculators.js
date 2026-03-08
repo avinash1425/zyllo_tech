@@ -577,12 +577,13 @@ window.calculateGold = function () {
   show('gold-result');
 };
 
-function toggleGoldMode(mode) {
+window.toggleGoldMode = function(mode) {
   goldMode = mode;
   document.querySelectorAll('.tag-pill[data-goldmode]').forEach(b => b.classList.toggle('active', b.getAttribute('data-goldmode') === mode));
   const label = $('gold-amount-label');
   if (label) label.textContent = mode === 'sip' ? 'Monthly Investment' : 'Lumpsum Investment';
-}
+  calculateGold();
+};
 
 /* ══════════════════════════════════════
    8. EDUCATION LOAN CALCULATOR
