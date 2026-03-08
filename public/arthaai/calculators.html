@@ -34,11 +34,17 @@
     .legend-row { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: rgba(255,255,255,0.8); }
     .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     @media (max-width: 768px) { .calc-layout { grid-template-columns: 1fr; } }
+    /* Hide own nav when embedded inside React shell */
+    html.embedded .nav,
+    html.embedded .nav-mobile { display: none !important; }
+    html.embedded body { padding-top: 0 !important; }
+    html.embedded .page-header { padding-top: 40px; }
   </style>
 </head>
 <body>
 
 <!-- NAVIGATION -->
+<script>if(new URLSearchParams(location.search).has('embed')){document.documentElement.classList.add('embedded')}</script>
 <nav class="nav" id="mainNav">
   <div class="container">
     <div class="nav-inner">

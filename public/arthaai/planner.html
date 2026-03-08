@@ -46,10 +46,18 @@
     .input-prefix-sm input { padding-left: 28px; }
     .input-prefix-sm::before { content: '₹'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-weight: 600; color: var(--gray-400); font-size: 0.85rem; pointer-events: none; }
   </style>
+  <style>
+    /* Hide own nav when embedded inside React shell */
+    html.embedded .nav,
+    html.embedded .nav-mobile { display: none !important; }
+    html.embedded body { padding-top: 0 !important; }
+    html.embedded .page-header { padding-top: 40px; }
+  </style>
 </head>
 <body>
 
 <!-- NAVIGATION -->
+<script>if(new URLSearchParams(location.search).has('embed')){document.documentElement.classList.add('embedded')}</script>
 <nav class="nav" id="mainNav">
   <div class="container">
     <div class="nav-inner">
