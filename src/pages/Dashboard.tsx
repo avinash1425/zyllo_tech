@@ -7,7 +7,7 @@ import {
   TrendingUp, Shield, Home, Car, Target,
   RefreshCw, Zap, BookOpen,
   ArrowRight, Check, X, AlertCircle,
-  GraduationCap, Award, Gem, Wallet, Download,
+  GraduationCap, Award, Gem, Wallet, Download, Columns2,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -3720,6 +3720,9 @@ const Dashboard = () => {
   const [plannerTab, setPlannerTab] = useState("goal");
   const [calcCtx, setCalcCtx]     = useState("");
   const [exporting, setExporting] = useState(false);
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareLeft, setCompareLeft] = useState("emi");
+  const [compareRight, setCompareRight] = useState("sip");
   const calcResultRef = useRef<HTMLDivElement>(null);
 
   const exportPDF = async () => {
@@ -3916,71 +3919,168 @@ const Dashboard = () => {
 
           {/* ARTHACALC TAB */}
           {mainTab === "calc" && (
-            <div className="grid lg:grid-cols-[280px_minmax(0,1fr)] gap-5">
-              <aside className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 h-fit lg:sticky lg:top-24">
-                <p className="text-xs font-bold uppercase tracking-wide text-gray-500 mb-3">Calculator Library</p>
-                <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
-                  {calcCategories.map((cat) => (
-                    <div key={cat}>
-                      <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-2 px-2">{cat}</p>
-                      <div className="space-y-1.5">
-                        {CALC_TABS.filter((t) => t.category === cat).map((t) => (
-                          <button
-                            key={t.id}
-                            onClick={() => setCalcTab(t.id)}
-                            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold border transition-all text-left"
-                            style={{
-                              borderColor: calcTab === t.id ? OG : "#e5e7eb",
-                              background: calcTab === t.id ? OG_PALE : "#fff",
-                              color: calcTab === t.id ? OG : "#6b7280",
-                            }}
-                          >
-                            <t.icon size={14} />
-                            <span>{t.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </aside>
-
-              <div>
-                <div ref={calcResultRef} className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-8">
-                  <div className="flex items-center justify-between mb-6">
-                    <div>
-                      <h2 className="text-lg font-bold text-gray-900">{activeCalc.label}</h2>
-                      <p className="text-sm text-gray-400">AI-powered insights after every calculation</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={exportPDF}
-                        disabled={exporting}
-                        className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border-2 transition-all disabled:opacity-50"
-                        style={{ borderColor: DB, color: DB, background: "#f0f7ff" }}
-                      >
-                        <Download size={12} className={exporting ? "animate-bounce" : ""} />
-                        {exporting ? "Exporting…" : "Download PDF"}
-                      </button>
-                      <button onClick={() => setMainTab("guru")}
-                        className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-colors text-white"
-                        style={{ background: `linear-gradient(135deg, ${OG}, #c44d12)` }}
-                      >
-                        <Sparkles size={12} />Ask ArthaGuru
-                      </button>
-                    </div>
-                  </div>
-                  <activeCalc.comp onContextUpdate={setCalcCtx} />
-                </div>
-
-                <div className="mt-4 flex items-center gap-2 rounded-2xl border border-blue-100 bg-blue-50 p-3 text-xs text-blue-700">
-                  <AlertCircle size={13} className="shrink-0" />
-                  <span>Calculations are for planning purposes only. Consult a SEBI-registered advisor before investing.</span>
-                  <button onClick={() => setMainTab("guru")} className="ml-auto flex items-center gap-1 font-semibold shrink-0 hover:underline">
-                    Ask ArthaGuru <ArrowRight size={11} />
+            <div>
+              {/* Compare Mode Toggle */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCompareMode(false)}
+                    className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border-2 transition-all"
+                    style={{
+                      borderColor: !compareMode ? DB : "#e5e7eb",
+                      background: !compareMode ? "#f0f7ff" : "#fff",
+                      color: !compareMode ? DB : "#6b7280",
+                    }}
+                  >
+                    <Calculator size={12} />Single Calculator
+                  </button>
+                  <button
+                    onClick={() => setCompareMode(true)}
+                    className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border-2 transition-all"
+                    style={{
+                      borderColor: compareMode ? OG : "#e5e7eb",
+                      background: compareMode ? OG_PALE : "#fff",
+                      color: compareMode ? OG : "#6b7280",
+                    }}
+                  >
+                    <Columns2 size={12} />Compare Side-by-Side
                   </button>
                 </div>
               </div>
+
+              {/* SINGLE CALCULATOR MODE */}
+              {!compareMode && (
+                <div className="grid lg:grid-cols-[280px_minmax(0,1fr)] gap-5">
+                  <aside className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 h-fit lg:sticky lg:top-24">
+                    <p className="text-xs font-bold uppercase tracking-wide text-gray-500 mb-3">Calculator Library</p>
+                    <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+                      {calcCategories.map((cat) => (
+                        <div key={cat}>
+                          <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-2 px-2">{cat}</p>
+                          <div className="space-y-1.5">
+                            {CALC_TABS.filter((t) => t.category === cat).map((t) => (
+                              <button
+                                key={t.id}
+                                onClick={() => setCalcTab(t.id)}
+                                className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold border transition-all text-left"
+                                style={{
+                                  borderColor: calcTab === t.id ? OG : "#e5e7eb",
+                                  background: calcTab === t.id ? OG_PALE : "#fff",
+                                  color: calcTab === t.id ? OG : "#6b7280",
+                                }}
+                              >
+                                <t.icon size={14} />
+                                <span>{t.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </aside>
+
+                  <div>
+                    <div ref={calcResultRef} className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-8">
+                      <div className="flex items-center justify-between mb-6">
+                        <div>
+                          <h2 className="text-lg font-bold text-gray-900">{activeCalc.label}</h2>
+                          <p className="text-sm text-gray-400">AI-powered insights after every calculation</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={exportPDF}
+                            disabled={exporting}
+                            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border-2 transition-all disabled:opacity-50"
+                            style={{ borderColor: DB, color: DB, background: "#f0f7ff" }}
+                          >
+                            <Download size={12} className={exporting ? "animate-bounce" : ""} />
+                            {exporting ? "Exporting…" : "Download PDF"}
+                          </button>
+                          <button onClick={() => setMainTab("guru")}
+                            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-colors text-white"
+                            style={{ background: `linear-gradient(135deg, ${OG}, #c44d12)` }}
+                          >
+                            <Sparkles size={12} />Ask ArthaGuru
+                          </button>
+                        </div>
+                      </div>
+                      <activeCalc.comp onContextUpdate={setCalcCtx} />
+                    </div>
+
+                    <div className="mt-4 flex items-center gap-2 rounded-2xl border border-blue-100 bg-blue-50 p-3 text-xs text-blue-700">
+                      <AlertCircle size={13} className="shrink-0" />
+                      <span>Calculations are for planning purposes only. Consult a SEBI-registered advisor before investing.</span>
+                      <button onClick={() => setMainTab("guru")} className="ml-auto flex items-center gap-1 font-semibold shrink-0 hover:underline">
+                        Ask ArthaGuru <ArrowRight size={11} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* COMPARE MODE */}
+              {compareMode && (() => {
+                const leftCalc = CALC_TABS.find(t => t.id === compareLeft)!;
+                const rightCalc = CALC_TABS.find(t => t.id === compareRight)!;
+                return (
+                  <div>
+                    {/* Selector Row */}
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      {[
+                        { value: compareLeft, setter: setCompareLeft, label: "Left Calculator", color: DB },
+                        { value: compareRight, setter: setCompareRight, label: "Right Calculator", color: OG },
+                      ].map((side) => (
+                        <div key={side.label} className="bg-white rounded-2xl border border-gray-200 p-3">
+                          <label className="block text-[10px] font-bold uppercase tracking-wide mb-1.5" style={{ color: side.color }}>
+                            {side.label}
+                          </label>
+                          <select
+                            value={side.value}
+                            onChange={e => side.setter(e.target.value)}
+                            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold text-gray-800 bg-gray-50 focus:ring-2 focus:outline-none transition-all"
+                            style={{ focusRingColor: side.color } as any}
+                          >
+                            {CALC_TABS.map(t => (
+                              <option key={t.id} value={t.id}>{t.label}</option>
+                            ))}
+                          </select>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Side-by-Side Calculators */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      {[
+                        { calc: leftCalc, borderColor: DB, bgAccent: "#f0f7ff" },
+                        { calc: rightCalc, borderColor: OG, bgAccent: OG_PALE },
+                      ].map(({ calc, borderColor, bgAccent }, idx) => (
+                        <div key={calc.id + idx} className="bg-white rounded-3xl shadow-sm border-2 p-4 sm:p-6 overflow-y-auto max-h-[85vh]"
+                          style={{ borderColor }}
+                        >
+                          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
+                            <div className="size-8 rounded-lg flex items-center justify-center" style={{ background: bgAccent }}>
+                              <calc.icon size={14} style={{ color: borderColor }} />
+                            </div>
+                            <div>
+                              <h3 className="text-sm font-bold text-gray-900">{calc.label}</h3>
+                              <p className="text-[10px] text-gray-400">{calc.category}</p>
+                            </div>
+                          </div>
+                          <calc.comp onContextUpdate={() => {}} />
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-4 flex items-center gap-2 rounded-2xl border border-blue-100 bg-blue-50 p-3 text-xs text-blue-700">
+                      <AlertCircle size={13} className="shrink-0" />
+                      <span>Compare mode: Run both calculators with your numbers, then review results side by side.</span>
+                      <button onClick={() => setMainTab("guru")} className="ml-auto flex items-center gap-1 font-semibold shrink-0 hover:underline">
+                        Ask ArthaGuru <ArrowRight size={11} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
 
