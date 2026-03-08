@@ -1260,6 +1260,8 @@ async function sendMessage() {
       },
       body: JSON.stringify({
         messages: chatHistory,
+        language: selectedLanguage,
+        languageName: LANGUAGE_CONFIG[selectedLanguage]?.promptName || 'English',
         stream: true,
       }),
     });
