@@ -148,6 +148,7 @@ window.updateBudgetChart = function() {
   setHTML('budget-savings-pct', savingsPct + '%');
 
   revealPlanner('budget-result');
+  if (window.fetchAIInsights) fetchAIInsights('Budget Builder (50-30-20 Rule)', 'budget-result');
 };
 
 // Alias for backward compat
@@ -197,6 +198,7 @@ window.calculateEmergencyFund = function() {
   setHTML('ef-timeline', timelineText);
 
   revealPlanner('ef-result');
+  if (window.fetchAIInsights) fetchAIInsights('Emergency Fund Calculator', 'ef-result');
 };
 
 /* ═══════════════════════════════════════════
@@ -476,6 +478,7 @@ window.calculateNetWorth = function() {
   buildAssetAllocation(assets, totalAssets);
 
   revealPlanner('nw-result');
+  if (window.fetchAIInsights) fetchAIInsights('Net Worth Tracker', 'nw-result');
 };
 
 function buildAssetAllocation(assets, total) {
