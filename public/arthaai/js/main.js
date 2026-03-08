@@ -11,9 +11,11 @@
    1. NAVIGATION
 ══════════════════════════════════════ */
 (function initNav() {
-  const navbar   = document.getElementById('navbar');
-  const toggle   = document.getElementById('navToggle');
-  const navLinks = document.getElementById('navLinks');
+  // Support both navbar IDs used across pages
+  const navbar   = document.getElementById('navbar') || document.getElementById('mainNav');
+  const toggle   = document.getElementById('navToggle') || document.getElementById('hamburger');
+  const navLinks = document.getElementById('navLinks') || document.querySelector('.nav-links');
+  const navMobile = document.getElementById('navMobile');
 
   if (!navbar) return;
 
@@ -25,20 +27,31 @@
   handleScroll(); // run once on load
 
   // Mobile hamburger toggle
-  if (toggle && navLinks) {
+  if (toggle) {
     toggle.addEventListener('click', () => {
-      const open = navLinks.classList.toggle('open');
-      toggle.classList.toggle('open', open);
-      toggle.setAttribute('aria-expanded', open);
+      // Support both nav-mobile pattern and nav-links pattern
+      if (navMobile) {
+        const open = navMobile.classList.toggle('open');
+        toggle.classList.toggle('open', open);
+        toggle.setAttribute('aria-expanded', String(open));
+      } else if (navLinks) {
+        const open = navLinks.classList.toggle('open');
+        toggle.classList.toggle('open', open);
+        toggle.setAttribute('aria-expanded', String(open));
+      }
     });
 
     // Close nav when a link is clicked (mobile)
-    navLinks.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        navLinks.classList.remove('open');
-        toggle.classList.remove('open');
+    const linksContainer = navMobile || navLinks;
+    if (linksContainer) {
+      linksContainer.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          if (navMobile) navMobile.classList.remove('open');
+          if (navLinks) navLinks.classList.remove('open');
+          toggle.classList.remove('open');
+        });
       });
-    });
+    }
 
     // Close nav when clicking outside
     document.addEventListener('click', (e) => {
