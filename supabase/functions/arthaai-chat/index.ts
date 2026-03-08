@@ -2,17 +2,14 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { messages, calcContext } = await req.json();
+    const { messages, calcContext, stream: enableStream } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -47,26 +44,25 @@ Rules:
 5. Use bullet points for lists
 6. Always end complex advice with a clear "Next Step" or action item
 7. Be encouraging, not preachy
+8. Use markdown formatting: **bold** for emphasis, - for bullets, ## for sections
 
 ${calcContext ? `\nCurrent calculator context (reference if relevant):\n${calcContext}` : ""}`;
 
-    const response = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
-          messages: [
-            { role: "system", content: systemPrompt },
-            ...messages,
-          ],
-        }),
-      }
-    );
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...messages,
+        ],
+        stream: !!enableStream,
+      }),
+    });
 
     if (response.status === 429) {
       return new Response(
@@ -86,9 +82,16 @@ ${calcContext ? `\nCurrent calculator context (reference if relevant):\n${calcCo
       throw new Error("AI service temporarily unavailable");
     }
 
+    // If streaming, pass through the SSE stream
+    if (enableStream) {
+      return new Response(response.body, {
+        headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+      });
+    }
+
+    // Non-streaming response
     const data = await response.json();
-    const message =
-      data.choices?.[0]?.message?.content || "Sorry, I could not generate a response.";
+    const message = data.choices?.[0]?.message?.content || "Sorry, I could not generate a response.";
 
     return new Response(
       JSON.stringify({ message }),
