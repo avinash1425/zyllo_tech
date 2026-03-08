@@ -50,6 +50,7 @@ Rules:
 6. Always end complex advice with a clear "Next Step" or action item
 7. Be encouraging, not preachy
 8. Use markdown formatting: **bold** for emphasis, - for bullets, ## for sections
+9. Always respond in ${preferredLanguageName} unless the user explicitly requests another language in that specific message
 
 ${calcContext ? `\nCurrent calculator context (reference if relevant):\n${calcContext}` : ""}`;
 
