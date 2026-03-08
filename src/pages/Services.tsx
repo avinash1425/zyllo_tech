@@ -374,7 +374,7 @@ const servicesFaqSchema = {
   mainEntity: [
     // General
     { "@type": "Question", name: "What software development services does Zyllo Tech offer?", acceptedAnswer: { "@type": "Answer", text: "Zyllo Tech offers web & mobile app development, cloud DevOps, data engineering & AI/ML, cybersecurity engineering, quality assurance & test automation, dedicated engineering teams, and application support & maintenance." } },
-    { "@type": "Question", name: "Does Zyllo Tech work with startups and enterprises?", acceptedAnswer: { "@type": "Answer", text: "Yes. We work with early-stage startups, scale-ups, and large enterprises across India, USA, UAE, UK, Singapore, Australia, Canada, and other countries." } },
+    { "@type": "Question", name: "Does Zyllo Tech work with startups and enterprises?", acceptedAnswer: { "@type": "Answer", text: "Yes. We work with early-stage startups, scale-ups, and large enterprises across India, USA, UK, Singapore, Australia, Canada, and other countries." } },
     { "@type": "Question", name: "What technologies does Zyllo Tech use?", acceptedAnswer: { "@type": "Answer", text: "We use React, Next.js, Node.js, Python, React Native, Swift, Kotlin, AWS, Azure, GCP, Kubernetes, Terraform, PostgreSQL, dbt, Snowflake, LangChain, and more depending on project requirements." } },
     { "@type": "Question", name: "How does Zyllo Tech ensure software quality?", acceptedAnswer: { "@type": "Answer", text: "We use automated testing (Playwright, Cypress, k6), CI/CD pipelines with quality gates, OWASP security scanning, and mandatory code reviews on every pull request." } },
     // Web Engineering

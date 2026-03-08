@@ -257,7 +257,7 @@ const ContactPage = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Contact Zyllo Tech | Free Software Consultation India"
-        description="Get in touch with Zyllo Tech for software development, AI solutions, cloud engineering, and QA projects. We offer a free consultation for enterprises and startups across India, USA, UAE, UK, and globally."
+        description="Get in touch with Zyllo Tech for software development, AI solutions, cloud engineering, and QA projects. We offer a free consultation for enterprises and startups across India, USA, UK, and globally."
         canonical="/contact"
         keywords="contact software company India, hire software developer India, software development consultation, IT outsourcing India, software company Hyderabad contact, get software quote India"
         structuredData={[

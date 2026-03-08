@@ -97,7 +97,7 @@ const Index = () => {
     <div className="min-h-screen bg-background overflow-x-hidden">
       <SEOHead
         title="Zyllo Tech | Software Development, AI & Cloud Engineering Company India"
-        description="Zyllo Tech is a software engineering company in Hyderabad, India delivering enterprise web & mobile apps, AI/ML solutions, cloud DevOps, cybersecurity, and QA for businesses across India, USA, UAE, UK, and globally."
+        description="Zyllo Tech is a software engineering company in Hyderabad, India delivering enterprise web & mobile apps, AI/ML solutions, cloud DevOps, cybersecurity, and QA for businesses across India, USA, UK, and globally."
         canonical="/"
         keywords="software development company India, software company Hyderabad, AI solutions India, mobile app development India, cloud engineering, web application development, enterprise software, software outsourcing India"
         structuredData={homeStructuredData}
