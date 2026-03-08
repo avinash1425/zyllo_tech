@@ -10,6 +10,32 @@ interface NotificationPayload {
   data: Record<string, string>;
 }
 
+async function sendEmailViaResend(
+  apiKey: string,
+  to: string,
+  subject: string,
+  textBody: string
+): Promise<void> {
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: 'ArthaAI Notifications <notifications@zyllotech.com>',
+      to: [to],
+      subject,
+      text: textBody,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Resend API error: ${err}`);
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -17,9 +43,10 @@ serve(async (req) => {
 
   try {
     const { type, data } = await req.json() as NotificationPayload;
-    
-    const ADMIN_EMAIL = 'info@zyllotech.com';
-    
+
+    const ADMIN_EMAIL  = 'info@zyllotech.com';
+    const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+
     let subject = '';
     let body = '';
 
@@ -68,13 +95,20 @@ ${data.coverLetter}
         throw new Error(`Unknown notification type: ${type}`);
     }
 
-    // Log the notification (in production, integrate with an email service)
-    console.log(`📧 Notification to ${ADMIN_EMAIL}`);
+    // Always log (useful for debugging in Supabase logs)
+    console.log(`📧 Notification type: ${type} → ${ADMIN_EMAIL}`);
     console.log(`Subject: ${subject}`);
-    console.log(`Body: ${body}`);
+
+    // Send email via Resend if API key is configured
+    if (RESEND_API_KEY) {
+      await sendEmailViaResend(RESEND_API_KEY, ADMIN_EMAIL, subject, body);
+      console.log('✅ Email sent via Resend');
+    } else {
+      console.warn('⚠️  RESEND_API_KEY not set — email logged only. Set the secret in Supabase dashboard.');
+    }
 
     return new Response(
-      JSON.stringify({ success: true, message: 'Notification logged successfully' }),
+      JSON.stringify({ success: true, message: 'Notification processed successfully' }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error: unknown) {
