@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import { Link } from "react-router-dom";
 import {
   Send, Sparkles, Calculator, LogOut,
   TrendingUp, Shield, Home, Car, Target,
   RefreshCw, Zap, BookOpen,
   ArrowRight, Check, X, AlertCircle,
-  GraduationCap, Award, Gem, Wallet,
+  GraduationCap, Award, Gem, Wallet, Download,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
