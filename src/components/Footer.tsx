@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 import { Link } from "react-router-dom";
-import logo from "@/assets/zyllo-logo-transparent.png";
+import logo from "@/assets/zyllo-logo.png";
 import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_E164 } from "@/lib/contact";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -49,7 +49,7 @@ const Footer = () => {
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-5">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <img src={logo} alt="Zyllo Tech" className="h-10 max-w-[180px] object-contain mb-4" />
+            <img src={logo} alt="Zyllo Tech" className="h-10 max-w-[180px] object-contain rounded-md bg-white/95 px-2 py-1 mb-4" />
             <p className="text-sm text-white/60 leading-relaxed mb-6">
               Reliable software engineering for enterprises — web, mobile, cloud, AI, cybersecurity, and quality engineering. India-based, globally delivered.
             </p>
