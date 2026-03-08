@@ -9,6 +9,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <style>
+    .pdf-download-btn { display:inline-flex; align-items:center; gap:8px; margin-top:16px; padding:10px 20px; background:rgba(255,255,255,0.15); border:1.5px solid rgba(255,255,255,0.3); border-radius:var(--radius-sm); color:#fff; font-size:0.82rem; font-weight:600; cursor:pointer; transition:var(--transition); backdrop-filter:blur(4px); }
+    .pdf-download-btn:hover { background:rgba(255,255,255,0.25); border-color:var(--og); color:var(--og-pale); }
+    .pdf-download-btn.loading { opacity:0.6; pointer-events:none; }
+  </style>
   <style>
     .goal-card { border: 2px solid var(--gray-200); border-radius: var(--radius-lg); padding: 20px; cursor: pointer; transition: var(--transition); position: relative; }
     .goal-card:hover { border-color: var(--og); background: var(--og-pale); }
@@ -306,6 +313,8 @@
                 </div>
               </div>
             </div>
+              <button class="pdf-download-btn" onclick="exportPlannerPDF('budget-result','ArthaAI_Budget_Report')">📥 Download PDF Report</button>
+            </div>
             <div class="card mt-16">
               <h4 style="font-size:0.88rem; margin-bottom:10px;">📌 The 50-30-20 Rule</h4>
               <div style="font-size:0.82rem; color:var(--gray-600); line-height:1.7;">
@@ -360,8 +369,9 @@
                 <div class="result-item"><h5>Gap to Fill</h5><p class="og" id="ef-gap">₹2,40,000</p></div>
               </div>
               <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
-                <div id="ef-timeline" style="font-size:0.9rem; color:rgba(255,255,255,0.85);"></div>
+              <div id="ef-timeline" style="font-size:0.9rem; color:rgba(255,255,255,0.85);"></div>
               </div>
+              <button class="pdf-download-btn" onclick="exportPlannerPDF('ef-result','ArthaAI_Emergency_Fund')">📥 Download PDF Report</button>
             </div>
             <div class="card-mb mt-16">
               <h4 style="font-size:0.85rem; margin-bottom:10px; color:var(--db);">✅ Where to Keep Your Emergency Fund</h4>
@@ -492,8 +502,9 @@
               </div>
               <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
                 <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:8px;">ASSET ALLOCATION</div>
-                <div id="nw-allocation" style="display:flex; flex-direction:column; gap:6px;"></div>
+              <div id="nw-allocation" style="display:flex; flex-direction:column; gap:6px;"></div>
               </div>
+              <button class="pdf-download-btn" onclick="exportPlannerPDF('nw-result','ArthaAI_Net_Worth')">📥 Download PDF Report</button>
             </div>
             <div class="card-mb mt-16">
               <h4 style="font-size:0.85rem; margin-bottom:8px; color:var(--db);">📈 Net Worth Benchmarks</h4>
