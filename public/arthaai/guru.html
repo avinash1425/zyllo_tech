@@ -1183,6 +1183,7 @@ function initLanguageSelector() {
     if (chatInput) {
       chatInput.placeholder = `Ask anything about personal finance in ${languageLabel}…`;
     }
+    renderSidebarQuestions(selectedLanguage);
   };
 
   langSelect.addEventListener('change', applyLanguage);
