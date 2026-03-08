@@ -9,7 +9,12 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { messages, calcContext, stream: enableStream } = await req.json();
+    const { messages, calcContext, stream: enableStream, language, languageName } = await req.json();
+    const normalizedLanguage = typeof language === "string" ? language.toLowerCase() : "en";
+    const preferredLanguageName =
+      typeof languageName === "string" && languageName.trim().length > 0
+        ? languageName.trim()
+        : "English";
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -45,6 +50,7 @@ Rules:
 6. Always end complex advice with a clear "Next Step" or action item
 7. Be encouraging, not preachy
 8. Use markdown formatting: **bold** for emphasis, - for bullets, ## for sections
+9. Always respond in ${preferredLanguageName} unless the user explicitly requests another language in that specific message
 
 ${calcContext ? `\nCurrent calculator context (reference if relevant):\n${calcContext}` : ""}`;
 
@@ -58,6 +64,10 @@ ${calcContext ? `\nCurrent calculator context (reference if relevant):\n${calcCo
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
+          {
+            role: "system",
+            content: `User language preference: ${preferredLanguageName} (${normalizedLanguage}). Reply in this language by default.`,
+          },
           ...messages,
         ],
         stream: !!enableStream,
