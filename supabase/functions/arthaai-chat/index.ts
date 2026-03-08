@@ -64,6 +64,10 @@ ${calcContext ? `\nCurrent calculator context (reference if relevant):\n${calcCo
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
+          {
+            role: "system",
+            content: `User language preference: ${preferredLanguageName} (${normalizedLanguage}). Reply in this language by default.`,
+          },
           ...messages,
         ],
         stream: !!enableStream,
