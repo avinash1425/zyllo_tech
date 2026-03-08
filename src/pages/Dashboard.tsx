@@ -5,6 +5,7 @@ import {
   TrendingUp, Shield, Home, Car, Target,
   RefreshCw, Zap, BookOpen,
   ArrowRight, Check, X, AlertCircle,
+  GraduationCap, Award, Gem,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
@@ -3290,6 +3291,252 @@ const PlannerWorkspace = ({
 };
 
 /* ═══════════════════════════════════════════════════════════
+   GOLD INVESTMENT CALCULATOR
+═══════════════════════════════════════════════════════════ */
+const GoldInvestmentCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  const [mode, setMode] = useState<"sip" | "lumpsum">("sip");
+  const [monthlySIP, setMonthlySIP] = useState(5000);
+  const [lumpsumAmt, setLumpsumAmt] = useState(500000);
+  const [years, setYears] = useState(10);
+  const [goldReturnPct, setGoldReturnPct] = useState(11);
+  const [currentGoldPrice, setCurrentGoldPrice] = useState(7200);
+
+  const r = goldReturnPct / 100;
+  const rM = r / 12;
+  const n = years * 12;
+
+  let invested: number, futureValue: number;
+  if (mode === "lumpsum") {
+    invested = lumpsumAmt;
+    futureValue = lumpsumAmt * Math.pow(1 + r, years);
+  } else {
+    invested = monthlySIP * n;
+    futureValue = monthlySIP * ((Math.pow(1 + rM, n) - 1) / rM) * (1 + rM);
+  }
+  const gains = futureValue - invested;
+  const gainPct = futureValue > 0 ? Math.round((gains / futureValue) * 100) : 0;
+  const goldGrams = currentGoldPrice > 0 ? futureValue / (currentGoldPrice * Math.pow(1 + r, years)) : 0;
+  const futureGoldPrice = currentGoldPrice * Math.pow(1 + r, years);
+
+  const breakdownData = [
+    { value: invested, color: DB, label: "Invested" },
+    { value: gains, color: "#DAA520", label: "Gold Gains" },
+  ];
+
+  useEffect(() => {
+    onContextUpdate(`Gold ${mode}: ${mode === "sip" ? fmtShort(monthlySIP) + "/mo" : fmtShort(lumpsumAmt)}, ${years}yr at ${goldReturnPct}%, corpus ${fmtShort(futureValue)}.`);
+  }, [mode, monthlySIP, lumpsumAmt, years, goldReturnPct, futureValue]);
+
+  const insight = `**Gold investment projection:**\n\n• Mode: **${mode === "sip" ? "Gold SIP" : "Lumpsum"}** for **${years} years**\n• Amount invested: **${fmtShort(invested)}**\n• Estimated future value: **${fmtShort(futureValue)}** (at ${goldReturnPct}% CAGR)\n• Approx gold equivalent: **${goldGrams.toFixed(1)}g** at today's price (₹${currentGoldPrice}/g)\n• Projected gold price in ${years}yr: **₹${Math.round(futureGoldPrice).toLocaleString("en-IN")}/g**\n\n**Tip**: Gold should be 5-10% of your portfolio. Prefer Sovereign Gold Bonds (SGB) for 2.5% annual interest + capital gains tax exemption on maturity.`;
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <button onClick={() => setMode("sip")}
+            className="flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-2.5 text-sm font-semibold transition-all"
+            style={{ borderColor: mode === "sip" ? "#DAA520" : "#e5e7eb", background: mode === "sip" ? "#FFF8E1" : "#fff", color: mode === "sip" ? "#B8860B" : "#6b7280" }}>
+            <TrendingUp size={14} />Gold SIP
+          </button>
+          <button onClick={() => setMode("lumpsum")}
+            className="flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-2.5 text-sm font-semibold transition-all"
+            style={{ borderColor: mode === "lumpsum" ? "#DAA520" : "#e5e7eb", background: mode === "lumpsum" ? "#FFF8E1" : "#fff", color: mode === "lumpsum" ? "#B8860B" : "#6b7280" }}>
+            <Gem size={14} />Lumpsum
+          </button>
+        </div>
+        {mode === "sip" ? (
+          <FieldRow label="Monthly Gold SIP"><NumField value={monthlySIP} onChange={setMonthlySIP} min={500} max={100000} step={500} prefix="₹" /><RangeSlider value={monthlySIP} onChange={setMonthlySIP} min={500} max={50000} step={500} /></FieldRow>
+        ) : (
+          <FieldRow label="Lumpsum Investment"><NumField value={lumpsumAmt} onChange={setLumpsumAmt} min={10000} max={10000000} step={10000} prefix="₹" /><RangeSlider value={lumpsumAmt} onChange={setLumpsumAmt} min={10000} max={5000000} step={10000} /></FieldRow>
+        )}
+        <FieldRow label="Investment Duration"><NumField value={years} onChange={setYears} min={1} max={30} step={1} suffix="yrs" /><RangeSlider value={years} onChange={setYears} min={1} max={30} step={1} /></FieldRow>
+        <FieldRow label="Expected Gold Return (CAGR)"><NumField value={goldReturnPct} onChange={setGoldReturnPct} min={4} max={20} step={0.5} suffix="%" /><RangeSlider value={goldReturnPct} onChange={setGoldReturnPct} min={4} max={20} step={0.5} /></FieldRow>
+        <FieldRow label="Current Gold Price (per gram)"><NumField value={currentGoldPrice} onChange={setCurrentGoldPrice} min={3000} max={15000} step={100} prefix="₹" /></FieldRow>
+      </div>
+      <div>
+        <div className="rounded-2xl p-5 mb-4 text-white" style={{ background: "linear-gradient(135deg, #B8860B, #DAA520)" }}>
+          <p className="text-xs text-white/60 uppercase font-semibold">Gold Portfolio Value</p>
+          <p className="text-3xl font-extrabold mt-1 mb-3">{fmtShort(futureValue)}</p>
+          <div className="grid grid-cols-3 gap-3 text-center">
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.15)" }}><p className="text-[10px] text-white/60">Invested</p><p className="text-sm font-bold">{fmtShort(invested)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.15)" }}><p className="text-[10px] text-white/60">Gains</p><p className="text-sm font-bold">{fmtShort(gains)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.15)" }}><p className="text-[10px] text-white/60">~Gold (grams)</p><p className="text-sm font-bold">{goldGrams.toFixed(1)}g</p></div>
+          </div>
+        </div>
+        <div className="mt-4 flex items-center justify-center">
+          <UIDonutChart data={breakdownData} size={130} strokeWidth={16} animationDuration={0.8} animationDelayPerSegment={0.06}
+            centerContent={<div className="flex flex-col items-center justify-center"><p className="text-lg font-extrabold text-gray-800">{gainPct}%</p><p className="text-[10px] text-gray-500">Gain Share</p></div>} />
+        </div>
+        <BarChart data={[
+          { label: "Invested", value: invested, color: DB },
+          { label: "Gold Gains", value: gains, color: "#DAA520" },
+          { label: "Total Value", value: futureValue, color: GREEN },
+        ]} />
+        <InsightBanner text={insight} />
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════
+   EDUCATION LOAN CALCULATOR
+═══════════════════════════════════════════════════════════ */
+const EducationLoanCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  const [loanAmt, setLoanAmt] = useState(2000000);
+  const [rate, setRate] = useState(10.5);
+  const [tenure, setTenure] = useState(7);
+  const [moratoriumYears, setMoratoriumYears] = useState(1);
+  const [taxBracketPct, setTaxBracketPct] = useState(20);
+
+  const r = rate / 12 / 100;
+  // During moratorium, interest accrues but no EMI paid
+  const accrued = loanAmt * Math.pow(1 + rate / 100, moratoriumYears);
+  const principalAfterMoratorium = accrued;
+  const nRepay = tenure * 12;
+  const emi = r === 0 ? principalAfterMoratorium / Math.max(1, nRepay) : principalAfterMoratorium * r * Math.pow(1 + r, nRepay) / (Math.pow(1 + r, nRepay) - 1);
+  const totalPaid = emi * nRepay;
+  const totalInterest = totalPaid - loanAmt;
+  const moratoriumInterest = accrued - loanAmt;
+  const pPct = totalPaid > 0 ? Math.round(loanAmt / totalPaid * 100) : 0;
+
+  // Section 80E: Full interest deductible for 8 years from start of repayment
+  const deductibleYears = Math.min(8, tenure);
+  const annualInterest = totalInterest / tenure;
+  const totalTaxDeduction = annualInterest * deductibleYears;
+  const taxSaved = totalTaxDeduction * taxBracketPct / 100;
+
+  const breakdownData = [
+    { value: loanAmt, color: DB, label: "Principal" },
+    { value: totalInterest, color: OG, label: "Interest" },
+  ];
+
+  useEffect(() => {
+    onContextUpdate(`Education Loan: ${fmtShort(loanAmt)}, ${rate}%, ${tenure}yr (${moratoriumYears}yr moratorium), EMI ${fmtShort(emi)}.`);
+  }, [loanAmt, rate, tenure, moratoriumYears, emi]);
+
+  const insight = `**Education loan assessment:**\n\n• Loan amount: **${fmtShort(loanAmt)}** at **${rate}%** for **${tenure} years**\n• Moratorium period: **${moratoriumYears} year(s)** — interest accrued: **${fmtShort(moratoriumInterest)}**\n• EMI after moratorium: **${fmtShort(emi)}/month**\n• Total interest paid: **${fmtShort(totalInterest)}**\n• **Section 80E tax benefit**: Interest is fully deductible (no upper limit) for up to 8 years\n• Estimated tax saved: **${fmtShort(taxSaved)}** (at ${taxBracketPct}% bracket over ${deductibleYears} years)\n\n**Tip**: Pay interest during moratorium to avoid compounding. Section 80E has no cap — even ₹10L+ interest is deductible.`;
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        <FieldRow label="Loan Amount"><NumField value={loanAmt} onChange={setLoanAmt} min={100000} max={10000000} step={50000} prefix="₹" /><RangeSlider value={loanAmt} onChange={setLoanAmt} min={100000} max={5000000} step={50000} /></FieldRow>
+        <FieldRow label="Interest Rate"><NumField value={rate} onChange={setRate} min={6} max={18} step={0.25} suffix="%" /><RangeSlider value={rate} onChange={setRate} min={6} max={18} step={0.25} /></FieldRow>
+        <FieldRow label="Repayment Tenure"><NumField value={tenure} onChange={setTenure} min={1} max={15} step={1} suffix="yrs" /><RangeSlider value={tenure} onChange={setTenure} min={1} max={15} step={1} /></FieldRow>
+        <FieldRow label="Moratorium Period"><NumField value={moratoriumYears} onChange={setMoratoriumYears} min={0} max={4} step={0.5} suffix="yrs" /><RangeSlider value={moratoriumYears} onChange={setMoratoriumYears} min={0} max={4} step={0.5} /></FieldRow>
+        <FieldRow label="Your Tax Bracket"><NumField value={taxBracketPct} onChange={setTaxBracketPct} min={0} max={30} step={5} suffix="%" /><RangeSlider value={taxBracketPct} onChange={setTaxBracketPct} min={0} max={30} step={5} /></FieldRow>
+      </div>
+      <div>
+        <div className="rounded-2xl p-5 mb-4 text-white" style={{ background: `linear-gradient(135deg, ${MB}, ${DB})` }}>
+          <p className="text-xs text-white/60 uppercase font-semibold">Education Loan Summary</p>
+          <p className="text-3xl font-extrabold mt-1 mb-3">{fmt(emi, 0)}<span className="text-base font-semibold text-white/70">/mo</span></p>
+          <div className="grid grid-cols-3 gap-3 text-center">
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Principal</p><p className="text-sm font-bold">{fmtShort(loanAmt)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Total Interest</p><p className="text-sm font-bold">{fmtShort(totalInterest)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">80E Tax Saved</p><p className="text-sm font-bold text-green-300">{fmtShort(taxSaved)}</p></div>
+          </div>
+        </div>
+        <div className="mt-4 flex items-center justify-center">
+          <UIDonutChart data={breakdownData} size={130} strokeWidth={16} animationDuration={0.8} animationDelayPerSegment={0.06}
+            centerContent={<div className="flex flex-col items-center justify-center"><p className="text-lg font-extrabold text-gray-800">{pPct}%</p><p className="text-[10px] text-gray-500">Principal</p></div>} />
+        </div>
+        <BarChart data={[
+          { label: "Principal", value: loanAmt, color: DB },
+          { label: "Interest", value: totalInterest, color: OG },
+          { label: "Tax Saved (80E)", value: taxSaved, color: GREEN },
+        ]} />
+        <ScenarioComparison title="With vs Without Moratorium Interest"
+          scenarios={[
+            { label: "No Moratorium", value: loanAmt, color: DB },
+            { label: `After ${moratoriumYears}yr`, value: principalAfterMoratorium, color: OG },
+            { label: "Extra Interest", value: moratoriumInterest, color: "#ef4444" },
+          ]}
+        />
+        <InsightBanner text={insight} />
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════
+   GRATUITY CALCULATOR
+═══════════════════════════════════════════════════════════ */
+const GratuityCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
+  const [basicDA, setBasicDA] = useState(60000);
+  const [yearsOfService, setYearsOfService] = useState(12);
+  const [orgType, setOrgType] = useState<"covered" | "noncovered">("covered");
+
+  // Payment of Gratuity Act formula:
+  // Covered: (15 × last drawn salary × years of service) / 26
+  // Non-covered: (15 × last drawn salary × years of service) / 30
+  const divisor = orgType === "covered" ? 26 : 30;
+  const gratuity = (15 * basicDA * yearsOfService) / divisor;
+
+  // Tax exemption: Min of (a) actual gratuity, (b) formula amount, (c) ₹20L
+  const taxExemptLimit = 2000000;
+  const taxExempt = Math.min(gratuity, taxExemptLimit);
+  const taxable = Math.max(0, gratuity - taxExempt);
+
+  const breakdownData = [
+    { value: taxExempt, color: GREEN, label: "Tax-Exempt" },
+    { value: taxable, color: OG, label: "Taxable" },
+  ];
+
+  useEffect(() => {
+    onContextUpdate(`Gratuity: Basic+DA ${fmtShort(basicDA)}, ${yearsOfService}yr service, gratuity ${fmtShort(gratuity)}.`);
+  }, [basicDA, yearsOfService, gratuity]);
+
+  const insight = `**Gratuity calculation (Payment of Gratuity Act):**\n\n• Formula: **(15 × ${fmtShort(basicDA)} × ${yearsOfService}) / ${divisor}**\n• Gratuity amount: **${fmt(gratuity, 0)}**\n• Tax-exempt up to: **₹20 Lakhs** (for govt employees, full exemption)\n• Tax-exempt portion: **${fmt(taxExempt, 0)}**${taxable > 0 ? `\n• Taxable portion: **${fmt(taxable, 0)}**` : ""}\n\n**Eligibility**: Minimum **5 years** of continuous service required. For ${yearsOfService} years, you ${yearsOfService >= 5 ? "✅ qualify" : "❌ do NOT qualify yet"}.\n\n**Tip**: Gratuity is calculated on last drawn Basic + DA. Negotiate higher basic component for better gratuity.`;
+
+  return (
+    <div className="grid lg:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <button onClick={() => setOrgType("covered")}
+            className="flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-2.5 text-sm font-semibold transition-all"
+            style={{ borderColor: orgType === "covered" ? OG : "#e5e7eb", background: orgType === "covered" ? OG_PALE : "#fff", color: orgType === "covered" ? OG : "#6b7280" }}>
+            <Award size={14} />Act Covered
+          </button>
+          <button onClick={() => setOrgType("noncovered")}
+            className="flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-2.5 text-sm font-semibold transition-all"
+            style={{ borderColor: orgType === "noncovered" ? OG : "#e5e7eb", background: orgType === "noncovered" ? OG_PALE : "#fff", color: orgType === "noncovered" ? OG : "#6b7280" }}>
+            <Shield size={14} />Non-Covered
+          </button>
+        </div>
+        <FieldRow label="Last Drawn Basic + DA (Monthly)"><NumField value={basicDA} onChange={setBasicDA} min={5000} max={500000} step={1000} prefix="₹" /><RangeSlider value={basicDA} onChange={setBasicDA} min={5000} max={300000} step={1000} /></FieldRow>
+        <FieldRow label="Years of Service"><NumField value={yearsOfService} onChange={setYearsOfService} min={0} max={40} step={1} suffix="yrs" /><RangeSlider value={yearsOfService} onChange={setYearsOfService} min={0} max={40} step={1} /></FieldRow>
+        {yearsOfService < 5 && (
+          <div className="rounded-xl p-3 border border-amber-200 bg-amber-50 text-xs text-amber-700 flex items-center gap-2">
+            <AlertCircle size={13} />Minimum 5 years of continuous service required for gratuity eligibility.
+          </div>
+        )}
+      </div>
+      <div>
+        <div className="rounded-2xl p-5 mb-4 text-white" style={{ background: `linear-gradient(135deg, ${MB}, ${DB})` }}>
+          <p className="text-xs text-white/60 uppercase font-semibold">Gratuity Amount</p>
+          <p className="text-3xl font-extrabold mt-1 mb-3">{fmt(gratuity, 0)}</p>
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Tax-Exempt</p><p className="text-sm font-bold text-green-300">{fmtShort(taxExempt)}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Taxable</p><p className="text-sm font-bold">{fmtShort(taxable)}</p></div>
+          </div>
+        </div>
+        <div className="mt-4 flex items-center justify-center">
+          <UIDonutChart data={breakdownData} size={130} strokeWidth={16} animationDuration={0.8} animationDelayPerSegment={0.06}
+            centerContent={<div className="flex flex-col items-center justify-center"><p className="text-lg font-extrabold text-gray-800">{yearsOfService >= 5 ? "✅" : "❌"}</p><p className="text-[10px] text-gray-500">{yearsOfService >= 5 ? "Eligible" : "Not Yet"}</p></div>} />
+        </div>
+        <ScenarioComparison title="Gratuity by Years of Service"
+          scenarios={[
+            { label: "5 yrs", value: (15 * basicDA * 5) / divisor, color: DB },
+            { label: "10 yrs", value: (15 * basicDA * 10) / divisor, color: OG },
+            { label: "20 yrs", value: (15 * basicDA * 20) / divisor, color: GREEN },
+          ]}
+        />
+        <InsightBanner text={insight} />
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════════════════════════
    MAIN DASHBOARD
 ═══════════════════════════════════════════════════════════ */
 
@@ -3301,9 +3548,12 @@ const CALC_TABS = [
   { id: "sip",       label: "SIP & Mutual Funds",   icon: TrendingUp, comp: SIPCalc,          category: "Wealth & Investments" },
   { id: "monthlygoal",label:"Monthly Savings Goal", icon: Target,     comp: MonthlySavingsGoalCalc, category: "Wealth & Investments" },
   { id: "savings",   label: "FD / PPF / NPS / RD",  icon: Target,     comp: SavingsSchemeCalc,category: "Wealth & Investments" },
+  { id: "gold",      label: "Gold Investment",       icon: Gem,        comp: GoldInvestmentCalc,category: "Wealth & Investments" },
   { id: "ssy",       label: "Sukanya Samriddhi (SSY)", icon: Target,  comp: SSYCalc,          category: "Wealth & Investments" },
+  { id: "eduloan",   label: "Education Loan",       icon: GraduationCap, comp: EducationLoanCalc, category: "Borrowing & Housing" },
   { id: "emergency", label: "Emergency Fund",       icon: Shield,     comp: EmergencyFundCalc,category: "Protection & Essentials" },
   { id: "insurance", label: "Insurance Need",       icon: Shield,     comp: InsuranceNeedCalc,category: "Protection & Essentials" },
+  { id: "gratuity",  label: "Gratuity",             icon: Award,      comp: GratuityCalc,     category: "Employment Benefits" },
   { id: "hra",       label: "HRA Exemption",        icon: Shield,     comp: HRACalc,          category: "Tax & Compliance" },
   { id: "tax",       label: "Tax Savings",          icon: Shield,     comp: TaxCalc,          category: "Tax & Compliance" },
 ] as const;
