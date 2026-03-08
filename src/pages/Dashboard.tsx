@@ -3719,6 +3719,82 @@ const Dashboard = () => {
   const [calcTab, setCalcTab]     = useState("emi");
   const [plannerTab, setPlannerTab] = useState("goal");
   const [calcCtx, setCalcCtx]     = useState("");
+  const [exporting, setExporting] = useState(false);
+  const calcResultRef = useRef<HTMLDivElement>(null);
+
+  const exportPDF = async () => {
+    if (!calcResultRef.current || exporting) return;
+    setExporting(true);
+    try {
+      const canvas = await html2canvas(calcResultRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+      });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      const usableW = pageW - margin * 2;
+      const imgRatio = canvas.height / canvas.width;
+      const imgH = usableW * imgRatio;
+
+      // Header
+      pdf.setFillColor(26, 58, 92);
+      pdf.rect(0, 0, pageW, 18, "F");
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(14);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("ArthaCalc — " + activeCalc.label, margin, 12);
+      pdf.setFontSize(8);
+      pdf.setFont("helvetica", "normal");
+      pdf.text("Generated on " + new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }), pageW - margin, 12, { align: "right" });
+
+      let yPos = 22;
+      // Paginate if content is tall
+      const totalImgH = imgH;
+      const availableH = pageH - yPos - 12;
+      if (totalImgH <= availableH) {
+        pdf.addImage(imgData, "PNG", margin, yPos, usableW, imgH);
+      } else {
+        // Split across pages
+        let srcY = 0;
+        const sliceH = availableH;
+        while (srcY < canvas.height) {
+          const remaining = canvas.height - srcY;
+          const thisSlice = Math.min(remaining, sliceH / imgH * canvas.height);
+          const sliceCanvas = document.createElement("canvas");
+          sliceCanvas.width = canvas.width;
+          sliceCanvas.height = thisSlice;
+          const ctx = sliceCanvas.getContext("2d")!;
+          ctx.drawImage(canvas, 0, srcY, canvas.width, thisSlice, 0, 0, canvas.width, thisSlice);
+          const sliceData = sliceCanvas.toDataURL("image/png");
+          const drawH = (thisSlice / canvas.width) * usableW;
+          if (srcY > 0) { pdf.addPage(); yPos = margin; }
+          pdf.addImage(sliceData, "PNG", margin, yPos, usableW, drawH);
+          srcY += thisSlice;
+        }
+      }
+
+      // Footer
+      const lastPage = pdf.getNumberOfPages();
+      for (let p = 1; p <= lastPage; p++) {
+        pdf.setPage(p);
+        pdf.setFontSize(7);
+        pdf.setTextColor(150, 150, 150);
+        pdf.text("Powered by ArthaAI • Zyllo Tech — For educational purposes only", pageW / 2, pageH - 5, { align: "center" });
+      }
+
+      pdf.save(`ArthaCalc_${activeCalc.label.replace(/[^a-zA-Z0-9]/g, "_")}_${new Date().toISOString().slice(0, 10)}.pdf`);
+    } catch (e) {
+      console.error("PDF export failed:", e);
+    } finally {
+      setExporting(false);
+    }
+  };
+
 
   const activeCalc = CALC_TABS.find(t => t.id === calcTab)!;
   const activePlanner = PLANNER_TABS.find(t => t.id === plannerTab)!;
