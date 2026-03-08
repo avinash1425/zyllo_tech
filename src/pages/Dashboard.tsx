@@ -388,14 +388,77 @@ const RangeSlider = ({ value, onChange, min = 0, max = 100, step = 1 }: {
    CALCULATORS WITH AI INSIGHTS
 ═══════════════════════════════════════════════════════════ */
 
-const InsightBanner = ({ text }: { text: string }) => (
-  <div className="mt-4 rounded-2xl p-4 border-2 text-sm leading-relaxed" style={{ background: OG_PALE, borderColor: OG_LIGHT, color: "#7c3700" }}>
-    <div className="flex items-start gap-2">
-      <Sparkles size={15} className="shrink-0 mt-0.5" style={{ color: OG }} />
-      <div>{renderMD(text)}</div>
+const InsightBanner = ({ text }: { text: string }) => {
+  const [aiAdvice, setAiAdvice] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+
+  const fetchAIAdvice = useCallback(async () => {
+    setAiLoading(true);
+    setAiError(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("artha-ai-advice", {
+        body: { context: text },
+      });
+      if (error || data?.error) throw new Error(data?.error || error?.message);
+      setAiAdvice(data.advice);
+    } catch (err) {
+      setAiError("Could not fetch AI advice. Try again.");
+      console.error(err);
+    } finally {
+      setAiLoading(false);
+    }
+  }, [text]);
+
+  return (
+    <div className="mt-4 space-y-3">
+      <div className="rounded-2xl p-4 border-2 text-sm leading-relaxed" style={{ background: OG_PALE, borderColor: OG_LIGHT, color: "#7c3700" }}>
+        <div className="flex items-start gap-2">
+          <Sparkles size={15} className="shrink-0 mt-0.5" style={{ color: OG }} />
+          <div>{renderMD(text)}</div>
+        </div>
+      </div>
+      {!aiAdvice && !aiLoading && (
+        <button
+          onClick={fetchAIAdvice}
+          className="w-full flex items-center justify-center gap-2 rounded-2xl border-2 px-4 py-3 text-sm font-bold transition-all hover:scale-[1.01] active:scale-[0.99]"
+          style={{ borderColor: OG, background: `linear-gradient(135deg, ${OG}, #c44d12)`, color: "#fff" }}
+        >
+          <Sparkles size={14} />
+          ✨ Get AI-Powered Personalised Advice
+        </button>
+      )}
+      {aiLoading && (
+        <div className="flex items-center justify-center gap-2 rounded-2xl border-2 p-4" style={{ borderColor: OG_LIGHT, background: OG_PALE }}>
+          <RefreshCw size={14} className="animate-spin" style={{ color: OG }} />
+          <span className="text-sm font-medium" style={{ color: OG }}>ArthaGuru AI is analysing your numbers...</span>
+        </div>
+      )}
+      {aiAdvice && (
+        <div className="rounded-2xl p-4 border-2 text-sm leading-relaxed" style={{ background: "#f0fdf4", borderColor: "#bbf7d0", color: "#15803d" }}>
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles size={14} style={{ color: "#059669" }} />
+            <span className="font-bold text-xs uppercase tracking-wide" style={{ color: "#059669" }}>AI-Powered Advice</span>
+          </div>
+          <div>{renderMD(aiAdvice)}</div>
+          <button
+            onClick={fetchAIAdvice}
+            className="mt-3 flex items-center gap-1.5 text-xs font-semibold hover:underline"
+            style={{ color: "#059669" }}
+          >
+            <RefreshCw size={11} />Refresh Advice
+          </button>
+        </div>
+      )}
+      {aiError && (
+        <div className="rounded-2xl p-3 border border-red-200 bg-red-50 text-xs text-red-600 flex items-center gap-2">
+          <AlertCircle size={13} />{aiError}
+          <button onClick={fetchAIAdvice} className="ml-auto font-semibold hover:underline">Retry</button>
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 /* EMI */
 const EMICalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) => {
