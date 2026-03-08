@@ -10,12 +10,12 @@ const ArthaAIEmbed = () => {
         canonical="/arthaai"
       />
       <Navbar />
-      {/* pt accounts for fixed Navbar (TopBar ~32px + Header ~56px) */}
+      {/* Top padding for fixed Navbar: TopBar(~32px) + Header(56px) = ~88px on desktop, ~56px on mobile */}
       <iframe
         src="/arthaai/index.html?embed=1"
         title="ArthaAI — Smart Money Guidance for Every Indian"
-        className="flex-1 w-full border-none"
-        style={{ marginTop: "calc(var(--navbar-h, 88px))", minHeight: "calc(100dvh - var(--navbar-h, 88px))" }}
+        className="w-full border-none flex-1 pt-0 mt-[88px] md:mt-[88px]"
+        style={{ minHeight: "calc(100dvh - 88px)" }}
         allow="fullscreen"
       />
     </div>
