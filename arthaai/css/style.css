@@ -159,6 +159,24 @@ html.dark .pricing-card { background: var(--gray-50); border-color: var(--gray-2
 html.dark .pricing-card.featured { background: linear-gradient(135deg, #0d1b2a 0%, #162636 100%); border-color: var(--og); }
 html.dark .budget-row { border-color: var(--gray-200); }
 html.dark .divider { border-color: var(--gray-200); }
+html.dark .result-box { background: linear-gradient(135deg, #162636 0%, #1a2f42 100%); color: #e2ecf5; }
+html.dark .result-box h4 { color: rgba(226,236,245,0.75); }
+html.dark .result-value { color: #f0f5fa; }
+html.dark .result-sub { color: rgba(226,236,245,0.65); }
+html.dark .result-item h5 { color: rgba(226,236,245,0.65); }
+html.dark .result-item p { color: #f0f5fa; }
+html.dark .result-grid { border-top-color: rgba(226,236,245,0.15); }
+html.dark .breakdown-table th { background: rgba(226,236,245,0.1); color: rgba(226,236,245,0.8); }
+html.dark .breakdown-table td { border-bottom-color: rgba(226,236,245,0.1); color: #e2ecf5; }
+html.dark .breakdown-table tr:last-child td { background: rgba(226,236,245,0.08); }
+html.dark .donut-pct { color: #f0f5fa; }
+html.dark .donut-label { color: rgba(226,236,245,0.6); }
+html.dark .legend-row { color: rgba(226,236,245,0.8); }
+html.dark .calc-desc { background: rgba(240,112,48,0.08); border-color: rgba(240,112,48,0.2); color: var(--gray-600); }
+html.dark .calc-desc strong { color: var(--og); }
+html.dark .ai-insights-box { background: var(--gray-50); border-color: var(--gray-200); color: var(--gray-800); }
+html.dark .tag-pill { background: var(--gray-100); color: var(--gray-600); }
+html.dark .tag-pill:hover, html.dark .tag-pill.active { background: rgba(240,112,48,0.15); color: var(--og); }
 
 /* Dark mode toggle button */
 .dark-toggle {
