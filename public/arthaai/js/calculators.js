@@ -76,6 +76,7 @@ window.calculateEMI = function () {
   // Yearly breakdown table
   buildEMITable(P, r, n, emi);
   show('emi-result');
+  fetchAIInsights('EMI Calculator', 'emi-result');
 };
 
 function buildEMITable(P, r, n, emi) {
@@ -189,6 +190,7 @@ window.calculateSIP = function () {
   // Year-wise growth bars
   buildSIPBars(mode, amount, r, years, stepUp);
   show('sip-result');
+  fetchAIInsights('SIP/Lumpsum Calculator', 'sip-result');
 };
 
 function buildSIPBars(mode, amount, r, years, stepUp) {
@@ -302,6 +304,7 @@ window.calculateTax = function () {
   }
 
   show('tax-result');
+  fetchAIInsights('Tax Savings Calculator (Old vs New Regime)', 'tax-result');
 };
 
 /* ══════════════════════════════════════
@@ -369,6 +372,7 @@ window.calculateFD = function () {
   }
 
   show('fd-result');
+  fetchAIInsights('FD/PPF/NPS/RD Comparator', 'fd-result');
 };
 
 window.setFDType = function (type) {
@@ -441,6 +445,7 @@ window.calculateRetirement = function () {
   }
 
   show('ret-result');
+  fetchAIInsights('Retirement Corpus Planner', 'ret-result');
 };
 
 /* ══════════════════════════════════════
@@ -525,6 +530,7 @@ window.calculateRentVsBuy = function () {
   }
 
   show('rvb-result');
+  fetchAIInsights('Rent vs Buy Analyser', 'rvb-result');
 };
 
 /* ══════════════════════════════════════
@@ -575,6 +581,7 @@ window.calculateGold = function () {
   if (ic) { ic.setAttribute('stroke-dasharray', `${investedArc} ${C}`); ic.setAttribute('stroke-dashoffset', `-${gainsArc}`); }
 
   show('gold-result');
+  fetchAIInsights('Gold Investment Calculator', 'gold-result');
 };
 
 window.toggleGoldMode = function(mode) {
@@ -635,6 +642,7 @@ window.calculateEduLoan = function () {
   `);
 
   show('edu-result');
+  fetchAIInsights('Education Loan Calculator', 'edu-result');
 };
 
 /* ══════════════════════════════════════
@@ -690,6 +698,7 @@ window.calculateGratuity = function () {
   html('grat-projection-bars', barsHtml);
 
   show('grat-result');
+  fetchAIInsights('Gratuity Calculator', 'grat-result');
 };
 
 window.toggleGratuityType = function(type) {
