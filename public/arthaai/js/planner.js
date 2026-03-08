@@ -559,3 +559,82 @@ if (typeof formatINRShort === 'undefined') {
     return '₹' + Math.round(a).toLocaleString('en-IN');
   };
 }
+
+/* ══════════════════════════════════════
+   PDF EXPORT FOR PLANNER
+══════════════════════════════════════ */
+window.exportPlannerPDF = async function(elementId, filename) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+
+  const btn = el.querySelector('.pdf-download-btn');
+  if (btn) { btn.classList.add('loading'); btn.textContent = '⏳ Generating PDF…'; }
+
+  try {
+    if (btn) btn.style.display = 'none';
+
+    const canvas = await html2canvas(el, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#1A3A5C',
+      logging: false,
+    });
+
+    if (btn) btn.style.display = '';
+
+    if (!window.jspdf) {
+      showToast('PDF library still loading. Please try again in a moment.', 'warning');
+      return;
+    }
+    const { jsPDF } = window.jspdf;
+    const imgData = canvas.toDataURL('image/png');
+    const imgW = canvas.width;
+    const imgH = canvas.height;
+
+    const pdfW = 210;
+    const margin = 12;
+    const contentW = pdfW - margin * 2;
+    const contentH = (imgH * contentW) / imgW;
+
+    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+
+    // Header branding
+    pdf.setFillColor(26, 58, 92);
+    pdf.rect(0, 0, 210, 28, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(16);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('ArthaAI — ArthaPlanner', margin, 14);
+    pdf.setFontSize(8);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text('Smart Money Guidance for Every Indian', margin, 20);
+    pdf.setTextColor(224, 92, 26);
+    pdf.text('by Zyllo Tech Software Solutions Pvt Ltd', margin, 24);
+
+    // Planner result image
+    const startY = 34;
+    const maxH = 297 - startY - 20;
+    if (contentH > maxH) {
+      const scale = maxH / contentH;
+      pdf.addImage(imgData, 'PNG', margin, startY, contentW * scale, maxH);
+    } else {
+      pdf.addImage(imgData, 'PNG', margin, startY, contentW, contentH);
+    }
+
+    // Footer
+    pdf.setFillColor(245, 245, 245);
+    pdf.rect(0, 285, 210, 12, 'F');
+    pdf.setTextColor(120, 120, 120);
+    pdf.setFontSize(6.5);
+    pdf.text('Disclaimer: ArthaAI planners are for educational purposes only. Not financial advice. Consult a SEBI-registered adviser.', margin, 290);
+    pdf.text('Generated on ' + new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }) + ' · arthaai.zyllotech.com', margin, 294);
+
+    pdf.save((filename || 'ArthaAI_Planner_Report') + '.pdf');
+    if (window.showToast) showToast('PDF downloaded successfully!', 'success');
+  } catch (err) {
+    console.error('PDF export error:', err);
+    if (window.showToast) showToast('PDF generation failed. Please try again.', 'error');
+  } finally {
+    if (btn) { btn.classList.remove('loading'); btn.textContent = '📥 Download PDF Report'; }
+  }
+};
