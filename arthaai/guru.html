@@ -642,12 +642,14 @@
   <div class="container">
     <div style="text-align:center;margin-bottom:2rem;">
       <h2 class="section-title">Financial Glossary</h2>
-      <p class="section-subtitle">200+ financial terms explained in plain language. Search or browse alphabetically.</p>
+      <p class="section-subtitle">200+ financial terms explained in depth. Click any term for detailed explanation, examples, and tips.</p>
     </div>
+    <div class="glossary-stats" id="glossaryStats"></div>
     <div class="glossary-search-wrap">
       <span class="glossary-search-icon">🔍</span>
-      <input type="text" class="glossary-search" id="glossarySearch" placeholder="Search a term… e.g. 'NAV', 'XIRR', 'Alpha'" oninput="filterGlossary(this.value)" />
+      <input type="text" class="glossary-search" id="glossarySearch" placeholder="Search a term… e.g. 'NAV', 'XIRR', 'Alpha', 'mutual fund'" oninput="filterGlossary(this.value)" />
     </div>
+    <div class="glossary-category-bar" id="glossaryCats"></div>
     <div class="glossary-alpha" id="glossaryAlpha"></div>
     <div class="glossary-grid" id="glossaryGrid"></div>
   </div>
