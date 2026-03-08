@@ -583,6 +583,247 @@
       </div>
     </div>
 
+    <!-- ============ TAB 7: GOLD INVESTMENT ============ -->
+    <div class="tab-panel" id="tab-gold">
+      <div class="calc-layout">
+        <div>
+          <div class="calc-desc">
+            <strong>Gold Investment Calculator</strong> — Plan your gold investment via SIP or Lumpsum. Calculate future value based on historical gold CAGR, estimated gold grams, and projected gold price.
+            <br><em style="font-size:0.8rem; opacity:0.8;">Gold is a hedge against inflation. Prefer SGB for 2.5% annual interest + capital gains tax exemption.</em>
+          </div>
+          <div class="tag-row">
+            <span class="tag-pill active" data-goldmode="sip">📅 Gold SIP</span>
+            <span class="tag-pill" data-goldmode="lumpsum">💰 Lumpsum</span>
+          </div>
+          <div class="calc-form">
+            <div class="form-group">
+              <label class="form-label" id="gold-amount-label">Monthly Investment</label>
+              <div class="input-prefix"><input type="number" class="form-input" id="gold-amount" value="5000" min="500" step="500"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Investment Duration</label>
+              <div class="input-suffix" data-suffix="yrs"><input type="number" class="form-input" id="gold-years" value="10" min="1" max="40" step="1"></div>
+              <div class="range-wrap">
+                <input type="range" class="form-range" id="gold-years-range" min="1" max="40" step="1" value="10">
+                <div class="range-labels"><span>1 yr</span><span>40 yrs</span></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Expected Gold Return (CAGR)</label>
+              <div class="input-suffix" data-suffix="%"><input type="number" class="form-input" id="gold-return" value="11" min="5" max="20" step="0.5"></div>
+              <div class="form-hint">Historical 10yr gold CAGR: ~10-12%</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Current Gold Price (per gram)</label>
+              <div class="input-prefix"><input type="number" class="form-input" id="gold-price" value="7200" min="1000" step="100"></div>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="calculateGold()">Calculate Gold Returns →</button>
+          </div>
+        </div>
+        <div>
+          <div class="result-box" id="gold-result">
+            <div style="text-align:center; margin-bottom:20px;">
+              <div class="result-donut">
+                <svg width="160" height="160" viewBox="0 0 160 160">
+                  <circle cx="80" cy="80" r="60" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="18"/>
+                  <circle cx="80" cy="80" r="60" fill="none" stroke="#D4A017" stroke-width="18" stroke-dasharray="377" stroke-dashoffset="0" id="gold-donut-gains" stroke-linecap="round"/>
+                  <circle cx="80" cy="80" r="60" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="18" stroke-dasharray="377" stroke-dashoffset="150" id="gold-donut-invested" stroke-linecap="round"/>
+                </svg>
+                <div class="donut-center">
+                  <div class="donut-pct" id="gold-gain-pct">45%</div>
+                  <div class="donut-label">Gain Share</div>
+                </div>
+              </div>
+              <div style="display:flex; justify-content:center; gap:20px;">
+                <div class="legend-row"><div class="legend-dot" style="background:#D4A017;"></div> Gains</div>
+                <div class="legend-row"><div class="legend-dot" style="background:rgba(255,255,255,0.6);"></div> Invested</div>
+              </div>
+            </div>
+            <h4>Total Value</h4>
+            <div class="result-value" id="gold-total">—</div>
+            <div class="result-sub" id="gold-total-sub">Enter details to calculate</div>
+            <div class="result-grid">
+              <div class="result-item">
+                <h5>Invested</h5>
+                <p id="gold-invested">—</p>
+              </div>
+              <div class="result-item">
+                <h5>Gold Gains</h5>
+                <p class="og" id="gold-gains">—</p>
+              </div>
+              <div class="result-item">
+                <h5>Gold Equivalent</h5>
+                <p id="gold-grams">—</p>
+              </div>
+            </div>
+            <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
+              <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:8px;">PROJECTED GOLD PRICE</div>
+              <div id="gold-projection" style="font-size:0.85rem; color:rgba(255,255,255,0.8);"></div>
+            </div>
+          </div>
+          <div class="notice notice-info mt-16">
+            <span>💡</span>
+            <span>Gold should be 5-10% of your portfolio. Prefer Sovereign Gold Bonds (SGB) for 2.5% annual interest + zero capital gains tax on maturity.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TAB 8: EDUCATION LOAN ============ -->
+    <div class="tab-panel" id="tab-eduloan">
+      <div class="calc-layout">
+        <div>
+          <div class="calc-desc">
+            <strong>Education Loan Calculator</strong> — Calculate your EMI, total interest, moratorium impact, and Section 80E tax savings for education loans. Understand the real cost of your degree.
+            <br><em style="font-size:0.8rem; opacity:0.8;">Section 80E: Full interest deduction (no cap) for 8 years from start of repayment.</em>
+          </div>
+          <div class="calc-form">
+            <div class="form-group">
+              <label class="form-label">Loan Amount</label>
+              <div class="input-prefix"><input type="number" class="form-input" id="edu-amount" value="2000000" min="50000" step="50000"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Interest Rate <span>(Annual %)</span></label>
+              <div class="input-suffix" data-suffix="%"><input type="number" class="form-input" id="edu-rate" value="10.5" min="5" max="18" step="0.25"></div>
+              <div class="range-wrap">
+                <input type="range" class="form-range" id="edu-rate-range" min="5" max="18" step="0.25" value="10.5">
+                <div class="range-labels"><span>5%</span><span>18%</span></div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Repayment Tenure</label>
+                <div class="input-suffix" data-suffix="yrs"><input type="number" class="form-input" id="edu-tenure" value="7" min="1" max="15" step="1"></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Moratorium Period</label>
+                <div class="input-suffix" data-suffix="yrs"><input type="number" class="form-input" id="edu-moratorium" value="1" min="0" max="5" step="1"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Your Tax Bracket <span>(%)</span></label>
+              <div class="input-suffix" data-suffix="%"><input type="number" class="form-input" id="edu-taxbracket" value="20" min="0" max="30" step="5"></div>
+              <div class="form-hint">5% / 10% / 20% / 30% — used to compute Section 80E savings</div>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="calculateEduLoan()">Calculate Education Loan →</button>
+          </div>
+        </div>
+        <div>
+          <div class="result-box" id="edu-result">
+            <div style="text-align:center; margin-bottom:20px;">
+              <div class="result-donut">
+                <svg width="160" height="160" viewBox="0 0 160 160">
+                  <circle cx="80" cy="80" r="60" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="18"/>
+                  <circle cx="80" cy="80" r="60" fill="none" stroke="#E05C1A" stroke-width="18" stroke-dasharray="377" stroke-dashoffset="0" id="edu-donut-interest" stroke-linecap="round"/>
+                  <circle cx="80" cy="80" r="60" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="18" stroke-dasharray="377" stroke-dashoffset="150" id="edu-donut-principal" stroke-linecap="round"/>
+                </svg>
+                <div class="donut-center">
+                  <div class="donut-pct" id="edu-principal-pct">64%</div>
+                  <div class="donut-label">Principal</div>
+                </div>
+              </div>
+              <div style="display:flex; justify-content:center; gap:20px;">
+                <div class="legend-row"><div class="legend-dot" style="background:var(--og);"></div> Interest</div>
+                <div class="legend-row"><div class="legend-dot" style="background:rgba(255,255,255,0.6);"></div> Principal</div>
+              </div>
+            </div>
+            <h4>Monthly EMI</h4>
+            <div class="result-value" id="edu-emi">—</div>
+            <div class="result-sub" id="edu-emi-sub">Enter details to calculate</div>
+            <div class="result-grid">
+              <div class="result-item">
+                <h5>Principal</h5>
+                <p id="edu-principal-show">—</p>
+              </div>
+              <div class="result-item">
+                <h5>Total Interest</h5>
+                <p class="og" id="edu-interest-show">—</p>
+              </div>
+              <div class="result-item">
+                <h5>Tax Saved (80E)</h5>
+                <p id="edu-tax-saved" style="color:#4ade80;">—</p>
+              </div>
+            </div>
+            <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
+              <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:8px;">MORATORIUM IMPACT</div>
+              <table class="breakdown-table" id="edu-moratorium-table">
+                <thead><tr><th>Scenario</th><th>Effective Loan</th></tr></thead>
+                <tbody id="edu-moratorium-body"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="notice notice-info mt-16">
+            <span>💡</span>
+            <span>Pay interest during the moratorium period to avoid ballooning. Section 80E deduction has no upper limit — claim the full interest for up to 8 years.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TAB 9: GRATUITY ============ -->
+    <div class="tab-panel" id="tab-gratuity">
+      <div class="calc-layout">
+        <div>
+          <div class="calc-desc">
+            <strong>Gratuity Calculator</strong> — Calculate your gratuity entitlement under the Payment of Gratuity Act, 1972. Gratuity is payable after 5 years of continuous service. Tax-exempt up to ₹20 Lakhs.
+            <br><em style="font-size:0.8rem; opacity:0.8;">Formula (covered): (15 × Last Drawn Salary × Years of Service) ÷ 26</em>
+          </div>
+          <div class="tag-row">
+            <span class="tag-pill active" data-gratuitytype="covered">🏛️ Covered (26 days)</span>
+            <span class="tag-pill" data-gratuitytype="noncovered">🏢 Non-Covered (30 days)</span>
+          </div>
+          <div class="calc-form">
+            <div class="form-group">
+              <label class="form-label">Last Drawn Monthly Salary <span>(Basic + DA)</span></label>
+              <div class="input-prefix"><input type="number" class="form-input" id="grat-salary" value="60000" min="5000" step="1000"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Years of Service</label>
+              <div class="input-suffix" data-suffix="yrs"><input type="number" class="form-input" id="grat-years" value="12" min="0" max="50" step="1"></div>
+              <div class="range-wrap">
+                <input type="range" class="form-range" id="grat-years-range" min="0" max="50" step="1" value="12">
+                <div class="range-labels"><span>0 yrs</span><span>50 yrs</span></div>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-full" onclick="calculateGratuity()">Calculate Gratuity →</button>
+          </div>
+        </div>
+        <div>
+          <div class="result-box" id="grat-result">
+            <h4>Gratuity Amount</h4>
+            <div class="result-value" id="grat-amount">—</div>
+            <div class="result-sub" id="grat-sub">Enter details to calculate</div>
+            <div class="result-grid" style="grid-template-columns:1fr 1fr;">
+              <div class="result-item">
+                <h5>Tax-Exempt</h5>
+                <p id="grat-exempt" style="color:#4ade80;">—</p>
+              </div>
+              <div class="result-item">
+                <h5>Taxable Amount</h5>
+                <p class="og" id="grat-taxable">—</p>
+              </div>
+            </div>
+            <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
+              <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:8px;">GRATUITY BY YEARS OF SERVICE</div>
+              <div id="grat-projection-bars" style="display:flex; flex-direction:column; gap:8px;"></div>
+            </div>
+            <div style="margin-top:16px; padding:14px; background:rgba(255,255,255,0.08); border-radius:10px;">
+              <div id="grat-eligibility" style="font-size:0.85rem; color:rgba(255,255,255,0.8);"></div>
+            </div>
+          </div>
+          <div class="card-mb mt-16">
+            <h4 style="font-size:0.85rem; margin-bottom:8px; color:var(--db);">📌 Key Gratuity Rules</h4>
+            <div class="check-list" style="font-size:0.82rem;">
+              <div class="check-item"><div class="check-icon">✓</div> Minimum 5 years of continuous service required</div>
+              <div class="check-item"><div class="check-icon">✓</div> Tax-exempt up to ₹20 Lakhs for non-govt employees</div>
+              <div class="check-item"><div class="check-icon">✓</div> Govt employees: full gratuity is tax-exempt</div>
+              <div class="check-item"><div class="check-icon">✓</div> Covered establishments use 26-day divisor; non-covered use 30</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
