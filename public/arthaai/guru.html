@@ -553,26 +553,8 @@
     </div>
     <div class="chat-layout">
       <!-- Sidebar -->
-      <div class="chat-sidebar">
-        <div class="chat-sidebar-header">
-          <h3>💡 Suggested Questions</h3>
-          <p>Click any question to ask</p>
-        </div>
-        <div class="sq-label">Mutual Funds</div>
-        <div class="suggested-questions">
-          <div class="sq-item" onclick="askQuestion('What is the difference between growth and dividend option in mutual funds?')">Growth vs Dividend option — what should I pick?</div>
-          <div class="sq-item" onclick="askQuestion('How does expense ratio affect my returns over 10 years?')">How does expense ratio affect my long-term returns?</div>
-        </div>
-        <div class="sq-label">Insurance</div>
-        <div class="suggested-questions">
-          <div class="sq-item" onclick="askQuestion('How much life insurance cover do I actually need?')">How much life cover do I actually need?</div>
-          <div class="sq-item" onclick="askQuestion('Is ULIP better than term insurance + mutual fund?')">ULIP vs Term + MF — which is better?</div>
-        </div>
-        <div class="sq-label">Tax</div>
-        <div class="suggested-questions">
-          <div class="sq-item" onclick="askQuestion('Should I choose old tax regime or new tax regime for FY 2025-26?')">Which tax regime saves me more in FY26?</div>
-          <div class="sq-item" onclick="askQuestion('What are the best 80C investments to save tax?')">Best 80C options to save tax?</div>
-        </div>
+      <div class="chat-sidebar" id="chatSidebar">
+        <!-- Dynamically rendered by renderSidebarQuestions() -->
       </div>
 
       <!-- Chat Window -->
