@@ -553,26 +553,8 @@
     </div>
     <div class="chat-layout">
       <!-- Sidebar -->
-      <div class="chat-sidebar">
-        <div class="chat-sidebar-header">
-          <h3>💡 Suggested Questions</h3>
-          <p>Click any question to ask</p>
-        </div>
-        <div class="sq-label">Mutual Funds</div>
-        <div class="suggested-questions">
-          <div class="sq-item" onclick="askQuestion('What is the difference between growth and dividend option in mutual funds?')">Growth vs Dividend option — what should I pick?</div>
-          <div class="sq-item" onclick="askQuestion('How does expense ratio affect my returns over 10 years?')">How does expense ratio affect my long-term returns?</div>
-        </div>
-        <div class="sq-label">Insurance</div>
-        <div class="suggested-questions">
-          <div class="sq-item" onclick="askQuestion('How much life insurance cover do I actually need?')">How much life cover do I actually need?</div>
-          <div class="sq-item" onclick="askQuestion('Is ULIP better than term insurance + mutual fund?')">ULIP vs Term + MF — which is better?</div>
-        </div>
-        <div class="sq-label">Tax</div>
-        <div class="suggested-questions">
-          <div class="sq-item" onclick="askQuestion('Should I choose old tax regime or new tax regime for FY 2025-26?')">Which tax regime saves me more in FY26?</div>
-          <div class="sq-item" onclick="askQuestion('What are the best 80C investments to save tax?')">Best 80C options to save tax?</div>
-        </div>
+      <div class="chat-sidebar" id="chatSidebar">
+        <!-- Dynamically rendered by renderSidebarQuestions() -->
       </div>
 
       <!-- Chat Window -->
@@ -1201,12 +1183,287 @@ function initLanguageSelector() {
     if (chatInput) {
       chatInput.placeholder = `Ask anything about personal finance in ${languageLabel}…`;
     }
+    renderSidebarQuestions(selectedLanguage);
   };
 
   langSelect.addEventListener('change', applyLanguage);
   applyLanguage();
 }
 
+// ── Localized Suggested Questions ──
+const SIDEBAR_QUESTIONS = {
+  en: {
+    header: '💡 Suggested Questions', sub: 'Click any question to ask',
+    groups: [
+      { label: 'Mutual Funds', items: [
+        { display: 'Growth vs Dividend option — what should I pick?', ask: 'What is the difference between growth and dividend option in mutual funds?' },
+        { display: 'How does expense ratio affect my long-term returns?', ask: 'How does expense ratio affect my returns over 10 years?' },
+      ]},
+      { label: 'Insurance', items: [
+        { display: 'How much life cover do I actually need?', ask: 'How much life insurance cover do I actually need?' },
+        { display: 'ULIP vs Term + MF — which is better?', ask: 'Is ULIP better than term insurance + mutual fund?' },
+      ]},
+      { label: 'Tax', items: [
+        { display: 'Which tax regime saves me more in FY26?', ask: 'Should I choose old tax regime or new tax regime for FY 2025-26?' },
+        { display: 'Best 80C options to save tax?', ask: 'What are the best 80C investments to save tax?' },
+      ]},
+    ]
+  },
+  hi: {
+    header: '💡 सुझाए गए प्रश्न', sub: 'किसी भी प्रश्न पर क्लिक करें',
+    groups: [
+      { label: 'म्यूचुअल फंड', items: [
+        { display: 'ग्रोथ vs डिविडेंड ऑप्शन — कौन सा चुनें?', ask: 'म्यूचुअल फंड में ग्रोथ और डिविडेंड ऑप्शन में क्या अंतर है?' },
+        { display: 'SIP क्या है और कैसे शुरू करें?', ask: 'SIP क्या है और मैं SIP कैसे शुरू कर सकता हूँ?' },
+      ]},
+      { label: 'बीमा', items: [
+        { display: 'मुझे कितने का जीवन बीमा चाहिए?', ask: 'मुझे कितने रुपये का जीवन बीमा कवर लेना चाहिए?' },
+        { display: 'ULIP vs टर्म + MF — कौन बेहतर?', ask: 'क्या ULIP टर्म इंश्योरेंस + म्यूचुअल फंड से बेहतर है?' },
+      ]},
+      { label: 'टैक्स', items: [
+        { display: 'कौन सा टैक्स रिजीम ज़्यादा बचत देगा?', ask: 'FY 2025-26 के लिए पुरानी या नई टैक्स रिजीम — कौन सी बेहतर है?' },
+        { display: '80C में टैक्स बचाने के सबसे अच्छे तरीके?', ask: 'टैक्स बचाने के लिए 80C के सबसे अच्छे निवेश कौन से हैं?' },
+      ]},
+    ]
+  },
+  te: {
+    header: '💡 సూచించిన ప్రశ్నలు', sub: 'ఏదైనా ప్రశ్నపై క్లిక్ చేయండి',
+    groups: [
+      { label: 'మ్యూచువల్ ఫండ్స్', items: [
+        { display: 'SIP అంటే ఏమిటి? ఎలా మొదలుపెట్టాలి?', ask: 'SIP అంటే ఏమిటి మరియు నేను SIP ఎలా ప్రారంభించగలను?' },
+        { display: 'గ్రోత్ vs డివిడెండ్ ఆప్షన్ — ఏది మంచిది?', ask: 'మ్యూచువల్ ఫండ్స్‌లో గ్రోత్ మరియు డివిడెండ్ ఆప్షన్ మధ్య తేడా ఏమిటి?' },
+      ]},
+      { label: 'బీమా', items: [
+        { display: 'నాకు ఎంత లైఫ్ కవర్ అవసరం?', ask: 'నాకు నిజంగా ఎంత జీవిత బీమా కవర్ అవసరం?' },
+        { display: 'ULIP vs టర్మ్ + MF — ఏది బెటర్?', ask: 'ULIP టర్మ్ ఇన్సూరెన్స్ + మ్యూచువల్ ఫండ్ కంటే మంచిదా?' },
+      ]},
+      { label: 'పన్ను', items: [
+        { display: 'ఏ టాక్స్ రిజీమ్ ఎక్కువ ఆదా చేస్తుంది?', ask: 'FY 2025-26 కోసం పాత లేదా కొత్త టాక్స్ రిజీమ్ — ఏది మంచిది?' },
+        { display: '80C కింద పన్ను ఆదా చేసే ఉత్తమ మార్గాలు?', ask: 'పన్ను ఆదా కోసం 80C కింద ఉత్తమ పెట్టుబడులు ఏమిటి?' },
+      ]},
+    ]
+  },
+  ta: {
+    header: '💡 பரிந்துரைக்கப்பட்ட கேள்விகள்', sub: 'கேள்வியைக் கிளிக் செய்யவும்',
+    groups: [
+      { label: 'மியூச்சுவல் ஃபண்ட்', items: [
+        { display: 'SIP என்றால் என்ன? எப்படி தொடங்குவது?', ask: 'SIP என்றால் என்ன, நான் SIP-ஐ எப்படி தொடங்குவது?' },
+        { display: 'Growth vs Dividend — எது சிறந்தது?', ask: 'மியூச்சுவல் ஃபண்டில் Growth மற்றும் Dividend விருப்பத்தில் என்ன வேறுபாடு?' },
+      ]},
+      { label: 'காப்பீடு', items: [
+        { display: 'எவ்வளவு உயிர் காப்பீடு தேவை?', ask: 'எனக்கு உண்மையில் எவ்வளவு உயிர் காப்பீடு கவர் தேவை?' },
+        { display: 'ULIP vs Term + MF — எது நல்லது?', ask: 'ULIP டெர்ம் இன்சூரன்ஸ் + மியூச்சுவல் ஃபண்டை விட சிறந்ததா?' },
+      ]},
+      { label: 'வரி', items: [
+        { display: 'எந்த வரி முறை அதிக சேமிப்பு தரும்?', ask: 'FY 2025-26-க்கு பழைய அல்லது புதிய வரி முறை — எது சிறந்தது?' },
+        { display: '80C-யில் வரி சேமிக்கும் சிறந்த வழிகள்?', ask: 'வரி சேமிக்க 80C-யில் சிறந்த முதலீடுகள் எவை?' },
+      ]},
+    ]
+  },
+  mr: {
+    header: '💡 सुचवलेले प्रश्न', sub: 'कोणत्याही प्रश्नावर क्लिक करा',
+    groups: [
+      { label: 'म्युच्युअल फंड', items: [
+        { display: 'SIP म्हणजे काय? कसे सुरू करावे?', ask: 'SIP म्हणजे काय आणि मी SIP कसे सुरू करू शकतो?' },
+        { display: 'ग्रोथ vs डिव्हिडंड — कोणते निवडावे?', ask: 'म्युच्युअल फंडमध्ये ग्रोथ आणि डिव्हिडंड ऑप्शनमध्ये काय फरक आहे?' },
+      ]},
+      { label: 'विमा', items: [
+        { display: 'मला किती आयुर्विमा हवा?', ask: 'मला खरंच किती जीवन विमा कव्हर आवश्यक आहे?' },
+        { display: 'ULIP vs टर्म + MF — कोणते चांगले?', ask: 'ULIP टर्म इन्शुरन्स + म्युच्युअल फंडपेक्षा चांगले आहे का?' },
+      ]},
+      { label: 'कर', items: [
+        { display: 'कोणती कर प्रणाली अधिक बचत करते?', ask: 'FY 2025-26 साठी जुनी किंवा नवी कर प्रणाली — कोणती चांगली आहे?' },
+        { display: '80C अंतर्गत कर बचतीचे उत्तम मार्ग?', ask: 'कर बचतीसाठी 80C अंतर्गत सर्वोत्तम गुंतवणूक कोणत्या आहेत?' },
+      ]},
+    ]
+  },
+  bn: {
+    header: '💡 প্রস্তাবিত প্রশ্ন', sub: 'যেকোনো প্রশ্নে ক্লিক করুন',
+    groups: [
+      { label: 'মিউচুয়াল ফান্ড', items: [
+        { display: 'SIP কী? কীভাবে শুরু করবেন?', ask: 'SIP কী এবং আমি কীভাবে SIP শুরু করতে পারি?' },
+        { display: 'Growth vs Dividend — কোনটি ভালো?', ask: 'মিউচুয়াল ফান্ডে Growth এবং Dividend অপশনের মধ্যে পার্থক্য কী?' },
+      ]},
+      { label: 'বীমা', items: [
+        { display: 'কত জীবন বীমা দরকার?', ask: 'আমার আসলে কত জীবন বীমা কভার দরকার?' },
+        { display: 'ULIP vs Term + MF — কোনটি ভালো?', ask: 'ULIP কি টার্ম ইন্সুরেন্স + মিউচুয়াল ফান্ডের চেয়ে ভালো?' },
+      ]},
+      { label: 'কর', items: [
+        { display: 'কোন কর ব্যবস্থা বেশি সঞ্চয় করে?', ask: 'FY 2025-26-এর জন্য পুরানো বা নতুন কর ব্যবস্থা — কোনটি ভালো?' },
+        { display: '80C-তে কর সঞ্চয়ের সেরা উপায়?', ask: 'কর সাশ্রয়ের জন্য 80C-র সেরা বিনিয়োগ কী?' },
+      ]},
+    ]
+  },
+  gu: {
+    header: '💡 સૂચવેલા પ્રશ્નો', sub: 'કોઈપણ પ્રશ્ન પર ક્લિક કરો',
+    groups: [
+      { label: 'મ્યુચ્યુઅલ ફંડ', items: [
+        { display: 'SIP શું છે? કેવી રીતે શરૂ કરવું?', ask: 'SIP શું છે અને હું SIP કેવી રીતે શરૂ કરી શકું?' },
+        { display: 'Growth vs Dividend — કયું પસંદ કરવું?', ask: 'મ્યુચ્યુઅલ ફંડમાં Growth અને Dividend ઓપ્શન વચ્ચે શું ફરક છે?' },
+      ]},
+      { label: 'વીમો', items: [
+        { display: 'મને કેટલો જીવન વીમો જોઈએ?', ask: 'મને ખરેખર કેટલા જીવન વીમા કવરની જરૂર છે?' },
+        { display: 'ULIP vs ટર્મ + MF — કયું સારું?', ask: 'ULIP ટર્મ ઇન્સ્યોરન્સ + મ્યુચ્યુઅલ ફંડ કરતાં સારું છે?' },
+      ]},
+      { label: 'કર', items: [
+        { display: 'કઈ કર વ્યવસ્થા વધુ બચત કરે?', ask: 'FY 2025-26 માટે જૂની કે નવી કર વ્યવસ્થા — કઈ સારી છે?' },
+        { display: '80C હેઠળ કર બચતના શ્રેષ્ઠ રસ્તાઓ?', ask: 'કર બચત માટે 80C હેઠળ શ્રેષ્ઠ રોકાણો ક્યા છે?' },
+      ]},
+    ]
+  },
+  kn: {
+    header: '💡 ಸೂಚಿಸಿದ ಪ್ರಶ್ನೆಗಳು', sub: 'ಯಾವುದೇ ಪ್ರಶ್ನೆ ಕ್ಲಿಕ್ ಮಾಡಿ',
+    groups: [
+      { label: 'ಮ್ಯೂಚುವಲ್ ಫಂಡ್', items: [
+        { display: 'SIP ಎಂದರೇನು? ಹೇಗೆ ಪ್ರಾರಂಭಿಸುವುದು?', ask: 'SIP ಎಂದರೇನು ಮತ್ತು ನಾನು SIP ಅನ್ನು ಹೇಗೆ ಪ್ರಾರಂಭಿಸಬಹುದು?' },
+        { display: 'Growth vs Dividend — ಯಾವುದು ಒಳ್ಳೆಯದು?', ask: 'ಮ್ಯೂಚುವಲ್ ಫಂಡ್‌ನಲ್ಲಿ Growth ಮತ್ತು Dividend ಆಯ್ಕೆ ನಡುವಿನ ವ್ಯತ್ಯಾಸವೇನು?' },
+      ]},
+      { label: 'ವಿಮೆ', items: [
+        { display: 'ನನಗೆ ಎಷ್ಟು ಜೀವ ವಿಮೆ ಬೇಕು?', ask: 'ನನಗೆ ನಿಜವಾಗಿ ಎಷ್ಟು ಜೀವ ವಿಮೆ ಕವರ್ ಅಗತ್ಯ?' },
+        { display: 'ULIP vs Term + MF — ಯಾವುದು ಉತ್ತಮ?', ask: 'ULIP ಟರ್ಮ್ ಇನ್ಶುರೆನ್ಸ್ + ಮ್ಯೂಚುವಲ್ ಫಂಡ್‌ಗಿಂತ ಉತ್ತಮವೇ?' },
+      ]},
+      { label: 'ತೆರಿಗೆ', items: [
+        { display: 'ಯಾವ ತೆರಿಗೆ ಪದ್ಧತಿ ಹೆಚ್ಚು ಉಳಿತಾಯ ಮಾಡುತ್ತದೆ?', ask: 'FY 2025-26 ಗಾಗಿ ಹಳೆಯ ಅಥವಾ ಹೊಸ ತೆರಿಗೆ ಪದ್ಧತಿ — ಯಾವುದು ಒಳ್ಳೆಯದು?' },
+        { display: '80C ಅಡಿಯಲ್ಲಿ ತೆರಿಗೆ ಉಳಿತಾಯ ಮಾಡುವ ಅತ್ಯುತ್ತಮ ಮಾರ್ಗಗಳು?', ask: 'ತೆರಿಗೆ ಉಳಿತಾಯಕ್ಕಾಗಿ 80C ಅಡಿಯಲ್ಲಿ ಅತ್ಯುತ್ತಮ ಹೂಡಿಕೆಗಳು ಯಾವುವು?' },
+      ]},
+    ]
+  },
+  ml: {
+    header: '💡 നിർദ്ദേശിച്ച ചോദ്യങ്ങൾ', sub: 'ഏതെങ്കിലും ചോദ്യത്തിൽ ക്ലിക്ക് ചെയ്യുക',
+    groups: [
+      { label: 'മ്യൂച്ചൽ ഫണ്ട്', items: [
+        { display: 'SIP എന്നാൽ എന്ത്? എങ്ങനെ തുടങ്ങും?', ask: 'SIP എന്നാൽ എന്താണ്, ഞാൻ SIP എങ്ങനെ ആരംഭിക്കും?' },
+        { display: 'Growth vs Dividend — ഏതാണ് നല്ലത്?', ask: 'മ്യൂച്ചൽ ഫണ്ടിൽ Growth, Dividend ഓപ്ഷനുകൾ തമ്മിലുള്ള വ്യത്യാസം എന്ത്?' },
+      ]},
+      { label: 'ഇൻഷുറൻസ്', items: [
+        { display: 'എനിക്ക് എത്ര ലൈഫ് കവർ വേണം?', ask: 'എനിക്ക് യഥാർത്ഥത്തിൽ എത്ര ജീവിത ഇൻഷുറൻസ് കവർ ആവശ്യമാണ്?' },
+        { display: 'ULIP vs Term + MF — ഏതാണ് മികച്ചത്?', ask: 'ULIP ടേം ഇൻഷുറൻസ് + മ്യൂച്ചൽ ഫണ്ടിനേക്കാൾ നല്ലതാണോ?' },
+      ]},
+      { label: 'നികുതി', items: [
+        { display: 'ഏത് നികുതി സമ്പ്രദായം കൂടുതൽ ലാഭിക്കും?', ask: 'FY 2025-26-ന് പഴയ അല്ലെങ്കിൽ പുതിയ നികുതി സമ്പ്രദായം — ഏതാണ് നല്ലത്?' },
+        { display: '80C-ൽ നികുതി ലാഭിക്കാനുള്ള മികച്ച മാർഗങ്ങൾ?', ask: 'നികുതി ലാഭിക്കാൻ 80C-ൽ ഏറ്റവും നല്ല നിക്ഷേപങ്ങൾ ഏവ?' },
+      ]},
+    ]
+  },
+  pa: {
+    header: '💡 ਸੁਝਾਏ ਗਏ ਸਵਾਲ', sub: 'ਕਿਸੇ ਵੀ ਸਵਾਲ \'ਤੇ ਕਲਿੱਕ ਕਰੋ',
+    groups: [
+      { label: 'ਮਿਊਚੁਅਲ ਫੰਡ', items: [
+        { display: 'SIP ਕੀ ਹੈ? ਕਿਵੇਂ ਸ਼ੁਰੂ ਕਰੀਏ?', ask: 'SIP ਕੀ ਹੈ ਅਤੇ ਮੈਂ SIP ਕਿਵੇਂ ਸ਼ੁਰੂ ਕਰ ਸਕਦਾ ਹਾਂ?' },
+      ]},
+      { label: 'ਬੀਮਾ', items: [
+        { display: 'ਮੈਨੂੰ ਕਿੰਨਾ ਜੀਵਨ ਬੀਮਾ ਚਾਹੀਦਾ?', ask: 'ਮੈਨੂੰ ਅਸਲ ਵਿੱਚ ਕਿੰਨੇ ਜੀਵਨ ਬੀਮਾ ਕਵਰ ਦੀ ਲੋੜ ਹੈ?' },
+      ]},
+      { label: 'ਟੈਕਸ', items: [
+        { display: 'ਕਿਹੜੀ ਟੈਕਸ ਪ੍ਰਣਾਲੀ ਵੱਧ ਬੱਚਤ ਕਰਦੀ ਹੈ?', ask: 'FY 2025-26 ਲਈ ਪੁਰਾਣੀ ਜਾਂ ਨਵੀਂ ਟੈਕਸ ਪ੍ਰਣਾਲੀ — ਕਿਹੜੀ ਬਿਹਤਰ ਹੈ?' },
+      ]},
+    ]
+  },
+  or: {
+    header: '💡 ପ୍ରସ୍ତାବିତ ପ୍ରଶ୍ନ', sub: 'ଯେକୌଣସି ପ୍ରଶ୍ନ ଉପରେ କ୍ଲିକ୍ କରନ୍ତୁ',
+    groups: [
+      { label: 'ମ୍ୟୁଚୁଆଲ ଫଣ୍ଡ', items: [
+        { display: 'SIP କ\'ଣ? କିପରି ଆରମ୍ଭ କରିବେ?', ask: 'SIP କ\'ଣ ଏବଂ ମୁଁ SIP କିପରି ଆରମ୍ଭ କରିପାରିବି?' },
+      ]},
+      { label: 'କର', items: [
+        { display: 'କେଉଁ କର ବ୍ୟବସ୍ଥା ଅଧିକ ସଞ୍ଚୟ କରେ?', ask: 'FY 2025-26 ପାଇଁ ପୁରୁଣା ବା ନୂଆ କର ବ୍ୟବସ୍ଥା — କେଉଁଟି ଭଲ?' },
+      ]},
+    ]
+  },
+  as: {
+    header: '💡 প্ৰস্তাৱিত প্ৰশ্ন', sub: 'যিকোনো প্ৰশ্নত ক্লিক কৰক',
+    groups: [
+      { label: 'মিউচুৱেল ফাণ্ড', items: [
+        { display: 'SIP কি? কেনেকৈ আৰম্ভ কৰিব?', ask: 'SIP কি আৰু মই SIP কেনেকৈ আৰম্ভ কৰিব পাৰোঁ?' },
+      ]},
+      { label: 'কৰ', items: [
+        { display: 'কোনটো কৰ ব্যৱস্থা বেছি সঞ্চয় কৰে?', ask: 'FY 2025-26-ৰ বাবে পুৰণি বা নতুন কৰ ব্যৱস্থা — কোনটো ভাল?' },
+      ]},
+    ]
+  },
+  ur: {
+    header: '💡 تجویز کردہ سوالات', sub: 'کسی بھی سوال پر کلک کریں',
+    groups: [
+      { label: 'میوچوئل فنڈ', items: [
+        { display: 'SIP کیا ہے؟ کیسے شروع کریں؟', ask: 'SIP کیا ہے اور میں SIP کیسے شروع کر سکتا ہوں؟' },
+      ]},
+      { label: 'ٹیکس', items: [
+        { display: 'کون سا ٹیکس ریجیم بہتر ہے؟', ask: 'FY 2025-26 کے لیے پرانا یا نیا ٹیکس ریجیم — کون سا بہتر ہے؟' },
+      ]},
+    ]
+  },
+  sa: {
+    header: '💡 सूचिताः प्रश्नाः', sub: 'कस्मिन्नपि प्रश्ने क्लिक् कुर्वन्तु',
+    groups: [
+      { label: 'निवेशः', items: [
+        { display: 'SIP किम्? कथं आरभेत?', ask: 'SIP किम् अस्ति तथा अहं SIP कथम् आरभे?' },
+      ]},
+    ]
+  },
+  mai: {
+    header: '💡 सुझावित प्रश्न', sub: 'कोनो प्रश्न पर क्लिक करू',
+    groups: [
+      { label: 'म्यूचुअल फंड', items: [
+        { display: 'SIP की छै? कोना शुरू करी?', ask: 'SIP की छै आ हम SIP कोना शुरू कय सकैत छी?' },
+      ]},
+      { label: 'टैक्स', items: [
+        { display: 'कोन टैक्स रिजीम बेसी बचत करतै?', ask: 'FY 2025-26 लेल पुरान या नव टैक्स रिजीम — कोन नीक अछि?' },
+      ]},
+    ]
+  },
+  kok: {
+    header: '💡 सुचयल्ले प्रस्न', sub: 'खंयच्या प्रस्नाचेर क्लिक करात',
+    groups: [
+      { label: 'म्युच्युअल फंड', items: [
+        { display: 'SIP म्हळ्यार कितें? कशें सुरू करचें?', ask: 'SIP म्हळ्यार कितें आनी हांव SIP कशें सुरू करूं येता?' },
+      ]},
+    ]
+  },
+  doi: {
+    header: '💡 सुझाए गए सवाल', sub: 'कुसै बी सवाल पर क्लिक करो',
+    groups: [
+      { label: 'म्यूचुअल फंड', items: [
+        { display: 'SIP क्या ऐ? किव्वें शुरू करना?', ask: 'SIP क्या ऐ ते मैं SIP किव्वें शुरू करी सकदा?' },
+      ]},
+    ]
+  },
+  bho: {
+    header: '💡 सुझावल सवाल', sub: 'कवनो सवाल पर क्लिक करीं',
+    groups: [
+      { label: 'म्यूचुअल फंड', items: [
+        { display: 'SIP का हवे? कइसे शुरू करीं?', ask: 'SIP का हवे आ हम SIP कइसे शुरू कर सकीलें?' },
+      ]},
+    ]
+  },
+  ne: {
+    header: '💡 सुझाव दिइएका प्रश्नहरू', sub: 'कुनै पनि प्रश्नमा क्लिक गर्नुहोस्',
+    groups: [
+      { label: 'म्युचुअल फन्ड', items: [
+        { display: 'SIP के हो? कसरी सुरु गर्ने?', ask: 'SIP के हो र म SIP कसरी सुरु गर्न सक्छु?' },
+      ]},
+      { label: 'कर', items: [
+        { display: 'कुन कर प्रणाली बढी बचत गर्छ?', ask: 'FY 2025-26 को लागि पुरानो वा नयाँ कर प्रणाली — कुन राम्रो छ?' },
+      ]},
+    ]
+  },
+};
+
+function renderSidebarQuestions(lang) {
+  const sidebar = document.getElementById('chatSidebar');
+  if (!sidebar) return;
+  const data = SIDEBAR_QUESTIONS[lang] || SIDEBAR_QUESTIONS['en'];
+  let html = `<div class="chat-sidebar-header"><h3>${data.header}</h3><p>${data.sub}</p></div>`;
+  data.groups.forEach(g => {
+    html += `<div class="sq-label">${g.label}</div><div class="suggested-questions">`;
+    g.items.forEach(item => {
+      html += `<div class="sq-item" onclick="askQuestion('${item.ask.replace(/'/g, "\\'")}')">${item.display}</div>`;
+    });
+    html += '</div>';
+  });
+  sidebar.innerHTML = html;
+}
+
+renderSidebarQuestions('en');
 initLanguageSelector();
 
 function addMessage(text, isUser = false, tag = '') {
