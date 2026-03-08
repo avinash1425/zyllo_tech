@@ -22,7 +22,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import PageHero from "@/components/PageHero";
-import careersBanner from "@/assets/careers-banner.jpg";
+import careersHero from "@/assets/careers-hero.jpg";
+import careersOjt from "@/assets/careers-ojt.jpg";
 import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 import { useToast } from "@/hooks/use-toast";
 
