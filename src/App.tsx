@@ -28,7 +28,7 @@ const Sitemap = lazy(() => import("./pages/Sitemap"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const Startups = lazy(() => import("./pages/Startups"));
-const ArthaAI = lazy(() => import("./pages/ArthaAI"));
+const ArthaAI = lazy(() => import("./pages/ArthaAIEmbed"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 
 const queryClient = new QueryClient();
