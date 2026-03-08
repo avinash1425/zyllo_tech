@@ -47,11 +47,17 @@
     .timeline-date { font-size: 0.78rem; font-weight: 700; color: var(--og); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
     .timeline-title { font-size: 0.95rem; font-weight: 700; color: var(--db); margin-bottom: 4px; }
     .timeline-desc { font-size: 0.85rem; color: var(--gray-500); }
+    /* Hide own nav & adjust body when embedded inside React shell */
+    html.embedded .nav,
+    html.embedded .nav-mobile { display: none !important; }
+    html.embedded body { padding-top: 0 !important; }
+    html.embedded .hero { padding-top: 40px; }
   </style>
 </head>
 <body>
 
 <!-- ====== NAVIGATION ====== -->
+<script>if(new URLSearchParams(location.search).has('embed')){document.documentElement.classList.add('embedded')}</script>
 <nav class="nav" id="mainNav">
   <div class="container">
     <div class="nav-inner">
