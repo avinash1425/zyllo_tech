@@ -754,7 +754,15 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => toggleGratuityType(btn.getAttribute('data-gratuitytype')));
   });
 
-  // Run default calculations
+  // Run default calculations for all tabs
   calculateEMI();
   calculateSIP();
+  calculateTax();
+  calculateFD();
+  calculateRetirement();
+  calculateRentVsBuy();
+  calculateGold();
+  calculateEduLoan();
+  calculateGratuity();
+});
 });
