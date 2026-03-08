@@ -7,7 +7,7 @@ import {
   TrendingUp, Shield, Home, Car, Target,
   RefreshCw, Zap, BookOpen,
   ArrowRight, Check, X, AlertCircle,
-  GraduationCap, Award, Gem, Wallet, Download,
+  GraduationCap, Award, Gem, Wallet, Download, Columns2,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
