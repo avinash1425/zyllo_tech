@@ -637,8 +637,7 @@ p { color: var(--gray-600); margin-bottom: 0; }
   padding-bottom: 60px;
   background: linear-gradient(160deg, #f0f6fc 0%, #fdf4ef 55%, #fff 100%);
   position: relative;
-  overflow: clip;
-  overflow-clip-margin: 40px;
+  overflow-x: hidden;
 }
 .hero::before {
   content: '';
