@@ -141,19 +141,19 @@
             <br><em style="font-size:0.8rem; opacity:0.8;">Formula: EMI = P × r × (1+r)^n ÷ [(1+r)^n – 1]</em>
           </div>
           <div class="tag-row">
-            <span class="tag-pill active" data-preset="home">🏠 Home Loan</span>
-            <span class="tag-pill" data-preset="car">🚗 Car Loan</span>
-            <span class="tag-pill" data-preset="personal">💳 Personal Loan</span>
-            <span class="tag-pill" data-preset="education">🎓 Education Loan</span>
+            <span class="tag-pill active" data-preset="home" data-i18n="calc.emi.preset.home">🏠 Home Loan</span>
+            <span class="tag-pill" data-preset="car" data-i18n="calc.emi.preset.car">🚗 Car Loan</span>
+            <span class="tag-pill" data-preset="personal" data-i18n="calc.emi.preset.personal">💳 Personal Loan</span>
+            <span class="tag-pill" data-preset="education" data-i18n="calc.emi.preset.education">🎓 Education Loan</span>
           </div>
           <div class="calc-form">
             <div class="form-group">
-              <label class="form-label">Loan Amount <span>(Principal)</span></label>
+               <label class="form-label" data-i18n="calc.emi.label.principal">Loan Amount <span data-i18n="calc.emi.label.principal.sub">(Principal)</span></label>
               <div class="input-prefix"><input type="number" class="form-input" id="emi-principal" value="3000000" min="10000" step="10000"></div>
-              <div class="form-hint">Enter loan amount in ₹</div>
+              <div class="form-hint" data-i18n="calc.emi.hint.amount">Enter loan amount in ₹</div>
             </div>
             <div class="form-group">
-              <label class="form-label">Interest Rate <span>(Annual %)</span></label>
+              <label class="form-label" data-i18n="calc.emi.label.rate">Interest Rate <span data-i18n="calc.emi.label.rate.sub">(Annual %)</span></label>
               <div class="input-suffix" data-suffix="% p.a."><input type="number" class="form-input" id="emi-rate" value="8.5" min="1" max="36" step="0.1"></div>
               <div class="range-wrap">
                 <input type="range" class="form-range" id="emi-rate-range" min="5" max="24" step="0.1" value="8.5">
@@ -161,15 +161,15 @@
               </div>
             </div>
             <div class="form-group">
-              <label class="form-label">Loan Tenure</label>
+              <label class="form-label" data-i18n="calc.emi.label.tenure">Loan Tenure</label>
               <div class="form-row">
                 <div>
                   <input type="number" class="form-input" id="emi-tenure" value="20" min="1" max="30">
-                  <div class="form-hint">Years</div>
+                  <div class="form-hint" data-i18n="calc.emi.hint.years">Years</div>
                 </div>
                 <div>
                   <input type="number" class="form-input" id="emi-tenure-months" value="240" min="1" max="360" readonly style="background:var(--gray-50);">
-                  <div class="form-hint">Months (auto)</div>
+                  <div class="form-hint" data-i18n="calc.emi.hint.months">Months (auto)</div>
                 </div>
               </div>
               <div class="range-wrap">
@@ -177,7 +177,7 @@
                 <div class="range-labels"><span>1 yr</span><span>30 yrs</span></div>
               </div>
             </div>
-            <button class="btn btn-primary btn-full" onclick="calculateEMI()">Calculate EMI →</button>
+            <button class="btn btn-primary btn-full" onclick="calculateEMI()" data-i18n="calc.emi.btn">Calculate EMI →</button>
           </div>
         </div>
         <div>
@@ -191,40 +191,40 @@
                 </svg>
                 <div class="donut-center">
                   <div class="donut-pct" id="emi-interest-pct">40%</div>
-                  <div class="donut-label">Interest</div>
+                  <div class="donut-label" data-i18n="calc.result.interest">Interest</div>
                 </div>
               </div>
               <div style="display:flex; justify-content:center; gap:20px;">
-                <div class="legend-row"><div class="legend-dot" style="background:var(--og);"></div> Interest</div>
-                <div class="legend-row"><div class="legend-dot" style="background:rgba(255,255,255,0.6);"></div> Principal</div>
+                <div class="legend-row"><div class="legend-dot" style="background:var(--og);"></div> <span data-i18n="calc.result.interest">Interest</span></div>
+                <div class="legend-row"><div class="legend-dot" style="background:rgba(255,255,255,0.6);"></div> <span data-i18n="calc.result.principal">Principal</span></div>
               </div>
             </div>
-            <h4>Monthly EMI</h4>
+            <h4 data-i18n="calc.emi.result.title">Monthly EMI</h4>
             <div class="result-value" id="emi-monthly">₹26,035</div>
-            <div class="result-sub">Your fixed monthly payment</div>
+            <div class="result-sub" data-i18n="calc.emi.result.sub">Your fixed monthly payment</div>
             <div class="result-grid">
               <div class="result-item">
-                <h5>Principal</h5>
+                <h5 data-i18n="calc.result.principal">Principal</h5>
                 <p id="emi-principal-display">₹30,00,000</p>
               </div>
               <div class="result-item">
-                <h5>Total Interest</h5>
+                <h5 data-i18n="calc.result.totalinterest">Total Interest</h5>
                 <p class="og" id="emi-total-interest">₹32,48,400</p>
               </div>
               <div class="result-item">
-                <h5>Total Amount</h5>
+                <h5 data-i18n="calc.result.totalamount">Total Amount</h5>
                 <p id="emi-total-amount">₹62,48,400</p>
               </div>
             </div>
             <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
-              <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:8px;">REPAYMENT BREAKDOWN</div>
+              <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:8px;" data-i18n="calc.emi.result.breakdown">REPAYMENT BREAKDOWN</div>
               <table class="breakdown-table" id="emi-breakdown-table">
-                <thead><tr><th>Year</th><th>Principal Paid</th><th>Interest Paid</th><th>Balance</th></tr></thead>
+                <thead><tr><th data-i18n="calc.result.year">Year</th><th data-i18n="calc.result.principalpaid">Principal Paid</th><th data-i18n="calc.result.interestpaid">Interest Paid</th><th data-i18n="calc.result.balance">Balance</th></tr></thead>
                 <tbody id="emi-breakdown-body"></tbody>
               </table>
             <div class="action-btn-row">
-              <button class="pdf-download-btn" onclick="exportPDF('emi-result','ArthaAI_EMI_Calculator')">📥 Download PDF</button>
-              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('emi-result','EMI Calculator')">💬 Share via WhatsApp</button>
+              <button class="pdf-download-btn" onclick="exportPDF('emi-result','ArthaAI_EMI_Calculator')" data-i18n="calc.btn.pdf">📥 Download PDF</button>
+              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('emi-result','EMI Calculator')" data-i18n="calc.btn.whatsapp">💬 Share via WhatsApp</button>
             </div>
           </div>
           </div>
