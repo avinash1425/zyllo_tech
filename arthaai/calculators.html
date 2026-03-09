@@ -490,69 +490,69 @@
           <div class="calc-form">
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">Current Age</label>
+                <label class="form-label" data-i18n="calc.ret.label.age">Current Age</label>
                 <div class="input-suffix" data-suffix="yrs"><input type="number" class="form-input" id="ret-age" value="30" min="20" max="60" step="1"></div>
               </div>
               <div class="form-group">
-                <label class="form-label">Retirement Age</label>
+                <label class="form-label" data-i18n="calc.ret.label.retireage">Retirement Age</label>
                 <div class="input-suffix" data-suffix="yrs"><input type="number" class="form-input" id="ret-retire-age" value="60" min="40" max="70" step="1"></div>
               </div>
             </div>
             <div class="form-group">
-              <label class="form-label">Current Monthly Expenses</label>
+              <label class="form-label" data-i18n="calc.ret.label.expenses">Current Monthly Expenses</label>
               <div class="input-prefix"><input type="number" class="form-input" id="ret-expenses" value="50000" min="5000" step="1000"></div>
             </div>
             <div class="form-group">
-              <label class="form-label">Existing Savings / Investments</label>
+              <label class="form-label" data-i18n="calc.ret.label.savings">Existing Savings / Investments</label>
               <div class="input-prefix"><input type="number" class="form-input" id="ret-savings" value="0" min="0" step="10000"></div>
-              <div class="form-hint">PF + NPS + MF + FD + any existing corpus</div>
+              <div class="form-hint" data-i18n="calc.ret.hint.savings">PF + NPS + MF + FD + any existing corpus</div>
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">Expected Inflation <span>(%)</span></label>
+                <label class="form-label" data-i18n="calc.ret.label.inflation">Expected Inflation <span>(%)</span></label>
                 <div class="input-suffix" data-suffix="%"><input type="number" class="form-input" id="ret-inflation" value="6" min="3" max="10" step="0.5"></div>
               </div>
               <div class="form-group">
-                <label class="form-label">Return on Investment <span>(%)</span></label>
+                <label class="form-label" data-i18n="calc.ret.label.roi">Return on Investment <span>(%)</span></label>
                 <div class="input-suffix" data-suffix="%"><input type="number" class="form-input" id="ret-roi" value="12" min="5" max="20" step="0.5"></div>
               </div>
             </div>
             <div class="form-group">
-              <label class="form-label">Life Expectancy</label>
+              <label class="form-label" data-i18n="calc.ret.label.life">Life Expectancy</label>
               <div class="input-suffix" data-suffix="yrs"><input type="number" class="form-input" id="ret-life" value="85" min="70" max="100" step="1"></div>
             </div>
-            <button class="btn btn-primary btn-full" onclick="calculateRetirement()">Calculate Retirement Corpus →</button>
+            <button class="btn btn-primary btn-full" onclick="calculateRetirement()" data-i18n="calc.ret.btn">Calculate Retirement Corpus →</button>
           </div>
         </div>
         <div>
           <div class="result-box" id="ret-result">
-            <h4>Retirement Corpus Required</h4>
+            <h4 data-i18n="calc.ret.result.title">Retirement Corpus Required</h4>
             <div class="result-value" id="ret-corpus">₹3,84,00,000</div>
             <div class="result-sub">At current 6% inflation for 25 years post-retirement</div>
             <div class="result-grid">
               <div class="result-item">
-                <h5>Monthly Need at 60</h5>
+                <h5 data-i18n="calc.ret.result.monthly">Monthly Need at 60</h5>
                 <p id="ret-monthly-need">₹2,87,175</p>
               </div>
               <div class="result-item">
-                <h5>Years to Retire</h5>
+                <h5 data-i18n="calc.ret.result.years">Years to Retire</h5>
                 <p id="ret-years">30 yrs</p>
               </div>
               <div class="result-item">
-                <h5>Monthly SIP Needed</h5>
+                <h5 data-i18n="calc.ret.result.sip">Monthly SIP Needed</h5>
                 <p class="og" id="ret-monthly-sip">₹18,540</p>
               </div>
             </div>
             <div style="margin-top:20px; padding:16px; background:rgba(255,255,255,0.08); border-radius:10px;">
-              <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:6px;">RETIREMENT READINESS</div>
+              <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:6px;" data-i18n="calc.ret.result.readiness">RETIREMENT READINESS</div>
               <div id="ret-readiness-bar" style="height:8px; background:rgba(255,255,255,0.2); border-radius:99px; overflow:hidden; margin-bottom:8px;">
                 <div style="height:100%; width:0%; background:var(--og); border-radius:99px; transition:width 1s;" id="ret-readiness-fill"></div>
               </div>
               <div id="ret-readiness-text" style="font-size:0.82rem; color:rgba(255,255,255,0.75);">Start investing today to secure your retirement</div>
             </div>
             <div class="action-btn-row">
-              <button class="pdf-download-btn" onclick="exportPDF('ret-result','ArthaAI_Retirement')">📥 Download PDF</button>
-              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('ret-result','Retirement Planner')">💬 Share via WhatsApp</button>
+              <button class="pdf-download-btn" onclick="exportPDF('ret-result','ArthaAI_Retirement')" data-i18n="calc.btn.pdf">📥 Download PDF</button>
+              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('ret-result','Retirement Planner')" data-i18n="calc.btn.whatsapp">💬 Share via WhatsApp</button>
             </div>
           </div>
           <div class="card-mb mt-16">
