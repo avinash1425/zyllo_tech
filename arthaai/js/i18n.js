@@ -260,6 +260,7 @@
     'footer.brand': 'भारत का पहला AI-संचालित व्यक्तिगत वित्त मंच — बहुभाषी, निष्पक्ष, और भारत के लिए।',
     'footer.product': 'उत्पाद', 'footer.company': 'कंपनी', 'footer.legal': 'कानूनी', 'footer.about': 'अर्थाAI के बारे में', 'footer.blog': 'ब्लॉग', 'footer.contact': 'संपर्क करें',
     'footer.privacy': 'गोपनीयता नीति', 'footer.terms': 'सेवा शर्तें', 'footer.dpdp': 'DPDP अनुपालन', 'footer.disclaimer': 'अस्वीकरण',
+    'footer.legal.text': 'अर्थाAI एक वित्तीय शिक्षा मंच है, SEBI-पंजीकृत निवेश सलाहकार नहीं। सभी सामग्री केवल शैक्षिक उद्देश्यों के लिए है। पिछला प्रदर्शन भविष्य के परिणामों का संकेत नहीं है।',
     'calc.header.title': 'स्मार्ट वित्तीय कैलकुलेटर', 'calc.header.desc': '100+ वित्तीय सूत्र। सदा मुफ्त। सेकंडों में सटीक परिणाम — आपकी भाषा में।',
     'calc.badge1': '🧮 9 कैलकुलेटर प्रकार', 'calc.badge2': '📱 मोबाइल फ्रेंडली', 'calc.badge3': '✅ 100% मुफ्त',
     'calc.tab.emi': '🏠 EMI कैलकुलेटर', 'calc.tab.sip': '📈 SIP कैलकुलेटर', 'calc.tab.tax': '💰 टैक्स बचत', 'calc.tab.fd': '🏦 FD / PPF / NPS', 'calc.tab.retirement': '👴 रिटायरमेंट', 'calc.tab.rentvsbuy': '🏡 किराया बनाम खरीदें', 'calc.tab.gold': '🪙 सोना निवेश', 'calc.tab.eduloan': '🎓 शिक्षा ऋण', 'calc.tab.gratuity': '🏆 ग्रैच्युटी',
