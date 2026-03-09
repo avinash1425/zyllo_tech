@@ -245,25 +245,25 @@
             <br><em style="font-size:0.8rem; opacity:0.8;">SIP FV = P × [(1+r)^n – 1] / r × (1+r) &nbsp;|&nbsp; Lumpsum FV = P × (1+r)^n</em>
           </div>
           <div class="tag-row">
-            <span class="tag-pill active" data-mode="sip">📅 SIP (Monthly)</span>
-            <span class="tag-pill" data-mode="lumpsum">💰 Lumpsum</span>
+            <span class="tag-pill active" data-mode="sip" data-i18n="calc.sip.mode.sip">📅 SIP (Monthly)</span>
+            <span class="tag-pill" data-mode="lumpsum" data-i18n="calc.sip.mode.lumpsum">💰 Lumpsum</span>
           </div>
           <div class="calc-form">
             <div class="form-group">
-              <label class="form-label" id="sip-amount-label">Monthly SIP Amount</label>
+              <label class="form-label" id="sip-amount-label" data-i18n="calc.sip.label.amount">Monthly SIP Amount</label>
               <div class="input-prefix"><input type="number" class="form-input" id="sip-amount" value="5000" min="500" step="500"></div>
             </div>
             <div class="form-group">
-              <label class="form-label">Expected Annual Return <span>(CAGR %)</span></label>
+              <label class="form-label" data-i18n="calc.sip.label.return">Expected Annual Return <span data-i18n="calc.sip.label.return.sub">(CAGR %)</span></label>
               <div class="input-suffix" data-suffix="%"><input type="number" class="form-input" id="sip-return" value="12" min="1" max="30" step="0.5"></div>
               <div class="range-wrap">
                 <input type="range" class="form-range" id="sip-return-range" min="5" max="25" step="0.5" value="12">
                 <div class="range-labels"><span>5%</span><span>25%</span></div>
               </div>
-              <div class="form-hint">Equity MF avg: 12-15% | Debt: 7-8% | FD: 6-7%</div>
+              <div class="form-hint" data-i18n="calc.sip.hint.return">Equity MF avg: 12-15% | Debt: 7-8% | FD: 6-7%</div>
             </div>
             <div class="form-group">
-              <label class="form-label">Investment Period</label>
+              <label class="form-label" data-i18n="calc.sip.label.period">Investment Period</label>
               <div class="input-suffix" data-suffix="yrs"><input type="number" class="form-input" id="sip-period" value="10" min="1" max="40" step="1"></div>
               <div class="range-wrap">
                 <input type="range" class="form-range" id="sip-period-range" min="1" max="40" step="1" value="10">
@@ -271,25 +271,25 @@
               </div>
             </div>
             <div class="form-group">
-              <label class="form-label">Annual Step-Up <span>(Optional — increase SIP yearly %)</span></label>
+              <label class="form-label" data-i18n="calc.sip.label.stepup">Annual Step-Up <span data-i18n="calc.sip.label.stepup.sub">(Optional — increase SIP yearly %)</span></label>
               <div class="input-suffix" data-suffix="%"><input type="number" class="form-input" id="sip-stepup" value="0" min="0" max="25" step="1"></div>
-              <div class="form-hint">Set 10-15% to increase SIP with salary hike</div>
+              <div class="form-hint" data-i18n="calc.sip.hint.stepup">Set 10-15% to increase SIP with salary hike</div>
             </div>
-            <button class="btn btn-primary btn-full" onclick="calculateSIP()">Calculate Returns →</button>
+            <button class="btn btn-primary btn-full" onclick="calculateSIP()" data-i18n="calc.sip.btn">Calculate Returns →</button>
           </div>
         </div>
         <div>
           <div class="result-box" id="sip-result">
-            <h4>Maturity Value</h4>
+            <h4 data-i18n="calc.sip.result.title">Maturity Value</h4>
             <div class="result-value" id="sip-maturity">₹11,61,695</div>
             <div class="result-sub" id="sip-maturity-sub">In 10 years · ₹5,000/month at 12%</div>
             <div class="result-grid">
               <div class="result-item">
-                <h5>Invested</h5>
+                <h5 data-i18n="calc.result.invested">Invested</h5>
                 <p id="sip-invested">₹6,00,000</p>
               </div>
               <div class="result-item">
-                <h5>Gains</h5>
+                <h5 data-i18n="calc.result.gains">Gains</h5>
                 <p class="og" id="sip-gains">₹5,61,695</p>
               </div>
               <div class="result-item">
@@ -298,12 +298,12 @@
               </div>
             </div>
             <div style="margin-top:20px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
-              <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:10px;">YEAR-WISE GROWTH</div>
+              <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:10px;" data-i18n="calc.sip.result.yearwise">YEAR-WISE GROWTH</div>
               <div id="sip-year-bars" style="display:flex; flex-direction:column; gap:8px;"></div>
             </div>
             <div class="action-btn-row">
-              <button class="pdf-download-btn" onclick="exportPDF('sip-result','ArthaAI_SIP_Calculator')">📥 Download PDF</button>
-              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('sip-result','SIP Calculator')">💬 Share via WhatsApp</button>
+              <button class="pdf-download-btn" onclick="exportPDF('sip-result','ArthaAI_SIP_Calculator')" data-i18n="calc.btn.pdf">📥 Download PDF</button>
+              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('sip-result','SIP Calculator')" data-i18n="calc.btn.whatsapp">💬 Share via WhatsApp</button>
             </div>
           </div>
           <div class="card-mb mt-16">
