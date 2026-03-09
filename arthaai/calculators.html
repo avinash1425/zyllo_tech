@@ -323,62 +323,62 @@
           </div>
           <div class="calc-form">
             <div class="form-group">
-              <label class="form-label">Annual Gross Income</label>
+              <label class="form-label" data-i18n="calc.tax.label.income">Annual Gross Income</label>
               <div class="input-prefix"><input type="number" class="form-input" id="tax-income" value="1200000" min="0" step="10000"></div>
             </div>
             <div class="form-group">
-              <label class="form-label">Section 80C Investments <span>(max ₹1,50,000)</span></label>
+              <label class="form-label" data-i18n="calc.tax.label.80c">Section 80C Investments <span>(max ₹1,50,000)</span></label>
               <div class="input-prefix"><input type="number" class="form-input" id="tax-80c" value="150000" min="0" max="150000" step="1000"></div>
-              <div class="form-hint">PF + PPF + ELSS + LIC + Home Loan Principal</div>
+              <div class="form-hint" data-i18n="calc.tax.hint.80c">PF + PPF + ELSS + LIC + Home Loan Principal</div>
             </div>
             <div class="form-group">
-              <label class="form-label">Section 80D Health Insurance <span>(max ₹1,00,000)</span></label>
+              <label class="form-label" data-i18n="calc.tax.label.80d">Section 80D Health Insurance <span>(max ₹1,00,000)</span></label>
               <div class="input-prefix"><input type="number" class="form-input" id="tax-80d" value="25000" min="0" max="100000" step="1000"></div>
-              <div class="form-hint">Self ₹25K + Parents ₹25K (or ₹50K if senior citizen)</div>
+              <div class="form-hint" data-i18n="calc.tax.hint.80d">Self ₹25K + Parents ₹25K (or ₹50K if senior citizen)</div>
             </div>
             <div class="form-group">
-              <label class="form-label">NPS Contribution — Sec 80CCD(1B) <span>(max ₹50,000)</span></label>
+              <label class="form-label" data-i18n="calc.tax.label.nps">NPS Contribution — Sec 80CCD(1B) <span>(max ₹50,000)</span></label>
               <div class="input-prefix"><input type="number" class="form-input" id="tax-nps" value="50000" min="0" max="50000" step="1000"></div>
-              <div class="form-hint">Additional deduction over 80C limit</div>
+              <div class="form-hint" data-i18n="calc.tax.hint.nps">Additional deduction over 80C limit</div>
             </div>
             <div class="form-group">
-              <label class="form-label">HRA Exemption <span>(if applicable)</span></label>
+              <label class="form-label" data-i18n="calc.tax.label.hra">HRA Exemption <span>(if applicable)</span></label>
               <div class="input-prefix"><input type="number" class="form-input" id="tax-hra" value="0" min="0" step="1000"></div>
             </div>
             <div class="form-group">
-              <label class="form-label">Employment Type</label>
+              <label class="form-label" data-i18n="calc.tax.label.type">Employment Type</label>
               <select class="form-input form-select" id="tax-type">
-                <option value="salaried">Salaried Employee</option>
-                <option value="selfemployed">Self Employed / Business</option>
+                <option value="salaried" data-i18n="calc.tax.opt.salaried">Salaried Employee</option>
+                <option value="selfemployed" data-i18n="calc.tax.opt.self">Self Employed / Business</option>
               </select>
             </div>
-            <button class="btn btn-primary btn-full" onclick="calculateTax()">Calculate Tax Savings →</button>
+            <button class="btn btn-primary btn-full" onclick="calculateTax()" data-i18n="calc.tax.btn">Calculate Tax Savings →</button>
           </div>
         </div>
         <div>
           <div class="result-box" id="tax-result">
-            <h4>Total Tax Saved (vs No Deductions)</h4>
+            <h4 data-i18n="calc.tax.result.title">Total Tax Saved (vs No Deductions)</h4>
             <div class="result-value" id="tax-saved">₹67,600</div>
-            <div class="result-sub" id="tax-saved-sub">By claiming all available deductions</div>
+            <div class="result-sub" id="tax-saved-sub" data-i18n="calc.tax.result.sub">By claiming all available deductions</div>
             <div class="result-grid" style="grid-template-columns:1fr 1fr;">
               <div class="result-item">
-                <h5>Old Regime Tax</h5>
+                <h5 data-i18n="calc.tax.result.old">Old Regime Tax</h5>
                 <p id="tax-old">₹1,12,500</p>
               </div>
               <div class="result-item">
-                <h5>New Regime Tax</h5>
+                <h5 data-i18n="calc.tax.result.new">New Regime Tax</h5>
                 <p id="tax-new">₹1,25,000</p>
               </div>
             </div>
             <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
               <table class="breakdown-table">
-                <thead><tr><th>Deduction Section</th><th>Claimed</th><th>Tax Saved</th></tr></thead>
+                <thead><tr><th data-i18n="calc.tax.result.section">Deduction Section</th><th data-i18n="calc.tax.result.claimed">Claimed</th><th data-i18n="calc.tax.result.saved">Tax Saved</th></tr></thead>
                 <tbody id="tax-breakdown-body"></tbody>
               </table>
             </div>
             <div class="action-btn-row">
-              <button class="pdf-download-btn" onclick="exportPDF('tax-result','ArthaAI_Tax_Savings')">📥 Download PDF</button>
-              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('tax-result','Tax Savings Calculator')">💬 Share via WhatsApp</button>
+              <button class="pdf-download-btn" onclick="exportPDF('tax-result','ArthaAI_Tax_Savings')" data-i18n="calc.btn.pdf">📥 Download PDF</button>
+              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('tax-result','Tax Savings Calculator')" data-i18n="calc.btn.whatsapp">💬 Share via WhatsApp</button>
             </div>
           </div>
           <div class="card-mb mt-16">
