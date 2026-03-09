@@ -737,11 +737,11 @@
           </div>
           <div class="calc-form">
             <div class="form-group">
-              <label class="form-label">Loan Amount</label>
+              <label class="form-label" data-i18n="calc.edu.label.amount">Loan Amount</label>
               <div class="input-prefix"><input type="number" class="form-input" id="edu-amount" value="2000000" min="50000" step="50000"></div>
             </div>
             <div class="form-group">
-              <label class="form-label">Interest Rate <span>(Annual %)</span></label>
+              <label class="form-label" data-i18n="calc.edu.label.rate">Interest Rate <span data-i18n="calc.emi.label.rate.sub">(Annual %)</span></label>
               <div class="input-suffix" data-suffix="%"><input type="number" class="form-input" id="edu-rate" value="10.5" min="5" max="18" step="0.25"></div>
               <div class="range-wrap">
                 <input type="range" class="form-range" id="edu-rate-range" min="5" max="18" step="0.25" value="10.5">
@@ -750,20 +750,20 @@
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">Repayment Tenure</label>
+                <label class="form-label" data-i18n="calc.edu.label.tenure">Repayment Tenure</label>
                 <div class="input-suffix" data-suffix="yrs"><input type="number" class="form-input" id="edu-tenure" value="7" min="1" max="15" step="1"></div>
               </div>
               <div class="form-group">
-                <label class="form-label">Moratorium Period</label>
+                <label class="form-label" data-i18n="calc.edu.label.moratorium">Moratorium Period</label>
                 <div class="input-suffix" data-suffix="yrs"><input type="number" class="form-input" id="edu-moratorium" value="1" min="0" max="5" step="1"></div>
               </div>
             </div>
             <div class="form-group">
-              <label class="form-label">Your Tax Bracket <span>(%)</span></label>
+              <label class="form-label" data-i18n="calc.edu.label.tax">Your Tax Bracket <span>(%)</span></label>
               <div class="input-suffix" data-suffix="%"><input type="number" class="form-input" id="edu-taxbracket" value="20" min="0" max="30" step="5"></div>
-              <div class="form-hint">5% / 10% / 20% / 30% — used to compute Section 80E savings</div>
+              <div class="form-hint" data-i18n="calc.edu.hint.tax">5% / 10% / 20% / 30% — used to compute Section 80E savings</div>
             </div>
-            <button class="btn btn-primary btn-full" onclick="calculateEduLoan()">Calculate Education Loan →</button>
+            <button class="btn btn-primary btn-full" onclick="calculateEduLoan()" data-i18n="calc.edu.btn">Calculate Education Loan →</button>
           </div>
         </div>
         <div>
@@ -785,27 +785,27 @@
                 <div class="legend-row"><div class="legend-dot" style="background:rgba(255,255,255,0.6);"></div> Principal</div>
               </div>
             </div>
-            <h4>Monthly EMI</h4>
+            <h4 data-i18n="calc.edu.result.title">Monthly EMI</h4>
             <div class="result-value" id="edu-emi">—</div>
             <div class="result-sub" id="edu-emi-sub">Enter details to calculate</div>
             <div class="result-grid">
               <div class="result-item">
-                <h5>Principal</h5>
+                <h5 data-i18n="calc.result.principal">Principal</h5>
                 <p id="edu-principal-show">—</p>
               </div>
               <div class="result-item">
-                <h5>Total Interest</h5>
+                <h5 data-i18n="calc.result.totalinterest">Total Interest</h5>
                 <p class="og" id="edu-interest-show">—</p>
               </div>
               <div class="result-item">
-                <h5>Tax Saved (80E)</h5>
+                <h5 data-i18n="calc.edu.result.taxsaved">Tax Saved (80E)</h5>
                 <p id="edu-tax-saved" style="color:#4ade80;">—</p>
               </div>
             </div>
             <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
-              <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:8px;">MORATORIUM IMPACT</div>
+              <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:8px;" data-i18n="calc.edu.result.impact">MORATORIUM IMPACT</div>
               <table class="breakdown-table" id="edu-moratorium-table">
-                <thead><tr><th>Scenario</th><th>Effective Loan</th></tr></thead>
+                <thead><tr><th data-i18n="calc.edu.result.scenario">Scenario</th><th data-i18n="calc.edu.result.effective">Effective Loan</th></tr></thead>
                 <tbody id="edu-moratorium-body"></tbody>
               </table>
             </div>
@@ -814,8 +814,8 @@
             <span>💡</span>
             <span>Pay interest during the moratorium period to avoid ballooning. Section 80E deduction has no upper limit — claim the full interest for up to 8 years.</span>
             <div class="action-btn-row">
-              <button class="pdf-download-btn" onclick="exportPDF('edu-result','ArthaAI_Education_Loan')">📥 Download PDF</button>
-              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('edu-result','Education Loan Calculator')">💬 Share via WhatsApp</button>
+              <button class="pdf-download-btn" onclick="exportPDF('edu-result','ArthaAI_Education_Loan')" data-i18n="calc.btn.pdf">📥 Download PDF</button>
+              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('edu-result','Education Loan Calculator')" data-i18n="calc.btn.whatsapp">💬 Share via WhatsApp</button>
             </div>
           </div>
         </div>
