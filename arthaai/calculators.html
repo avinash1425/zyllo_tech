@@ -402,18 +402,18 @@
             <strong data-i18n="calc.fd.title">FD / PPF / NPS Maturity Calculator</strong> — <span data-i18n="calc.fd.desc">Calculate the maturity value of your fixed deposit, PPF account, or NPS corpus. Compare returns across instruments.</span>
           </div>
           <div class="tag-row">
-            <span class="tag-pill active" data-fdtype="fd">🏦 Fixed Deposit</span>
-            <span class="tag-pill" data-fdtype="ppf">📗 PPF</span>
-            <span class="tag-pill" data-fdtype="nps">🏛️ NPS</span>
-            <span class="tag-pill" data-fdtype="rd">💹 RD</span>
+            <span class="tag-pill active" data-fdtype="fd" data-i18n="calc.fd.type.fd">🏦 Fixed Deposit</span>
+            <span class="tag-pill" data-fdtype="ppf" data-i18n="calc.fd.type.ppf">📗 PPF</span>
+            <span class="tag-pill" data-fdtype="nps" data-i18n="calc.fd.type.nps">🏛️ NPS</span>
+            <span class="tag-pill" data-fdtype="rd" data-i18n="calc.fd.type.rd">💹 RD</span>
           </div>
           <div class="calc-form">
             <div class="form-group">
-              <label class="form-label" id="fd-amount-label">Deposit Amount</label>
+              <label class="form-label" id="fd-amount-label" data-i18n="calc.fd.label.amount">Deposit Amount</label>
               <div class="input-prefix"><input type="number" class="form-input" id="fd-amount" value="100000" min="1000" step="1000"></div>
             </div>
             <div class="form-group">
-              <label class="form-label" id="fd-rate-label">Interest Rate <span>(Annual %)</span></label>
+              <label class="form-label" id="fd-rate-label" data-i18n="calc.fd.label.rate">Interest Rate <span data-i18n="calc.emi.label.rate.sub">(Annual %)</span></label>
               <div class="input-suffix" data-suffix="%"><input type="number" class="form-input" id="fd-rate" value="7" min="1" max="15" step="0.1"></div>
               <div class="range-wrap">
                 <input type="range" class="form-range" id="fd-rate-range" min="3" max="12" step="0.1" value="7">
@@ -421,7 +421,7 @@
               </div>
             </div>
             <div class="form-group">
-              <label class="form-label">Period (Years)</label>
+              <label class="form-label" data-i18n="calc.fd.label.period">Period (Years)</label>
               <div class="input-suffix" data-suffix="yrs"><input type="number" class="form-input" id="fd-period" value="5" min="1" max="40" step="1"></div>
               <div class="range-wrap">
                 <input type="range" class="form-range" id="fd-period-range" min="1" max="40" step="1" value="5">
@@ -429,7 +429,7 @@
               </div>
             </div>
             <div class="form-group" id="fd-compound-group">
-              <label class="form-label">Compounding Frequency</label>
+              <label class="form-label" data-i18n="calc.fd.label.compound">Compounding Frequency</label>
               <select class="form-input form-select" id="fd-compound">
                 <option value="4">Quarterly (Default)</option>
                 <option value="12">Monthly</option>
@@ -437,32 +437,32 @@
                 <option value="1">Annually</option>
               </select>
             </div>
-            <button class="btn btn-primary btn-full" onclick="calculateFD()">Calculate Maturity →</button>
+            <button class="btn btn-primary btn-full" onclick="calculateFD()" data-i18n="calc.fd.btn">Calculate Maturity →</button>
           </div>
         </div>
         <div>
           <div class="result-box" id="fd-result">
-            <h4>Maturity Value</h4>
+            <h4 data-i18n="calc.fd.result.title">Maturity Value</h4>
             <div class="result-value" id="fd-maturity">₹1,41,478</div>
             <div class="result-sub">After 5 years at 7% (Quarterly)</div>
             <div class="result-grid">
               <div class="result-item">
-                <h5>Principal</h5>
+                <h5 data-i18n="calc.result.principal">Principal</h5>
                 <p id="fd-principal-show">₹1,00,000</p>
               </div>
               <div class="result-item">
-                <h5>Interest Earned</h5>
+                <h5 data-i18n="calc.fd.result.interest">Interest Earned</h5>
                 <p class="og" id="fd-interest-show">₹41,478</p>
               </div>
               <div class="result-item">
-                <h5>Effective Rate</h5>
+                <h5 data-i18n="calc.fd.result.effective">Effective Rate</h5>
                 <p id="fd-effective">7.19%</p>
               </div>
             </div>
             <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
-              <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:10px;">INSTRUMENT COMPARISON (₹1L for 5 years)</div>
+              <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:10px;" data-i18n="calc.fd.result.compare">INSTRUMENT COMPARISON (₹1L for 5 years)</div>
               <table class="breakdown-table" id="fd-compare-table">
-                <thead><tr><th>Instrument</th><th>Rate</th><th>Maturity</th></tr></thead>
+                <thead><tr><th data-i18n="calc.fd.result.instrument">Instrument</th><th data-i18n="calc.fd.result.rate">Rate</th><th data-i18n="calc.fd.result.maturity">Maturity</th></tr></thead>
                 <tbody>
                   <tr><td>FD (SBI)</td><td>7.0%</td><td>₹1,41,478</td></tr>
                   <tr><td>PPF</td><td>7.1%</td><td>₹1,41,930</td></tr>
@@ -472,8 +472,8 @@
               </table>
             </div>
             <div class="action-btn-row">
-              <button class="pdf-download-btn" onclick="exportPDF('fd-result','ArthaAI_FD_PPF_NPS')">📥 Download PDF</button>
-              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('fd-result','FD/PPF/NPS Comparator')">💬 Share via WhatsApp</button>
+              <button class="pdf-download-btn" onclick="exportPDF('fd-result','ArthaAI_FD_PPF_NPS')" data-i18n="calc.btn.pdf">📥 Download PDF</button>
+              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('fd-result','FD/PPF/NPS Comparator')" data-i18n="calc.btn.whatsapp">💬 Share via WhatsApp</button>
             </div>
           </div>
         </div>
