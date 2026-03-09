@@ -285,12 +285,12 @@
 <!-- ── Hero ── -->
 <section class="guru-hero">
   <div class="container">
-    <span class="guru-badge">🎓 ArthaGuru — AI Education Engine</span>
-    <h1>Financial Wisdom,<br>In Your Language</h1>
-    <p>India's first multilingual AI tutor for personal finance. Understand mutual funds, insurance, and taxes — explained simply, in 22 languages, commission-free.</p>
+    <span class="guru-badge" data-i18n="guru.badge">🎓 ArthaGuru — AI Education Engine</span>
+    <h1 data-i18n="guru.hero.title">Financial Wisdom,<br>In Your Language</h1>
+    <p data-i18n="guru.hero.desc">India's first multilingual AI tutor for personal finance. Understand mutual funds, insurance, and taxes — explained simply, in 22 languages, commission-free.</p>
     <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
-      <a href="#learn" class="btn btn-primary" onclick="showPanel('learn')">Start Learning</a>
-      <a href="#chat" class="btn btn-white" onclick="showPanel('chat')">Chat with ArthaGuru</a>
+      <a href="#learn" class="btn btn-primary" onclick="showPanel('learn')" data-i18n="guru.hero.cta1">Start Learning</a>
+      <a href="#chat" class="btn btn-white" onclick="showPanel('chat')" data-i18n="guru.hero.cta2">Chat with ArthaGuru</a>
     </div>
   </div>
 </section>
@@ -299,19 +299,19 @@
 <div class="guru-tabs">
   <div class="container">
     <button class="guru-tab-btn active" onclick="showPanel('learn')" id="tab-learn">
-      <span class="tab-icon">📚</span> Learn
+      <span class="tab-icon">📚</span> <span data-i18n="guru.tab.learn">Learn</span>
     </button>
     <button class="guru-tab-btn" onclick="showPanel('risk')" id="tab-risk">
-      <span class="tab-icon">🎯</span> Risk Profiler
+      <span class="tab-icon">🎯</span> <span data-i18n="guru.tab.risk">Risk Profiler</span>
     </button>
     <button class="guru-tab-btn" onclick="showPanel('compare')" id="tab-compare">
-      <span class="tab-icon">⚖️</span> Compare Products
+      <span class="tab-icon">⚖️</span> <span data-i18n="guru.tab.compare">Compare Products</span>
     </button>
     <button class="guru-tab-btn" onclick="showPanel('chat')" id="tab-chat">
-      <span class="tab-icon">💬</span> Ask ArthaGuru
+      <span class="tab-icon">💬</span> <span data-i18n="guru.tab.chat">Ask ArthaGuru</span>
     </button>
     <button class="guru-tab-btn" onclick="showPanel('glossary')" id="tab-glossary">
-      <span class="tab-icon">📖</span> Glossary
+      <span class="tab-icon">📖</span> <span data-i18n="guru.tab.glossary">Glossary</span>
     </button>
   </div>
 </div>
@@ -322,8 +322,8 @@
 <section class="guru-panel active" id="panel-learn">
   <div class="container">
     <div style="text-align:center;margin-bottom:2.5rem;">
-      <h2 class="section-title">Financial Education Hub</h2>
-      <p class="section-subtitle">Bite-sized lessons on every financial product, designed for every Indian — from first-time earners to seasoned investors.</p>
+      <h2 class="section-title" data-i18n="guru.learn.title">Financial Education Hub</h2>
+      <p class="section-subtitle" data-i18n="guru.learn.desc">Bite-sized lessons on every financial product, designed for every Indian — from first-time earners to seasoned investors.</p>
     </div>
     <div class="learn-grid">
 
@@ -332,17 +332,17 @@
         <div class="learn-card-header">
           <div class="learn-card-icon">📈</div>
           <div>
-            <h3>Mutual Funds</h3>
-            <p>8 lessons · Beginner to Advanced</p>
+            <h3 data-i18n="guru.learn.mf">Mutual Funds</h3>
+            <p data-i18n="guru.learn.mf.sub">8 lessons · Beginner to Advanced</p>
           </div>
         </div>
         <div class="learn-card-body">
           <ul class="learn-topic-list">
-            <li onclick="openArticle('mf-what');event.stopPropagation()">What is a Mutual Fund?</li>
-            <li onclick="openArticle('mf-types');event.stopPropagation()">Types: Equity, Debt, Hybrid, ELSS</li>
-            <li onclick="openArticle('mf-sip');event.stopPropagation()">SIP vs Lumpsum — which is better?</li>
-            <li onclick="openArticle('mf-nav');event.stopPropagation()">Understanding NAV, Expense Ratio & Exit Load</li>
-            <li onclick="openArticle('mf-tax');event.stopPropagation()">Tax on Mutual Fund Gains (STCG & LTCG)</li>
+            <li onclick="openArticle('mf-what');event.stopPropagation()" data-i18n="guru.learn.mf.t1">What is a Mutual Fund?</li>
+            <li onclick="openArticle('mf-types');event.stopPropagation()" data-i18n="guru.learn.mf.t2">Types: Equity, Debt, Hybrid, ELSS</li>
+            <li onclick="openArticle('mf-sip');event.stopPropagation()" data-i18n="guru.learn.mf.t3">SIP vs Lumpsum — which is better?</li>
+            <li onclick="openArticle('mf-nav');event.stopPropagation()" data-i18n="guru.learn.mf.t4">Understanding NAV, Expense Ratio & Exit Load</li>
+            <li onclick="openArticle('mf-tax');event.stopPropagation()" data-i18n="guru.learn.mf.t5">Tax on Mutual Fund Gains (STCG & LTCG)</li>
           </ul>
         </div>
       </div>
@@ -352,17 +352,17 @@
         <div class="learn-card-header" style="background:linear-gradient(135deg,#1a3a5c,#0d5c45);">
           <div class="learn-card-icon">🛡️</div>
           <div>
-            <h3>Insurance</h3>
-            <p>6 lessons · Beginner to Intermediate</p>
+            <h3 data-i18n="guru.learn.ins">Insurance</h3>
+            <p data-i18n="guru.learn.ins.sub">6 lessons · Beginner to Intermediate</p>
           </div>
         </div>
         <div class="learn-card-body">
           <ul class="learn-topic-list">
-            <li onclick="openArticle('ins-term');event.stopPropagation()">Term Life Insurance — The only life cover you need</li>
-            <li onclick="openArticle('ins-health');event.stopPropagation()">Health Insurance — Family Floater vs Individual</li>
-            <li onclick="openArticle('ins-ulip');event.stopPropagation()">Why ULIP is usually a bad idea</li>
-            <li onclick="openArticle('ins-endowment');event.stopPropagation()">Endowment & Traditional Plans — decoded</li>
-            <li onclick="openArticle('ins-claim');event.stopPropagation()">How to file an Insurance Claim</li>
+            <li onclick="openArticle('ins-term');event.stopPropagation()" data-i18n="guru.learn.ins.t1">Term Life Insurance — The only life cover you need</li>
+            <li onclick="openArticle('ins-health');event.stopPropagation()" data-i18n="guru.learn.ins.t2">Health Insurance — Family Floater vs Individual</li>
+            <li onclick="openArticle('ins-ulip');event.stopPropagation()" data-i18n="guru.learn.ins.t3">Why ULIP is usually a bad idea</li>
+            <li onclick="openArticle('ins-endowment');event.stopPropagation()" data-i18n="guru.learn.ins.t4">Endowment & Traditional Plans — decoded</li>
+            <li onclick="openArticle('ins-claim');event.stopPropagation()" data-i18n="guru.learn.ins.t5">How to file an Insurance Claim</li>
           </ul>
         </div>
       </div>
@@ -372,17 +372,17 @@
         <div class="learn-card-header" style="background:linear-gradient(135deg,#7c3aed,#5b21b6);">
           <div class="learn-card-icon">📊</div>
           <div>
-            <h3>Stock Market</h3>
-            <p>7 lessons · Beginner to Advanced</p>
+            <h3 data-i18n="guru.learn.stocks">Stock Market</h3>
+            <p data-i18n="guru.learn.stocks.sub">7 lessons · Beginner to Advanced</p>
           </div>
         </div>
         <div class="learn-card-body">
           <ul class="learn-topic-list">
-            <li onclick="openArticle('stocks-demat');event.stopPropagation()">Opening a Demat & Trading Account</li>
-            <li onclick="openArticle('stocks-basics');event.stopPropagation()">How to read a stock quote</li>
-            <li onclick="openArticle('stocks-fundamental');event.stopPropagation()">Fundamental Analysis basics (PE, PB, ROE)</li>
-            <li onclick="openArticle('stocks-index');event.stopPropagation()">Sensex & Nifty — what they mean</li>
-            <li onclick="openArticle('stocks-ipo');event.stopPropagation()">Applying for an IPO (Step-by-step)</li>
+            <li onclick="openArticle('stocks-demat');event.stopPropagation()" data-i18n="guru.learn.stocks.t1">Opening a Demat & Trading Account</li>
+            <li onclick="openArticle('stocks-basics');event.stopPropagation()" data-i18n="guru.learn.stocks.t2">How to read a stock quote</li>
+            <li onclick="openArticle('stocks-fundamental');event.stopPropagation()" data-i18n="guru.learn.stocks.t3">Fundamental Analysis basics (PE, PB, ROE)</li>
+            <li onclick="openArticle('stocks-index');event.stopPropagation()" data-i18n="guru.learn.stocks.t4">Sensex & Nifty — what they mean</li>
+            <li onclick="openArticle('stocks-ipo');event.stopPropagation()" data-i18n="guru.learn.stocks.t5">Applying for an IPO (Step-by-step)</li>
           </ul>
         </div>
       </div>
@@ -392,17 +392,17 @@
         <div class="learn-card-header" style="background:linear-gradient(135deg,#b45309,#92400e);">
           <div class="learn-card-icon">🧾</div>
           <div>
-            <h3>Tax Planning</h3>
-            <p>5 lessons · Intermediate</p>
+            <h3 data-i18n="guru.learn.tax">Tax Planning</h3>
+            <p data-i18n="guru.learn.tax.sub">5 lessons · Intermediate</p>
           </div>
         </div>
         <div class="learn-card-body">
           <ul class="learn-topic-list">
-            <li onclick="openArticle('tax-slabs');event.stopPropagation()">Old vs New Tax Regime — which saves more?</li>
-            <li onclick="openArticle('tax-80c');event.stopPropagation()">80C investments — ELSS vs PPF vs NPS vs LIC</li>
-            <li onclick="openArticle('tax-hra');event.stopPropagation()">HRA, LTA & Standard Deduction explained</li>
-            <li onclick="openArticle('tax-itr');event.stopPropagation()">How to file ITR for the first time</li>
-            <li onclick="openArticle('tax-advance');event.stopPropagation()">Advance Tax — who pays, when, how</li>
+            <li onclick="openArticle('tax-slabs');event.stopPropagation()" data-i18n="guru.learn.tax.t1">Old vs New Tax Regime — which saves more?</li>
+            <li onclick="openArticle('tax-80c');event.stopPropagation()" data-i18n="guru.learn.tax.t2">80C investments — ELSS vs PPF vs NPS vs LIC</li>
+            <li onclick="openArticle('tax-hra');event.stopPropagation()" data-i18n="guru.learn.tax.t3">HRA, LTA & Standard Deduction explained</li>
+            <li onclick="openArticle('tax-itr');event.stopPropagation()" data-i18n="guru.learn.tax.t4">How to file ITR for the first time</li>
+            <li onclick="openArticle('tax-advance');event.stopPropagation()" data-i18n="guru.learn.tax.t5">Advance Tax — who pays, when, how</li>
           </ul>
         </div>
       </div>
@@ -412,17 +412,17 @@
         <div class="learn-card-header" style="background:linear-gradient(135deg,#0369a1,#075985);">
           <div class="learn-card-icon">🏦</div>
           <div>
-            <h3>Savings & Banking</h3>
-            <p>5 lessons · Beginner</p>
+            <h3 data-i18n="guru.learn.bank">Savings & Banking</h3>
+            <p data-i18n="guru.learn.bank.sub">5 lessons · Beginner</p>
           </div>
         </div>
         <div class="learn-card-body">
           <ul class="learn-topic-list">
-            <li onclick="openArticle('bank-fd');event.stopPropagation()">FD vs RD vs Savings Account — which earns more?</li>
-            <li onclick="openArticle('bank-ppf');event.stopPropagation()">PPF — The best tax-free safe investment</li>
-            <li onclick="openArticle('bank-sg');event.stopPropagation()">Sovereign Gold Bonds vs Physical Gold vs Gold ETF</li>
-            <li onclick="openArticle('bank-sweep');event.stopPropagation()">Sweep-in FD & Auto-Sweep accounts</li>
-            <li onclick="openArticle('bank-nb');event.stopPropagation()">Neo-banks vs Traditional banks</li>
+            <li onclick="openArticle('bank-fd');event.stopPropagation()" data-i18n="guru.learn.bank.t1">FD vs RD vs Savings Account — which earns more?</li>
+            <li onclick="openArticle('bank-ppf');event.stopPropagation()" data-i18n="guru.learn.bank.t2">PPF — The best tax-free safe investment</li>
+            <li onclick="openArticle('bank-sg');event.stopPropagation()" data-i18n="guru.learn.bank.t3">Sovereign Gold Bonds vs Physical Gold vs Gold ETF</li>
+            <li onclick="openArticle('bank-sweep');event.stopPropagation()" data-i18n="guru.learn.bank.t4">Sweep-in FD & Auto-Sweep accounts</li>
+            <li onclick="openArticle('bank-nb');event.stopPropagation()" data-i18n="guru.learn.bank.t5">Neo-banks vs Traditional banks</li>
           </ul>
         </div>
       </div>
@@ -432,17 +432,17 @@
         <div class="learn-card-header" style="background:linear-gradient(135deg,#065f46,#047857);">
           <div class="learn-card-icon">🏠</div>
           <div>
-            <h3>Real Estate & Loans</h3>
-            <p>5 lessons · Intermediate</p>
+            <h3 data-i18n="guru.learn.re">Real Estate & Loans</h3>
+            <p data-i18n="guru.learn.re.sub">5 lessons · Intermediate</p>
           </div>
         </div>
         <div class="learn-card-body">
           <ul class="learn-topic-list">
-            <li onclick="openArticle('re-buy');event.stopPropagation()">Rent vs Buy — the full truth</li>
-            <li onclick="openArticle('re-emi');event.stopPropagation()">Understanding your home loan EMI breakdown</li>
-            <li onclick="openArticle('re-prepay');event.stopPropagation()">Prepaying your loan vs investing the extra</li>
-            <li onclick="openArticle('re-rera');event.stopPropagation()">RERA — Your rights as a homebuyer</li>
-            <li onclick="openArticle('re-stamp');event.stopPropagation()">Hidden costs when buying property</li>
+            <li onclick="openArticle('re-buy');event.stopPropagation()" data-i18n="guru.learn.re.t1">Rent vs Buy — the full truth</li>
+            <li onclick="openArticle('re-emi');event.stopPropagation()" data-i18n="guru.learn.re.t2">Understanding your home loan EMI breakdown</li>
+            <li onclick="openArticle('re-prepay');event.stopPropagation()" data-i18n="guru.learn.re.t3">Prepaying your loan vs investing the extra</li>
+            <li onclick="openArticle('re-rera');event.stopPropagation()" data-i18n="guru.learn.re.t4">RERA — Your rights as a homebuyer</li>
+            <li onclick="openArticle('re-stamp');event.stopPropagation()" data-i18n="guru.learn.re.t5">Hidden costs when buying property</li>
           </ul>
         </div>
       </div>
@@ -467,8 +467,8 @@
 <section class="guru-panel" id="panel-risk">
   <div class="container">
     <div class="risk-intro">
-      <h2>Find Your Investor Risk Profile</h2>
-      <p>Answer 7 quick questions. We'll tell you your risk appetite and the investment products best suited for you — unbiased, commission-free.</p>
+      <h2 data-i18n="guru.risk.title">Find Your Investor Risk Profile</h2>
+      <p data-i18n="guru.risk.desc">Answer 7 quick questions. We'll tell you your risk appetite and the investment products best suited for you — unbiased, commission-free.</p>
     </div>
 
     <div class="quiz-card" id="quizCard">
@@ -516,8 +516,8 @@
 <section class="guru-panel" id="panel-compare">
   <div class="container">
     <div class="compare-intro">
-      <h2>Unbiased Product Comparisons</h2>
-      <p class="section-subtitle">No commission. No bias. Just facts — so you can make the best choice for your money.</p>
+      <h2 data-i18n="guru.compare.title">Unbiased Product Comparisons</h2>
+      <p class="section-subtitle" data-i18n="guru.compare.desc">No commission. No bias. Just facts — so you can make the best choice for your money.</p>
     </div>
 
     <div class="compare-selector">
@@ -549,8 +549,8 @@
 <section class="guru-panel" id="panel-chat">
   <div class="container">
     <div style="text-align:center;margin-bottom:2rem;">
-      <h2 class="section-title">Ask ArthaGuru Anything</h2>
-      <p class="section-subtitle">Your AI financial tutor — available 24/7. Ask in Hindi, Telugu, Tamil, or any of 22 Indian languages.</p>
+      <h2 class="section-title" data-i18n="guru.chat.title">Ask ArthaGuru Anything</h2>
+      <p class="section-subtitle" data-i18n="guru.chat.desc">Your AI financial tutor — available 24/7. Ask in Hindi, Telugu, Tamil, or any of 22 Indian languages.</p>
     </div>
     <div class="chat-layout">
       <!-- Sidebar -->
@@ -624,8 +624,8 @@
 <section class="guru-panel" id="panel-glossary">
   <div class="container">
     <div style="text-align:center;margin-bottom:2rem;">
-      <h2 class="section-title">Financial Glossary</h2>
-      <p class="section-subtitle">200+ financial terms explained in depth. Click any term for detailed explanation, examples, and tips.</p>
+      <h2 class="section-title" data-i18n="guru.glossary.title">Financial Glossary</h2>
+      <p class="section-subtitle" data-i18n="guru.glossary.desc">200+ financial terms explained in depth. Click any term for detailed explanation, examples, and tips.</p>
     </div>
     <div class="glossary-stats" id="glossaryStats"></div>
     <div class="glossary-search-wrap">
