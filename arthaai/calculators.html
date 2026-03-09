@@ -646,16 +646,16 @@
             <br><em style="font-size:0.8rem; opacity:0.8;">Gold is a hedge against inflation. Prefer SGB for 2.5% annual interest + capital gains tax exemption.</em>
           </div>
           <div class="tag-row">
-            <span class="tag-pill active" data-goldmode="sip">📅 Gold SIP</span>
-            <span class="tag-pill" data-goldmode="lumpsum">💰 Lumpsum</span>
+            <span class="tag-pill active" data-goldmode="sip" data-i18n="calc.gold.mode.sip">📅 Gold SIP</span>
+            <span class="tag-pill" data-goldmode="lumpsum" data-i18n="calc.gold.mode.lumpsum">💰 Lumpsum</span>
           </div>
           <div class="calc-form">
             <div class="form-group">
-              <label class="form-label" id="gold-amount-label">Monthly Investment</label>
+              <label class="form-label" id="gold-amount-label" data-i18n="calc.gold.label.amount">Monthly Investment</label>
               <div class="input-prefix"><input type="number" class="form-input" id="gold-amount" value="5000" min="500" step="500"></div>
             </div>
             <div class="form-group">
-              <label class="form-label">Investment Duration</label>
+              <label class="form-label" data-i18n="calc.gold.label.duration">Investment Duration</label>
               <div class="input-suffix" data-suffix="yrs"><input type="number" class="form-input" id="gold-years" value="10" min="1" max="40" step="1"></div>
               <div class="range-wrap">
                 <input type="range" class="form-range" id="gold-years-range" min="1" max="40" step="1" value="10">
@@ -663,15 +663,15 @@
               </div>
             </div>
             <div class="form-group">
-              <label class="form-label">Expected Gold Return (CAGR)</label>
+              <label class="form-label" data-i18n="calc.gold.label.return">Expected Gold Return (CAGR)</label>
               <div class="input-suffix" data-suffix="%"><input type="number" class="form-input" id="gold-return" value="11" min="5" max="20" step="0.5"></div>
-              <div class="form-hint">Historical 10yr gold CAGR: ~10-12%</div>
+              <div class="form-hint" data-i18n="calc.gold.hint.return">Historical 10yr gold CAGR: ~10-12%</div>
             </div>
             <div class="form-group">
-              <label class="form-label">Current Gold Price (per gram)</label>
+              <label class="form-label" data-i18n="calc.gold.label.price">Current Gold Price (per gram)</label>
               <div class="input-prefix"><input type="number" class="form-input" id="gold-price" value="7200" min="1000" step="100"></div>
             </div>
-            <button class="btn btn-primary btn-full" onclick="calculateGold()">Calculate Gold Returns →</button>
+            <button class="btn btn-primary btn-full" onclick="calculateGold()" data-i18n="calc.gold.btn">Calculate Gold Returns →</button>
           </div>
         </div>
         <div>
@@ -693,25 +693,25 @@
                 <div class="legend-row"><div class="legend-dot" style="background:rgba(255,255,255,0.6);"></div> Invested</div>
               </div>
             </div>
-            <h4>Total Value</h4>
+            <h4 data-i18n="calc.gold.result.title">Total Value</h4>
             <div class="result-value" id="gold-total">—</div>
             <div class="result-sub" id="gold-total-sub">Enter details to calculate</div>
             <div class="result-grid">
               <div class="result-item">
-                <h5>Invested</h5>
+                <h5 data-i18n="calc.result.invested">Invested</h5>
                 <p id="gold-invested">—</p>
               </div>
               <div class="result-item">
-                <h5>Gold Gains</h5>
+                <h5 data-i18n="calc.gold.result.gains">Gold Gains</h5>
                 <p class="og" id="gold-gains">—</p>
               </div>
               <div class="result-item">
-                <h5>Gold Equivalent</h5>
+                <h5 data-i18n="calc.gold.result.grams">Gold Equivalent</h5>
                 <p id="gold-grams">—</p>
               </div>
             </div>
             <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.15);">
-              <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:8px;">PROJECTED GOLD PRICE</div>
+              <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); margin-bottom:8px;" data-i18n="calc.gold.result.projection">PROJECTED GOLD PRICE</div>
               <div id="gold-projection" style="font-size:0.85rem; color:rgba(255,255,255,0.8);"></div>
             </div>
           </div>
@@ -719,8 +719,8 @@
             <span>💡</span>
             <span>Gold should be 5-10% of your portfolio. Prefer Sovereign Gold Bonds (SGB) for 2.5% annual interest + zero capital gains tax on maturity.</span>
             <div class="action-btn-row">
-              <button class="pdf-download-btn" onclick="exportPDF('gold-result','ArthaAI_Gold_Investment')">📥 Download PDF</button>
-              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('gold-result','Gold Investment Calculator')">💬 Share via WhatsApp</button>
+              <button class="pdf-download-btn" onclick="exportPDF('gold-result','ArthaAI_Gold_Investment')" data-i18n="calc.btn.pdf">📥 Download PDF</button>
+              <button class="whatsapp-share-btn" onclick="shareViaWhatsApp('gold-result','Gold Investment Calculator')" data-i18n="calc.btn.whatsapp">💬 Share via WhatsApp</button>
             </div>
           </div>
         </div>
