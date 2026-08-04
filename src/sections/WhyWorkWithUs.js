@@ -1,56 +1,54 @@
-import { Compass, Heart, Lightbulb, ShieldCheck } from "lucide-react";
+"use client";
 
-const VALUES = [
+import { Clock3, MessageSquare, ShieldCheck, Users } from "lucide-react";
+
+const REASONS = [
   {
-    icon: Compass,
-    title: "Clarity Over Complexity",
-    description:
-      "We explain decisions in plain language and keep every engagement transparent, from scope to cost.",
+    icon: Clock3,
+    title: "Fast Response",
+    description: "We reply to every inquiry within one business day — no long waits to get started.",
   },
   {
-    icon: Lightbulb,
-    title: "Curiosity Driven",
-    description:
-      "We stay close to new tools and techniques, but only adopt what genuinely serves the product.",
+    icon: Users,
+    title: "Direct Access to Engineers",
+    description: "You talk to the people actually building your product, not just account managers.",
+  },
+  {
+    icon: MessageSquare,
+    title: "Clear Communication",
+    description: "No jargon-heavy proposals — just a straightforward conversation about your goals.",
   },
   {
     icon: ShieldCheck,
-    title: "Ownership Mindset",
-    description:
-      "We treat every project like it's our own product, not just a ticket to close.",
-  },
-  {
-    icon: Heart,
-    title: "People First",
-    description:
-      "Good software comes from good collaboration — with clients, and with each other.",
+    title: "No-Pressure Consultation",
+    description: "Your first conversation with us is about understanding your needs, not a sales pitch.",
   },
 ];
 
-export default function Values() {
+export default function WhyWorkWithUs() {
   return (
-    <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-white py-10 lg:py-14">
+    <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-white py-6 lg:py-8">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 right-1/4 h-72 w-72 rounded-full bg-[#f7941e]/8 blur-[110px]" />
-        <div className="absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-[#1f4693]/8 blur-[110px]" />
+        <div className="absolute -top-24 right-1/3 h-72 w-72 rounded-full bg-[#1f4693]/8 blur-[110px]" />
+        <div className="absolute -bottom-24 left-1/3 h-72 w-72 rounded-full bg-[#f7941e]/8 blur-[110px]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <span className="text-sm font-bold tracking-[0.2em] text-[#f7941e] uppercase">
-            Our Values
+            Why Work With Us
           </span>
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#2b303b] sm:text-4xl">
-            What guides how we work
+            What happens after you hit send
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-[#676b7a]">
-            These aren&apos;t words on a wall — they shape how we scope
-            projects, write code, and talk to clients every day.
+            Reaching out shouldn&apos;t feel like a black box. Here&apos;s what
+            to expect.
           </p>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {VALUES.map(({ icon: Icon, title, description }) => (
+        <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {REASONS.map(({ icon: Icon, title, description }) => (
             <div
               key={title}
               className="group relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white/80 to-[#f7941e]/[0.03] p-6 shadow-md shadow-[#1f4693]/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:border-transparent hover:shadow-xl hover:shadow-[#f7941e]/10"

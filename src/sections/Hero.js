@@ -110,10 +110,9 @@ export default function Hero() {
             />
           </div>
         ))}
-        {/* Dark gradient + brand-color wash for text readability */}
-        <div className="absolute inset-0 bg-[#0b0e17]/45" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0b0e17]/90 via-[#0b0e17]/50 to-[#0b0e17]/30" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0b0e17]/80 via-transparent to-[#0b0e17]/30" />
+        {/* Dark gradient wash for text readability */}
+        <div className="absolute inset-0 bg-[#0b0e17]/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0b0e17]/90 via-[#0b0e17]/20 to-transparent" />
       </div>
 
       {/* Soft brand glow accents on top of the image */}
@@ -122,7 +121,7 @@ export default function Hero() {
         <div className="absolute -bottom-40 right-1/3 h-[24rem] w-[24rem] rounded-full bg-[#de9a3a] opacity-[0.1] blur-[110px]" />
       </div>
 
-      <div className="relative mx-auto flex min-h-[70vh] max-w-5xl flex-col items-center justify-center px-6 pt-10 pb-16 text-center sm:min-h-[75vh] sm:pt-12 sm:pb-20 lg:px-8 lg:min-h-[80vh] lg:pt-16 lg:pb-24">
+      <div className="relative mx-auto flex min-h-[56vh] max-w-5xl flex-col items-center justify-center px-6 pt-6 pb-16 text-center sm:min-h-[60vh] sm:pt-8 sm:pb-20 lg:px-8 lg:min-h-[64vh] lg:pt-10 lg:pb-24">
         {/* Trust badge pills */}
         <div className="flex flex-wrap items-center justify-center gap-3">
           {BADGES.map(({ icon: Icon, label }) => (

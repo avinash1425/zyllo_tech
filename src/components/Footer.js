@@ -50,13 +50,13 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative overflow-hidden border-t border-white/10 bg-[#1f4693] text-neutral-100 backdrop-blur-xl">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/25 via-black/10 to-transparent"
-      />
-      <div className="relative mx-auto max-w-7xl px-6 py-16 lg:px-8">
-        <div className="grid grid-cols-1 gap-y-14 sm:grid-cols-2 sm:gap-x-10 lg:grid-cols-[1.3fr_1fr_1fr_1fr] lg:gap-x-8">
+    <footer className="relative overflow-hidden border-t border-white/10 bg-[#0b0e17] text-neutral-100">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-32 left-1/4 h-80 w-80 rounded-full bg-[#f7941e] opacity-[0.08] blur-[120px]" />
+        <div className="absolute -bottom-32 right-1/4 h-80 w-80 rounded-full bg-[#1f4693] opacity-25 blur-[120px]" />
+      </div>
+      <div className="relative mx-auto max-w-7xl px-6 py-10 lg:px-8">
+        <div className="grid grid-cols-1 gap-y-10 sm:grid-cols-2 sm:gap-x-10 lg:grid-cols-[1.3fr_1fr_1fr_1fr] lg:gap-x-8">
           <div>
             <div className="-ml-3 inline-flex items-center rounded-lg bg-white px-4 py-2.5">
               <Image
@@ -67,16 +67,16 @@ export default function Footer() {
                 className="h-9 w-auto"
               />
             </div>
-            <p className="mt-4 max-w-xs text-base leading-relaxed text-neutral-300">
+            <p className="mt-3 max-w-xs text-base leading-relaxed text-neutral-300">
               Transforming Ideas into Powerful Digital Solutions
             </p>
-            <ul className="mt-6 flex items-center gap-4">
+            <ul className="mt-4 flex items-center gap-4">
               {SOCIAL_LINKS.map((social) => (
                 <li key={social.label}>
                   <a
                     href={social.href}
                     aria-label={social.label}
-                    className="flex h-10 w-10 items-center justify-center rounded-md border border-white/10 bg-white/5 text-neutral-300 backdrop-blur-sm transition-colors hover:bg-white/10 hover:text-white"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-neutral-300 backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-[#f7941e]/30 hover:bg-white/10 hover:text-[#f7941e]"
                   >
                     <svg
                       className="h-5 w-5"
@@ -96,7 +96,7 @@ export default function Footer() {
             <h3 className="relative inline-block pb-3 text-base font-semibold text-white after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-8 after:rounded-full after:bg-[#f7941e]">
               Company
             </h3>
-            <ul className="mt-5 space-y-4 text-base">
+            <ul className="mt-3 space-y-2.5 text-base">
               {COMPANY_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
@@ -114,7 +114,7 @@ export default function Footer() {
             <h3 className="relative inline-block pb-3 text-base font-semibold text-white after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-8 after:rounded-full after:bg-[#f7941e]">
               Explore
             </h3>
-            <ul className="mt-5 space-y-4 text-base">
+            <ul className="mt-3 space-y-2.5 text-base">
               {EXPLORE_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
@@ -132,21 +132,21 @@ export default function Footer() {
             <h3 className="relative inline-block pb-3 text-base font-semibold text-white after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-8 after:rounded-full after:bg-[#f7941e]">
               Contact Us
             </h3>
-            <div className="mt-5 flex flex-col gap-4 text-base text-neutral-300">
+            <div className="mt-3 flex flex-col gap-3 text-base text-neutral-300">
               <div className="flex items-center gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br from-[#f7941e]/10 to-[#1f4693]/10 backdrop-blur-md">
                   <Mail className="h-4 w-4 text-[#f7941e]" aria-hidden="true" />
                 </span>
                 <span>info@zyllotech.com</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br from-[#f7941e]/10 to-[#1f4693]/10 backdrop-blur-md">
                   <Phone className="h-4 w-4 text-[#f7941e]" aria-hidden="true" />
                 </span>
                 <span>+91 70757 73680</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br from-[#f7941e]/10 to-[#1f4693]/10 backdrop-blur-md">
                   <MapPin className="h-4 w-4 text-[#f7941e]" aria-hidden="true" />
                 </span>
                 <span>India</span>
@@ -172,7 +172,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
+        <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row">
           <p className="text-sm text-neutral-400">
             © {year} Zyllo Tech. All rights reserved.
           </p>

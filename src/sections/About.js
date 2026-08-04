@@ -69,9 +69,13 @@ export default function About() {
               {HIGHLIGHTS.map(({ icon: Icon, label, description }) => (
                 <div
                   key={label}
-                  className="flex items-start gap-4 rounded-xl border border-white/60 bg-white/60 p-4 shadow-sm backdrop-blur-md transition-shadow duration-300 hover:shadow-md"
+                  className="group relative flex items-start gap-4 overflow-hidden rounded-xl border border-white/70 bg-gradient-to-br from-white/85 to-[#f7941e]/[0.03] p-4 shadow-md shadow-[#1f4693]/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-transparent hover:shadow-lg hover:shadow-[#f7941e]/10"
                 >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#f7941e]/15 to-[#1f4693]/15">
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-y-0 left-0 w-1 scale-y-50 bg-gradient-to-b from-[#f7941e] to-[#1f4693] opacity-40 transition-all duration-300 group-hover:scale-y-100 group-hover:opacity-100"
+                  />
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/70 bg-gradient-to-br from-[#f7941e]/20 to-[#1f4693]/20 shadow-md shadow-[#f7941e]/10 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
                     <Icon className="h-5 w-5 text-[#f7941e]" aria-hidden="true" />
                   </span>
                   <div>

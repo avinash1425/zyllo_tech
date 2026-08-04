@@ -1,53 +1,47 @@
 "use client";
 
-import { Headset, Rocket, ShieldCheck, Sparkles, Target, Users } from "lucide-react";
+import { Compass, Heart, Rocket, ShieldCheck, Sparkles, Users } from "lucide-react";
 
 const REASONS = [
   {
-    number: "01",
-    icon: ShieldCheck,
-    title: "Quality Assurance",
+    icon: Compass,
+    title: "Real Ownership",
     description:
-      "Every release goes through rigorous testing and code review before it reaches production.",
+      "You'll own features end to end, not just tickets. Your decisions shape the product.",
   },
   {
-    number: "02",
     icon: Rocket,
-    title: "Fast Delivery",
+    title: "Fast-Moving Teams",
     description:
-      "Agile sprints and clear milestones keep your project moving without sacrificing quality.",
+      "Small, focused teams that ship often — no layers of approval slowing you down.",
   },
   {
-    number: "03",
-    icon: Users,
-    title: "Expert Team",
-    description:
-      "Experienced engineers, designers, and architects who've shipped products at scale.",
-  },
-  {
-    number: "04",
-    icon: Headset,
-    title: "Dedicated Support",
-    description:
-      "Ongoing monitoring and responsive support long after your product goes live.",
-  },
-  {
-    number: "05",
     icon: Sparkles,
-    title: "Innovation Driven",
+    title: "Modern Tech Stack",
     description:
-      "We stay ahead of the curve with AI, cloud-native architecture, and modern tooling.",
+      "Work with the tools and technologies actively used by the industry today, not legacy systems.",
   },
   {
-    number: "06",
-    icon: Target,
-    title: "Business Aligned",
+    icon: Users,
+    title: "Direct Mentorship",
     description:
-      "Every technical decision is tied back to measurable outcomes for your business.",
+      "Learn from senior engineers and designers who are genuinely invested in your growth.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Stability & Trust",
+    description:
+      "A growing company with steady client relationships, not chasing short-term contracts.",
+  },
+  {
+    icon: Heart,
+    title: "People-First Culture",
+    description:
+      "Flexible schedules and a team that respects work-life balance, not just says it does.",
   },
 ];
 
-export default function WhyChooseUs() {
+export default function WhyJoinZyllo() {
   return (
     <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-[#fafbfc] py-6 lg:py-8">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
@@ -58,16 +52,16 @@ export default function WhyChooseUs() {
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <span className="text-sm font-bold tracking-[0.2em] text-[#f7941e] uppercase">
-            Our Advantages
+            Why Join Zyllo Tech
           </span>
 
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#2b303b] sm:text-4xl">
-            Why Industry Leaders Choose Zyllo Tech
+            Build your career somewhere that means it
           </h2>
 
           <p className="mt-4 text-lg leading-relaxed text-[#676b7a]">
-            Experience the difference that comes from partnering with a
-            trusted, results-driven technology team.
+            We're small enough that your work matters, and serious enough
+            that you'll grow doing it.
           </p>
         </div>
 
@@ -75,7 +69,7 @@ export default function WhyChooseUs() {
           {REASONS.map(({ icon: Icon, title, description }) => (
             <div
               key={title}
-              className="advantage-card group relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white/80 to-[#f7941e]/[0.03] p-7 shadow-md shadow-[#1f4693]/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:border-transparent hover:shadow-xl hover:shadow-[#f7941e]/10"
+              className="group relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white/80 to-[#f7941e]/[0.03] p-7 shadow-md shadow-[#1f4693]/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:border-transparent hover:shadow-xl hover:shadow-[#f7941e]/10"
             >
               <span
                 aria-hidden="true"
@@ -84,11 +78,6 @@ export default function WhyChooseUs() {
               <div
                 aria-hidden="true"
                 className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-gradient-to-br from-[#f7941e]/10 to-[#1f4693]/10 opacity-40 blur-2xl transition-opacity duration-300 group-hover:opacity-100"
-              />
-
-              <Icon
-                className="pointer-events-none absolute -bottom-4 -right-4 h-28 w-28 text-[#1f4693]/[0.04] transition-all duration-300 group-hover:scale-110 group-hover:text-[#f7941e]/[0.08]"
-                aria-hidden="true"
               />
 
               <div className="relative flex h-12 w-12 items-center justify-center rounded-xl border border-white/70 bg-gradient-to-br from-[#f7941e]/20 to-[#1f4693]/20 shadow-md shadow-[#f7941e]/10 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">

@@ -22,7 +22,7 @@ const CONTACT_METHODS = [
   },
 ];
 
-export default function ContactCTA() {
+export default function TalentNetworkCTA() {
   return (
     <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-gradient-to-br from-[#fff7ef] via-white to-[#eef2fa] py-6 lg:py-8">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
@@ -33,11 +33,11 @@ export default function ContactCTA() {
       <div className="relative mx-auto max-w-4xl px-6 text-center lg:px-8">
         <div className="rounded-[28px] border border-white/60 bg-white/60 p-10 shadow-xl backdrop-blur-xl sm:p-14">
           <h2 className="text-3xl font-bold tracking-tight text-[#2b303b] sm:text-4xl">
-            Have a project in mind? Let&apos;s talk.
+            Don&apos;t see the right role? Join our talent network.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-[#676b7a]">
-            Tell us what you&apos;re building and we&apos;ll get back to you
-            within one business day.
+            Send us your resume and we&apos;ll reach out when a role that
+            fits opens up.
           </p>
 
           <div className="mt-8">
@@ -45,7 +45,7 @@ export default function ContactCTA() {
               href="/contact"
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#f7941e] px-8 py-4 text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(247,148,30,0.35),0_8px_10px_-6px_rgba(247,148,30,0.35)] transition-transform duration-150 hover:-translate-y-0.5 hover:bg-[#db7d17]"
             >
-              Start Your Project
+              Join Talent Network
             </Link>
           </div>
 

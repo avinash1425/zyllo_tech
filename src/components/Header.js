@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const NAV_LINKS = [
@@ -20,8 +21,14 @@ const UTILITY_LINKS = [
 ];
 
 export default function Header() {
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  function isActive(href) {
+    if (href === "/") return pathname === "/";
+    return pathname === href || pathname.startsWith(`${href}/`);
+  }
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 8);
@@ -42,7 +49,9 @@ export default function Header() {
             <Link
               key={link.href}
               href={link.href}
-              className="transition-colors hover:text-[#f7941e]"
+              className={`inline-block transition-all duration-200 hover:scale-110 hover:text-[#f7941e] ${
+                isActive(link.href) ? "text-[#f7941e]" : ""
+              }`}
             >
               {link.label}
             </Link>
@@ -73,7 +82,11 @@ export default function Header() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="transition-colors hover:text-[#f7941e]"
+                    className={`relative inline-block pb-1 transition-all duration-200 hover:scale-110 hover:text-[#f7941e] ${
+                      isActive(link.href)
+                        ? "text-[#f7941e] after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:rounded-full after:bg-[#f7941e]"
+                        : ""
+                    }`}
                   >
                     {link.label}
                   </Link>
@@ -84,7 +97,7 @@ export default function Header() {
 
           <Link
             href="/contact"
-            className="shrink-0 rounded-lg bg-[#f7941e] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#db7d17] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f7941e]"
+            className="shrink-0 rounded-lg bg-[#f7941e] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:scale-110 hover:bg-[#db7d17] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f7941e]"
           >
             Contact Us
           </Link>
@@ -130,7 +143,9 @@ export default function Header() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="block rounded-md px-3 py-2.5 transition-colors hover:bg-neutral-100 hover:text-[#f7941e]"
+                  className={`block rounded-md px-3 py-2.5 transition-colors hover:bg-neutral-100 hover:text-[#f7941e] ${
+                    isActive(link.href) ? "bg-[#f7941e]/10 text-[#f7941e]" : ""
+                  }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {link.label}
@@ -144,7 +159,9 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="block rounded-md px-3 py-2.5 transition-colors hover:bg-neutral-100 hover:text-[#f7941e]"
+                className={`block rounded-md px-3 py-2.5 transition-colors hover:bg-neutral-100 hover:text-[#f7941e] ${
+                  isActive(link.href) ? "bg-[#f7941e]/10 text-[#f7941e]" : ""
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 {link.label}

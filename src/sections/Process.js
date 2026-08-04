@@ -42,7 +42,7 @@ const STEPS = [
 
 export default function Process() {
   return (
-    <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-white py-10 lg:py-14">
+    <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-white py-6 lg:py-8">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute top-1/2 left-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-[#f7941e]/5 to-[#1f4693]/5 blur-[120px]" />
       </div>
@@ -63,7 +63,7 @@ export default function Process() {
           </p>
         </div>
 
-        <div className="relative mt-16">
+        <div className="relative mt-8">
           <div
             aria-hidden="true"
             className="absolute left-0 right-0 top-6 hidden h-px bg-gradient-to-r from-transparent via-[#e7e9ee] to-transparent lg:block"

@@ -76,9 +76,15 @@ const INDUSTRIES = [
   },
 ];
 
-export default function Industries() {
+export default function Industries({
+  tint = "white",
+  eyebrow = "Industries We Serve",
+  heading = "Whatever your industry, we've likely solved something like it",
+  description = "Every industry has its own constraints. We bring the right experience to yours.",
+}) {
+  const bg = tint === "tint" ? "bg-[#fafbfc]" : "bg-white";
   return (
-    <section className="relative overflow-hidden bg-[#fafbfc] py-12 lg:py-16">
+    <section className={`relative overflow-hidden border-t border-[#e7e9ee] ${bg} py-8 lg:py-10`}>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-[#1f4693]/8 blur-[110px]" />
         <div className="absolute -bottom-24 right-1/4 h-72 w-72 rounded-full bg-[#f7941e]/8 blur-[110px]" />
@@ -87,21 +93,20 @@ export default function Industries() {
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <span className="text-sm font-bold tracking-[0.2em] text-[#f7941e] uppercase">
-            Industries We Serve
+            {eyebrow}
           </span>
 
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#2b303b] sm:text-4xl">
-            Whatever your industry, we&apos;ve likely solved something like it
+            {heading}
           </h2>
 
           <p className="mt-4 text-lg leading-relaxed text-[#676b7a]">
-            Every industry has its own constraints. We bring the right
-            experience to yours.
+            {description}
           </p>
         </div>
       </div>
 
-      <div className="marquee-mask relative mt-12 overflow-hidden">
+      <div className="marquee-mask relative mt-8 overflow-hidden">
         <div className="marquee-track flex w-max gap-6 px-6">
           {[...INDUSTRIES, ...INDUSTRIES].map((industry, index) => (
             <Link

@@ -5,17 +5,30 @@ import WhyChooseUs from "@/sections/WhyChooseUs";
 import Process from "@/sections/Process";
 import Industries from "@/sections/Industries";
 import ContactCTA from "@/sections/ContactCTA";
+import Reveal from "@/components/Reveal";
 
 export default function Home() {
   return (
     <>
       <Hero />
-      <About />
-      <Services />
-      <WhyChooseUs />
-      <Process />
-      <Industries />
-      <ContactCTA />
+      <Reveal>
+        <About />
+      </Reveal>
+      <Reveal>
+        <Services />
+      </Reveal>
+      <Reveal>
+        <WhyChooseUs />
+      </Reveal>
+      <Reveal>
+        <Process />
+      </Reveal>
+      <Reveal>
+        <Industries tint="tint" />
+      </Reveal>
+      <Reveal>
+        <ContactCTA />
+      </Reveal>
     </>
   );
 }
