@@ -1,10 +1,7 @@
 import PageHero from "@/components/PageHero";
+import WhatWeBelieve from "@/sections/WhatWeBelieve";
 import ServiceGrid from "@/sections/ServiceGrid";
-import Process from "@/sections/Process";
-import Technologies from "@/sections/Technologies";
-import WhyChooseUs from "@/sections/WhyChooseUs";
-import Industries from "@/sections/Industries";
-import ContactCTA from "@/sections/ContactCTA";
+import BetterTogether from "@/sections/BetterTogether";
 import Reveal from "@/components/Reveal";
 
 export const metadata = {
@@ -24,22 +21,13 @@ export default function ServicesPage() {
         imageAlt="Developer working on web application code"
       />
       <Reveal>
+        <WhatWeBelieve />
+      </Reveal>
+      <Reveal>
         <ServiceGrid />
       </Reveal>
       <Reveal>
-        <Process />
-      </Reveal>
-      <Reveal>
-        <Technologies />
-      </Reveal>
-      <Reveal>
-        <WhyChooseUs />
-      </Reveal>
-      <Reveal>
-        <Industries />
-      </Reveal>
-      <Reveal>
-        <ContactCTA />
+        <BetterTogether />
       </Reveal>
     </>
   );

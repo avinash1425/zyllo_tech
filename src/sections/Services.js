@@ -1,153 +1,93 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import { Code2, Smartphone, Cloud, Sparkles, ArrowRight } from "lucide-react";
 
-const SERVICES = [
+const FEATURED_SERVICES = [
   {
-    image: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&q=80",
-    title: "Product Strategy & Consulting",
-    description:
-      "Discovery workshops, technical feasibility studies, MVP scoping, and roadmap planning to turn ideas into a clear path to build.",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=800&q=80",
+    slug: "web-development",
+    icon: Code2,
     title: "Web Development",
-    description:
-      "Modern, responsive and scalable web applications built with the latest technologies.",
+    items: ["Custom Websites", "Web Applications", "E-Commerce Builds"],
   },
   {
-    image: "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&q=80",
-    title: "Mobile App Development",
-    description:
-      "Native and cross platform mobile applications designed for exceptional user experiences.",
+    slug: "mobile-app-development",
+    icon: Smartphone,
+    title: "Mobile Apps",
+    items: ["iOS & Android", "Cross-Platform Apps", "App Store Launch"],
   },
   {
-    image: "https://images.unsplash.com/photo-1559028006-448665bd7c7f?w=800&q=80",
-    title: "UI/UX Design",
-    description:
-      "Beautiful interfaces focused on usability, accessibility and business growth.",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&q=80",
+    slug: "cloud-solutions",
+    icon: Cloud,
     title: "Cloud Solutions",
-    description:
-      "Secure cloud infrastructure, deployment and scalable backend architecture.",
+    items: ["Infrastructure Setup", "CI/CD Pipelines", "24/7 Monitoring"],
   },
   {
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80",
-    title: "AI Solutions",
-    description:
-      "Intelligent AI powered applications and automation that improve productivity.",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80",
-    title: "Maintenance & Support",
-    description:
-      "Continuous monitoring, maintenance and technical support for your applications.",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&q=80",
-    title: "Cybersecurity Engineering",
-    description:
-      "Security-first delivery with OWASP-aligned practices, threat modeling, vulnerability management, and compliance-ready controls.",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1516110833967-0b5716ca1387?w=800&q=80",
-    title: "Quality Engineering & QA",
-    description:
-      "Automated test suites, shift-left testing, performance validation, and structured QA processes across web, mobile, and APIs.",
+    slug: "ai-solutions",
+    icon: Sparkles,
+    title: "AI & Automation",
+    items: ["Workflow Automation", "AI Copilots", "Process Optimization"],
   },
 ];
 
-function ServiceCard({ image, title, description }) {
-  return (
-    <Link
-      href="/services"
-      className="group relative h-56 w-72 shrink-0 overflow-hidden rounded-2xl shadow-sm transition-shadow duration-300 hover:shadow-lg sm:w-80"
-    >
-      <Image
-        src={image}
-        alt={title}
-        fill
-        sizes="320px"
-        className="object-cover transition-transform duration-500 group-hover:scale-105"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 p-5">
-        <h3 className="text-lg font-semibold text-white">{title}</h3>
-        <p className="mt-1 line-clamp-2 text-sm text-white/80">{description}</p>
-      </div>
-    </Link>
-  );
-}
-
 export default function Services() {
   return (
-    <section className="relative overflow-hidden bg-white py-12 lg:py-16">
+    <section className="relative overflow-hidden bg-[#fafbfc] py-10 lg:py-14">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute top-0 right-1/3 h-72 w-72 rounded-full bg-[#f7941e]/8 blur-[110px]" />
-        <div className="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-[#1f4693]/8 blur-[110px]" />
+        <div className="absolute -top-24 right-1/4 h-80 w-80 rounded-full bg-[#1f4693]/8 blur-[110px]" />
+        <div className="absolute -bottom-24 left-1/4 h-80 w-80 rounded-full bg-[#f7941e]/8 blur-[110px]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-bold tracking-[0.2em] text-[#f7941e] uppercase">
-            What We Build
-          </span>
+        <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
+          <div>
+            <span className="text-sm font-bold tracking-[0.2em] text-[#1f4693] uppercase">
+              What We Do
+            </span>
+            <h2 className="mt-4 max-w-xl text-3xl font-bold tracking-tight text-[#2b303b] sm:text-4xl">
+              We can help your business scale and leverage technology
+            </h2>
+          </div>
 
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#2b303b] sm:text-4xl">
-            Building Digital Experiences That Drive Business Growth
-          </h2>
-
-          <p className="mt-4 text-lg leading-relaxed text-[#676b7a]">
-            We create scalable digital solutions that help businesses
-            innovate, streamline operations, and deliver exceptional customer
-            experiences.
-          </p>
+          <Link
+            href="/services"
+            className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[#2b303b]/15 px-5 py-2.5 text-sm font-semibold text-[#2b303b] transition-all duration-200 hover:border-[#f7941e] hover:text-[#f7941e]"
+          >
+            Explore Our Solutions
+            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </Link>
         </div>
-      </div>
 
-      <div className="marquee-mask relative mt-12 overflow-hidden">
-        <div className="marquee-track flex w-max gap-6 px-6">
-          {[...SERVICES, ...SERVICES].map((service, index) => (
-            <ServiceCard key={`${service.title}-${index}`} {...service} />
+        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {FEATURED_SERVICES.map(({ slug, icon: Icon, title, items }) => (
+            <Link
+              key={slug}
+              href={`/services/${slug}`}
+              className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/60 bg-white/50 p-6 text-[#2b303b] shadow-md shadow-[#1f4693]/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:border-transparent hover:bg-[#1f4693] hover:text-white hover:shadow-xl hover:shadow-[#1f4693]/25"
+            >
+              <span className="flex h-11 w-11 items-center justify-center rounded-full border border-[#2b303b]/15 backdrop-blur-sm transition-all duration-300 group-hover:-rotate-6 group-hover:scale-110 group-hover:border-white/30">
+                <Icon
+                  className="h-5 w-5 text-[#2b303b] transition-colors duration-300 group-hover:text-white"
+                  aria-hidden="true"
+                />
+              </span>
+
+              <h3 className="mt-6 text-lg font-semibold">{title}</h3>
+
+              <ul className="mt-3 flex flex-col gap-1.5">
+                {items.map((item) => (
+                  <li
+                    key={item}
+                    className="text-sm leading-relaxed text-[#676b7a] transition-colors duration-300 group-hover:text-white/75"
+                  >
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </Link>
           ))}
         </div>
       </div>
-
-      <style jsx>{`
-        .marquee-mask {
-          -webkit-mask-image: linear-gradient(
-            to right,
-            transparent,
-            black 5%,
-            black 95%,
-            transparent
-          );
-          mask-image: linear-gradient(
-            to right,
-            transparent,
-            black 5%,
-            black 95%,
-            transparent
-          );
-        }
-        .marquee-track {
-          animation: marqueeScroll 50s linear infinite;
-        }
-        .marquee-mask:hover .marquee-track {
-          animation-play-state: paused;
-        }
-        @keyframes marqueeScroll {
-          from {
-            transform: translateX(0);
-          }
-          to {
-            transform: translateX(-50%);
-          }
-        }
-      `}</style>
     </section>
   );
 }

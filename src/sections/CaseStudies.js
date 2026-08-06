@@ -1,52 +1,26 @@
 import Image from "next/image";
-import { CircleDot, Lightbulb, TrendingUp } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, CircleDot, Lightbulb, TrendingUp } from "lucide-react";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-const CASES = [
-  {
-    tag: "E-commerce & Retail",
-    title: "Bringing inventory and orders into one system",
-    challenge:
-      "A growing retail brand was managing inventory across spreadsheets and disconnected tools, causing stock errors and delayed shipments.",
-    solution:
-      "We built a unified platform connecting their storefront, warehouse, and courier partners into one real-time system.",
-    result:
-      "Order processing became faster and more accurate, with stock discrepancies largely eliminated.",
-    image: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=900&q=80",
-  },
-  {
-    tag: "Healthcare",
-    title: "Launching a compliant telehealth platform",
-    challenge:
-      "An early-stage healthcare startup needed a HIPAA-aligned telehealth platform but had no in-house engineering team.",
-    solution:
-      "We scoped, designed, and built the full platform — video consultations, scheduling, and secure records — as their embedded technical team.",
-    result:
-      "The platform launched on schedule and passed its compliance review on the first attempt.",
-    image: "https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=900&q=80",
-  },
-  {
-    tag: "Finance & Fintech",
-    title: "Modernizing a legacy transaction system",
-    challenge:
-      "A fintech company was running critical transaction processing on an aging system that was difficult to scale and audit.",
-    solution:
-      "We re-architected the core system incrementally, adding monitoring and audit trails without disrupting live operations.",
-    result:
-      "The platform now handles higher transaction volume with clear visibility into every step.",
-    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=900&q=80",
-  },
-  {
-    tag: "Manufacturing",
-    title: "Connecting the shop floor to the front office",
-    challenge:
-      "A manufacturer's production data lived in isolated machines and paper logs, disconnected from planning and sales teams.",
-    solution:
-      "We built an operational dashboard that pulled real-time data from the factory floor into a single reporting layer.",
-    result:
-      "Leadership gained real-time visibility into production, reducing planning delays across teams.",
-    image: "https://images.unsplash.com/photo-1565043666747-69f6646db940?w=900&q=80",
-  },
-];
+async function getCaseStudies() {
+  const supabase = createServerSupabaseClient();
+  const { data, error } = await supabase
+    .from("portfolio_projects")
+    .select("id, title, tag, image_url, challenge, solution, result")
+    .eq("status", "published")
+    .not("challenge", "is", null)
+    .not("solution", "is", null)
+    .not("result", "is", null)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Failed to load case studies:", error.message);
+    return [];
+  }
+
+  return data ?? [];
+}
 
 const FLOW = [
   { key: "challenge", label: "Challenge", icon: CircleDot },
@@ -54,7 +28,9 @@ const FLOW = [
   { key: "result", label: "Result", icon: TrendingUp },
 ];
 
-export default function CaseStudies() {
+export default async function CaseStudies() {
+  const cases = await getCaseStudies();
+
   return (
     <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-white py-6 lg:py-8">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
@@ -76,12 +52,31 @@ export default function CaseStudies() {
           </p>
         </div>
 
+        {cases.length === 0 ? (
+          <div className="mx-auto mt-8 flex max-w-lg flex-col items-center rounded-2xl border border-[#e7e9ee] bg-[#fafbfc] p-10 text-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#f7941e]/15 to-[#1f4693]/15">
+              <Lightbulb className="h-5.5 w-5.5 text-[#f7941e]" aria-hidden="true" />
+            </span>
+            <p className="mt-4 text-base text-[#676b7a]">
+              We&apos;re documenting detailed case studies from recent
+              engagements — check back soon, or ask us directly about a
+              project similar to yours.
+            </p>
+            <Link
+              href="/contact"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#f7941e] transition-colors duration-200 hover:text-[#db7d17]"
+            >
+              Get in touch
+              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </Link>
+          </div>
+        ) : (
         <div className="mt-10 flex flex-col gap-14 lg:gap-20">
-          {CASES.map((item, index) => {
+          {cases.map((item, index) => {
             const imageFirst = index % 2 === 1;
             return (
               <div
-                key={item.title}
+                key={item.id}
                 className={`flex flex-col items-center gap-8 lg:items-stretch lg:gap-14 ${
                   imageFirst ? "lg:flex-row-reverse" : "lg:flex-row"
                 }`}
@@ -91,14 +86,16 @@ export default function CaseStudies() {
                     aria-hidden="true"
                     className="absolute -inset-3 -z-10 rounded-[28px] bg-gradient-to-br from-[#f7941e]/15 to-[#1f4693]/15 blur-xl"
                   />
-                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-white/60 shadow-xl">
-                    <Image
-                      src={item.image}
-                      alt={item.tag}
-                      fill
-                      sizes="(min-width: 1024px) 42vw, 100vw"
-                      className="object-cover"
-                    />
+                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-white/60 bg-[#f5f6f8] shadow-xl">
+                    {item.image_url && (
+                      <Image
+                        src={item.image_url}
+                        alt={item.tag}
+                        fill
+                        sizes="(min-width: 1024px) 42vw, 100vw"
+                        className="object-cover"
+                      />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                     <span className="absolute bottom-4 left-4 inline-flex items-center rounded-full bg-white/90 px-3.5 py-1.5 text-xs font-bold tracking-[0.15em] text-[#f7941e] uppercase backdrop-blur-sm">
                       {item.tag}
@@ -152,6 +149,7 @@ export default function CaseStudies() {
             );
           })}
         </div>
+        )}
       </div>
     </section>
   );

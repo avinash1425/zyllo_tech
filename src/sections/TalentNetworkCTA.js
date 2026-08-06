@@ -43,7 +43,7 @@ export default function TalentNetworkCTA() {
           <div className="mt-8">
             <Link
               href="/contact"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#f7941e] px-8 py-4 text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(247,148,30,0.35),0_8px_10px_-6px_rgba(247,148,30,0.35)] transition-transform duration-150 hover:-translate-y-0.5 hover:bg-[#db7d17]"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#f7941e] px-8 py-4 text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(247,148,30,0.35),0_8px_10px_-6px_rgba(247,148,30,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-[#db7d17]"
             >
               Join Talent Network
             </Link>

@@ -61,29 +61,36 @@ export default function About() {
               in a rapidly evolving digital world.
             </p>
 
-            <p className="mt-8 text-sm font-bold tracking-[0.2em] text-[#f7941e] uppercase">
+            <p className="mt-8 text-sm font-bold tracking-[0.2em] text-[#1f4693] uppercase">
               What Sets Us Apart
             </p>
 
             <div className="mt-4 flex flex-col gap-4">
-              {HIGHLIGHTS.map(({ icon: Icon, label, description }) => (
-                <div
-                  key={label}
-                  className="group relative flex items-start gap-4 overflow-hidden rounded-xl border border-white/70 bg-gradient-to-br from-white/85 to-[#f7941e]/[0.03] p-4 shadow-md shadow-[#1f4693]/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-transparent hover:shadow-lg hover:shadow-[#f7941e]/10"
-                >
-                  <span
-                    aria-hidden="true"
-                    className="absolute inset-y-0 left-0 w-1 scale-y-50 bg-gradient-to-b from-[#f7941e] to-[#1f4693] opacity-40 transition-all duration-300 group-hover:scale-y-100 group-hover:opacity-100"
-                  />
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/70 bg-gradient-to-br from-[#f7941e]/20 to-[#1f4693]/20 shadow-md shadow-[#f7941e]/10 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
-                    <Icon className="h-5 w-5 text-[#f7941e]" aria-hidden="true" />
-                  </span>
-                  <div>
-                    <p className="font-semibold text-[#2b303b]">{label}</p>
-                    <p className="mt-0.5 text-sm text-[#676b7a]">{description}</p>
+              {HIGHLIGHTS.map(({ icon: Icon, label, description }, index) => {
+                const accent = index % 2 === 0 ? "#f7941e" : "#1f4693";
+                return (
+                  <div
+                    key={label}
+                    className="group relative flex items-start gap-4 overflow-hidden rounded-xl border border-white/70 bg-gradient-to-br from-white/85 to-[#1f4693]/[0.03] p-4 shadow-md shadow-[#1f4693]/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-transparent hover:shadow-lg hover:shadow-[#1f4693]/10"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-y-0 left-0 w-1 scale-y-50 opacity-40 transition-all duration-300 group-hover:scale-y-100 group-hover:opacity-100"
+                      style={{ backgroundColor: accent }}
+                    />
+                    <span
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/70 shadow-md transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110"
+                      style={{ backgroundColor: `${accent}20` }}
+                    >
+                      <Icon className="h-5 w-5" style={{ color: accent }} aria-hidden="true" />
+                    </span>
+                    <div>
+                      <p className="font-semibold text-[#2b303b]">{label}</p>
+                      <p className="mt-0.5 text-sm text-[#676b7a]">{description}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

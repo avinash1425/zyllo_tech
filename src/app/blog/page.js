@@ -39,7 +39,11 @@ export default function BlogPage() {
         <Newsletter />
       </Reveal>
       <Reveal>
-        <ContactCTA />
+        <ContactCTA
+          heading="Have an idea after reading this?"
+          description="We'd love to hear about it. Tell us what you're thinking of building."
+          buttonLabel="Start The Conversation"
+        />
       </Reveal>
     </>
   );

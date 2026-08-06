@@ -1,10 +1,8 @@
 import PageHero from "@/components/PageHero";
 import OurStory from "@/sections/OurStory";
 import MissionVision from "@/sections/MissionVision";
-import WhyChooseUs from "@/sections/WhyChooseUs";
 import Values from "@/sections/Values";
 import Technologies from "@/sections/Technologies";
-import Process from "@/sections/Process";
 import ContactCTA from "@/sections/ContactCTA";
 import Reveal from "@/components/Reveal";
 
@@ -31,19 +29,16 @@ export default function AboutPage() {
         <MissionVision />
       </Reveal>
       <Reveal>
-        <WhyChooseUs />
-      </Reveal>
-      <Reveal>
         <Values />
       </Reveal>
       <Reveal>
         <Technologies />
       </Reveal>
       <Reveal>
-        <Process />
-      </Reveal>
-      <Reveal>
-        <ContactCTA />
+        <ContactCTA
+          heading="Like the way we think? Let's build something."
+          description="Tell us about your project and we'll get back to you within one business day."
+        />
       </Reveal>
     </>
   );

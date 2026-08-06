@@ -30,11 +30,11 @@ export default function Newsletter() {
               required
               placeholder="you@company.com"
               aria-label="Email address"
-              className="w-full flex-1 rounded-lg border border-[#e7e9ee] bg-white px-4 py-3 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-colors focus:border-[#f7941e]/60"
+              className="w-full flex-1 rounded-lg border border-[#e7e9ee] bg-white px-4 py-3 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-all duration-200 focus:border-[#f7941e]/60 focus:ring-4 focus:ring-[#f7941e]/10"
             />
             <button
               type="submit"
-              className="shrink-0 rounded-lg bg-[#f7941e] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#db7d17]"
+              className="shrink-0 rounded-full bg-[#f7941e] px-6 py-3 text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(247,148,30,0.35),0_8px_10px_-6px_rgba(247,148,30,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-[#db7d17]"
             >
               Subscribe
             </button>

@@ -2,7 +2,6 @@ import PageHero from "@/components/PageHero";
 import ContactInfo from "@/sections/ContactInfo";
 import ContactForm from "@/sections/ContactForm";
 import WhyWorkWithUs from "@/sections/WhyWorkWithUs";
-import ContactCTA from "@/sections/ContactCTA";
 import Reveal from "@/components/Reveal";
 
 export const metadata = {
@@ -29,9 +28,6 @@ export default function ContactPage() {
       </Reveal>
       <Reveal>
         <WhyWorkWithUs />
-      </Reveal>
-      <Reveal>
-        <ContactCTA />
       </Reveal>
     </>
   );

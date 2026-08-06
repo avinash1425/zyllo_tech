@@ -1,68 +1,11 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-
-const SERVICES = [
-  {
-    image: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&q=80",
-    title: "Product Strategy & Consulting",
-    description:
-      "Discovery workshops, feasibility studies, and roadmap planning to turn ideas into a clear path to build.",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=600&q=80",
-    title: "Web Development",
-    description:
-      "Modern, responsive web applications built for performance and built to handle growth.",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=600&q=80",
-    title: "Mobile App Development",
-    description:
-      "Native and cross-platform apps designed around how your users actually behave.",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1559028006-448665bd7c7f?w=600&q=80",
-    title: "UI/UX Design",
-    description:
-      "Interfaces designed around real usability testing, built to convert and easy to navigate.",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=600&q=80",
-    title: "Cloud Solutions",
-    description:
-      "Secure, scalable infrastructure so your application performs reliably as usage grows.",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&q=80",
-    title: "AI Solutions",
-    description:
-      "Practical AI features, copilots, and automation that solve real workflow problems — not novelty add-ons.",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&q=80",
-    title: "Maintenance & Support",
-    description:
-      "24/7 monitoring, bug fixes, and performance tuning that keep your product healthy long after launch.",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600&q=80",
-    title: "Cybersecurity Engineering",
-    description:
-      "Security-first delivery with OWASP-aligned practices and compliance-ready controls.",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1516110833967-0b5716ca1387?w=600&q=80",
-    title: "Quality Engineering & QA",
-    description:
-      "Automated testing and structured QA so issues get caught long before your users do.",
-  },
-];
+import { ArrowRight, MessageCircle } from "lucide-react";
+import { SERVICES } from "@/data/services";
 
 export default function ServiceGrid() {
   return (
-    <section className="relative overflow-hidden bg-[#fafbfc] py-10 lg:py-14">
+    <section id="services-grid" className="relative overflow-hidden bg-[#fafbfc] py-10 lg:py-14">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute -top-24 right-1/4 h-80 w-80 rounded-full bg-[#f7941e]/8 blur-[110px]" />
         <div className="absolute -bottom-24 left-1/4 h-80 w-80 rounded-full bg-[#1f4693]/8 blur-[110px]" />
@@ -81,65 +24,63 @@ export default function ServiceGrid() {
             of building and running modern software.
           </p>
         </div>
-      </div>
 
-      <div className="marquee-mask relative mt-12 overflow-hidden">
-        <div className="marquee-track flex w-max gap-6 px-6">
-          {[...SERVICES, ...SERVICES].map((service, index) => (
-            <Link
-              key={`${service.title}-${index}`}
-              href="/services"
-              className="group relative h-56 w-72 shrink-0 overflow-hidden rounded-2xl shadow-sm transition-shadow duration-300 hover:shadow-lg sm:w-80"
-            >
-              <Image
-                src={service.image}
-                alt={service.title}
-                fill
-                sizes="320px"
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-5">
-                <h3 className="text-lg font-semibold text-white">{service.title}</h3>
-                <p className="mt-1 text-sm text-white/80">{service.description}</p>
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {SERVICES.map((service) => {
+            const Icon = service.icon;
+            return (
+              <div
+                key={service.slug}
+                className="group flex flex-col overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+              >
+                <Link href={`/services/${service.slug}`} className="relative block h-44 w-full overflow-hidden">
+                  <Image
+                    src={service.image}
+                    alt={service.title}
+                    fill
+                    sizes="(min-width: 1024px) 380px, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-black/20" />
+                  <span className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm">
+                    <Icon className="h-4.5 w-4.5 text-[#f7941e]" aria-hidden="true" />
+                  </span>
+                </Link>
+
+                <div className="flex flex-1 flex-col p-5">
+                  <Link href={`/services/${service.slug}`}>
+                    <h3 className="text-lg font-semibold text-[#2b303b] transition-colors hover:text-[#f7941e]">
+                      {service.title}
+                    </h3>
+                  </Link>
+                  <p className="mt-1 text-sm font-semibold text-[#f7941e]">{service.tagline}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-[#676b7a]">
+                    {service.description}
+                  </p>
+
+                  <div className="mt-4 flex flex-1 flex-col justify-end gap-3">
+                    <Link
+                      href={`/services/${service.slug}`}
+                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#1f4693] transition-all duration-200 hover:gap-2.5"
+                    >
+                      Learn how we help
+                      <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                    </Link>
+
+                    <Link
+                      href="/contact"
+                      className="inline-flex items-center justify-center gap-2 rounded-full bg-[#f7941e] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-[#db7d17] hover:shadow-md hover:shadow-[#f7941e]/25"
+                    >
+                      <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                      Get In Touch
+                    </Link>
+                  </div>
+                </div>
               </div>
-            </Link>
-          ))}
+            );
+          })}
         </div>
       </div>
-
-      <style jsx>{`
-        .marquee-mask {
-          -webkit-mask-image: linear-gradient(
-            to right,
-            transparent,
-            black 5%,
-            black 95%,
-            transparent
-          );
-          mask-image: linear-gradient(
-            to right,
-            transparent,
-            black 5%,
-            black 95%,
-            transparent
-          );
-        }
-        .marquee-track {
-          animation: marqueeScroll 50s linear infinite;
-        }
-        .marquee-mask:hover .marquee-track {
-          animation-play-state: paused;
-        }
-        @keyframes marqueeScroll {
-          from {
-            transform: translateX(0);
-          }
-          to {
-            transform: translateX(-50%);
-          }
-        }
-      `}</style>
     </section>
   );
 }

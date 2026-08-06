@@ -42,7 +42,7 @@ const STEPS = [
 
 export default function Process() {
   return (
-    <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-white py-6 lg:py-8">
+    <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-[#fafbfc] py-10 lg:py-14">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute top-1/2 left-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-[#f7941e]/5 to-[#1f4693]/5 blur-[120px]" />
       </div>
@@ -63,31 +63,40 @@ export default function Process() {
           </p>
         </div>
 
-        <div className="relative mt-8">
-          <div
-            aria-hidden="true"
-            className="absolute left-0 right-0 top-6 hidden h-px bg-gradient-to-r from-transparent via-[#e7e9ee] to-transparent lg:block"
-          />
-          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-5 lg:gap-6">
-            {STEPS.map(({ number, icon: Icon, title, description }, index) => (
+        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
+          {STEPS.map(({ number, icon: Icon, title, description }, index) => {
+            const accent = index % 2 === 0 ? "#f7941e" : "#1f4693";
+            return (
               <div
                 key={number}
-                className="process-step relative flex flex-col items-center text-center"
+                className="process-step group relative overflow-hidden rounded-2xl border border-white/10 bg-[#0b0e17] p-6 shadow-lg shadow-black/10 transition-all duration-300 hover:-translate-y-1.5"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="relative flex h-12 w-12 items-center justify-center rounded-full border border-[#f7941e]/30 bg-white shadow-sm transition-transform duration-300 hover:scale-110">
-                  <Icon className="h-5 w-5 text-[#f7941e]" aria-hidden="true" />
+                <div
+                  aria-hidden="true"
+                  className="absolute -bottom-6 -right-4 text-7xl font-bold opacity-[0.06]"
+                  style={{ color: accent }}
+                >
+                  {number}
                 </div>
-                <span className="mt-4 text-xs font-bold tracking-widest text-[#2b303b]/30">
+
+                <div
+                  className="relative flex h-12 w-12 items-center justify-center rounded-xl shadow-md transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110"
+                  style={{ backgroundColor: `${accent}25` }}
+                >
+                  <Icon className="h-5.5 w-5.5" style={{ color: accent }} aria-hidden="true" />
+                </div>
+
+                <span className="relative mt-5 block text-xs font-bold tracking-widest text-white/30">
                   STEP {number}
                 </span>
-                <h3 className="mt-1.5 text-lg font-semibold text-[#2b303b]">{title}</h3>
-                <p className="mt-2 max-w-[220px] text-sm leading-relaxed text-[#676b7a]">
+                <h3 className="relative mt-1.5 text-lg font-semibold text-white">{title}</h3>
+                <p className="relative mt-2 text-sm leading-relaxed text-white/60">
                   {description}
                 </p>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </div>
 

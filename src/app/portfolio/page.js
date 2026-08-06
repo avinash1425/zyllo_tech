@@ -1,10 +1,6 @@
 import PageHero from "@/components/PageHero";
 import FeaturedProjects from "@/sections/FeaturedProjects";
-import CaseStudies from "@/sections/CaseStudies";
-import Technologies from "@/sections/Technologies";
 import Process from "@/sections/Process";
-import WhyChooseUs from "@/sections/WhyChooseUs";
-import ContactCTA from "@/sections/ContactCTA";
 import Reveal from "@/components/Reveal";
 
 export const metadata = {
@@ -27,19 +23,7 @@ export default function PortfolioPage() {
         <FeaturedProjects />
       </Reveal>
       <Reveal>
-        <CaseStudies />
-      </Reveal>
-      <Reveal>
-        <Technologies />
-      </Reveal>
-      <Reveal>
         <Process />
-      </Reveal>
-      <Reveal>
-        <WhyChooseUs />
-      </Reveal>
-      <Reveal>
-        <ContactCTA />
       </Reveal>
     </>
   );

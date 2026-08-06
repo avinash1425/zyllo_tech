@@ -4,6 +4,8 @@ import { usePathname } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import CookieConsent from "@/components/CookieConsent";
 
 export default function SiteChrome({ children }) {
   const pathname = usePathname();
@@ -19,6 +21,8 @@ export default function SiteChrome({ children }) {
       <Header />
       <main className="flex-1">{children}</main>
       <Footer />
+      <FloatingWhatsApp />
+      <CookieConsent />
     </>
   );
 }

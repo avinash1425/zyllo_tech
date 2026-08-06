@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState } from "react";
+import { submitContactForm } from "@/app/contact/actions";
 
 const SERVICES = [
   "Web Development",
@@ -15,13 +16,10 @@ const SERVICES = [
   "Other",
 ];
 
-export default function ContactForm() {
-  const [submitted, setSubmitted] = useState(false);
+const initialState = { status: "idle", message: "" };
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    setSubmitted(true);
-  }
+export default function ContactForm() {
+  const [state, formAction, isPending] = useActionState(submitContactForm, initialState);
 
   return (
     <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-[#fafbfc] py-6 lg:py-8">
@@ -49,7 +47,7 @@ export default function ContactForm() {
             aria-hidden="true"
             className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#f7941e] to-[#1f4693]"
           />
-          {submitted ? (
+          {state.status === "success" ? (
             <div className="py-10 text-center">
               <h3 className="text-xl font-semibold text-[#2b303b]">
                 Thanks — we&apos;ve got your message.
@@ -59,7 +57,7 @@ export default function ContactForm() {
               </p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <form action={formAction} className="flex flex-col gap-5">
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <div>
                   <label htmlFor="fullName" className="mb-1.5 block text-sm font-medium text-[#2b303b]">
@@ -71,7 +69,7 @@ export default function ContactForm() {
                     type="text"
                     required
                     placeholder="Your full name"
-                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-colors focus:border-[#f7941e]/60"
+                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-all duration-200 focus:border-[#f7941e]/60 focus:ring-4 focus:ring-[#f7941e]/10"
                   />
                 </div>
 
@@ -86,7 +84,7 @@ export default function ContactForm() {
                     autoComplete="email"
                     required
                     placeholder="you@company.com"
-                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-colors focus:border-[#f7941e]/60"
+                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-all duration-200 focus:border-[#f7941e]/60 focus:ring-4 focus:ring-[#f7941e]/10"
                   />
                 </div>
 
@@ -101,7 +99,7 @@ export default function ContactForm() {
                     autoComplete="tel"
                     required
                     placeholder="+91 00000 00000"
-                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-colors focus:border-[#f7941e]/60"
+                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-all duration-200 focus:border-[#f7941e]/60 focus:ring-4 focus:ring-[#f7941e]/10"
                   />
                 </div>
 
@@ -114,7 +112,7 @@ export default function ContactForm() {
                     name="company"
                     type="text"
                     placeholder="Your company"
-                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-colors focus:border-[#f7941e]/60"
+                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-all duration-200 focus:border-[#f7941e]/60 focus:ring-4 focus:ring-[#f7941e]/10"
                   />
                 </div>
               </div>
@@ -128,7 +126,7 @@ export default function ContactForm() {
                   name="service"
                   required
                   defaultValue=""
-                  className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] outline-none transition-colors focus:border-[#f7941e]/60"
+                  className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] outline-none transition-all duration-200 focus:border-[#f7941e]/60 focus:ring-4 focus:ring-[#f7941e]/10"
                 >
                   <option value="" disabled>
                     Select a service
@@ -151,15 +149,20 @@ export default function ContactForm() {
                   rows={5}
                   required
                   placeholder="Tell us a bit about what you're looking to build..."
-                  className="w-full resize-none rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-colors focus:border-[#f7941e]/60"
+                  className="w-full resize-none rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-all duration-200 focus:border-[#f7941e]/60 focus:ring-4 focus:ring-[#f7941e]/10"
                 />
               </div>
 
+              {state.status === "error" && (
+                <p className="text-sm font-medium text-red-600">{state.message}</p>
+              )}
+
               <button
                 type="submit"
-                className="mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-[#f7941e] px-8 py-3.5 text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(247,148,30,0.35),0_8px_10px_-6px_rgba(247,148,30,0.35)] transition-transform duration-150 hover:-translate-y-0.5 hover:bg-[#db7d17]"
+                disabled={isPending}
+                className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-[#f7941e] px-8 py-3.5 text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(247,148,30,0.35),0_8px_10px_-6px_rgba(247,148,30,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-[#db7d17] disabled:pointer-events-none disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:scale-100"
               >
-                Send Message
+                {isPending ? "Sending..." : "Send Message"}
               </button>
             </form>
           )}

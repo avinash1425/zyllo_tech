@@ -2,6 +2,7 @@ import PageHero from "@/components/PageHero";
 import WhyJoinZyllo from "@/sections/WhyJoinZyllo";
 import LifeAtZyllo from "@/sections/LifeAtZyllo";
 import OpenPositions from "@/sections/OpenPositions";
+import HiringProcess from "@/sections/HiringProcess";
 import EmployeeBenefits from "@/sections/EmployeeBenefits";
 import TalentNetworkCTA from "@/sections/TalentNetworkCTA";
 import Reveal from "@/components/Reveal";
@@ -30,6 +31,9 @@ export default function CareersPage() {
       </Reveal>
       <Reveal>
         <OpenPositions />
+      </Reveal>
+      <Reveal>
+        <HiringProcess />
       </Reveal>
       <Reveal>
         <EmployeeBenefits />

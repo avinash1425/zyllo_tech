@@ -24,7 +24,13 @@ export default function PageTransition() {
         return;
       }
       if (link.target === "_blank") return;
-      if (href === pathname) return;
+
+      // Strip any hash/query before comparing so same-page anchor links
+      // (e.g. "/services#services-grid" while already on "/services")
+      // don't trigger the overlay — pathname alone would never change,
+      // leaving it stuck visible.
+      const hrefPath = href.split("#")[0].split("?")[0] || "/";
+      if (hrefPath === pathname) return;
 
       shownAtRef.current = Date.now();
       setIsVisible(true);

@@ -3,18 +3,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useActionState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Lock, Mail, ShieldCheck } from "lucide-react";
+import { signIn } from "./actions";
+
+const initialState = { status: "idle", message: "" };
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    // Frontend-only for now — no real authentication yet.
-    router.push("/admin");
-  }
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") || "/admin";
+  const [state, formAction, isPending] = useActionState(signIn, initialState);
 
   return (
     <section className="relative min-h-[calc(100vh-64px)] overflow-hidden bg-white">
@@ -61,7 +61,9 @@ export default function LoginPage() {
                 Sign in to your Zyllo Tech account
               </p>
 
-              <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5">
+              <form action={formAction} className="mt-8 flex flex-col gap-5">
+                <input type="hidden" name="next" value={next} />
+
                 <div>
                   <label
                     htmlFor="email"
@@ -119,28 +121,16 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <label className="flex items-center gap-2 text-sm text-[#676b7a]">
-                    <input
-                      type="checkbox"
-                      name="remember"
-                      className="h-4 w-4 rounded border-[#e7e9ee] text-[#f7941e] focus:ring-[#f7941e]/50"
-                    />
-                    Remember me
-                  </label>
-                  <Link
-                    href="/forgot-password"
-                    className="text-xs font-medium text-[#f7941e] transition-colors hover:text-[#db7d17]"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
+                {state.status === "error" && (
+                  <p className="text-sm font-medium text-red-600">{state.message}</p>
+                )}
 
                 <button
                   type="submit"
-                  className="mt-1 inline-flex items-center justify-center gap-2 rounded-lg bg-[#f7941e] px-6 py-3 text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(247,148,30,0.35),0_8px_10px_-6px_rgba(247,148,30,0.35)] transition-transform duration-150 hover:-translate-y-0.5 hover:bg-[#db7d17]"
+                  disabled={isPending}
+                  className="mt-1 inline-flex items-center justify-center gap-2 rounded-lg bg-[#f7941e] px-6 py-3 text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(247,148,30,0.35),0_8px_10px_-6px_rgba(247,148,30,0.35)] transition-transform duration-150 hover:-translate-y-0.5 hover:bg-[#db7d17] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Login
+                  {isPending ? "Signing in..." : "Login"}
                 </button>
               </form>
             </div>

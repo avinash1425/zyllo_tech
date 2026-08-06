@@ -1,14 +1,14 @@
 "use client";
 
-import { Headset, Rocket, ShieldCheck, Sparkles, Target, Users } from "lucide-react";
+import { Users, Rocket, ShieldCheck, Target } from "lucide-react";
 
 const REASONS = [
   {
     number: "01",
-    icon: ShieldCheck,
-    title: "Quality Assurance",
+    icon: Users,
+    title: "Experienced Team",
     description:
-      "Every release goes through rigorous testing and code review before it reaches production.",
+      "Senior engineers, designers, and architects who've shipped products at scale.",
   },
   {
     number: "02",
@@ -19,29 +19,15 @@ const REASONS = [
   },
   {
     number: "03",
-    icon: Users,
-    title: "Expert Team",
+    icon: ShieldCheck,
+    title: "Secure Solutions",
     description:
-      "Experienced engineers, designers, and architects who've shipped products at scale.",
+      "Security-first delivery with rigorous testing and code review before every release.",
   },
   {
     number: "04",
-    icon: Headset,
-    title: "Dedicated Support",
-    description:
-      "Ongoing monitoring and responsive support long after your product goes live.",
-  },
-  {
-    number: "05",
-    icon: Sparkles,
-    title: "Innovation Driven",
-    description:
-      "We stay ahead of the curve with AI, cloud-native architecture, and modern tooling.",
-  },
-  {
-    number: "06",
     icon: Target,
-    title: "Business Aligned",
+    title: "Client Focused",
     description:
       "Every technical decision is tied back to measurable outcomes for your business.",
   },
@@ -71,36 +57,42 @@ export default function WhyChooseUs() {
           </p>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {REASONS.map(({ icon: Icon, title, description }) => (
-            <div
-              key={title}
-              className="advantage-card group relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white/80 to-[#f7941e]/[0.03] p-7 shadow-md shadow-[#1f4693]/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:border-transparent hover:shadow-xl hover:shadow-[#f7941e]/10"
-            >
-              <span
-                aria-hidden="true"
-                className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-50 bg-gradient-to-r from-[#f7941e] to-[#1f4693] opacity-40 transition-all duration-300 group-hover:scale-x-100 group-hover:opacity-100"
-              />
+        <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {REASONS.map(({ icon: Icon, title, description }, index) => {
+            const accent = index % 2 === 0 ? "#f7941e" : "#1f4693";
+            return (
               <div
-                aria-hidden="true"
-                className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-gradient-to-br from-[#f7941e]/10 to-[#1f4693]/10 opacity-40 blur-2xl transition-opacity duration-300 group-hover:opacity-100"
-              />
+                key={title}
+                className="advantage-card group relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white/80 to-[#1f4693]/[0.03] p-7 shadow-md shadow-[#1f4693]/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:border-transparent hover:shadow-xl hover:shadow-[#1f4693]/10"
+              >
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-50 bg-gradient-to-r from-[#f7941e] to-[#1f4693] opacity-40 transition-all duration-300 group-hover:scale-x-100 group-hover:opacity-100"
+                />
+                <div
+                  aria-hidden="true"
+                  className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-gradient-to-br from-[#f7941e]/10 to-[#1f4693]/10 opacity-40 blur-2xl transition-opacity duration-300 group-hover:opacity-100"
+                />
 
-              <Icon
-                className="pointer-events-none absolute -bottom-4 -right-4 h-28 w-28 text-[#1f4693]/[0.04] transition-all duration-300 group-hover:scale-110 group-hover:text-[#f7941e]/[0.08]"
-                aria-hidden="true"
-              />
+                <Icon
+                  className="pointer-events-none absolute -bottom-4 -right-4 h-28 w-28 text-[#1f4693]/[0.04] transition-all duration-300 group-hover:scale-110 group-hover:text-[#f7941e]/[0.08]"
+                  aria-hidden="true"
+                />
 
-              <div className="relative flex h-12 w-12 items-center justify-center rounded-xl border border-white/70 bg-gradient-to-br from-[#f7941e]/20 to-[#1f4693]/20 shadow-md shadow-[#f7941e]/10 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
-                <Icon className="h-6 w-6 text-[#f7941e]" aria-hidden="true" />
+                <div
+                  className="relative flex h-12 w-12 items-center justify-center rounded-xl border border-white/70 shadow-md transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110"
+                  style={{ backgroundColor: `${accent}20` }}
+                >
+                  <Icon className="h-6 w-6" style={{ color: accent }} aria-hidden="true" />
+                </div>
+
+                <h3 className="relative mt-5 text-lg font-semibold text-[#2b303b]">{title}</h3>
+                <p className="relative mt-2 text-sm leading-relaxed text-[#676b7a]">
+                  {description}
+                </p>
               </div>
-
-              <h3 className="relative mt-5 text-lg font-semibold text-[#2b303b]">{title}</h3>
-              <p className="relative mt-2 text-sm leading-relaxed text-[#676b7a]">
-                {description}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

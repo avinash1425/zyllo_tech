@@ -2,8 +2,6 @@ import PageHero from "@/components/PageHero";
 import Industries from "@/sections/Industries";
 import ChallengesSolutions from "@/sections/ChallengesSolutions";
 import SolutionsWeDeliver from "@/sections/SolutionsWeDeliver";
-import Technologies from "@/sections/Technologies";
-import WhyChooseUs from "@/sections/WhyChooseUs";
 import ContactCTA from "@/sections/ContactCTA";
 import Reveal from "@/components/Reveal";
 
@@ -38,13 +36,11 @@ export default function IndustriesPage() {
         <SolutionsWeDeliver />
       </Reveal>
       <Reveal>
-        <Technologies tint="white" />
-      </Reveal>
-      <Reveal>
-        <WhyChooseUs />
-      </Reveal>
-      <Reveal>
-        <ContactCTA />
+        <ContactCTA
+          heading="Don't see your industry listed?"
+          description="Chances are we've solved something close to it. Let's talk about your specific challenge."
+          buttonLabel="Discuss Your Industry"
+        />
       </Reveal>
     </>
   );

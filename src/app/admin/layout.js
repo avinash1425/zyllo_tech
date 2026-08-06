@@ -13,13 +13,15 @@ import {
   Menu,
   X,
   Bell,
-  Search,
   LogOut,
   Settings,
+  Home,
 } from "lucide-react";
+import { signOut } from "@/app/login/actions";
+import AdminSearch from "./AdminSearch";
 
 const NAV_ITEMS = [
-  { href: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/contacts", label: "Contact Submissions", icon: Mail },
   { href: "/admin/blog", label: "Blog Posts", icon: Newspaper },
   { href: "/admin/careers", label: "Careers", icon: Briefcase },
@@ -98,14 +100,23 @@ export default function AdminLayout({ children }) {
           </ul>
         </nav>
 
-        <div className="border-t border-white/10 p-3">
+        <div className="flex flex-col gap-1 border-t border-white/10 p-3">
           <Link
-            href="/login"
+            href="/"
             className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors duration-200 hover:bg-white/5 hover:text-white"
           >
-            <LogOut className="h-4.5 w-4.5" aria-hidden="true" />
-            Log out
+            <Home className="h-4.5 w-4.5 shrink-0" aria-hidden="true" />
+            Back to Website
           </Link>
+          <form action={signOut}>
+            <button
+              type="submit"
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors duration-200 hover:bg-white/5 hover:text-white"
+            >
+              <LogOut className="h-4.5 w-4.5" aria-hidden="true" />
+              Log out
+            </button>
+          </form>
         </div>
       </aside>
 
@@ -120,16 +131,8 @@ export default function AdminLayout({ children }) {
             <Menu className="h-5.5 w-5.5" aria-hidden="true" />
           </button>
 
-          <div className="relative hidden max-w-sm flex-1 sm:block">
-            <Search
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#676b7a]/50"
-              aria-hidden="true"
-            />
-            <input
-              type="search"
-              placeholder="Search…"
-              className="w-full rounded-lg border border-[#e7e9ee] bg-[#f5f6f8] py-2 pl-9 pr-3 text-sm text-[#2b303b] outline-none placeholder:text-[#676b7a]/50 focus:border-[#f7941e]/50 focus:bg-white"
-            />
+          <div className="hidden flex-1 sm:block">
+            <AdminSearch />
           </div>
 
           <div className="ml-auto flex items-center gap-3">

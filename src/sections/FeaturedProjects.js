@@ -1,39 +1,28 @@
-"use client";
-
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, FolderKanban } from "lucide-react";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-const PROJECTS = [
-  {
-    tag: "Web Platform",
-    title: "Retail Inventory & Order Management System",
-    description:
-      "A unified dashboard connecting storefronts, warehouses, and delivery tracking into one real-time system.",
-    image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=900&q=80",
-  },
-  {
-    tag: "Mobile App",
-    title: "Telehealth Patient Companion App",
-    description:
-      "A cross-platform app for appointment booking, secure messaging, and remote patient monitoring.",
-    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=900&q=80",
-  },
-  {
-    tag: "AI Solution",
-    title: "Financial Document Automation Tool",
-    description:
-      "An AI-powered pipeline that extracts, validates, and reconciles financial documents at scale.",
-    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=900&q=80",
-  },
-  {
-    tag: "Cloud Infrastructure",
-    title: "SaaS Platform Migration & Scaling",
-    description:
-      "Migrated a monolithic application to a cloud-native architecture built to handle 10x traffic growth.",
-    image: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=900&q=80",
-  },
-];
+async function getFeaturedProjects() {
+  const supabase = createServerSupabaseClient();
+  const { data, error } = await supabase
+    .from("portfolio_projects")
+    .select("id, title, tag, description, image_url")
+    .eq("status", "published")
+    .order("created_at", { ascending: false })
+    .limit(4);
 
-export default function FeaturedProjects() {
+  if (error) {
+    console.error("Failed to load featured projects:", error.message);
+    return [];
+  }
+
+  return data ?? [];
+}
+
+export default async function FeaturedProjects() {
+  const projects = await getFeaturedProjects();
+
   return (
     <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-[#fafbfc] py-6 lg:py-8">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
@@ -55,35 +44,56 @@ export default function FeaturedProjects() {
           </p>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
-          {PROJECTS.map((project) => (
-            <div
-              key={project.title}
-              className="group overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+        {projects.length === 0 ? (
+          <div className="mx-auto mt-8 flex max-w-lg flex-col items-center rounded-2xl border border-[#e7e9ee] bg-white p-10 text-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#f7941e]/15 to-[#1f4693]/15">
+              <FolderKanban className="h-5.5 w-5.5 text-[#f7941e]" aria-hidden="true" />
+            </span>
+            <p className="mt-4 text-base text-[#676b7a]">
+              We&apos;re putting together project highlights from recent work
+              — check back soon, or reach out to see examples directly.
+            </p>
+            <Link
+              href="/contact"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#f7941e] transition-colors duration-200 hover:text-[#db7d17]"
             >
-              <div className="relative h-52 w-full overflow-hidden">
-                <Image
-                  src={project.image}
-                  alt={project.title}
-                  fill
-                  sizes="(min-width: 640px) 50vw, 100vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                />
+              Get in touch
+              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </Link>
+          </div>
+        ) : (
+          <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
+            {projects.map((project) => (
+              <div
+                key={project.id}
+                className="group overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+              >
+                <div className="relative h-52 w-full overflow-hidden bg-[#f5f6f8]">
+                  {project.image_url && (
+                    <Image
+                      src={project.image_url}
+                      alt={project.title}
+                      fill
+                      sizes="(min-width: 640px) 50vw, 100vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  )}
+                </div>
+                <div className="p-6">
+                  <span className="text-xs font-bold tracking-[0.15em] text-[#f7941e] uppercase">
+                    {project.tag}
+                  </span>
+                  <h3 className="mt-2 text-lg font-semibold text-[#2b303b]">
+                    {project.title}
+                  </h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-[#676b7a]">
+                    {project.description}
+                  </p>
+                </div>
               </div>
-              <div className="p-6">
-                <span className="text-xs font-bold tracking-[0.2em] text-[#f7941e] uppercase">
-                  {project.tag}
-                </span>
-                <h3 className="mt-2 text-lg font-semibold text-[#2b303b]">
-                  {project.title}
-                </h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-[#676b7a]">
-                  {project.description}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
