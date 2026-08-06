@@ -13,7 +13,7 @@ import {
 
 const STATUS_STYLES = {
   open: "bg-[#3b6d11]/10 text-[#3b6d11]",
-  closed: "bg-[#676b7a]/10 text-[#676b7a]",
+  closed: "bg-red-600/10 text-red-600",
 };
 
 const initialFormState = { status: "idle", message: "" };
@@ -266,7 +266,7 @@ export default function CareersManager({ initialPositions }) {
               className={`group relative flex flex-col overflow-hidden rounded-2xl border shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-lg hover:shadow-[#f7941e]/10 ${
                 position.status === "open"
                   ? "border-[#f7941e]/15 bg-gradient-to-br from-[#f7941e]/[0.06] via-white to-[#1f4693]/[0.05]"
-                  : "border-[#e7e9ee] bg-gradient-to-br from-[#676b7a]/[0.05] via-white to-white"
+                  : "border-red-600/15 bg-gradient-to-br from-red-600/[0.06] via-white to-red-600/[0.03]"
               }`}
             >
               <span

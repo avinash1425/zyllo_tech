@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Lock, Mail, ShieldCheck } from "lucide-react";
@@ -10,10 +10,14 @@ import { signIn } from "./actions";
 
 const initialState = { status: "idle", message: "" };
 
-export default function LoginPage() {
-  const [showPassword, setShowPassword] = useState(false);
+function NextRedirectField() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/admin";
+  return <input type="hidden" name="next" value={next} />;
+}
+
+export default function LoginPage() {
+  const [showPassword, setShowPassword] = useState(false);
   const [state, formAction, isPending] = useActionState(signIn, initialState);
 
   return (
@@ -62,7 +66,9 @@ export default function LoginPage() {
               </p>
 
               <form action={formAction} className="mt-8 flex flex-col gap-5">
-                <input type="hidden" name="next" value={next} />
+                <Suspense fallback={<input type="hidden" name="next" value="/admin" />}>
+                  <NextRedirectField />
+                </Suspense>
 
                 <div>
                   <label
