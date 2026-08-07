@@ -3,7 +3,7 @@ import Services from "@/sections/Services";
 import WhyChooseUs from "@/sections/WhyChooseUs";
 import Process from "@/sections/Process";
 import About from "@/sections/About";
-import ContactCTA from "@/sections/ContactCTA";
+import HomeContactCTA from "@/sections/HomeContactCTA";
 import Reveal from "@/components/Reveal";
 
 export default function Home() {
@@ -23,11 +23,7 @@ export default function Home() {
         <About />
       </Reveal>
       <Reveal>
-        <ContactCTA
-          heading="Ready to Build Your Next Project?"
-          description="Let's create something amazing together."
-          buttonLabel="Contact Us"
-        />
+        <HomeContactCTA />
       </Reveal>
     </>
   );

@@ -1,10 +1,7 @@
 import PageHero from "@/components/PageHero";
 import FeaturedArticle from "@/sections/FeaturedArticle";
-import BlogCategories from "@/sections/BlogCategories";
 import LatestArticles from "@/sections/LatestArticles";
-import PopularTopics from "@/sections/PopularTopics";
 import Newsletter from "@/sections/Newsletter";
-import ContactCTA from "@/sections/ContactCTA";
 import Reveal from "@/components/Reveal";
 
 export const metadata = {
@@ -20,30 +17,17 @@ export default function BlogPage() {
         eyebrow="Blog"
         title="Ideas, lessons, and notes from the team"
         description="Practical writing on engineering, design, and building software that lasts — not just theory."
-        image="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1920&q=80"
-        imageAlt="Writing and planning notes on a desk"
+        image="/blog.png"
+        imageAlt="Zyllo Tech blog"
       />
       <Reveal>
         <FeaturedArticle />
       </Reveal>
       <Reveal>
-        <BlogCategories />
-      </Reveal>
-      <Reveal>
         <LatestArticles />
       </Reveal>
       <Reveal>
-        <PopularTopics />
-      </Reveal>
-      <Reveal>
         <Newsletter />
-      </Reveal>
-      <Reveal>
-        <ContactCTA
-          heading="Have an idea after reading this?"
-          description="We'd love to hear about it. Tell us what you're thinking of building."
-          buttonLabel="Start The Conversation"
-        />
       </Reveal>
     </>
   );

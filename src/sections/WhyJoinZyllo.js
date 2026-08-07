@@ -4,40 +4,52 @@ import { Compass, Heart, Rocket, ShieldCheck, Sparkles, Users } from "lucide-rea
 
 const REASONS = [
   {
-    icon: Compass,
-    title: "Real Ownership",
-    description:
-      "You'll own features end to end, not just tickets. Your decisions shape the product.",
-  },
-  {
     icon: Rocket,
-    title: "Fast-Moving Teams",
+    title: "Career Growth",
     description:
-      "Small, focused teams that ship often — no layers of approval slowing you down.",
-  },
-  {
-    icon: Sparkles,
-    title: "Modern Tech Stack",
-    description:
-      "Work with the tools and technologies actively used by the industry today, not legacy systems.",
+      "Develop your skills through challenging projects and continuous learning.",
+    accent: "#f7941e",
+    accentSoft: "#fbbf62",
   },
   {
     icon: Users,
-    title: "Direct Mentorship",
+    title: "Collaborative Environment",
     description:
-      "Learn from senior engineers and designers who are genuinely invested in your growth.",
+      "Work alongside talented professionals in a supportive and inclusive culture.",
+    accent: "#1f4693",
+    accentSoft: "#4d6fb8",
+  },
+  {
+    icon: Sparkles,
+    title: "Modern Technologies",
+    description:
+      "Build innovative solutions using the latest tools and technologies.",
+    accent: "#f0650f",
+    accentSoft: "#fb923c",
+  },
+  {
+    icon: Compass,
+    title: "Learning & Development",
+    description:
+      "Enhance your expertise through mentorship, knowledge sharing, and hands-on experience.",
+    accent: "#2f5fb3",
+    accentSoft: "#6d94d6",
   },
   {
     icon: ShieldCheck,
-    title: "Stability & Trust",
+    title: "Innovation Driven",
     description:
-      "A growing company with steady client relationships, not chasing short-term contracts.",
+      "Bring your ideas to life and contribute to meaningful digital solutions.",
+    accent: "#8a5a7a",
+    accentSoft: "#c295b3",
   },
   {
     icon: Heart,
-    title: "People-First Culture",
+    title: "Work-Life Balance",
     description:
-      "Flexible schedules and a team that respects work-life balance, not just says it does.",
+      "A healthy work environment that values productivity, flexibility, and well-being.",
+    accent: "#1f4693",
+    accentSoft: "#4d6fb8",
   },
 ];
 
@@ -52,46 +64,76 @@ export default function WhyJoinZyllo() {
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <span className="text-sm font-bold tracking-[0.2em] text-[#f7941e] uppercase">
-            Why Join Zyllo Tech
+            Why Join Us
           </span>
 
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#2b303b] sm:text-4xl">
-            Build your career somewhere that means it
+            A Workplace Where You Can Thrive
           </h2>
 
           <p className="mt-4 text-lg leading-relaxed text-[#676b7a]">
-            We're small enough that your work matters, and serious enough
-            that you'll grow doing it.
+            We believe great people build great products. That's why we
+            invest in our team, encourage new ideas, and create
+            opportunities for professional growth.
           </p>
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {REASONS.map(({ icon: Icon, title, description }) => (
+          {REASONS.map(({ icon: Icon, title, description, accent, accentSoft }) => (
             <div
               key={title}
-              className="group relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white/80 to-[#f7941e]/[0.03] p-7 shadow-md shadow-[#1f4693]/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:border-transparent hover:shadow-xl hover:shadow-[#f7941e]/10"
+              className="join-card group relative overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white p-7 pt-8 transition-all duration-300 hover:-translate-y-2"
+              style={{ "--join-accent": accent, "--join-accent-soft": accentSoft }}
             >
-              <span
-                aria-hidden="true"
-                className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-50 bg-gradient-to-r from-[#f7941e] to-[#1f4693] opacity-40 transition-all duration-300 group-hover:scale-x-100 group-hover:opacity-100"
-              />
               <div
-                aria-hidden="true"
-                className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-gradient-to-br from-[#f7941e]/10 to-[#1f4693]/10 opacity-40 blur-2xl transition-opacity duration-300 group-hover:opacity-100"
-              />
-
-              <div className="relative flex h-12 w-12 items-center justify-center rounded-xl border border-white/70 bg-gradient-to-br from-[#f7941e]/20 to-[#1f4693]/20 shadow-md shadow-[#f7941e]/10 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
-                <Icon className="h-6 w-6 text-[#f7941e]" aria-hidden="true" />
+                className="relative flex h-12 w-12 rotate-[-6deg] items-center justify-center rounded-xl text-white shadow-lg transition-transform duration-300 group-hover:rotate-0 group-hover:scale-110"
+                style={{
+                  background: `linear-gradient(135deg, ${accent}, ${accentSoft})`,
+                  boxShadow: `0 10px 20px -8px ${accent}70`,
+                }}
+              >
+                <Icon className="h-6 w-6" aria-hidden="true" />
               </div>
 
               <h3 className="relative mt-5 text-lg font-semibold text-[#2b303b]">{title}</h3>
               <p className="relative mt-2 text-sm leading-relaxed text-[#676b7a]">
                 {description}
               </p>
+
+              <span
+                aria-hidden="true"
+                className="absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100"
+                style={{ background: `linear-gradient(90deg, ${accent}, ${accentSoft})` }}
+              />
             </div>
           ))}
         </div>
       </div>
+
+      <style jsx>{`
+        .join-card::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: 1rem;
+          padding: 1px;
+          background: linear-gradient(
+            135deg,
+            var(--join-accent),
+            transparent 40%
+          );
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          -webkit-mask: linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          pointer-events: none;
+        }
+        .join-card:hover::before {
+          opacity: 1;
+        }
+      `}</style>
     </section>
   );
 }

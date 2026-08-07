@@ -106,7 +106,7 @@ export default function TopPagesTable({ days = 30 }) {
                 {page.visitors.toLocaleString()}
               </td>
               <td className="px-3 py-2 text-right">
-                <span className="inline-flex items-center gap-1 text-[#3b6d11]">
+                <span className="inline-flex items-center gap-1 text-[#1f4693]">
                   <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
                   {page.avgTime}
                 </span>

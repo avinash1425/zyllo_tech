@@ -122,9 +122,9 @@ export default function PortfolioManager({ initialProjects }) {
           {projects.map((project) => (
             <div
               key={project.id}
-              className="group relative overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-lg hover:shadow-[#f7941e]/10"
+              className="group relative overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-lg hover:shadow-[#1f4693]/10"
             >
-              <div className="relative h-40 w-full overflow-hidden bg-[#f5f6f8]">
+              <div className="relative h-40 w-full overflow-hidden bg-[#fafbfc]">
                 {project.image_url ? (
                   <Image
                     src={project.image_url}
@@ -149,7 +149,7 @@ export default function PortfolioManager({ initialProjects }) {
               </div>
 
               <div className="p-4">
-                <span className="text-xs font-bold uppercase tracking-wide text-[#f7941e]">
+                <span className="text-xs font-bold uppercase tracking-wide text-[#1f4693]">
                   {project.tag}
                 </span>
                 <h3 className="mt-1.5 line-clamp-2 text-sm font-semibold leading-snug text-[#2b303b]">
@@ -193,7 +193,7 @@ export default function PortfolioManager({ initialProjects }) {
 
       {modalOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-8"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0b0e17]/50 px-4 py-8 backdrop-blur-sm"
           onClick={() => setModalOpen(false)}
         >
           <div
@@ -208,7 +208,7 @@ export default function PortfolioManager({ initialProjects }) {
                 type="button"
                 onClick={() => setModalOpen(false)}
                 aria-label="Close"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-[#f5f6f8] hover:text-[#2b303b]"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-[#fafbfc] hover:text-[#2b303b]"
               >
                 <X className="h-4.5 w-4.5" aria-hidden="true" />
               </button>
@@ -227,7 +227,7 @@ export default function PortfolioManager({ initialProjects }) {
                     required
                     defaultValue={form.title}
                     placeholder="e.g. Bringing inventory and orders into one system"
-                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#f7941e]/60"
+                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#1f4693]/60"
                   />
                 </div>
                 <div>
@@ -241,7 +241,7 @@ export default function PortfolioManager({ initialProjects }) {
                     required
                     defaultValue={form.tag}
                     placeholder="e.g. E-commerce & Retail"
-                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#f7941e]/60"
+                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#1f4693]/60"
                   />
                 </div>
               </div>
@@ -257,7 +257,7 @@ export default function PortfolioManager({ initialProjects }) {
                   required
                   defaultValue={form.description}
                   placeholder="One or two sentences shown on the Featured Projects card."
-                  className="w-full resize-none rounded-lg border border-[#e7e9ee] bg-white px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#f7941e]/60"
+                  className="w-full resize-none rounded-lg border border-[#e7e9ee] bg-white px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#1f4693]/60"
                 />
               </div>
 
@@ -275,7 +275,7 @@ export default function PortfolioManager({ initialProjects }) {
                   name="image"
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
-                  className="w-full rounded-lg border border-[#e7e9ee] bg-white px-3.5 py-2.5 text-sm text-[#2b303b] outline-none file:mr-3 file:rounded-md file:border-0 file:bg-[#f7941e]/10 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-[#f7941e] focus:border-[#f7941e]/60"
+                  className="w-full rounded-lg border border-[#e7e9ee] bg-white px-3.5 py-2.5 text-sm text-[#2b303b] outline-none file:mr-3 file:rounded-md file:border-0 file:bg-[#f7941e]/10 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-[#f7941e] focus:border-[#1f4693]/60"
                 />
                 <p className="mt-1 text-xs text-[#676b7a]">
                   {editingProject ? "Leave empty to keep the current image. " : ""}JPG, PNG, or WEBP, up to 5MB.
@@ -290,7 +290,7 @@ export default function PortfolioManager({ initialProjects }) {
                   id="status"
                   name="status"
                   defaultValue={form.status}
-                  className="w-full rounded-lg border border-[#e7e9ee] bg-white px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#f7941e]/60"
+                  className="w-full rounded-lg border border-[#e7e9ee] bg-white px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#1f4693]/60"
                 >
                   <option value="draft">Draft</option>
                   <option value="published">Published</option>
@@ -325,7 +325,7 @@ export default function PortfolioManager({ initialProjects }) {
 
       {deletingId && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0b0e17]/50 px-4 backdrop-blur-sm"
           onClick={() => setDeletingId(null)}
         >
           <div

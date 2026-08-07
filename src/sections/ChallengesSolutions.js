@@ -109,7 +109,7 @@ export default function ChallengesSolutions() {
   const active = ROWS[activeIndex];
 
   return (
-    <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-white py-6 lg:py-8">
+    <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-white py-5 lg:py-6">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-[#f7941e]/8 blur-[110px]" />
         <div className="absolute -bottom-24 right-1/4 h-72 w-72 rounded-full bg-[#1f4693]/8 blur-[110px]" />
@@ -129,7 +129,7 @@ export default function ChallengesSolutions() {
           </p>
         </div>
 
-        <div className="mt-8 flex flex-wrap justify-center gap-2.5">
+        <div className="mt-6 flex flex-wrap justify-center gap-2.5">
           {ROWS.map((row, index) => (
             <button
               key={row.tag}
@@ -148,9 +148,9 @@ export default function ChallengesSolutions() {
 
         <div
           key={activeIndex}
-          className="challenge-panel mt-8 flex flex-col items-center gap-8 overflow-hidden rounded-3xl border border-[#e7e9ee] bg-white p-6 shadow-lg shadow-[#1f4693]/5 sm:p-8 lg:flex-row lg:gap-12 lg:p-10"
+          className="challenge-panel mt-6 flex flex-col items-center gap-6 overflow-hidden rounded-3xl border border-[#e7e9ee] bg-white p-5 shadow-lg shadow-[#1f4693]/5 sm:p-6 lg:flex-row lg:gap-10 lg:p-8"
         >
-          <div className="relative h-56 w-full shrink-0 overflow-hidden rounded-2xl shadow-md lg:h-80 lg:w-[380px]">
+          <div className="relative h-48 w-full shrink-0 overflow-hidden rounded-2xl shadow-md lg:h-64 lg:w-[340px]">
             <Image
               src={active.image}
               alt={active.tag}

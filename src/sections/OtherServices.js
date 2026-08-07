@@ -4,6 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { SERVICES } from "@/data/services";
+import { SERVICE_THEMES } from "@/sections/ServiceGrid";
+
+const DEFAULT_THEME = SERVICE_THEMES["web-development"];
 
 // Same infinite marquee treatment as ServiceGrid, but scoped to a single
 // service detail page: shows every service except the one being viewed.
@@ -33,6 +36,7 @@ export default function OtherServices({ excludeSlug }) {
         <div className="marquee-track flex w-max gap-6 px-6">
           {track.map((service, index) => {
             const Icon = service.icon;
+            const theme = SERVICE_THEMES[service.slug] ?? DEFAULT_THEME;
             return (
               <Link
                 key={`${service.slug}-${index}`}
@@ -49,13 +53,15 @@ export default function OtherServices({ excludeSlug }) {
                   />
                   <div className="absolute inset-0 bg-black/20" />
                   <span className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm">
-                    <Icon className="h-4.5 w-4.5 text-[#f7941e]" aria-hidden="true" />
+                    <Icon className="h-4.5 w-4.5" style={{ color: theme.accent }} aria-hidden="true" />
                   </span>
                 </div>
 
                 <div className="flex flex-1 flex-col p-5">
                   <h3 className="text-lg font-semibold text-[#2b303b]">{service.title}</h3>
-                  <p className="mt-1 text-sm font-semibold text-[#f7941e]">{service.tagline}</p>
+                  <p className="mt-1 text-sm font-semibold" style={{ color: theme.accent }}>
+                    {service.tagline}
+                  </p>
                   <p className="mt-2 text-sm leading-relaxed text-[#676b7a]">
                     {service.description}
                   </p>

@@ -24,9 +24,9 @@ export default function IndustriesPage() {
       <Reveal>
         <Industries
           tint="tint"
-          eyebrow="Industries We Empower"
-          heading="Whatever your industry, we've likely solved something like it"
-          description="Every industry has its own constraints. We bring the right experience to yours."
+          eyebrow="Industries We Serve"
+          heading="Supporting Businesses Across Multiple Sectors"
+          description="Our expertise spans a wide range of industries, delivering solutions designed to meet specific business requirements."
         />
       </Reveal>
       <Reveal>

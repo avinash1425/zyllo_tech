@@ -24,13 +24,13 @@ export default function ContactForm() {
   return (
     <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-[#fafbfc] py-6 lg:py-8">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-[#1f4693]/8 blur-[110px]" />
-        <div className="absolute -bottom-24 right-1/4 h-72 w-72 rounded-full bg-[#f7941e]/8 blur-[110px]" />
+        <div className="absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-[#f7941e]/8 blur-[110px]" />
+        <div className="absolute -bottom-24 right-1/4 h-72 w-72 rounded-full bg-[#1f4693]/8 blur-[110px]" />
       </div>
 
       <div className="relative mx-auto max-w-3xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-bold tracking-[0.2em] text-[#f7941e] uppercase">
+          <span className="text-sm font-bold tracking-[0.2em] text-[#1f4693] uppercase">
             Contact Form
           </span>
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#2b303b] sm:text-4xl">
@@ -45,7 +45,7 @@ export default function ContactForm() {
         <div className="relative mt-8 overflow-hidden rounded-2xl border border-white/70 bg-white/60 p-6 shadow-lg shadow-[#1f4693]/5 backdrop-blur-md sm:p-8">
           <span
             aria-hidden="true"
-            className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#f7941e] to-[#1f4693]"
+            className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#1f4693] to-[#f7941e]"
           />
           {state.status === "success" ? (
             <div className="py-10 text-center">
@@ -69,7 +69,7 @@ export default function ContactForm() {
                     type="text"
                     required
                     placeholder="Your full name"
-                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-all duration-200 focus:border-[#f7941e]/60 focus:ring-4 focus:ring-[#f7941e]/10"
+                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-all duration-200 focus:border-[#1f4693]/60 focus:ring-4 focus:ring-[#1f4693]/10"
                   />
                 </div>
 
@@ -84,7 +84,7 @@ export default function ContactForm() {
                     autoComplete="email"
                     required
                     placeholder="you@company.com"
-                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-all duration-200 focus:border-[#f7941e]/60 focus:ring-4 focus:ring-[#f7941e]/10"
+                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-all duration-200 focus:border-[#1f4693]/60 focus:ring-4 focus:ring-[#1f4693]/10"
                   />
                 </div>
 
@@ -99,7 +99,7 @@ export default function ContactForm() {
                     autoComplete="tel"
                     required
                     placeholder="+91 00000 00000"
-                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-all duration-200 focus:border-[#f7941e]/60 focus:ring-4 focus:ring-[#f7941e]/10"
+                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-all duration-200 focus:border-[#1f4693]/60 focus:ring-4 focus:ring-[#1f4693]/10"
                   />
                 </div>
 
@@ -112,7 +112,7 @@ export default function ContactForm() {
                     name="company"
                     type="text"
                     placeholder="Your company"
-                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-all duration-200 focus:border-[#f7941e]/60 focus:ring-4 focus:ring-[#f7941e]/10"
+                    className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-all duration-200 focus:border-[#1f4693]/60 focus:ring-4 focus:ring-[#1f4693]/10"
                   />
                 </div>
               </div>
@@ -126,7 +126,7 @@ export default function ContactForm() {
                   name="service"
                   required
                   defaultValue=""
-                  className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] outline-none transition-all duration-200 focus:border-[#f7941e]/60 focus:ring-4 focus:ring-[#f7941e]/10"
+                  className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] outline-none transition-all duration-200 focus:border-[#1f4693]/60 focus:ring-4 focus:ring-[#1f4693]/10"
                 >
                   <option value="" disabled>
                     Select a service
@@ -149,7 +149,7 @@ export default function ContactForm() {
                   rows={5}
                   required
                   placeholder="Tell us a bit about what you're looking to build..."
-                  className="w-full resize-none rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-all duration-200 focus:border-[#f7941e]/60 focus:ring-4 focus:ring-[#f7941e]/10"
+                  className="w-full resize-none rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-all duration-200 focus:border-[#1f4693]/60 focus:ring-4 focus:ring-[#1f4693]/10"
                 />
               </div>
 

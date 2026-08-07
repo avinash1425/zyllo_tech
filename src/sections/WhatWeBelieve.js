@@ -5,27 +5,27 @@ import { Users, Zap, Layers, Handshake } from "lucide-react";
 const BELIEFS = [
   {
     icon: Users,
-    title: "One Accountable Team",
+    title: "Experienced Team",
     description:
-      "No hand-offs between vendors. The same team that designs your product builds, tests, and supports it.",
+      "A skilled team delivering modern technology solutions with industry best practices.",
   },
   {
     icon: Zap,
-    title: "Speed Without Shortcuts",
+    title: "Quality First",
     description:
-      "We move fast on delivery, but never at the cost of code quality, security, or long-term maintainability.",
+      "Clean, secure, and scalable software built for long-term success.",
   },
   {
     icon: Layers,
-    title: "Right-Sized Solutions",
+    title: "Business Focused",
     description:
-      "We build for what your product actually needs today — not over-engineered systems for problems you don't have yet.",
+      "Every solution is designed to support your goals and future growth.",
   },
   {
     icon: Handshake,
-    title: "Transparent Partnership",
+    title: "Reliable Partnership",
     description:
-      "Clear communication, honest timelines, and no surprises — you always know where your project stands.",
+      "Transparent communication, timely delivery, and ongoing support throughout your journey.",
   },
 ];
 
@@ -40,14 +40,14 @@ export default function WhatWeBelieve() {
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <span className="text-sm font-bold tracking-[0.2em] text-[#f7941e] uppercase">
-            Our Guiding Principles
+            Why Choose Our Services
           </span>
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#2b303b] sm:text-4xl">
-            The principles behind how we deliver
+            Built Around Your Business Goals
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-[#676b7a]">
-            These aren&apos;t just values on a wall — they shape how every
-            project actually gets built.
+            We focus on delivering reliable, scalable, and high-quality
+            solutions that create lasting value.
           </p>
         </div>
 

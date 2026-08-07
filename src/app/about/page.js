@@ -1,5 +1,6 @@
 import PageHero from "@/components/PageHero";
 import OurStory from "@/sections/OurStory";
+import WhyChooseUs from "@/sections/WhyChooseUs";
 import MissionVision from "@/sections/MissionVision";
 import Values from "@/sections/Values";
 import Technologies from "@/sections/Technologies";
@@ -17,13 +18,16 @@ export default function AboutPage() {
     <>
       <PageHero
         eyebrow="About Zyllo Tech"
-        title="The team behind your next product"
-        description="We're a small, senior team of engineers and designers based in India, working with founders and businesses around the world."
-        image="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1920&q=80"
-        imageAlt="Zyllo Tech team collaborating"
+        title="Building Digital Solutions That Drive Growth"
+        description="We are a technology company dedicated to delivering innovative, scalable, and reliable software solutions for businesses worldwide."
+        image="/about.png"
+        imageAlt="The Zyllo Tech team at work"
       />
       <Reveal>
         <OurStory />
+      </Reveal>
+      <Reveal>
+        <WhyChooseUs />
       </Reveal>
       <Reveal>
         <MissionVision />
@@ -36,8 +40,9 @@ export default function AboutPage() {
       </Reveal>
       <Reveal>
         <ContactCTA
-          heading="Like the way we think? Let's build something."
-          description="Tell us about your project and we'll get back to you within one business day."
+          heading="Let's Build Something Great Together"
+          description="Whether you're launching a new product or scaling an existing one, we're here to help bring your vision to life."
+          buttonLabel="Start Your Project"
         />
       </Reveal>
     </>

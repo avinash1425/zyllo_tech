@@ -1,29 +1,42 @@
+"use client";
+
 import { Compass, Heart, Lightbulb, ShieldCheck } from "lucide-react";
 
+// Card style matches WhyChooseUs.js (glowing gradient icon medallions with
+// a pulsing blur, per-card orange-to-blue accent) so Values and Our
+// Advantages read as the same visual family across the About page.
 const VALUES = [
   {
-    icon: Compass,
-    title: "Clarity Over Complexity",
+    icon: Lightbulb,
+    title: "Innovation",
     description:
-      "We explain decisions in plain language and keep every engagement transparent, from scope to cost.",
+      "Embracing modern technologies to build smarter solutions.",
+    accent: "#f7941e",
+    accentSoft: "#fbbf62",
   },
   {
-    icon: Lightbulb,
-    title: "Curiosity Driven",
+    icon: Compass,
+    title: "Quality",
     description:
-      "We stay close to new tools and techniques, but only adopt what genuinely serves the product.",
+      "Delivering reliable software with high development standards.",
+    accent: "#f0650f",
+    accentSoft: "#fb923c",
   },
   {
     icon: ShieldCheck,
-    title: "Ownership Mindset",
+    title: "Integrity",
     description:
-      "We treat every project like it's our own product, not just a ticket to close.",
+      "Building trust through transparency, honesty, and accountability.",
+    accent: "#2f5fb3",
+    accentSoft: "#6d94d6",
   },
   {
     icon: Heart,
-    title: "People First",
+    title: "Collaboration",
     description:
-      "Good software comes from good collaboration — with clients, and with each other.",
+      "Working closely with clients to achieve shared success.",
+    accent: "#1f4693",
+    accentSoft: "#4d6fb8",
   },
 ];
 
@@ -41,35 +54,57 @@ export default function Values() {
             Our Values
           </span>
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#2b303b] sm:text-4xl">
-            What guides how we work
+            Our Core Values
           </h2>
-          <p className="mt-4 text-lg leading-relaxed text-[#676b7a]">
-            These aren&apos;t words on a wall — they shape how we scope
-            projects, write code, and talk to clients every day.
-          </p>
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {VALUES.map(({ icon: Icon, title, description }) => (
+          {VALUES.map(({ icon: Icon, title, description, accent, accentSoft }) => (
             <div
               key={title}
-              className="group relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white/80 to-[#f7941e]/[0.03] p-6 shadow-md shadow-[#1f4693]/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:border-transparent hover:shadow-xl hover:shadow-[#f7941e]/10"
+              className="group flex flex-col items-center rounded-2xl border bg-white/60 p-6 text-center shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:bg-white/80 hover:shadow-lg"
+              style={{ borderColor: `${accent}30` }}
             >
-              <span
-                aria-hidden="true"
-                className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-50 bg-gradient-to-r from-[#f7941e] to-[#1f4693] opacity-40 transition-all duration-300 group-hover:scale-x-100 group-hover:opacity-100"
-              />
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/70 bg-gradient-to-br from-[#f7941e]/20 to-[#1f4693]/20 shadow-md shadow-[#f7941e]/10 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
-                <Icon className="h-5 w-5 text-[#f7941e]" aria-hidden="true" />
+              <div className="relative flex flex-col items-center">
+                <span
+                  aria-hidden="true"
+                  className="pulse-glow absolute top-2 h-16 w-16 rounded-full blur-xl"
+                  style={{ backgroundColor: accentSoft, opacity: 0.5 }}
+                />
+                <div
+                  className="relative flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105"
+                  style={{
+                    background: `linear-gradient(135deg, ${accent}, ${accentSoft})`,
+                    boxShadow: `0 10px 24px -6px ${accent}55`,
+                  }}
+                >
+                  <Icon className="h-7 w-7 text-white" aria-hidden="true" />
+                </div>
               </div>
-              <h3 className="mt-4 text-base font-semibold text-[#2b303b]">{title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-[#676b7a]">
-                {description}
-              </p>
+
+              <h3 className="mt-5 text-base font-semibold text-[#2b303b]">{title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-[#676b7a]">{description}</p>
             </div>
           ))}
         </div>
       </div>
+
+      <style jsx>{`
+        .pulse-glow {
+          animation: pulseGlow 3.5s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+          0%,
+          100% {
+            transform: scale(1);
+            opacity: 0.35;
+          }
+          50% {
+            transform: scale(1.15);
+            opacity: 0.6;
+          }
+        }
+      `}</style>
     </section>
   );
 }

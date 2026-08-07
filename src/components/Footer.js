@@ -50,21 +50,21 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative overflow-hidden border-t border-white/10 bg-[#0b0e17] text-neutral-100">
+    <footer className="relative overflow-hidden border-t border-white/10 bg-[#1c2333] text-neutral-100">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-32 left-1/4 h-80 w-80 rounded-full bg-[#f7941e] opacity-[0.08] blur-[120px]" />
-        <div className="absolute -bottom-32 right-1/4 h-80 w-80 rounded-full bg-[#1f4693] opacity-25 blur-[120px]" />
+        <div className="absolute -top-32 left-1/4 h-80 w-80 rounded-full bg-[#f7941e] opacity-[0.1] blur-[120px]" />
+        <div className="absolute -bottom-32 right-1/4 h-80 w-80 rounded-full bg-[#1f4693] opacity-[0.18] blur-[120px]" />
       </div>
       <div className="relative mx-auto max-w-7xl px-6 py-10 lg:px-8">
         <div className="grid grid-cols-1 gap-y-10 sm:grid-cols-2 sm:gap-x-10 lg:grid-cols-[1.3fr_1fr_1fr_1fr] lg:gap-x-8">
           <div>
-            <div className="-ml-3 inline-flex items-center rounded-lg bg-white px-4 py-2.5">
+            <div className="-ml-3 inline-flex items-center rounded-lg bg-white px-4 py-3">
               <Image
                 src="/zyllo-logo.png"
                 alt="Zyllo Tech"
                 width={180}
                 height={36}
-                className="h-9 w-auto"
+                className="h-16 w-auto"
               />
             </div>
             <p className="mt-3 max-w-xs text-base leading-relaxed text-neutral-300">

@@ -1,7 +1,6 @@
 import PageHero from "@/components/PageHero";
 import WhatWeBelieve from "@/sections/WhatWeBelieve";
 import ServiceGrid from "@/sections/ServiceGrid";
-import BetterTogether from "@/sections/BetterTogether";
 import Reveal from "@/components/Reveal";
 
 export const metadata = {
@@ -15,8 +14,8 @@ export default function ServicesPage() {
     <>
       <PageHero
         eyebrow="Our Services"
-        title="Software services built around your product, not our org chart"
-        description="Strategy, design, engineering, and support — delivered by one accountable team instead of a chain of vendors."
+        title="Technology Solutions for Modern Businesses"
+        description="From strategy to deployment, we deliver complete software solutions that help businesses grow, innovate, and succeed."
         image="https://images.unsplash.com/photo-1547658719-da2b51169166?w=1920&q=80"
         imageAlt="Developer working on web application code"
       />
@@ -25,9 +24,6 @@ export default function ServicesPage() {
       </Reveal>
       <Reveal>
         <ServiceGrid />
-      </Reveal>
-      <Reveal>
-        <BetterTogether />
       </Reveal>
     </>
   );

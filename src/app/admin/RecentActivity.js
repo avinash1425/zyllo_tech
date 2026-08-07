@@ -84,7 +84,7 @@ export default function RecentActivity({ items, weeklyCounts = [] }) {
                   index !== items.length - 1 ? "border-b border-[#e7e9ee]" : ""
                 }`}
               >
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#f5f6f8] text-[#676b7a]">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#fafbfc] text-[#676b7a]">
                   <Icon className="h-3.5 w-3.5" aria-hidden="true" />
                 </span>
                 <div className="min-w-0 flex-1">

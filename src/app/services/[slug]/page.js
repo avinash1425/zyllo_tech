@@ -4,6 +4,9 @@ import { Check } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import OtherServices from "@/sections/OtherServices";
 import { SERVICES, getServiceBySlug } from "@/data/services";
+import { SERVICE_THEMES } from "@/sections/ServiceGrid";
+
+const DEFAULT_THEME = SERVICE_THEMES["web-development"];
 
 export function generateStaticParams() {
   return SERVICES.map((service) => ({ slug: service.slug }));
@@ -23,6 +26,8 @@ export default async function ServiceDetailPage({ params }) {
   const { slug } = await params;
   const service = getServiceBySlug(slug);
   if (!service) notFound();
+
+  const theme = SERVICE_THEMES[service.slug] ?? DEFAULT_THEME;
 
   return (
     <>
@@ -48,7 +53,10 @@ export default async function ServiceDetailPage({ params }) {
             </div>
 
             <div>
-              <span className="text-sm font-bold tracking-[0.2em] text-[#f7941e] uppercase">
+              <span
+                className="text-sm font-bold tracking-[0.2em] uppercase"
+                style={{ color: theme.accent }}
+              >
                 What We Deliver
               </span>
               <h2 className="mt-4 text-2xl font-bold tracking-tight text-[#2b303b] sm:text-3xl">
@@ -61,8 +69,11 @@ export default async function ServiceDetailPage({ params }) {
               <ul className="mt-6 flex flex-col gap-3">
                 {service.highlights.map((point) => (
                   <li key={point} className="flex items-start gap-3">
-                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#f7941e]/15">
-                      <Check className="h-3.5 w-3.5 text-[#f7941e]" aria-hidden="true" />
+                    <span
+                      className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
+                      style={{ backgroundColor: `${theme.accent}26` }}
+                    >
+                      <Check className="h-3.5 w-3.5" style={{ color: theme.accent }} aria-hidden="true" />
                     </span>
                     <span className="text-base text-[#2b303b]">{point}</span>
                   </li>

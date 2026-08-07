@@ -1,97 +1,45 @@
 import Image from "next/image";
-import { Building2, Globe2, Users2 } from "lucide-react";
-
-const HIGHLIGHTS = [
-  {
-    icon: Users2,
-    label: "A small, senior team",
-    description: "No account managers between you and the engineers building your product.",
-  },
-  {
-    icon: Globe2,
-    label: "India based, global reach",
-    description: "Working with founders and teams across time zones without missing a beat.",
-  },
-  {
-    icon: Building2,
-    label: "One team, every discipline",
-    description:
-      "Strategy, design, engineering, and support under one roof, so nothing gets lost in handoffs.",
-  },
-];
 
 export default function About() {
   return (
-    <section className="relative overflow-hidden bg-white py-12 lg:py-16">
+    <section className="relative overflow-hidden bg-gradient-to-b from-white via-[#fff7ed]/40 to-white py-8 lg:py-12">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-20 -left-24 h-72 w-72 rounded-full bg-[#f7941e]/10 blur-[100px]" />
-        <div className="absolute bottom-0 -right-24 h-72 w-72 rounded-full bg-[#1f4693]/10 blur-[100px]" />
+        <div className="absolute -top-20 -left-24 h-72 w-72 rounded-full bg-[#1f4693]/10 blur-[100px]" />
+        <div className="absolute bottom-0 -right-24 h-72 w-72 rounded-full bg-[#f7941e]/10 blur-[100px]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <div className="relative order-2 lg:order-1">
-            <div className="absolute -inset-4 -z-10 rounded-[28px] bg-gradient-to-br from-[#f7941e]/15 to-[#1f4693]/15 blur-2xl" />
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-white/60 shadow-xl">
-              <Image
-                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&q=80"
-                alt="Zyllo Tech team collaborating"
-                fill
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-cover"
-              />
+            <div className="absolute -inset-4 -z-10 rounded-[28px] bg-gradient-to-br from-[#1f4693]/20 to-[#f7941e]/20 blur-2xl" />
+            <div className="relative overflow-hidden rounded-[1.75rem] border border-white/60 bg-white/40 p-3 shadow-xl shadow-[#1f4693]/10 backdrop-blur-xl">
+              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[1.25rem]">
+                <Image
+                  src="/globe.png"
+                  alt="Holographic display of a global network with AI, cloud, and mobile technology icons"
+                  fill
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  className="object-cover"
+                />
+              </div>
             </div>
           </div>
 
           <div className="order-1 lg:order-2">
-            <span className="text-sm font-bold tracking-[0.2em] text-[#f7941e] uppercase">
-              Who We Are
+            <span className="text-sm font-bold tracking-[0.2em] text-[#1f4693] uppercase">
+              About Us
             </span>
 
-            <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#2b303b] sm:text-4xl">
-              A software team built to move as fast as your ideas
+            <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#0f172a] sm:text-4xl">
+              Who We Are
             </h2>
 
-            <p className="mt-5 text-lg leading-relaxed text-[#676b7a]">
-              At Zyllo Tech, we partner with businesses to design, develop,
-              and deliver intelligent software solutions that solve real
-              world challenges. From web and mobile applications to AI
-              powered platforms and cloud solutions, we create technology
-              that empowers organizations to innovate, scale, and stay ahead
-              in a rapidly evolving digital world.
+            <p className="mt-5 text-lg leading-relaxed text-[#475569]">
+              Zyllo Tech is a software development company delivering
+              innovative web, mobile, AI, and cloud solutions. We partner
+              with startups, growing businesses, and enterprises to build
+              scalable digital products that create lasting business value.
             </p>
-
-            <p className="mt-8 text-sm font-bold tracking-[0.2em] text-[#1f4693] uppercase">
-              What Sets Us Apart
-            </p>
-
-            <div className="mt-4 flex flex-col gap-4">
-              {HIGHLIGHTS.map(({ icon: Icon, label, description }, index) => {
-                const accent = index % 2 === 0 ? "#f7941e" : "#1f4693";
-                return (
-                  <div
-                    key={label}
-                    className="group relative flex items-start gap-4 overflow-hidden rounded-xl border border-white/70 bg-gradient-to-br from-white/85 to-[#1f4693]/[0.03] p-4 shadow-md shadow-[#1f4693]/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-transparent hover:shadow-lg hover:shadow-[#1f4693]/10"
-                  >
-                    <span
-                      aria-hidden="true"
-                      className="absolute inset-y-0 left-0 w-1 scale-y-50 opacity-40 transition-all duration-300 group-hover:scale-y-100 group-hover:opacity-100"
-                      style={{ backgroundColor: accent }}
-                    />
-                    <span
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/70 shadow-md transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110"
-                      style={{ backgroundColor: `${accent}20` }}
-                    >
-                      <Icon className="h-5 w-5" style={{ color: accent }} aria-hidden="true" />
-                    </span>
-                    <div>
-                      <p className="font-semibold text-[#2b303b]">{label}</p>
-                      <p className="mt-0.5 text-sm text-[#676b7a]">{description}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import PageHero from "@/components/PageHero";
 import FeaturedProjects from "@/sections/FeaturedProjects";
-import Process from "@/sections/Process";
+import PortfolioTechnologies from "@/sections/PortfolioTechnologies";
+import WhyOurSolutions from "@/sections/WhyOurSolutions";
 import Reveal from "@/components/Reveal";
 
 export const metadata = {
@@ -16,14 +17,19 @@ export default function PortfolioPage() {
         eyebrow="Our Work"
         title="A look at what we build"
         description="From early-stage MVPs to platforms serving thousands of users, here's the kind of work our team takes on."
-        image="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1920&q=80"
-        imageAlt="Product dashboard and analytics on screen"
+        image="/protfolio.png"
+        imageAlt="Zyllo Tech portfolio of work"
+        primaryCta={{ label: "Start Your Project", href: "/contact" }}
+        secondaryCta={{ label: "Contact Us", href: "/contact" }}
       />
       <Reveal>
         <FeaturedProjects />
       </Reveal>
       <Reveal>
-        <Process />
+        <PortfolioTechnologies />
+      </Reveal>
+      <Reveal>
+        <WhyOurSolutions />
       </Reveal>
     </>
   );

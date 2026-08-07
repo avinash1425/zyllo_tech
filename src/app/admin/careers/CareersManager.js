@@ -28,13 +28,13 @@ function PositionForm({ position, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0b0e17]/50 p-4 backdrop-blur-sm">
       <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] hover:bg-[#f5f6f8]"
+          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] hover:bg-[#fafbfc]"
         >
           <X className="h-4 w-4" aria-hidden="true" />
         </button>
@@ -56,7 +56,7 @@ function PositionForm({ position, onClose }) {
               type="text"
               required
               defaultValue={position?.title ?? ""}
-              className="w-full rounded-lg border border-[#e7e9ee] px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#f7941e]/60"
+              className="w-full rounded-lg border border-[#e7e9ee] px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#1f4693]/60"
             />
           </div>
 
@@ -71,7 +71,7 @@ function PositionForm({ position, onClose }) {
                 type="text"
                 required
                 defaultValue={position?.department ?? ""}
-                className="w-full rounded-lg border border-[#e7e9ee] px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#f7941e]/60"
+                className="w-full rounded-lg border border-[#e7e9ee] px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#1f4693]/60"
               />
             </div>
             <div>
@@ -83,7 +83,7 @@ function PositionForm({ position, onClose }) {
                 name="employmentType"
                 type="text"
                 defaultValue={position?.employment_type ?? "Full-time"}
-                className="w-full rounded-lg border border-[#e7e9ee] px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#f7941e]/60"
+                className="w-full rounded-lg border border-[#e7e9ee] px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#1f4693]/60"
               />
             </div>
           </div>
@@ -98,7 +98,7 @@ function PositionForm({ position, onClose }) {
                 name="location"
                 type="text"
                 defaultValue={position?.location ?? "Remote / India"}
-                className="w-full rounded-lg border border-[#e7e9ee] px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#f7941e]/60"
+                className="w-full rounded-lg border border-[#e7e9ee] px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#1f4693]/60"
               />
             </div>
             <div>
@@ -112,7 +112,7 @@ function PositionForm({ position, onClose }) {
                 min="1"
                 required
                 defaultValue={position?.total_openings ?? 1}
-                className="w-full rounded-lg border border-[#e7e9ee] px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#f7941e]/60"
+                className="w-full rounded-lg border border-[#e7e9ee] px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#1f4693]/60"
               />
             </div>
           </div>
@@ -126,7 +126,7 @@ function PositionForm({ position, onClose }) {
               name="description"
               rows={4}
               defaultValue={position?.description ?? ""}
-              className="w-full resize-none rounded-lg border border-[#e7e9ee] px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#f7941e]/60"
+              className="w-full resize-none rounded-lg border border-[#e7e9ee] px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#1f4693]/60"
             />
           </div>
 
@@ -138,7 +138,7 @@ function PositionForm({ position, onClose }) {
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg px-4 py-2 text-sm font-semibold text-[#676b7a] hover:bg-[#f5f6f8]"
+              className="rounded-lg px-4 py-2 text-sm font-semibold text-[#676b7a] hover:bg-[#fafbfc]"
             >
               Cancel
             </button>
@@ -158,14 +158,31 @@ function PositionForm({ position, onClose }) {
 
 function StatCard({ icon: Icon, label, value, accent }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-[#e7e9ee] bg-white p-4 shadow-sm">
+    <div
+      className="group relative flex items-center gap-3 overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-transparent hover:shadow-lg"
+      style={{ "--stat-accent": accent }}
+    >
       <span
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-        style={{ backgroundColor: `${accent}18` }}
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-100 transition-transform duration-300 sm:scale-x-75 sm:group-hover:scale-x-100"
+        style={{ backgroundColor: accent }}
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-4 -top-4 h-16 w-16 rounded-full opacity-40 blur-2xl transition-opacity duration-300 sm:opacity-0 sm:group-hover:opacity-100"
+        style={{ backgroundColor: accent }}
+      />
+
+      <span
+        className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl shadow-sm ring-1 ring-inset transition-transform duration-300 group-hover:scale-110"
+        style={{
+          background: `linear-gradient(135deg, ${accent}2a, ${accent}10)`,
+          "--tw-ring-color": `${accent}30`,
+        }}
       >
         <Icon className="h-5 w-5" style={{ color: accent }} aria-hidden="true" />
       </span>
-      <div>
+      <div className="relative">
         <p className="text-xl font-bold text-[#2b303b]">{value}</p>
         <p className="text-xs text-[#676b7a]">{label}</p>
       </div>
@@ -263,20 +280,20 @@ export default function CareersManager({ initialPositions }) {
           {positions.map((position) => (
             <div
               key={position.id}
-              className={`group relative flex flex-col overflow-hidden rounded-2xl border shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-lg hover:shadow-[#f7941e]/10 ${
+              className={`group relative flex flex-col overflow-hidden rounded-2xl border shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-lg hover:shadow-[#1f4693]/10 ${
                 position.status === "open"
-                  ? "border-[#f7941e]/15 bg-gradient-to-br from-[#f7941e]/[0.06] via-white to-[#1f4693]/[0.05]"
+                  ? "border-[#1f4693]/15 bg-gradient-to-br from-[#1f4693]/[0.05] via-white to-[#f7941e]/[0.06]"
                   : "border-red-600/15 bg-gradient-to-br from-red-600/[0.06] via-white to-red-600/[0.03]"
               }`}
             >
               <span
                 aria-hidden="true"
-                className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-gradient-to-r from-[#f7941e] to-[#1f4693] transition-transform duration-300 group-hover:scale-x-100"
+                className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-gradient-to-r from-[#1f4693] to-[#f7941e] transition-transform duration-300 group-hover:scale-x-100"
               />
 
               <Link href={`/admin/careers/${position.id}`} className="flex-1 p-5">
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="text-base font-semibold leading-snug text-[#2b303b] group-hover:text-[#f7941e]">
+                  <h3 className="text-base font-semibold leading-snug text-[#2b303b] group-hover:text-[#1f4693]">
                     {position.title}
                   </h3>
                   <span
@@ -286,7 +303,7 @@ export default function CareersManager({ initialPositions }) {
                   </span>
                 </div>
 
-                <p className="mt-1.5 text-sm font-medium text-[#f7941e]">{position.department}</p>
+                <p className="mt-1.5 text-sm font-medium text-[#1f4693]">{position.department}</p>
 
                 <div className="mt-3 flex flex-col gap-1.5 text-sm text-[#676b7a]">
                   <span className="inline-flex items-center gap-1.5">
@@ -311,7 +328,7 @@ export default function CareersManager({ initialPositions }) {
                   onClick={() => handleToggleStatus(position)}
                   disabled={isPending}
                   title="Manually toggle open/closed (auto-managed by selections)"
-                  className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#676b7a] transition-colors hover:bg-[#f5f6f8] disabled:opacity-50"
+                  className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#676b7a] transition-colors hover:bg-[#fafbfc] disabled:opacity-50"
                 >
                   Toggle
                 </button>

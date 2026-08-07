@@ -40,6 +40,17 @@ function resumeFileName(applicant) {
   return `${safeName || "resume"}.pdf`;
 }
 
+// Status transition rules:
+// - "selected" is final — once set, no further changes are allowed.
+// - "rejected" can still be moved to "applied" or "selected" (undoing the
+//   rejection), but "rejected" itself won't reappear as a selectable option.
+// - "applied" is fully open — all three statuses are available.
+function availableStatusOptions(currentStatus) {
+  if (currentStatus === "selected") return ["selected"];
+  if (currentStatus === "rejected") return ["applied", "selected"];
+  return ["applied", "selected", "rejected"];
+}
+
 export default function ApplicantsManager({ job, initialApplicants }) {
   const [applicants, setApplicants] = useState(initialApplicants);
   const [viewing, setViewing] = useState(null);
@@ -62,7 +73,7 @@ export default function ApplicantsManager({ job, initialApplicants }) {
       <div>
         <Link
           href="/admin/careers"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-[#676b7a] hover:text-[#f7941e]"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-[#676b7a] hover:text-[#1f4693]"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Back to Careers
@@ -106,7 +117,7 @@ export default function ApplicantsManager({ job, initialApplicants }) {
                   setViewing(applicant);
                 }
               }}
-              className="flex cursor-pointer flex-col gap-4 rounded-2xl border border-[#e7e9ee] bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#f7941e]/30 hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
+              className="flex cursor-pointer flex-col gap-4 rounded-2xl border border-[#e7e9ee] bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#1f4693]/30 hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2.5">
@@ -123,7 +134,7 @@ export default function ApplicantsManager({ job, initialApplicants }) {
                   <a
                     href={`mailto:${applicant.email}`}
                     onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-1 hover:text-[#f7941e]"
+                    className="inline-flex items-center gap-1 hover:text-[#1f4693]"
                   >
                     <Mail className="h-3.5 w-3.5" aria-hidden="true" />
                     {applicant.email}
@@ -140,7 +151,7 @@ export default function ApplicantsManager({ job, initialApplicants }) {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center gap-1 hover:text-[#f7941e]"
+                      className="inline-flex items-center gap-1 hover:text-[#1f4693]"
                     >
                       <FileText className="h-3.5 w-3.5" aria-hidden="true" />
                       Resume
@@ -157,14 +168,16 @@ export default function ApplicantsManager({ job, initialApplicants }) {
 
               <select
                 value={applicant.status}
-                disabled={isPending}
+                disabled={isPending || applicant.status === "selected"}
                 onClick={(e) => e.stopPropagation()}
                 onChange={(e) => handleStatusChange(applicant.id, e.target.value)}
-                className="w-full shrink-0 rounded-lg border border-[#e7e9ee] px-3 py-2 text-sm font-medium text-[#2b303b] outline-none focus:border-[#f7941e]/60 disabled:opacity-50 sm:w-40"
+                className="w-full shrink-0 rounded-lg border border-[#e7e9ee] px-3 py-2 text-sm font-medium text-[#2b303b] outline-none focus:border-[#1f4693]/60 disabled:opacity-50 sm:w-40"
               >
-                <option value="applied">Applied</option>
-                <option value="selected">Selected</option>
-                <option value="rejected">Rejected</option>
+                {availableStatusOptions(applicant.status).map((status) => (
+                  <option key={status} value={status}>
+                    {STATUS_LABELS[status]}
+                  </option>
+                ))}
               </select>
             </div>
           ))}
@@ -173,7 +186,7 @@ export default function ApplicantsManager({ job, initialApplicants }) {
 
       {viewing && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-8"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0b0e17]/50 px-4 py-8 backdrop-blur-sm"
           onClick={() => setViewing(null)}
         >
           <div
@@ -193,7 +206,7 @@ export default function ApplicantsManager({ job, initialApplicants }) {
                 type="button"
                 onClick={() => setViewing(null)}
                 aria-label="Close"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-[#f5f6f8] hover:text-[#2b303b]"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-[#fafbfc] hover:text-[#2b303b]"
               >
                 <X className="h-4.5 w-4.5" aria-hidden="true" />
               </button>
@@ -203,7 +216,7 @@ export default function ApplicantsManager({ job, initialApplicants }) {
               <div className="flex flex-col gap-3 text-sm">
                 <p className="flex items-center gap-2 text-[#2b303b]">
                   <Mail className="h-4 w-4 shrink-0 text-[#676b7a]" aria-hidden="true" />
-                  <a href={`mailto:${viewing.email}`} className="hover:text-[#f7941e]">
+                  <a href={`mailto:${viewing.email}`} className="hover:text-[#1f4693]">
                     {viewing.email}
                   </a>
                 </p>
@@ -250,7 +263,7 @@ export default function ApplicantsManager({ job, initialApplicants }) {
                         href={viewing.resume_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#e7e9ee] px-4 py-2 text-sm font-semibold text-[#676b7a] transition-colors duration-200 hover:border-[#f7941e]/40 hover:text-[#f7941e]"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#e7e9ee] px-4 py-2 text-sm font-semibold text-[#676b7a] transition-colors duration-200 hover:border-[#1f4693]/40 hover:text-[#1f4693]"
                       >
                         <ExternalLink className="h-4 w-4" aria-hidden="true" />
                         Open in New Tab
@@ -273,18 +286,25 @@ export default function ApplicantsManager({ job, initialApplicants }) {
               <select
                 id="modal-status"
                 value={viewing.status}
-                disabled={isPending}
+                disabled={isPending || viewing.status === "selected"}
                 onChange={(e) => {
                   const newStatus = e.target.value;
                   handleStatusChange(viewing.id, newStatus);
                   setViewing((prev) => (prev ? { ...prev, status: newStatus } : prev));
                 }}
-                className="w-full rounded-lg border border-[#e7e9ee] px-3 py-2 text-sm font-medium text-[#2b303b] outline-none focus:border-[#f7941e]/60 disabled:opacity-50"
+                className="w-full rounded-lg border border-[#e7e9ee] px-3 py-2 text-sm font-medium text-[#2b303b] outline-none focus:border-[#1f4693]/60 disabled:opacity-50"
               >
-                <option value="applied">Applied</option>
-                <option value="selected">Selected</option>
-                <option value="rejected">Rejected</option>
+                {availableStatusOptions(viewing.status).map((status) => (
+                  <option key={status} value={status}>
+                    {STATUS_LABELS[status]}
+                  </option>
+                ))}
               </select>
+              {viewing.status === "selected" && (
+                <p className="mt-1.5 text-xs text-[#676b7a]">
+                  Selected is final and can&apos;t be changed.
+                </p>
+              )}
             </div>
           </div>
         </div>

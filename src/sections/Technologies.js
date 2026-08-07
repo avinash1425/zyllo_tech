@@ -1,35 +1,52 @@
+"use client";
+
 import { Cloud, Code2, Database, Layers, Smartphone, Sparkles } from "lucide-react";
 
+// Icon medallion style matches WhyChooseUs.js / Values.js — glowing
+// gradient tile with a pulsing blur behind it, per-card accent color —
+// so every icon-card section on the About page reads as one family.
 const STACK_CATEGORIES = [
   {
     icon: Code2,
     title: "Frontend",
     items: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
+    accent: "#f7941e",
+    accentSoft: "#fbbf62",
   },
   {
     icon: Layers,
     title: "Backend",
-    items: ["Node.js", "Python", "Java", "REST & GraphQL"],
+    items: ["Node.js", "Python", "Java", "REST APIs & GraphQL"],
+    accent: "#f0650f",
+    accentSoft: "#fb923c",
   },
   {
     icon: Smartphone,
     title: "Mobile",
     items: ["React Native", "Flutter", "Swift", "Kotlin"],
+    accent: "#8a5a7a",
+    accentSoft: "#c295b3",
   },
   {
     icon: Cloud,
     title: "Cloud & DevOps",
     items: ["AWS", "Azure", "Docker", "Kubernetes"],
+    accent: "#2f5fb3",
+    accentSoft: "#6d94d6",
   },
   {
     icon: Database,
-    title: "Data",
+    title: "Database",
     items: ["PostgreSQL", "MongoDB", "Redis", "Elasticsearch"],
+    accent: "#1f4693",
+    accentSoft: "#4d6fb8",
   },
   {
     icon: Sparkles,
-    title: "AI & ML",
+    title: "AI & Machine Learning",
     items: ["OpenAI", "LangChain", "TensorFlow", "Vector Databases"],
+    accent: "#f7941e",
+    accentSoft: "#fbbf62",
   },
 ];
 
@@ -48,33 +65,44 @@ export default function Technologies({ tint = "tint" }) {
             Technologies
           </span>
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#2b303b] sm:text-4xl">
-            Tools we use to build reliable software
+            Technologies We Use
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-[#676b7a]">
-            We pick technology based on what the project needs, not what's
-            trending — these are the tools we reach for most often.
+            We choose the right technology stack based on your business
+            requirements.
           </p>
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {STACK_CATEGORIES.map(({ icon: Icon, title, items }) => (
+          {STACK_CATEGORIES.map(({ icon: Icon, title, items, accent, accentSoft }) => (
             <div
               key={title}
-              className="group relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white/80 to-[#1f4693]/[0.03] p-6 shadow-md shadow-[#1f4693]/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:border-transparent hover:shadow-xl hover:shadow-[#1f4693]/10"
+              className="group relative flex flex-col items-center rounded-2xl border bg-white/60 p-6 text-center shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:bg-white/80 hover:shadow-lg"
+              style={{ borderColor: `${accent}30` }}
             >
-              <span
-                aria-hidden="true"
-                className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-50 bg-gradient-to-r from-[#f7941e] to-[#1f4693] opacity-40 transition-all duration-300 group-hover:scale-x-100 group-hover:opacity-100"
-              />
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/70 bg-gradient-to-br from-[#f7941e]/20 to-[#1f4693]/20 shadow-md shadow-[#1f4693]/10 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
-                <Icon className="h-5 w-5 text-[#f7941e]" aria-hidden="true" />
+              <div className="relative flex flex-col items-center">
+                <span
+                  aria-hidden="true"
+                  className="pulse-glow absolute top-2 h-14 w-14 rounded-full blur-xl"
+                  style={{ backgroundColor: accentSoft, opacity: 0.5 }}
+                />
+                <div
+                  className="relative flex h-14 w-14 items-center justify-center rounded-2xl shadow-lg transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105"
+                  style={{
+                    background: `linear-gradient(135deg, ${accent}, ${accentSoft})`,
+                    boxShadow: `0 10px 24px -6px ${accent}55`,
+                  }}
+                >
+                  <Icon className="h-6 w-6 text-white" aria-hidden="true" />
+                </div>
               </div>
-              <h3 className="mt-4 text-base font-semibold text-[#2b303b]">{title}</h3>
-              <ul className="mt-3 flex flex-wrap gap-2">
+
+              <h3 className="mt-5 text-base font-semibold text-[#2b303b]">{title}</h3>
+              <ul className="mt-3 flex flex-wrap justify-center gap-2">
                 {items.map((item) => (
                   <li
                     key={item}
-                    className="rounded-full border border-[#e7e9ee] bg-white px-3 py-1 text-xs font-medium text-[#676b7a] transition-colors duration-300 group-hover:border-[#f7941e]/30"
+                    className="rounded-full border border-[#e7e9ee] bg-white px-3 py-1 text-xs font-medium text-[#676b7a]"
                   >
                     {item}
                   </li>
@@ -84,6 +112,23 @@ export default function Technologies({ tint = "tint" }) {
           ))}
         </div>
       </div>
+
+      <style jsx>{`
+        .pulse-glow {
+          animation: pulseGlow 3.5s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+          0%,
+          100% {
+            transform: scale(1);
+            opacity: 0.35;
+          }
+          50% {
+            transform: scale(1.15);
+            opacity: 0.6;
+          }
+        }
+      `}</style>
     </section>
   );
 }

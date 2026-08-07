@@ -30,7 +30,7 @@ export default function DateRangeSelect({ value, onChange }) {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-[#e7e9ee] bg-[#fafbfc] px-3 py-1.5 text-xs font-medium text-[#676b7a] transition-colors hover:border-[#f7941e]/40 hover:text-[#2b303b]"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-[#e7e9ee] bg-[#fafbfc] px-3 py-1.5 text-xs font-medium text-[#676b7a] transition-colors hover:border-[#1f4693]/40 hover:text-[#2b303b]"
       >
         <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
         {current.label}
@@ -49,7 +49,7 @@ export default function DateRangeSelect({ value, onChange }) {
               }}
               className={`block w-full px-3 py-2 text-left text-xs font-medium transition-colors ${
                 range.days === value
-                  ? "bg-[#f7941e]/10 text-[#f7941e]"
+                  ? "bg-[#1f4693]/10 text-[#1f4693]"
                   : "text-[#676b7a] hover:bg-[#fafbfc] hover:text-[#2b303b]"
               }`}
             >

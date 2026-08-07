@@ -18,16 +18,19 @@ function getSummaryStats(days) {
       label: "Total Visitors",
       value: visitors >= 1000 ? `${(visitors / 1000).toFixed(1)}K` : `${visitors}`,
       icon: Eye,
+      accent: "#f7941e",
     },
     {
       label: "Unique Users",
       value: uniqueUsers >= 1000 ? `${(uniqueUsers / 1000).toFixed(1)}K` : `${uniqueUsers}`,
       icon: Users,
+      accent: "#1f4693",
     },
     {
       label: "Avg. Session Duration",
       value: `${Math.floor(avgSeconds / 60)}m ${avgSeconds % 60}s`,
       icon: Clock,
+      accent: "#f7941e",
     },
   ];
 }
@@ -51,11 +54,11 @@ export default function TrafficPanel() {
       </div>
 
       <div className="mt-2 grid grid-cols-3 gap-2">
-        {stats.map(({ label, value, icon: Icon }) => (
+        {stats.map(({ label, value, icon: Icon, accent }) => (
           <div key={label} className="rounded-lg border border-[#e7e9ee] bg-[#fafbfc] px-2.5 py-2">
             <div className="flex items-center justify-between">
               <p className="truncate text-[10px] text-[#676b7a]">{label}</p>
-              <Icon className="h-3 w-3 shrink-0 text-[#f7941e]" aria-hidden="true" />
+              <Icon className="h-3 w-3 shrink-0" style={{ color: accent }} aria-hidden="true" />
             </div>
             <p className="mt-0.5 text-base font-bold text-[#2b303b]">{value}</p>
           </div>

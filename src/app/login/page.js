@@ -31,9 +31,9 @@ export default function LoginPage() {
         {/* Left: illustration / branding panel */}
         <div className="relative hidden flex-col items-center justify-center overflow-hidden border-r border-[#e7e9ee] px-12 py-16 lg:flex">
           <div className="relative flex h-72 w-72 items-center justify-center">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#f7941e]/15 to-[#1f4693]/15 blur-2xl" />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#1f4693]/15 to-[#f7941e]/15 blur-2xl" />
             <div className="relative flex h-56 w-56 items-center justify-center rounded-[2rem] border border-white/60 bg-white/70 shadow-xl backdrop-blur-xl">
-              <ShieldCheck className="h-24 w-24 text-[#f7941e]" strokeWidth={1.25} aria-hidden="true" />
+              <ShieldCheck className="h-24 w-24 text-[#1f4693]" strokeWidth={1.25} aria-hidden="true" />
             </div>
           </div>
 
@@ -54,7 +54,7 @@ export default function LoginPage() {
                   width={200}
                   height={40}
                   priority
-                  className="h-10 w-auto"
+                  className="h-20 w-auto"
                 />
               </Link>
             </div>
@@ -89,7 +89,7 @@ export default function LoginPage() {
                       autoComplete="email"
                       required
                       placeholder="you@company.com"
-                      className="w-full rounded-lg border border-[#e7e9ee] bg-white py-2.5 pl-10 pr-3.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/50 outline-none transition-colors focus:border-[#f7941e]/60"
+                      className="w-full rounded-lg border border-[#e7e9ee] bg-white py-2.5 pl-10 pr-3.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/50 outline-none transition-colors focus:border-[#1f4693]/60"
                     />
                   </div>
                 </div>
@@ -110,7 +110,7 @@ export default function LoginPage() {
                       autoComplete="current-password"
                       required
                       placeholder="Enter your password"
-                      className="w-full rounded-lg border border-[#e7e9ee] bg-white py-2.5 pl-10 pr-11 text-sm text-[#2b303b] placeholder:text-[#676b7a]/50 outline-none transition-colors focus:border-[#f7941e]/60"
+                      className="w-full rounded-lg border border-[#e7e9ee] bg-white py-2.5 pl-10 pr-11 text-sm text-[#2b303b] placeholder:text-[#676b7a]/50 outline-none transition-colors focus:border-[#1f4693]/60"
                     />
                     <button
                       type="button"
@@ -134,7 +134,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="mt-1 inline-flex items-center justify-center gap-2 rounded-lg bg-[#f7941e] px-6 py-3 text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(247,148,30,0.35),0_8px_10px_-6px_rgba(247,148,30,0.35)] transition-transform duration-150 hover:-translate-y-0.5 hover:bg-[#db7d17] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="mt-1 inline-flex items-center justify-center gap-2 rounded-lg bg-[#1f4693] px-6 py-3 text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(31,70,147,0.35),0_8px_10px_-6px_rgba(31,70,147,0.35)] transition-transform duration-150 hover:-translate-y-0.5 hover:bg-[#183a7a] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isPending ? "Signing in..." : "Login"}
                 </button>

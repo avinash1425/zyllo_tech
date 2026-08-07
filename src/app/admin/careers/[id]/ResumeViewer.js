@@ -25,7 +25,7 @@ export default function ResumeViewer({ url }) {
     <div>
       <div
         ref={handleContainerRef}
-        className="flex min-h-[420px] items-center justify-center overflow-hidden rounded-xl border border-[#e7e9ee] bg-[#f5f6f8] p-3"
+        className="flex min-h-[420px] items-center justify-center overflow-hidden rounded-xl border border-[#e7e9ee] bg-[#fafbfc] p-3"
       >
         {error ? (
           <div className="flex flex-col items-center gap-2 py-16 text-center">
@@ -67,7 +67,7 @@ export default function ResumeViewer({ url }) {
             onClick={() => setPageNumber((p) => Math.max(1, p - 1))}
             disabled={pageNumber <= 1}
             aria-label="Previous page"
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e7e9ee] text-[#676b7a] transition-colors hover:border-[#f7941e]/40 hover:text-[#f7941e] disabled:pointer-events-none disabled:opacity-40"
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e7e9ee] text-[#676b7a] transition-colors hover:border-[#1f4693]/40 hover:text-[#1f4693] disabled:pointer-events-none disabled:opacity-40"
           >
             <ChevronLeft className="h-4 w-4" aria-hidden="true" />
           </button>
@@ -79,7 +79,7 @@ export default function ResumeViewer({ url }) {
             onClick={() => setPageNumber((p) => Math.min(numPages, p + 1))}
             disabled={pageNumber >= numPages}
             aria-label="Next page"
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e7e9ee] text-[#676b7a] transition-colors hover:border-[#f7941e]/40 hover:text-[#f7941e] disabled:pointer-events-none disabled:opacity-40"
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#e7e9ee] text-[#676b7a] transition-colors hover:border-[#1f4693]/40 hover:text-[#1f4693] disabled:pointer-events-none disabled:opacity-40"
           >
             <ChevronRight className="h-4 w-4" aria-hidden="true" />
           </button>

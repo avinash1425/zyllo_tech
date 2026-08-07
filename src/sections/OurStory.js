@@ -12,27 +12,23 @@ export default function OurStory() {
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <div>
             <span className="text-sm font-bold tracking-[0.2em] text-[#f7941e] uppercase">
-              Our Story
+              Who We Are
             </span>
 
             <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#2b303b] sm:text-4xl">
-              Started by engineers who were tired of broken promises
+              Your Trusted Technology Partner
             </h2>
 
             <p className="mt-5 text-lg leading-relaxed text-[#676b7a]">
-              Zyllo Tech began with a simple observation: too many software
-              projects fail not because of bad code, but because of poor
-              communication, unclear expectations, and teams that disappear
-              after launch.
+              At Zyllo Tech, we help businesses transform ideas into powerful
+              digital products. From strategy and design to development and
+              deployment, we deliver solutions that are secure, scalable, and
+              built for long-term success.
             </p>
             <p className="mt-4 text-lg leading-relaxed text-[#676b7a]">
-              We set out to build something different — a team small enough
-              to stay close to every project, and experienced enough to
-              handle the full journey from idea to production and beyond.
-            </p>
-            <p className="mt-4 text-lg leading-relaxed text-[#676b7a]">
-              Today, that same principle guides every engagement: fewer
-              handoffs, clearer communication, and software built to last.
+              We believe successful software comes from strong collaboration,
+              clear communication, and a commitment to quality at every
+              stage.
             </p>
           </div>
 

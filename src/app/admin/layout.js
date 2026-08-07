@@ -38,34 +38,34 @@ export default function AdminLayout({ children }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#f5f6f8]">
+    <div className="flex min-h-screen bg-[#fafbfc]">
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+          className="fixed inset-0 z-40 bg-[#0b0e17]/40 backdrop-blur-sm lg:hidden"
           onClick={() => setSidebarOpen(false)}
           aria-hidden="true"
         />
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 flex-col border-r border-white/10 bg-[#0b0e17] transition-transform duration-300 lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 flex-col border-r border-[#e7e9ee] bg-white transition-transform duration-300 lg:static lg:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex h-16 items-center gap-3 border-b border-white/10 px-6">
-          <Link href="/admin" className="flex items-center gap-2 rounded-lg bg-white px-3 py-2">
+        <div className="flex h-20 items-center gap-3 border-b border-[#e7e9ee] px-6">
+          <Link href="/admin" className="flex items-center gap-2">
             <Image
               src="/zyllo-logo.png"
               alt="Zyllo Tech"
               width={140}
               height={28}
-              className="h-7 w-auto"
+              className="h-12 w-auto"
             />
           </Link>
           <button
             type="button"
             onClick={() => setSidebarOpen(false)}
-            className="ml-auto text-white/60 hover:text-white lg:hidden"
+            className="ml-auto text-[#676b7a] hover:text-[#2b303b] lg:hidden"
             aria-label="Close sidebar"
           >
             <X className="h-5 w-5" aria-hidden="true" />
@@ -73,7 +73,7 @@ export default function AdminLayout({ children }) {
         </div>
 
         <nav className="flex-1 overflow-y-auto px-3 py-6">
-          <p className="px-3 text-xs font-bold uppercase tracking-[0.15em] text-white/30">
+          <p className="px-3 text-xs font-bold uppercase tracking-[0.15em] text-[#9aa0ac]">
             Dashboard
           </p>
           <ul className="mt-3 flex flex-col gap-1">
@@ -85,12 +85,18 @@ export default function AdminLayout({ children }) {
                   <Link
                     href={item.href}
                     onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                    className={`group relative flex items-center gap-3 overflow-hidden rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                       active
-                        ? "bg-gradient-to-r from-[#f7941e]/20 to-[#f7941e]/5 text-[#f7941e]"
-                        : "text-white/60 hover:bg-white/5 hover:text-white"
+                        ? "bg-gradient-to-r from-[#f7941e]/12 to-[#1f4693]/8 text-[#1f4693]"
+                        : "text-[#676b7a] hover:bg-[#fafbfc] hover:text-[#2b303b]"
                     }`}
                   >
+                    {active && (
+                      <span
+                        aria-hidden="true"
+                        className="absolute inset-y-0 left-0 w-[3px] rounded-r-full bg-gradient-to-b from-[#f7941e] to-[#1f4693]"
+                      />
+                    )}
                     <Icon className="h-4.5 w-4.5 shrink-0" aria-hidden="true" />
                     {item.label}
                   </Link>
@@ -100,10 +106,10 @@ export default function AdminLayout({ children }) {
           </ul>
         </nav>
 
-        <div className="flex flex-col gap-1 border-t border-white/10 p-3">
+        <div className="flex flex-col gap-1 border-t border-[#e7e9ee] p-3">
           <Link
             href="/"
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors duration-200 hover:bg-white/5 hover:text-white"
+            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[#676b7a] transition-colors duration-200 hover:bg-[#fafbfc] hover:text-[#2b303b]"
           >
             <Home className="h-4.5 w-4.5 shrink-0" aria-hidden="true" />
             Back to Website
@@ -111,7 +117,7 @@ export default function AdminLayout({ children }) {
           <form action={signOut}>
             <button
               type="submit"
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors duration-200 hover:bg-white/5 hover:text-white"
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[#676b7a] transition-colors duration-200 hover:bg-[#fafbfc] hover:text-[#2b303b]"
             >
               <LogOut className="h-4.5 w-4.5" aria-hidden="true" />
               Log out
@@ -121,7 +127,7 @@ export default function AdminLayout({ children }) {
       </aside>
 
       <div className="flex min-h-screen flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-[#e7e9ee] bg-white/90 px-4 backdrop-blur sm:px-6">
+        <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b border-[#e7e9ee] bg-white/90 px-4 backdrop-blur sm:px-6">
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
@@ -139,7 +145,7 @@ export default function AdminLayout({ children }) {
             <button
               type="button"
               aria-label="Notifications"
-              className="relative flex h-9 w-9 items-center justify-center rounded-full text-[#676b7a] transition-colors hover:bg-[#f5f6f8] hover:text-[#2b303b]"
+              className="relative flex h-9 w-9 items-center justify-center rounded-full text-[#676b7a] transition-colors hover:bg-[#fafbfc] hover:text-[#2b303b]"
             >
               <Bell className="h-4.5 w-4.5" aria-hidden="true" />
               <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-[#f7941e]" />
@@ -147,12 +153,12 @@ export default function AdminLayout({ children }) {
             <button
               type="button"
               aria-label="Settings"
-              className="flex h-9 w-9 items-center justify-center rounded-full text-[#676b7a] transition-colors hover:bg-[#f5f6f8] hover:text-[#2b303b]"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-[#676b7a] transition-colors hover:bg-[#fafbfc] hover:text-[#2b303b]"
             >
               <Settings className="h-4.5 w-4.5" aria-hidden="true" />
             </button>
             <div className="flex items-center gap-2.5 border-l border-[#e7e9ee] pl-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#f7941e] to-[#db7d17] text-sm font-semibold text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#f7941e] to-[#1f4693] text-sm font-semibold text-white">
                 A
               </div>
               <div className="hidden sm:block">

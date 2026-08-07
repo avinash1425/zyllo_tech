@@ -48,7 +48,7 @@ const SOLUTIONS = [
 
 export default function SolutionsWeDeliver() {
   return (
-    <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-[#fafbfc] py-6 lg:py-8">
+    <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-[#fafbfc] py-5 lg:py-6">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute -top-24 right-1/4 h-72 w-72 rounded-full bg-[#1f4693]/8 blur-[110px]" />
         <div className="absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-[#f7941e]/8 blur-[110px]" />
@@ -68,7 +68,7 @@ export default function SolutionsWeDeliver() {
           </p>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {SOLUTIONS.map(({ icon: Icon, title, description }) => (
             <div
               key={title}

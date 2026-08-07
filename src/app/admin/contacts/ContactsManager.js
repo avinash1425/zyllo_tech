@@ -1,7 +1,18 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Search, Mail, Phone, Trash2, Eye, X, Building2, Briefcase } from "lucide-react";
+import {
+  Search,
+  Mail,
+  Phone,
+  Trash2,
+  Eye,
+  X,
+  Building2,
+  Briefcase,
+  FileSpreadsheet,
+  CalendarRange,
+} from "lucide-react";
 import { updateSubmissionStatus, deleteSubmission } from "./actions";
 
 const STATUS_LABELS = {
@@ -14,6 +25,14 @@ const STATUS_STYLES = {
   new: "bg-[#f7941e]/10 text-[#f7941e]",
   contacted: "bg-[#1f4693]/10 text-[#1f4693]",
   closed: "bg-[#3b6d11]/10 text-[#3b6d11]",
+};
+
+// Forward-only workflow: New -> Contacted -> Closed. Each status's dropdown
+// only offers itself plus the states ahead of it, never a state already passed.
+const STATUS_OPTIONS = {
+  new: ["new", "contacted", "closed"],
+  contacted: ["contacted", "closed"],
+  closed: ["closed"],
 };
 
 const FILTERS = [
@@ -35,12 +54,16 @@ export default function ContactsManager({ initialSubmissions }) {
   const [submissions, setSubmissions] = useState(initialSubmissions);
   const [activeFilter, setActiveFilter] = useState("all");
   const [query, setQuery] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [viewing, setViewing] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [isPending, startTransition] = useTransition();
+  const [isExporting, setIsExporting] = useState(false);
 
   const filtered = submissions.filter((item) => {
     const matchesFilter = activeFilter === "all" || item.status === activeFilter;
+
     const q = query.trim().toLowerCase();
     const matchesQuery =
       q === "" ||
@@ -48,8 +71,94 @@ export default function ContactsManager({ initialSubmissions }) {
       (item.company ?? "").toLowerCase().includes(q) ||
       (item.service ?? "").toLowerCase().includes(q) ||
       item.email.toLowerCase().includes(q);
-    return matchesFilter && matchesQuery;
+
+    const itemDate = new Date(item.created_at);
+    const matchesFrom = dateFrom === "" || itemDate >= new Date(`${dateFrom}T00:00:00`);
+    const matchesTo = dateTo === "" || itemDate <= new Date(`${dateTo}T23:59:59`);
+
+    return matchesFilter && matchesQuery && matchesFrom && matchesTo;
   });
+
+  function clearDateRange() {
+    setDateFrom("");
+    setDateTo("");
+  }
+
+  async function handleExportExcel() {
+    if (filtered.length === 0) {
+      alert("No submissions to export for the current filters.");
+      return;
+    }
+    setIsExporting(true);
+    try {
+      const ExcelJS = (await import("exceljs")).default;
+      const workbook = new ExcelJS.Workbook();
+      workbook.creator = "Zyllo Tech Admin";
+      workbook.created = new Date();
+
+      const sheet = workbook.addWorksheet("Contact Submissions");
+
+      sheet.columns = [
+        { header: "Name", key: "name", width: 22 },
+        { header: "Email", key: "email", width: 28 },
+        { header: "Phone", key: "phone", width: 16 },
+        { header: "Company", key: "company", width: 20 },
+        { header: "Service", key: "service", width: 20 },
+        { header: "Status", key: "status", width: 14 },
+        { header: "Date", key: "date", width: 14 },
+        { header: "Message", key: "message", width: 50 },
+      ];
+
+      // Header row: orange fill, white bold text — matches the site's
+      // brand color used throughout the admin panel.
+      const headerRow = sheet.getRow(1);
+      headerRow.eachCell((cell) => {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFF7941E" },
+        };
+        cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+        cell.alignment = { vertical: "middle", horizontal: "left" };
+      });
+      headerRow.height = 22;
+
+      filtered.forEach((item) => {
+        sheet.addRow({
+          name: item.full_name,
+          email: item.email,
+          phone: item.phone || "—",
+          company: item.company || "—",
+          service: item.service || "—",
+          status: STATUS_LABELS[item.status] || item.status,
+          date: formatDate(item.created_at),
+          message: item.message || "",
+        });
+      });
+
+      sheet.getColumn("message").alignment = { wrapText: true, vertical: "top" };
+      sheet.views = [{ state: "frozen", ySplit: 1 }];
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = URL.createObjectURL(blob);
+      const stamp = new Date().toISOString().slice(0, 10);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `contact-submissions-${stamp}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Excel export failed:", err);
+      alert("Excel export failed. Please try again.");
+    } finally {
+      setIsExporting(false);
+    }
+  }
 
   function handleStatusChange(id, newStatus) {
     setSubmissions((prev) =>
@@ -78,17 +187,7 @@ export default function ContactsManager({ initialSubmissions }) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#2b303b]">
-            Contact Submissions
-          </h1>
-          <p className="mt-1 text-sm text-[#676b7a]">
-            {submissions.length} total submission{submissions.length === 1 ? "" : "s"} from the
-            site contact form.
-          </p>
-        </div>
-
-        <div className="relative w-full sm:w-64">
+        <div className="relative w-full sm:w-72">
           <Search
             className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#676b7a]/50"
             aria-hidden="true"
@@ -98,26 +197,93 @@ export default function ContactsManager({ initialSubmissions }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search submissions…"
-            className="w-full rounded-lg border border-[#e7e9ee] bg-white py-2 pl-9 pr-3 text-sm text-[#2b303b] outline-none placeholder:text-[#676b7a]/50 focus:border-[#f7941e]/50"
+            className="w-full rounded-lg border border-[#e7e9ee] bg-white py-2 pl-9 pr-3 text-sm text-[#2b303b] outline-none placeholder:text-[#676b7a]/50 focus:border-[#1f4693]/50"
           />
+        </div>
+
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-[#2b303b] sm:text-right">
+            Contact Submissions
+          </h1>
+          <p className="mt-1 text-sm text-[#676b7a] sm:text-right">
+            {filtered.length} of {submissions.length} submission
+            {submissions.length === 1 ? "" : "s"} shown.
+          </p>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {FILTERS.map((filter) => (
+      <div className="flex flex-col gap-4 rounded-2xl border border-[#e7e9ee] bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
+          {FILTERS.map((filter) => (
+            <button
+              key={filter.key}
+              type="button"
+              onClick={() => setActiveFilter(filter.key)}
+              className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-all duration-200 ${
+                activeFilter === filter.key
+                  ? "border-transparent bg-gradient-to-r from-[#f7941e] to-[#1f4693] text-white"
+                  : "border-[#e7e9ee] bg-white text-[#676b7a] hover:border-[#f7941e]/40 hover:text-[#f7941e]"
+              }`}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-0.5 rounded-lg border border-[#e7e9ee] px-2.5 py-1.5">
+              <label htmlFor="dateFrom" className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-[#676b7a]/70">
+                <CalendarRange className="h-3 w-3" aria-hidden="true" />
+                From
+              </label>
+              <input
+                id="dateFrom"
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                max={dateTo || undefined}
+                className="w-[8.5rem] bg-transparent text-sm text-[#2b303b] outline-none"
+              />
+            </div>
+
+            <div className="flex flex-col gap-0.5 rounded-lg border border-[#e7e9ee] px-2.5 py-1.5">
+              <label htmlFor="dateTo" className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-[#676b7a]/70">
+                <CalendarRange className="h-3 w-3" aria-hidden="true" />
+                To
+              </label>
+              <input
+                id="dateTo"
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                min={dateFrom || undefined}
+                className="w-[8.5rem] bg-transparent text-sm text-[#2b303b] outline-none"
+              />
+            </div>
+
+            {(dateFrom || dateTo) && (
+              <button
+                type="button"
+                onClick={clearDateRange}
+                aria-label="Clear date range"
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-[#676b7a] hover:bg-[#fafbfc] hover:text-[#2b303b]"
+              >
+                <X className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
+            )}
+          </div>
+
           <button
-            key={filter.key}
             type="button"
-            onClick={() => setActiveFilter(filter.key)}
-            className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-all duration-200 ${
-              activeFilter === filter.key
-                ? "border-transparent bg-[#0b0e17] text-white"
-                : "border-[#e7e9ee] bg-white text-[#676b7a] hover:border-[#f7941e]/40 hover:text-[#f7941e]"
-            }`}
+            onClick={handleExportExcel}
+            disabled={isExporting}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#e7e9ee] bg-white px-3.5 py-2 text-sm font-medium text-[#2b303b] transition-colors hover:border-[#3b6d11]/40 hover:text-[#3b6d11] disabled:opacity-50"
           >
-            {filter.label}
+            <FileSpreadsheet className="h-4 w-4" aria-hidden="true" />
+            {isExporting ? "Exporting…" : "Export Excel"}
           </button>
-        ))}
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-sm">
@@ -161,9 +327,11 @@ export default function ContactsManager({ initialSubmissions }) {
                       disabled={isPending}
                       className={`rounded-full border-0 px-2.5 py-1 text-xs font-semibold outline-none ${STATUS_STYLES[item.status]}`}
                     >
-                      <option value="new">New</option>
-                      <option value="contacted">Contacted</option>
-                      <option value="closed">Closed</option>
+                      {STATUS_OPTIONS[item.status].map((status) => (
+                        <option key={status} value={status}>
+                          {STATUS_LABELS[status]}
+                        </option>
+                      ))}
                     </select>
                   </td>
                   <td className="px-5 py-4 text-[#676b7a]">{formatDate(item.created_at)}</td>
@@ -204,7 +372,7 @@ export default function ContactsManager({ initialSubmissions }) {
 
       {viewing && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0b0e17]/50 px-4 backdrop-blur-sm"
           onClick={() => setViewing(null)}
         >
           <div
@@ -224,7 +392,7 @@ export default function ContactsManager({ initialSubmissions }) {
                 type="button"
                 onClick={() => setViewing(null)}
                 aria-label="Close"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-[#f5f6f8] hover:text-[#2b303b]"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-[#fafbfc] hover:text-[#2b303b]"
               >
                 <X className="h-4.5 w-4.5" aria-hidden="true" />
               </button>
@@ -272,7 +440,7 @@ export default function ContactsManager({ initialSubmissions }) {
 
       {deletingId && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0b0e17]/50 px-4 backdrop-blur-sm"
           onClick={() => setDeletingId(null)}
         >
           <div

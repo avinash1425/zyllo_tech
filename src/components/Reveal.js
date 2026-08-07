@@ -33,7 +33,7 @@ export default function Reveal({ children, delay = 0, className = "" }) {
           setState(exitedAbove ? "hidden-up" : "hidden-down");
         }
       },
-      { threshold: 0.03, rootMargin: "0px 0px -5% 0px" }
+      { threshold: 0.12, rootMargin: "0px 0px -10% 0px" }
     );
 
     const handleScroll = () => {
@@ -58,20 +58,25 @@ export default function Reveal({ children, delay = 0, className = "" }) {
 
       <style jsx>{`
         .reveal-wrap {
-          transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-            transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-          will-change: opacity, transform;
+          overflow: clip;
+          transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
+            transform 1s cubic-bezier(0.16, 1, 0.3, 1),
+            filter 1s cubic-bezier(0.16, 1, 0.3, 1);
+          will-change: opacity, transform, filter;
         }
         .reveal-hidden-down {
           opacity: 0;
-          transform: scale(0.88) translateY(72px);
+          filter: blur(5px);
+          transform: scale(0.97) translateY(48px);
         }
         .reveal-hidden-up {
           opacity: 0;
-          transform: scale(0.88) translateY(-72px);
+          filter: blur(5px);
+          transform: scale(0.97) translateY(-48px);
         }
         .reveal-visible {
           opacity: 1;
+          filter: blur(0px);
           transform: scale(1) translateY(0);
         }
       `}</style>

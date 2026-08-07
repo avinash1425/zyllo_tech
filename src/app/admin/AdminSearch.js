@@ -103,7 +103,7 @@ export default function AdminSearch() {
         onFocus={() => setOpen(true)}
         onKeyDown={handleKeyDown}
         placeholder="Search job postings, applicants…"
-        className="w-full rounded-lg border border-[#e7e9ee] bg-[#f5f6f8] py-2 pl-9 pr-3 text-sm text-[#2b303b] outline-none placeholder:text-[#676b7a]/50 focus:border-[#f7941e]/50 focus:bg-white"
+        className="w-full rounded-lg border border-[#e7e9ee] bg-[#fafbfc] py-2 pl-9 pr-3 text-sm text-[#2b303b] outline-none placeholder:text-[#676b7a]/50 focus:border-[#1f4693]/50 focus:bg-white"
       />
 
       {open && query.trim().length >= 2 && (
@@ -131,13 +131,13 @@ export default function AdminSearch() {
                   onClick={() => goTo(result.href)}
                   className="flex w-full items-start gap-3 border-b border-[#f0f1f4] px-4 py-3 text-left transition-colors last:border-0 hover:bg-[#fafbfc]"
                 >
-                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[#f7941e]" aria-hidden="true" />
+                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[#1f4693]" aria-hidden="true" />
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-[#2b303b]">{result.title}</p>
                     {result.subtitle && (
                       <p className="truncate text-xs text-[#676b7a]">{result.subtitle}</p>
                     )}
-                    <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-[#f7941e]/70">
+                    <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-[#1f4693]/70">
                       {result.type}
                     </p>
                   </div>

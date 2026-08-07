@@ -2,101 +2,114 @@
 
 import { Compass, Hammer, PenTool, Rocket, Wrench } from "lucide-react";
 
+// Light section. Warm orange-to-blue 5-stop gradient sequence connects all
+// 5 steps, matching the logo's palette.
 const STEPS = [
   {
     number: "01",
     icon: Compass,
     title: "Discover",
     description:
-      "We dig into your goals, users, and constraints to define what actually needs to be built.",
+      "Understanding your business, goals, and project requirements.",
+    accent: "#f7941e",
   },
   {
     number: "02",
     icon: PenTool,
     title: "Design",
     description:
-      "Wireframes and prototypes turn requirements into a clear, testable product plan.",
+      "Creating user focused designs and scalable solution architecture.",
+    accent: "#f0650f",
   },
   {
     number: "03",
     icon: Hammer,
-    title: "Build",
+    title: "Develop",
     description:
-      "Agile sprints with regular check-ins so you always know what's shipping next.",
+      "Building robust, secure, and high quality software.",
+    accent: "#8a5a7a",
   },
   {
     number: "04",
     icon: Rocket,
-    title: "Launch",
+    title: "Deploy",
     description:
-      "A tested, production-ready release with a clear rollout and monitoring plan.",
+      "Launching reliable solutions with seamless deployment.",
+    accent: "#2f5fb3",
   },
   {
     number: "05",
     icon: Wrench,
     title: "Support",
     description:
-      "Ongoing maintenance, monitoring, and improvements after your product goes live.",
+      "Continuous maintenance, enhancements, and technical support.",
+    accent: "#1f4693",
   },
 ];
 
 export default function Process() {
   return (
-    <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-[#fafbfc] py-10 lg:py-14">
+    <section className="relative overflow-hidden bg-gradient-to-b from-white via-[#eff4fc]/50 to-white py-8 lg:py-12">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute top-1/2 left-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-[#f7941e]/5 to-[#1f4693]/5 blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-[#f7941e]/8 to-[#1f4693]/8 blur-[120px]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-bold tracking-[0.2em] text-[#f7941e] uppercase">
-            How We Work
+          <span className="text-sm font-bold tracking-[0.2em] text-[#1f4693] uppercase">
+            Process
           </span>
 
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#2b303b] sm:text-4xl">
-            A clear process from idea to launch
+          <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#0f172a] sm:text-4xl">
+            Our Development Process
           </h2>
 
-          <p className="mt-4 text-lg leading-relaxed text-[#676b7a]">
-            No black boxes. Every engagement follows the same transparent
-            process, so you always know what&apos;s happening and why.
+          <p className="mt-4 text-lg leading-relaxed text-[#475569]">
+            A structured approach that ensures transparency and successful
+            project delivery.
           </p>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
-          {STEPS.map(({ number, icon: Icon, title, description }, index) => {
-            const accent = index % 2 === 0 ? "#f7941e" : "#1f4693";
-            return (
+        <div className="relative mt-16">
+          {/* Connector line threading through all 5 steps */}
+          <div
+            aria-hidden="true"
+            className="absolute left-[10%] right-[10%] top-8 hidden h-0.5 rounded-full bg-gradient-to-r from-[#f7941e] via-[#8a5a7a] to-[#1f4693] opacity-30 lg:block"
+          />
+
+          <div className="grid grid-cols-1 gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-5">
+            {STEPS.map(({ number, icon: Icon, title, description, accent }, index) => (
               <div
                 key={number}
-                className="process-step group relative overflow-hidden rounded-2xl border border-white/10 bg-[#0b0e17] p-6 shadow-lg shadow-black/10 transition-all duration-300 hover:-translate-y-1.5"
+                className="process-step group relative flex flex-col items-center text-center"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div
-                  aria-hidden="true"
-                  className="absolute -bottom-6 -right-4 text-7xl font-bold opacity-[0.06]"
-                  style={{ color: accent }}
-                >
-                  {number}
+                {/* Numbered node sitting on the connector line */}
+                <div className="relative flex flex-col items-center">
+                  <div
+                    className="relative flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg transition-all duration-300 group-hover:-translate-y-1 group-hover:scale-105"
+                    style={{
+                      background: `linear-gradient(135deg, ${accent}, ${accent}cc)`,
+                      boxShadow: `0 10px 24px -6px ${accent}55`,
+                    }}
+                  >
+                    <Icon className="h-7 w-7 text-white" aria-hidden="true" />
+                  </div>
+                  <span className="mt-3 text-xs font-bold tracking-widest" style={{ color: accent }}>
+                    STEP {number}
+                  </span>
                 </div>
 
-                <div
-                  className="relative flex h-12 w-12 items-center justify-center rounded-xl shadow-md transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110"
-                  style={{ backgroundColor: `${accent}25` }}
-                >
-                  <Icon className="h-5.5 w-5.5" style={{ color: accent }} aria-hidden="true" />
+                {/* Card panel */}
+                <div className="relative mt-4 w-full max-w-[13rem] overflow-hidden rounded-xl border border-[#fde8cc] bg-white/70 p-4 shadow-sm backdrop-blur-md transition-all duration-300 group-hover:-translate-y-0.5 group-hover:bg-white/90 group-hover:shadow-md">
+                  <h3 className="text-base font-semibold text-[#0f172a]">{title}</h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-[#475569]">
+                    {description}
+                  </p>
                 </div>
-
-                <span className="relative mt-5 block text-xs font-bold tracking-widest text-white/30">
-                  STEP {number}
-                </span>
-                <h3 className="relative mt-1.5 text-lg font-semibold text-white">{title}</h3>
-                <p className="relative mt-2 text-sm leading-relaxed text-white/60">
-                  {description}
-                </p>
               </div>
-            );
-          })}
+            ))}
+          </div>
         </div>
       </div>
 
