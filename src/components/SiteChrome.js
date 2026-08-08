@@ -8,7 +8,7 @@ import PageFade from "@/components/PageFade";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import CookieConsent from "@/components/CookieConsent";
 
-export default function SiteChrome({ children }) {
+export default function SiteChrome({ children, user }) {
   const pathname = usePathname();
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
 
@@ -19,7 +19,7 @@ export default function SiteChrome({ children }) {
   return (
     <>
       <PageTransition />
-      <Header />
+      <Header user={user} />
       <main className="flex-1">
         <PageFade>{children}</PageFade>
       </main>

@@ -58,12 +58,6 @@ const STATIC_PAGES = [
     keywords: "contact us reach out email start project talk",
     href: "/contact",
   },
-  {
-    title: "ArthaAI",
-    subtitle: "Financial calculators and AI planning tools",
-    keywords: "arthaai finance calculators emi sip tax savings planner ai",
-    href: "/arthaai",
-  },
 ];
 
 function normalize(value) {

@@ -4,10 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, ArrowRight, Sparkles } from "lucide-react";
+import { ChevronDown, ArrowRight, ShieldCheck, LogOut } from "lucide-react";
 import { SERVICES } from "@/data/services";
 import { SERVICE_THEMES } from "@/sections/ServiceGrid";
 import SiteSearch from "@/components/SiteSearch";
+import { signOut } from "@/app/login/actions";
 
 const DEFAULT_SERVICE_THEME = SERVICE_THEMES["web-development"];
 
@@ -25,7 +26,7 @@ const UTILITY_LINKS = [
   { href: "/login", label: "Login" },
 ];
 
-export default function Header() {
+export default function Header({ user }) {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const [isScrolled, setIsScrolled] = useState(false);
@@ -103,17 +104,51 @@ export default function Header() {
         </span>
 
         <div className="flex items-center gap-6">
-        {UTILITY_LINKS.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={`transition-colors duration-200 hover:text-[#f7941e] ${
-              isActive(link.href) ? "text-[#f7941e]" : ""
-            }`}
-          >
-            {link.label}
-          </Link>
-        ))}
+          {user ? (
+            <>
+              <Link
+                href="/careers"
+                className={`transition-colors duration-200 hover:text-[#f7941e] ${
+                  isActive("/careers") ? "text-[#f7941e]" : ""
+                }`}
+              >
+                Careers
+              </Link>
+              <Link
+                href="/admin"
+                className={`inline-flex items-center gap-1.5 transition-colors duration-200 hover:text-[#f7941e] ${
+                  isActive("/admin") ? "text-[#f7941e]" : ""
+                }`}
+              >
+                <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                Admin
+              </Link>
+              <span className="text-[#9aa0ac]" aria-hidden="true">
+                {user.email}
+              </span>
+              <form action={signOut}>
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-1.5 transition-colors duration-200 hover:text-[#f7941e]"
+                >
+                  <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
+                  Logout
+                </button>
+              </form>
+            </>
+          ) : (
+            UTILITY_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`transition-colors duration-200 hover:text-[#f7941e] ${
+                  isActive(link.href) ? "text-[#f7941e]" : ""
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))
+          )}
         </div>
       </div>
 
@@ -236,20 +271,6 @@ export default function Header() {
                 )}
               </li>
 
-              <li>
-                <Link
-                  href="/arthaai"
-                  className="group relative inline-flex items-center gap-1.5 pb-1 transition-colors duration-200 hover:text-[#f7941e]"
-                >
-                  <Sparkles className="h-4 w-4 text-[#f7941e]" aria-hidden="true" />
-                  ArthaAI
-                  <span
-                    aria-hidden="true"
-                    className="absolute bottom-0 left-0 h-0.5 w-0 rounded-full bg-[#f7941e] transition-all duration-300 ease-out group-hover:w-full"
-                  />
-                </Link>
-              </li>
-
               {NAV_LINKS.slice(2, 5).map((link) => (
                 <li key={link.href}>
                   <Link
@@ -320,19 +341,55 @@ export default function Header() {
           aria-label="Mobile"
           className="border-t border-neutral-200 bg-white px-6 py-4 lg:hidden"
         >
-          <div className="mb-2 flex items-center gap-6 border-b border-neutral-200 pb-3 text-sm font-semibold text-[#676b7a]">
-            {UTILITY_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`transition-colors hover:text-[#f7941e] ${
-                  isActive(link.href) ? "text-[#f7941e]" : ""
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
+          <div className="mb-2 flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-neutral-200 pb-3 text-sm font-semibold text-[#676b7a]">
+            {user ? (
+              <>
+                <Link
+                  href="/careers"
+                  className={`transition-colors hover:text-[#f7941e] ${
+                    isActive("/careers") ? "text-[#f7941e]" : ""
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Careers
+                </Link>
+                <Link
+                  href="/admin"
+                  className={`inline-flex items-center gap-1.5 transition-colors hover:text-[#f7941e] ${
+                    isActive("/admin") ? "text-[#f7941e]" : ""
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                  Admin
+                </Link>
+                <span className="w-full text-xs font-normal text-[#9aa0ac]" aria-hidden="true">
+                  {user.email}
+                </span>
+                <form action={signOut}>
+                  <button
+                    type="submit"
+                    className="inline-flex items-center gap-1.5 transition-colors hover:text-[#f7941e]"
+                  >
+                    <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
+                    Logout
+                  </button>
+                </form>
+              </>
+            ) : (
+              UTILITY_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`transition-colors hover:text-[#f7941e] ${
+                    isActive(link.href) ? "text-[#f7941e]" : ""
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))
+            )}
           </div>
 
           <ul className="flex flex-col gap-1 text-sm font-medium text-[#2b303b]">
@@ -401,17 +458,6 @@ export default function Header() {
                   </Link>
                 </div>
               )}
-            </li>
-
-            <li>
-              <Link
-                href="/arthaai"
-                className="flex items-center gap-2 rounded-md px-3 py-2.5 transition-colors hover:bg-neutral-100 hover:text-[#f7941e]"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <Sparkles className="h-4 w-4 text-[#f7941e]" aria-hidden="true" />
-                ArthaAI
-              </Link>
             </li>
 
             {NAV_LINKS.slice(2).map((link) => (

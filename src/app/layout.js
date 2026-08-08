@@ -3,6 +3,7 @@ import "./globals.css";
 import SiteChrome from "@/components/SiteChrome";
 import OrganizationJsonLd from "@/components/OrganizationJsonLd";
 import { SITE_URL, SITE_NAME, DEFAULT_DESCRIPTION, OG_IMAGE_PATH } from "@/lib/site-config";
+import { createSsrServerClient } from "@/lib/supabase/ssr-server";
 
 const bodyFont = Inter({
   variable: "--font-body",
@@ -72,7 +73,17 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  // Session check runs on every page load, server-side — same
+  // getUser() pattern proxy.js already uses to guard /admin. This is
+  // what lets Header (a client component) know whether to show
+  // "Admin + email + Logout" or the normal "Careers / Login" bar,
+  // without Header doing its own client-side auth fetch.
+  const supabase = await createSsrServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <html
       lang="en"
@@ -80,7 +91,7 @@ export default function RootLayout({ children }) {
     >
       <body className="min-h-full flex flex-col">
         <OrganizationJsonLd />
-        <SiteChrome>{children}</SiteChrome>
+        <SiteChrome user={user}>{children}</SiteChrome>
       </body>
     </html>
   );
