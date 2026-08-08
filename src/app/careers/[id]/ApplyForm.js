@@ -84,6 +84,23 @@ export default function ApplyForm({ jobId, jobTitle }) {
             />
           </div>
 
+          <div>
+            <label htmlFor="experienceYears" className="mb-1.5 block text-sm font-medium text-[#2b303b]">
+              Years of Experience
+            </label>
+            <input
+              id="experienceYears"
+              name="experienceYears"
+              type="number"
+              min="0"
+              max="60"
+              step="1"
+              required
+              placeholder="e.g. 4"
+              className="w-full rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-all duration-200 focus:border-[#f7941e]/60 focus:ring-4 focus:ring-[#f7941e]/10"
+            />
+          </div>
+
           <div className="sm:col-span-2">
             <label htmlFor="resume" className="mb-1.5 block text-sm font-medium text-[#2b303b]">
               Resume (PDF)

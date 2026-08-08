@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Calendar, Clock } from "lucide-react";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { safeImageUrl } from "@/lib/safe-image-url";
 
 function estimateReadTime(content) {
   const words = (content || "").trim().split(/\s+/).filter(Boolean).length;
@@ -30,6 +31,8 @@ export default async function FeaturedArticle() {
   const post = await getFeaturedPost();
   if (!post) return null;
 
+  const imageUrl = safeImageUrl(post.featured_image_url);
+
   return (
     <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-white py-6 lg:py-8">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
@@ -47,9 +50,9 @@ export default async function FeaturedArticle() {
           className="group mt-5 grid grid-cols-1 gap-0 overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl lg:grid-cols-2"
         >
           <div className="relative h-64 w-full overflow-hidden bg-[#fafbfc] lg:h-full">
-            {post.featured_image_url && (
+            {imageUrl && (
               <Image
-                src={post.featured_image_url}
+                src={imageUrl}
                 alt={post.title}
                 fill
                 sizes="(min-width: 1024px) 50vw, 100vw"

@@ -16,16 +16,31 @@ import { updateApplicationStatus } from "../actions";
 import ResumeViewer from "./ResumeViewer";
 
 const STATUS_STYLES = {
-  applied: "bg-[#5b7fd4]/10 text-[#1f4693]",
-  selected: "bg-[#3b6d11]/10 text-[#3b6d11]",
+  new: "bg-[#5b7fd4]/10 text-[#1f4693]",
+  reviewed: "bg-[#676b7a]/10 text-[#676b7a]",
+  shortlisted: "bg-[#f7941e]/10 text-[#db7d17]",
+  interview: "bg-purple-100 text-purple-700",
+  offer: "bg-[#1f4693]/10 text-[#1f4693]",
+  hired: "bg-[#3b6d11]/10 text-[#3b6d11]",
   rejected: "bg-red-50 text-red-600",
 };
 
 const STATUS_LABELS = {
-  applied: "Applied",
-  selected: "Selected",
+  new: "New",
+  reviewed: "Reviewed",
+  shortlisted: "Shortlisted",
+  interview: "Interview",
+  offer: "Offer",
+  hired: "Hired",
   rejected: "Rejected",
 };
+
+// Forward-only chain, same pattern as ContactsManager's STATUS_OPTIONS: a
+// stage's dropdown offers itself plus every stage ahead of it, so a
+// candidate can advance (or jump straight to Hired) but never go
+// backwards through the active pipeline. Rejected is reachable from any
+// active stage, and from Rejected the only way back is to restart at New.
+const PIPELINE = ["new", "reviewed", "shortlisted", "interview", "offer", "hired"];
 
 function formatDate(isoString) {
   return new Date(isoString).toLocaleDateString("en-IN", {
@@ -40,15 +55,11 @@ function resumeFileName(applicant) {
   return `${safeName || "resume"}.pdf`;
 }
 
-// Status transition rules:
-// - "selected" is final — once set, no further changes are allowed.
-// - "rejected" can still be moved to "applied" or "selected" (undoing the
-//   rejection), but "rejected" itself won't reappear as a selectable option.
-// - "applied" is fully open — all three statuses are available.
 function availableStatusOptions(currentStatus) {
-  if (currentStatus === "selected") return ["selected"];
-  if (currentStatus === "rejected") return ["applied", "selected"];
-  return ["applied", "selected", "rejected"];
+  if (currentStatus === "hired") return ["hired"];
+  if (currentStatus === "rejected") return ["rejected", "new"];
+  const idx = PIPELINE.indexOf(currentStatus);
+  return [...PIPELINE.slice(idx), "rejected"];
 }
 
 export default function ApplicantsManager({ job, initialApplicants }) {
@@ -65,7 +76,7 @@ export default function ApplicantsManager({ job, initialApplicants }) {
     });
   }
 
-  const selectedCount = applicants.filter((a) => a.status === "selected").length;
+  const selectedCount = applicants.filter((a) => a.status === "hired").length;
   const remaining = Math.max(job.total_openings - selectedCount, 0);
 
   return (
@@ -168,7 +179,7 @@ export default function ApplicantsManager({ job, initialApplicants }) {
 
               <select
                 value={applicant.status}
-                disabled={isPending || applicant.status === "selected"}
+                disabled={isPending || applicant.status === "hired"}
                 onClick={(e) => e.stopPropagation()}
                 onChange={(e) => handleStatusChange(applicant.id, e.target.value)}
                 className="w-full shrink-0 rounded-lg border border-[#e7e9ee] px-3 py-2 text-sm font-medium text-[#2b303b] outline-none focus:border-[#1f4693]/60 disabled:opacity-50 sm:w-40"
@@ -286,7 +297,7 @@ export default function ApplicantsManager({ job, initialApplicants }) {
               <select
                 id="modal-status"
                 value={viewing.status}
-                disabled={isPending || viewing.status === "selected"}
+                disabled={isPending || viewing.status === "hired"}
                 onChange={(e) => {
                   const newStatus = e.target.value;
                   handleStatusChange(viewing.id, newStatus);
@@ -300,9 +311,9 @@ export default function ApplicantsManager({ job, initialApplicants }) {
                   </option>
                 ))}
               </select>
-              {viewing.status === "selected" && (
+              {viewing.status === "hired" && (
                 <p className="mt-1.5 text-xs text-[#676b7a]">
-                  Selected is final and can&apos;t be changed.
+                  Hired is final and can&apos;t be changed.
                 </p>
               )}
             </div>

@@ -9,11 +9,24 @@ export async function submitApplication(prevState, formData) {
   const fullName = formData.get("fullName")?.toString().trim();
   const email = formData.get("email")?.toString().trim();
   const phone = formData.get("phone")?.toString().trim();
+  const experienceYearsRaw = formData.get("experienceYears")?.toString().trim();
   const coverNote = formData.get("coverNote")?.toString().trim();
   const resumeFile = formData.get("resume");
 
   if (!jobId || !fullName || !email) {
     return { status: "error", message: "Please fill in all required fields." };
+  }
+
+  const experienceYears = experienceYearsRaw === "" || experienceYearsRaw === undefined
+    ? null
+    : Number(experienceYearsRaw);
+  if (
+    experienceYears === null ||
+    !Number.isFinite(experienceYears) ||
+    experienceYears < 0 ||
+    experienceYears > 60
+  ) {
+    return { status: "error", message: "Please enter your years of experience." };
   }
 
   if (!(resumeFile instanceof File) || resumeFile.size === 0) {
@@ -57,6 +70,7 @@ export async function submitApplication(prevState, formData) {
     full_name: fullName,
     email,
     phone: phone || null,
+    experience_years: experienceYears,
     resume_url: publicUrl,
     cover_note: coverNote || null,
   });

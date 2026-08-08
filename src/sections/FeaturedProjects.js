@@ -10,7 +10,7 @@ async function getFeaturedProjects() {
     .select("id, title, tag, description, image_url")
     .eq("status", "published")
     .order("created_at", { ascending: false })
-    .limit(4);
+    .limit(6);
 
   if (error) {
     console.error("Failed to load featured projects:", error.message);

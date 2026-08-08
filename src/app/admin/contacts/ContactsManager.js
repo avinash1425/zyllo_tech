@@ -12,6 +12,10 @@ import {
   Briefcase,
   FileSpreadsheet,
   CalendarRange,
+  Inbox,
+  CircleDot,
+  MessageCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { updateSubmissionStatus, deleteSubmission } from "./actions";
 
@@ -83,6 +87,18 @@ export default function ContactsManager({ initialSubmissions }) {
     setDateFrom("");
     setDateTo("");
   }
+
+  const totalCount = submissions.length;
+  const newCount = submissions.filter((item) => item.status === "new").length;
+  const contactedCount = submissions.filter((item) => item.status === "contacted").length;
+  const closedCount = submissions.filter((item) => item.status === "closed").length;
+
+  const SUMMARY_BADGES = [
+    { key: "total", icon: Inbox, label: "Total Submissions", value: totalCount, accent: "#1f4693" },
+    { key: "new", icon: CircleDot, label: "New", value: newCount, accent: "#f7941e" },
+    { key: "contacted", icon: MessageCircle, label: "Contacted", value: contactedCount, accent: "#1f4693" },
+    { key: "closed", icon: CheckCircle2, label: "Closed", value: closedCount, accent: "#3b6d11" },
+  ];
 
   async function handleExportExcel() {
     if (filtered.length === 0) {
@@ -210,6 +226,24 @@ export default function ContactsManager({ initialSubmissions }) {
             {submissions.length === 1 ? "" : "s"} shown.
           </p>
         </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3">
+        {SUMMARY_BADGES.map(({ key, icon: Icon, label, value, accent }) => (
+          <span
+            key={key}
+            className="inline-flex items-center gap-2 rounded-full border border-[#e7e9ee] bg-white py-1.5 pl-2 pr-4 shadow-sm"
+          >
+            <span
+              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
+              style={{ backgroundColor: `${accent}15` }}
+            >
+              <Icon className="h-3.5 w-3.5" style={{ color: accent }} aria-hidden="true" />
+            </span>
+            <span className="text-sm font-bold text-[#2b303b]">{value}</span>
+            <span className="text-xs font-medium text-[#676b7a]">{label}</span>
+          </span>
+        ))}
       </div>
 
       <div className="flex flex-col gap-4 rounded-2xl border border-[#e7e9ee] bg-white p-4 sm:flex-row sm:items-center sm:justify-between">

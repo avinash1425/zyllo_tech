@@ -114,12 +114,24 @@ export async function deleteJobPosting(id) {
   return { status: "success" };
 }
 
-// Update a single applicant's status (Applied / Selected / Rejected).
-// The DB trigger automatically recomputes the parent job's open/closed
-// status and remaining slots whenever this changes — no manual bookkeeping
-// needed here.
+// Update a single applicant's status through the 7-stage pipeline (New ->
+// Reviewed -> Shortlisted -> Interview -> Offer -> Hired, with Rejected
+// reachable from any active stage). The DB trigger automatically
+// recomputes the parent job's open/closed status and remaining slots
+// whenever this changes (it counts 'hired' applicants) — no manual
+// bookkeeping needed here.
+const VALID_STATUSES = [
+  "new",
+  "reviewed",
+  "shortlisted",
+  "interview",
+  "offer",
+  "hired",
+  "rejected",
+];
+
 export async function updateApplicationStatus(applicationId, newStatus) {
-  if (!["applied", "selected", "rejected"].includes(newStatus)) {
+  if (!VALID_STATUSES.includes(newStatus)) {
     return { status: "error", message: "Invalid status." };
   }
 
@@ -135,6 +147,54 @@ export async function updateApplicationStatus(applicationId, newStatus) {
   }
 
   revalidatePath("/admin/careers");
+  revalidatePath("/admin/job-applications");
+  revalidatePath("/admin");
   revalidatePath("/careers");
+  return { status: "success" };
+}
+
+// Admin-entered fields, both nullable, both set only from the admin side
+// (never collected on the public apply form). experienceYears is a plain
+// integer typed in by HR after reading the resume; prospectRating is a
+// 1-5 star rating of how strong a candidate looks.
+export async function updateApplicationExperience(applicationId, years) {
+  const parsed = years === "" || years === null ? null : Number(years);
+  if (parsed !== null && (!Number.isFinite(parsed) || parsed < 0)) {
+    return { status: "error", message: "Experience must be a non-negative number." };
+  }
+
+  const supabase = createServerSupabaseClient();
+  const { error } = await supabase
+    .from("job_applications")
+    .update({ experience_years: parsed })
+    .eq("id", applicationId);
+
+  if (error) {
+    console.error("Failed to update applicant experience:", error.message);
+    return { status: "error", message: error.message };
+  }
+
+  revalidatePath("/admin/job-applications");
+  return { status: "success" };
+}
+
+export async function updateApplicationProspectRating(applicationId, rating) {
+  const parsed = rating === null || rating === "" ? null : Number(rating);
+  if (parsed !== null && (!Number.isInteger(parsed) || parsed < 1 || parsed > 5)) {
+    return { status: "error", message: "Rating must be between 1 and 5." };
+  }
+
+  const supabase = createServerSupabaseClient();
+  const { error } = await supabase
+    .from("job_applications")
+    .update({ prospect_rating: parsed })
+    .eq("id", applicationId);
+
+  if (error) {
+    console.error("Failed to update prospect rating:", error.message);
+    return { status: "error", message: error.message };
+  }
+
+  revalidatePath("/admin/job-applications");
   return { status: "success" };
 }

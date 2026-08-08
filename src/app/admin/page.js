@@ -1,12 +1,26 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { Eye, Users, Clock, MessageSquare, Briefcase, UserCheck } from "lucide-react";
-import DashboardStatCard from "./DashboardStatCard";
+import {
+  Eye,
+  Users,
+  MessageSquare,
+  Briefcase,
+  UserCheck,
+  ClipboardCheck,
+  DoorOpen,
+  CheckCircle2,
+  MousePointerClick,
+  TrendingUp,
+  Activity,
+  BarChart3,
+} from "lucide-react";
 import MiniMetricCard from "./MiniMetricCard";
+import GradientStatCard from "./GradientStatCard";
 import DashboardRefresh from "./DashboardRefresh";
 import TrafficChart from "./TrafficChart";
-import TopPagesPanel from "./TopPagesPanel";
+import LeadDistributionDonut from "./LeadDistributionDonut";
 import RecentActivity from "./RecentActivity";
 import ApplicantsByJobPanel from "./ApplicantsByJobPanel";
+import ScrollToTopButton from "./ScrollToTopButton";
 
 async function getRecentActivity() {
   const supabase = createServerSupabaseClient();
@@ -17,12 +31,12 @@ async function getRecentActivity() {
         .from("contact_submissions")
         .select("id, full_name, service, created_at")
         .order("created_at", { ascending: false })
-        .limit(5),
+        .limit(10),
       supabase
         .from("job_applications")
         .select("id, full_name, created_at, job_postings(title)")
         .order("created_at", { ascending: false })
-        .limit(5),
+        .limit(10),
     ]);
 
   if (submissionsError) {
@@ -36,22 +50,22 @@ async function getRecentActivity() {
     ...(submissions ?? []).map((s) => ({
       type: "contact",
       id: s.id,
-      text: `New contact submission from ${s.full_name}`,
-      detail: s.service ? `Service required: ${s.service}` : "Submitted via contact form",
+      name: s.full_name,
+      subtitle: s.service || "General inquiry",
       createdAt: s.created_at,
     })),
     ...(applicants ?? []).map((a) => ({
       type: "applicant",
       id: a.id,
-      text: `New applicant for ${a.job_postings?.title ?? "a job posting"}`,
-      detail: "Applied via Careers page",
+      name: a.full_name,
+      subtitle: a.job_postings?.title ?? "a job posting",
       createdAt: a.created_at,
     })),
   ];
 
   items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-  return items.slice(0, 6);
+  return items.slice(0, 10);
 }
 
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -115,20 +129,52 @@ async function getWeeklyActivityCounts() {
 async function getTotalCounts() {
   const supabase = createServerSupabaseClient();
 
-  const [{ count: contactsTotal }, { count: applicantsTotal }, { count: selectedTotal }] =
-    await Promise.all([
-      supabase.from("contact_submissions").select("id", { count: "exact", head: true }),
-      supabase.from("job_applications").select("id", { count: "exact", head: true }),
-      supabase
-        .from("job_applications")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "selected"),
-    ]);
+  const [
+    { count: contactsTotal },
+    { count: applicantsTotal },
+    { count: selectedTotal },
+    { count: applicationViewsTotal, error: viewsError },
+    { data: jobRows, error: jobsError },
+  ] = await Promise.all([
+    supabase.from("contact_submissions").select("id", { count: "exact", head: true }),
+    supabase.from("job_applications").select("id", { count: "exact", head: true }),
+    supabase
+      .from("job_applications")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "hired"),
+    supabase.from("job_application_views").select("id", { count: "exact", head: true }),
+    // Pulling full rows (not just a count) because "Total Openings" is a
+    // sum of each posting's total_openings headcount field, not a row
+    // count — same math as CareersManager.js's totalPositions/
+    // totalOpenings, kept in sync with that page rather than a separate
+    // definition. Includes closed postings too, matching that page.
+    supabase.from("job_postings").select("id, status, total_openings"),
+  ]);
+
+  if (viewsError) {
+    // Most likely cause: the 006_job_application_views.sql migration
+    // hasn't been run yet in this Supabase project. Don't let that break
+    // the whole dashboard — just fall back to 0 views, which makes the
+    // completion-rate card show "—" instead of crashing the page.
+    console.error("Failed to load application view count:", viewsError.message);
+  }
+  if (jobsError) {
+    console.error("Failed to load job postings for totals:", jobsError.message);
+  }
+
+  const jobs = jobRows ?? [];
+  const totalPositions = jobs.length;
+  const openPositions = jobs.filter((j) => j.status === "open").length;
+  const totalOpenings = jobs.reduce((sum, j) => sum + (j.total_openings ?? 0), 0);
 
   return {
     contactsTotal: contactsTotal ?? 0,
     applicantsTotal: applicantsTotal ?? 0,
     selectedTotal: selectedTotal ?? 0,
+    applicationViewsTotal: applicationViewsTotal ?? 0,
+    totalPositions,
+    openPositions,
+    totalOpenings,
   };
 }
 
@@ -171,18 +217,25 @@ async function getApplicantsByJob() {
     .sort((a, b) => b.applicants - a.applicants);
 }
 
-// Same placeholder traffic numbers TrafficPanel used to render on its own —
-// kept here so the top stat row can pull from a single source. Swap for
-// real aggregates once analytics is connected.
-function getTrafficSummary() {
-  const visitors = 10400;
-  const uniqueUsers = 8100;
-  const avgSeconds = 154;
+// Placeholder traffic numbers — no page-view tracking or session/bounce
+// detection exists yet, so Total Visitors/Page Views/Bounce Rate/Conversion
+// Rate below are illustrative only (clearly labeled as sample data in the
+// UI), same convention TrafficChart already uses for its own chart data.
+// leadsTotal is the one real number woven in: contactsTotal + applicantsTotal
+// from getTotalCounts(), shown as supporting context under Conversion Rate.
+function getTrafficSummary(leadsTotal) {
+  const visitors = 14636;
+  const pageViews = Math.round(visitors * 2.56);
+  const bounceRate = 56.5;
+  const conversionRate = visitors > 0 ? (leadsTotal / visitors) * 100 : 0;
 
   return {
     visitors: visitors >= 1000 ? `${(visitors / 1000).toFixed(1)}K` : `${visitors}`,
-    uniqueUsers: uniqueUsers >= 1000 ? `${(uniqueUsers / 1000).toFixed(1)}K` : `${uniqueUsers}`,
-    avgSession: `${Math.floor(avgSeconds / 60)}m ${avgSeconds % 60}s`,
+    pageViews: pageViews >= 1000 ? `${(pageViews / 1000).toFixed(1)}K` : `${pageViews}`,
+    pagesPerVisit: (pageViews / visitors).toFixed(2),
+    bounceRate: `${bounceRate.toFixed(1)}%`,
+    conversionRate: `${conversionRate.toFixed(1)}%`,
+    leadsTotal,
   };
 }
 
@@ -194,7 +247,7 @@ export default async function AdminOverviewPage() {
     getApplicantsByJob(),
   ]);
 
-  const traffic = getTrafficSummary();
+  const traffic = getTrafficSummary(totals.contactsTotal + totals.applicantsTotal);
   const contactsThisWeek = weeklyCounts.reduce((sum, d) => sum + d.contacts, 0);
   const applicantsThisWeek = weeklyCounts.reduce((sum, d) => sum + d.applicants, 0);
 
@@ -217,40 +270,81 @@ export default async function AdminOverviewPage() {
         <DashboardRefresh />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <DashboardStatCard
-          icon={Eye}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <GradientStatCard
+          icon={Users}
           label="Total Visitors"
           value={traffic.visitors}
-          accent="#f7941e"
-          accentDark="#c96a0f"
-          badgeLabel="Last 30 days"
-          delta="+1.4%"
-          note="vs prior period"
-        />
-        <DashboardStatCard
-          icon={Users}
-          label="Unique Users"
-          value={traffic.uniqueUsers}
           accent="#1f4693"
-          accentDark="#132c5c"
           badgeLabel="Last 30 days"
-          delta="+3.0%"
+          delta="+0.3%"
           note="vs prior period"
         />
-        <DashboardStatCard
-          icon={Clock}
-          label="Avg. Session Duration"
-          value={traffic.avgSession}
-          accent="#5b7fd4"
-          accentDark="#1f4693"
-          badgeLabel="Avg. Rate"
-          delta="+0.8%"
+        <GradientStatCard
+          icon={Eye}
+          label="Page Views"
+          value={traffic.pageViews}
+          accent="#7c3aed"
+          badgeLabel="Last 30 days"
+          delta="-3.5%"
+          deltaDirection="down"
+          deltaGood={false}
+          note={`vs prior period · ${traffic.pagesPerVisit} pages/visit`}
+        />
+        <GradientStatCard
+          icon={MousePointerClick}
+          label="Bounce Rate"
+          value={traffic.bounceRate}
+          accent="#f7941e"
+          badgeLabel="Avg Rate"
+          delta="+3.0%"
+          deltaGood={false}
           note="vs prior period"
+        />
+        <GradientStatCard
+          icon={TrendingUp}
+          label="Conversion Rate"
+          value={traffic.conversionRate}
+          accent="#3b6d11"
+          badgeLabel="All Time"
+          delta="+101.1%"
+          note={`vs prior period · ${traffic.leadsTotal} leads`}
+        />
+      </div>
+      <p className="-mt-2 text-[10px] leading-relaxed text-[#676b7a]/70">
+        Traffic metrics above are sample data — connect an analytics tool for real numbers. Lead
+        counts are real.
+      </p>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <MiniMetricCard
+          icon={Briefcase}
+          label="Total Positions"
+          value={totals.totalPositions}
+          accent="#1f4693"
+          progress={Math.min(100, (totals.totalPositions / 15) * 100)}
+        />
+        <MiniMetricCard
+          icon={CheckCircle2}
+          label="Open"
+          value={totals.openPositions}
+          accent="#3b6d11"
+          progress={
+            totals.totalPositions > 0
+              ? Math.min(100, (totals.openPositions / totals.totalPositions) * 100)
+              : 0
+          }
+        />
+        <MiniMetricCard
+          icon={DoorOpen}
+          label="Total Openings"
+          value={totals.totalOpenings}
+          accent="#f7941e"
+          progress={Math.min(100, (totals.totalOpenings / 60) * 100)}
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MiniMetricCard
           icon={MessageSquare}
           label="Contact Forms"
@@ -278,12 +372,30 @@ export default async function AdminOverviewPage() {
               : 0
           }
         />
+        <MiniMetricCard
+          icon={ClipboardCheck}
+          label="Application Completion"
+          value={
+            totals.applicationViewsTotal > 0
+              ? `${Math.round((totals.applicantsTotal / totals.applicationViewsTotal) * 100)}%`
+              : "—"
+          }
+          accent="#db7d17"
+          progress={
+            totals.applicationViewsTotal > 0
+              ? Math.min(100, (totals.applicantsTotal / totals.applicationViewsTotal) * 100)
+              : 0
+          }
+        />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        <div className="rounded-2xl border border-[#e7e9ee] bg-white p-4 shadow-sm xl:col-span-1">
-          <h2 className="text-sm font-semibold text-[#2b303b]">Website Traffic</h2>
-          <p className="mt-0.5 text-xs text-[#676b7a]">Daily visitors and pageviews</p>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <div className="rounded-2xl border border-[#e7e9ee] bg-white p-4 shadow-sm">
+          <div className="flex items-center gap-2">
+            <Activity className="h-4 w-4 text-[#f7941e]" aria-hidden="true" />
+            <h2 className="text-sm font-semibold text-[#2b303b]">Website Traffic</h2>
+          </div>
+          <p className="mt-0.5 text-xs text-[#676b7a]">Daily visitors and pageviews (Last 30 days)</p>
           <div className="mt-3">
             <TrafficChart days={30} />
           </div>
@@ -291,17 +403,28 @@ export default async function AdminOverviewPage() {
             Sample data — connect an analytics tool to show real traffic here.
           </p>
         </div>
-        <div className="xl:col-span-1">
-          <TopPagesPanel />
-        </div>
-        <div className="xl:col-span-1">
-          <RecentActivity items={activity} weeklyCounts={weeklyCounts} />
+
+        <div className="rounded-2xl border border-[#e7e9ee] bg-white p-4 shadow-sm">
+          <div className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4 text-[#f7941e]" aria-hidden="true" />
+            <h2 className="text-sm font-semibold text-[#2b303b]">Lead Distribution</h2>
+          </div>
+          <p className="mt-0.5 text-xs text-[#676b7a]">Breakdown by submission type</p>
+          <div className="mt-3">
+            <LeadDistributionDonut
+              contactsTotal={totals.contactsTotal}
+              applicantsTotal={totals.applicantsTotal}
+            />
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <RecentActivity items={activity} weeklyCounts={weeklyCounts} />
         <ApplicantsByJobPanel jobs={applicantsByJob} />
       </div>
+
+      <ScrollToTopButton />
     </div>
   );
 }

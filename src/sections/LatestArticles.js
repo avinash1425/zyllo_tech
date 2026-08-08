@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Calendar, Clock } from "lucide-react";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { safeImageUrl } from "@/lib/safe-image-url";
 
 function estimateReadTime(content) {
   const words = (content || "").trim().split(/\s+/).filter(Boolean).length;
@@ -53,16 +54,18 @@ export default async function LatestArticles() {
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
+          {posts.map((post) => {
+            const imageUrl = safeImageUrl(post.featured_image_url);
+            return (
             <Link
               key={post.slug}
               href={`/blog/${post.slug}`}
               className="group overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
             >
               <div className="relative h-44 w-full overflow-hidden bg-[#fafbfc]">
-                {post.featured_image_url && (
+                {imageUrl && (
                   <Image
-                    src={post.featured_image_url}
+                    src={imageUrl}
                     alt={post.title}
                     fill
                     sizes="(min-width: 640px) 33vw, 100vw"
@@ -94,7 +97,8 @@ export default async function LatestArticles() {
                 </div>
               </div>
             </Link>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

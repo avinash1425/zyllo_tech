@@ -20,7 +20,7 @@ async function getOpenPositions() {
   const { data: selectedApps, error: appsError } = await supabase
     .from("job_applications")
     .select("job_id")
-    .eq("status", "selected");
+    .eq("status", "hired");
 
   if (appsError) {
     console.error("Failed to load selected applicants:", appsError.message);

@@ -2,7 +2,24 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Loader2, FileText, User } from "lucide-react";
+import {
+  Search,
+  Loader2,
+  FileText,
+  User,
+  Newspaper,
+  FolderKanban,
+  Mail,
+  LayoutDashboard,
+} from "lucide-react";
+
+const TYPE_ICON = {
+  Applicant: User,
+  "Blog Post": Newspaper,
+  "Portfolio Project": FolderKanban,
+  "Contact Submission": Mail,
+  Section: LayoutDashboard,
+};
 
 export default function AdminSearch() {
   const [query, setQuery] = useState("");
@@ -102,7 +119,7 @@ export default function AdminSearch() {
         }}
         onFocus={() => setOpen(true)}
         onKeyDown={handleKeyDown}
-        placeholder="Search job postings, applicants…"
+        placeholder="Search everything…"
         className="w-full rounded-lg border border-[#e7e9ee] bg-[#fafbfc] py-2 pl-9 pr-3 text-sm text-[#2b303b] outline-none placeholder:text-[#676b7a]/50 focus:border-[#1f4693]/50 focus:bg-white"
       />
 
@@ -117,13 +134,13 @@ export default function AdminSearch() {
 
           {!loading && results.length === 0 && (
             <div className="px-4 py-3 text-sm text-[#676b7a]">
-              No matches in Careers. Contacts, Blog, and Portfolio aren't connected to search yet.
+              No matches for &ldquo;{query.trim()}&rdquo;.
             </div>
           )}
 
           {!loading &&
             results.map((result, i) => {
-              const Icon = result.type === "Applicant" ? User : FileText;
+              const Icon = TYPE_ICON[result.type] || FileText;
               return (
                 <button
                   key={`${result.type}-${result.title}-${i}`}

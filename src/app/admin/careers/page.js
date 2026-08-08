@@ -28,7 +28,7 @@ async function getJobPostingsWithCounts() {
   const selectedByJobId = {};
   for (const app of applications ?? []) {
     totalByJobId[app.job_id] = (totalByJobId[app.job_id] ?? 0) + 1;
-    if (app.status === "selected") {
+    if (app.status === "hired") {
       selectedByJobId[app.job_id] = (selectedByJobId[app.job_id] ?? 0) + 1;
     }
   }

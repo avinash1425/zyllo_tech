@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronDown, ArrowRight, Sparkles } from "lucide-react";
 import { SERVICES } from "@/data/services";
 import { SERVICE_THEMES } from "@/sections/ServiceGrid";
+import SiteSearch from "@/components/SiteSearch";
 
 const DEFAULT_SERVICE_THEME = SERVICE_THEMES["web-development"];
 
@@ -66,12 +67,42 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 transition-all duration-300">
       <div
-        className={`hidden w-full items-center justify-end gap-6 border-b px-6 py-2.5 text-sm font-semibold backdrop-blur-xl transition-all duration-300 lg:flex lg:px-8 ${
+        className={`hidden w-full items-center justify-between gap-6 border-b px-6 py-2.5 text-sm font-semibold backdrop-blur-xl transition-all duration-300 lg:flex lg:px-8 ${
           isHome
             ? "border-[#f7941e]/15 bg-[#fff7ed]/60 text-[#676b7a]"
             : "border-[#e5d9c3] bg-[#faf6ef] text-[#676b7a]"
         }`}
       >
+        <span className="inline-flex items-center gap-1.5" aria-label="India">
+          <svg
+            viewBox="0 0 30 20"
+            className="h-3.5 w-5 shrink-0 rounded-[2px] ring-1 ring-black/10"
+            aria-hidden="true"
+          >
+            <rect width="30" height="6.67" y="0" fill="#FF9933" />
+            <rect width="30" height="6.66" y="6.67" fill="#FFFFFF" />
+            <rect width="30" height="6.67" y="13.33" fill="#138808" />
+            <circle cx="15" cy="10" r="2.6" fill="none" stroke="#06038D" strokeWidth="0.3" />
+            <circle cx="15" cy="10" r="0.35" fill="#06038D" />
+            <g stroke="#06038D" strokeWidth="0.22">
+              <line x1="15" y1="7.4" x2="15" y2="12.6" />
+              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(15 15 10)" />
+              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(30 15 10)" />
+              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(45 15 10)" />
+              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(60 15 10)" />
+              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(75 15 10)" />
+              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(90 15 10)" />
+              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(105 15 10)" />
+              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(120 15 10)" />
+              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(135 15 10)" />
+              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(150 15 10)" />
+              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(165 15 10)" />
+            </g>
+          </svg>
+          India
+        </span>
+
+        <div className="flex items-center gap-6">
         {UTILITY_LINKS.map((link) => (
           <Link
             key={link.href}
@@ -83,6 +114,7 @@ export default function Header() {
             {link.label}
           </Link>
         ))}
+        </div>
       </div>
 
       <div
@@ -246,35 +278,40 @@ export default function Header() {
             {NAV_LINKS[5].label}
             <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true" />
           </Link>
+
+          <SiteSearch />
         </div>
 
-        <button
-          type="button"
-          className="inline-flex items-center justify-center rounded-md p-2 text-[#2b303b] transition-colors duration-200 hover:bg-neutral-100 lg:hidden"
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          aria-expanded={isMenuOpen}
-          aria-controls="mobile-menu"
-          onClick={() => setIsMenuOpen((open) => !open)}
-        >
-          <svg
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.75}
-            stroke="currentColor"
-            aria-hidden="true"
+        <div className="flex items-center gap-1 lg:hidden">
+          <SiteSearch />
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded-md p-2 text-[#2b303b] transition-colors duration-200 hover:bg-neutral-100"
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-menu"
+            onClick={() => setIsMenuOpen((open) => !open)}
           >
-            {isMenuOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-            ) : (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"
-              />
-            )}
-          </svg>
-        </button>
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.75}
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              {isMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"
+                />
+              )}
+            </svg>
+          </button>
+        </div>
       </div>
 
       {isMenuOpen && (

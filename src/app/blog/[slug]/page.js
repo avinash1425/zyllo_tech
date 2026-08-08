@@ -5,6 +5,9 @@ import PageHero from "@/components/PageHero";
 import Reveal from "@/components/Reveal";
 import ContactCTA from "@/sections/ContactCTA";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { safeImageUrl } from "@/lib/safe-image-url";
+import { SITE_URL, SITE_NAME, OG_IMAGE_PATH } from "@/lib/site-config";
+import ArticleJsonLd from "@/components/ArticleJsonLd";
 
 function estimateReadTime(content) {
   const words = (content || "").trim().split(/\s+/).filter(Boolean).length;
@@ -38,9 +41,33 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
   const post = await getPost(slug);
   if (!post || post.status !== "published") return {};
+
+  const description = post.excerpt || undefined;
+  const image = safeImageUrl(post.featured_image_url) || `${SITE_URL}${OG_IMAGE_PATH}`;
+
   return {
-    title: `${post.title} | Zyllo Tech Blog`,
-    description: post.excerpt || undefined,
+    // No template suffix needed — root layout's title template already
+    // appends " | Zyllo Tech"; this just replaces "%s" with the post title.
+    title: post.title,
+    description,
+    alternates: {
+      canonical: `/blog/${post.slug}`,
+    },
+    openGraph: {
+      type: "article",
+      title: post.title,
+      description,
+      url: `/blog/${post.slug}`,
+      publishedTime: post.created_at,
+      authors: post.author ? [post.author] : undefined,
+      images: [{ url: image, alt: post.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description,
+      images: [image],
+    },
   };
 }
 
@@ -54,11 +81,12 @@ export default async function BlogPostPage({ params }) {
 
   return (
     <>
+      <ArticleJsonLd post={post} />
       <PageHero
         eyebrow={post.category}
         title={post.title}
         description={post.excerpt || undefined}
-        image={post.featured_image_url || undefined}
+        image={safeImageUrl(post.featured_image_url) || undefined}
         imageAlt={post.title}
       />
 
