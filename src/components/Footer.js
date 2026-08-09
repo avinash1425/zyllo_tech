@@ -1,6 +1,6 @@
 "use client";
 
-import { Mail, MapPin, Phone, Send, Sparkles } from "lucide-react";
+import { ArrowRight, Mail, MapPin, Phone, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -31,13 +31,12 @@ const SERVICE_LINKS = [
   { href: "/services", label: "All Services" },
 ];
 
-// Same platform set and order as zyllotech.com's live footer. X's href is
-// verified from the site's own twitter:site meta tag (@ZylloS85154) — the
-// rest are placeholders pending the real handles, since the live site is a
-// client-rendered SPA and its footer markup can't be scraped to confirm them.
+// Same platform set and order as zyllotech.com's live footer. Real handles
+// confirmed directly by the user — Facebook is the one exception, still a
+// placeholder pending that URL.
 const SOCIAL_LINKS = [
   {
-    href: "#",
+    href: "https://www.instagram.com/zyllotechsoftwaresolutions/",
     label: "Instagram",
     path: "M12 2c-2.716 0-3.056.012-4.123.06-1.064.049-1.791.218-2.427.465a4.902 4.902 0 0 0-1.771 1.153A4.902 4.902 0 0 0 2.526 5.45c-.247.636-.416 1.363-.465 2.427C2.012 8.944 2 9.284 2 12s.012 3.056.06 4.123c.049 1.064.218 1.791.465 2.427a4.902 4.902 0 0 0 1.153 1.771 4.902 4.902 0 0 0 1.771 1.153c.636.247 1.363.416 2.427.465C8.944 21.988 9.284 22 12 22s3.056-.012 4.123-.06c1.064-.049 1.791-.218 2.427-.465a4.902 4.902 0 0 0 1.771-1.153 4.902 4.902 0 0 0 1.153-1.771c.247-.636.416-1.363.465-2.427.048-1.067.06-1.407.06-4.123s-.012-3.056-.06-4.123c-.049-1.064-.218-1.791-.465-2.427a4.902 4.902 0 0 0-1.153-1.771A4.902 4.902 0 0 0 18.55 2.526c-.636-.247-1.363-.416-2.427-.465C15.056 2.012 14.716 2 12 2zm0 1.802c2.67 0 2.987.01 4.042.059.976.045 1.505.207 1.858.344.467.181.8.398 1.15.748.35.35.566.683.747 1.15.137.353.3.882.344 1.858.05 1.055.06 1.372.06 4.042s-.01 2.987-.06 4.042c-.045.976-.207 1.505-.344 1.858a3.1 3.1 0 0 1-.747 1.15c-.35.35-.683.566-1.15.747-.353.137-.882.3-1.858.344-1.054.05-1.371.06-4.042.06s-2.988-.01-4.042-.06c-.976-.045-1.505-.207-1.858-.344a3.1 3.1 0 0 1-1.15-.747 3.1 3.1 0 0 1-.748-1.15c-.137-.353-.3-.882-.344-1.858-.048-1.055-.059-1.372-.059-4.042s.011-2.987.06-4.042c.043-.976.206-1.505.343-1.858.181-.467.398-.8.748-1.15.35-.35.683-.567 1.15-.748.353-.137.882-.3 1.858-.344 1.055-.048 1.372-.059 4.042-.059zm0 3.064a5.135 5.135 0 1 0 0 10.27 5.135 5.135 0 0 0 0-10.27zm0 8.468a3.333 3.333 0 1 1 0-6.666 3.333 3.333 0 0 1 0 6.666zm6.538-8.671a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0z",
   },
@@ -47,12 +46,12 @@ const SOCIAL_LINKS = [
     path: "M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.011c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.299h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z",
   },
   {
-    href: "#",
+    href: "https://www.linkedin.com/company/zyllo-tech/",
     label: "LinkedIn",
     path: "M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z",
   },
   {
-    href: "#",
+    href: "https://www.youtube.com/@zylloTechSoftwareSolutions",
     label: "YouTube",
     path: "M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z",
   },
@@ -63,9 +62,20 @@ const SOCIAL_LINKS = [
   },
 ];
 
-function FooterHeading({ children }) {
+// Uppercase + tracked + a short gradient underline — deliberately distinct
+// from the plain sentence-case body/link text below each of these.
+// The underline is a plain Tailwind after: pseudo-element rather than a
+// styled-jsx rule — styled-jsx only scopes elements written directly in
+// the component that owns the <style> tag, so a rule targeting markup
+// rendered by this separate helper component would silently never match.
+function FooterHeading({ children, dot }) {
   return (
-    <h3 className="text-[14.5px] font-semibold text-white">{children}</h3>
+    <h3 className="relative inline-flex items-center gap-2 pb-3.5 text-xs font-bold uppercase tracking-[0.15em] text-white after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-10 after:rounded-full after:bg-gradient-to-r after:from-[#f96706] after:to-[#3089a6] after:shadow-[0_0_10px_rgba(249,103,6,0.55)] after:content-['']">
+      {dot && (
+        <span className="footer-dot h-1.5 w-1.5 rounded-full bg-[#2f8fe0]" aria-hidden="true" />
+      )}
+      {children}
+    </h3>
   );
 }
 
@@ -73,8 +83,12 @@ function FooterLink({ href, children }) {
   return (
     <Link
       href={href}
-      className="text-[#c9cfdb] transition-colors duration-200 hover:text-white"
+      className="group inline-flex items-center gap-1.5 text-[#c9cfdb] transition-all duration-200 hover:translate-x-1 hover:text-white"
     >
+      <ArrowRight
+        aria-hidden="true"
+        className="h-3 w-3 shrink-0 -ml-4 text-[#f96706] opacity-0 transition-all duration-200 group-hover:ml-0 group-hover:opacity-100"
+      />
       {children}
     </Link>
   );
@@ -112,30 +126,30 @@ export default function Footer() {
               globally delivered.
             </p>
 
-            <h3 className="mt-6 text-xs font-bold uppercase tracking-[0.15em] text-white">
-              Stay Updated
-            </h3>
+            <div className="mt-6">
+              <FooterHeading dot>Stay Updated</FooterHeading>
+            </div>
             {subscribed ? (
-              <p className="mt-3 text-[12.5px] font-semibold text-[#3089a6]">
+              <p className="mt-3 text-[12.5px] font-semibold text-[#2f8fe0]">
                 You&apos;re subscribed — thank you!
               </p>
             ) : (
               <form
                 onSubmit={handleSubscribe}
-                className="footer-form mt-3 flex w-full max-w-xs items-stretch gap-2"
+                className="footer-form mt-3 flex w-full max-w-xs items-stretch overflow-hidden rounded-lg border border-white/15"
               >
                 <input
                   type="email"
                   required
-                  placeholder="Your email"
-                  className="h-11 min-w-0 flex-1 rounded-lg border border-white/15 bg-white/[0.05] px-3.5 text-[12.5px] text-white placeholder:text-[#8b93a3] outline-none"
+                  placeholder="you@company.com"
+                  className="h-11 min-w-0 flex-1 bg-white/[0.05] px-3.5 text-[12.5px] text-white placeholder:text-[#8b93a3] outline-none"
                 />
                 <button
                   type="submit"
-                  aria-label="Subscribe"
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#f96706] text-white transition-transform duration-200 hover:scale-105"
+                  className="flex shrink-0 items-center gap-1.5 bg-[#2f8fe0] px-4 text-[12px] font-bold tracking-wide text-white transition-colors duration-200 hover:bg-[#2478c4]"
                 >
-                  <Send className="h-4 w-4" aria-hidden="true" />
+                  SUBSCRIBE
+                  <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
               </form>
             )}
@@ -169,7 +183,7 @@ export default function Footer() {
               <li>
                 <a
                   href="mailto:info@zyllotech.com"
-                  className="group flex items-start gap-2.5 transition-colors duration-200 hover:text-white"
+                  className="group flex items-start gap-2.5 transition-all duration-200 hover:translate-x-1 hover:text-white"
                 >
                   <Mail className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#f96706]" aria-hidden="true" />
                   <span className="break-all">info@zyllotech.com</span>
@@ -178,27 +192,29 @@ export default function Footer() {
               <li>
                 <a
                   href="tel:+917075773680"
-                  className="group flex items-start gap-2.5 transition-colors duration-200 hover:text-white"
+                  className="group flex items-start gap-2.5 transition-all duration-200 hover:translate-x-1 hover:text-white"
                 >
                   <Phone className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#f96706]" aria-hidden="true" />
                   <span>+91 70757 73680</span>
                 </a>
               </li>
-              <li className="flex items-start gap-2.5">
+              <li className="group flex items-start gap-2.5 transition-transform duration-200 hover:translate-x-1">
                 <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#f96706]" aria-hidden="true" />
-                <span>Head Office, Guntur, Andhra Pradesh – 522007</span>
+                <span className="transition-colors duration-200 group-hover:text-white">India</span>
               </li>
             </ul>
 
-            <h3 className="mt-6 text-xs font-bold uppercase tracking-[0.15em] text-white">
-              Follow Us
-            </h3>
+            <div className="mt-6">
+              <FooterHeading>Follow Us</FooterHeading>
+            </div>
             <ul className="mt-3 flex items-center gap-2.5">
               {SOCIAL_LINKS.map((social) => (
                 <li key={social.label}>
                   <a
                     href={social.href}
                     aria-label={social.label}
+                    target={social.href.startsWith("http") ? "_blank" : undefined}
+                    rel={social.href.startsWith("http") ? "noopener noreferrer" : undefined}
                     className="footer-social flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.06] text-white/70 transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/[0.12] hover:text-white"
                   >
                     <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -294,11 +310,27 @@ export default function Footer() {
             transform: scale(1.015);
           }
         }
-        .footer-form:focus-within input {
-          border-color: rgba(48, 137, 166, 0.6);
+        .footer-form:focus-within {
+          border-color: rgba(47, 143, 224, 0.6);
+        }
+        .footer-dot {
+          box-shadow: 0 0 8px rgba(47, 143, 224, 0.85);
+          animation: footerDotPulse 1.8s ease-in-out infinite;
+        }
+        @keyframes footerDotPulse {
+          0%,
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.5;
+            transform: scale(1.4);
+          }
         }
         @media (prefers-reduced-motion: reduce) {
-          .footer-logo {
+          .footer-logo,
+          .footer-dot {
             animation: none !important;
           }
           .footer-brand,

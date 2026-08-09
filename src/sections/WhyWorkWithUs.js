@@ -6,66 +6,94 @@ const REASONS = [
   {
     icon: Clock3,
     title: "Fast Response",
-    description: "We reply to every inquiry within one business day — no long waits to get started.",
+    description: "We reply to every inquiry within one business day.",
   },
   {
     icon: Users,
     title: "Direct Access to Engineers",
-    description: "You talk to the people actually building your product, not just account managers.",
+    description: "You talk to the people actually building your product.",
   },
   {
     icon: MessageSquare,
     title: "Clear Communication",
-    description: "No jargon-heavy proposals — just a straightforward conversation about your goals.",
+    description: "No jargon-heavy proposals — just a straightforward conversation.",
   },
   {
     icon: ShieldCheck,
     title: "No-Pressure Consultation",
-    description: "Your first conversation with us is about understanding your needs, not a sales pitch.",
+    description: "Your first call is about understanding your needs, not a pitch.",
   },
 ];
 
 export default function WhyWorkWithUs() {
   return (
-    <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-white py-6 lg:py-8">
+    <section className="relative overflow-hidden border-t border-[#d9dde2] bg-white py-6 lg:py-8">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 right-1/3 h-72 w-72 rounded-full bg-[#f7941e]/8 blur-[110px]" />
-        <div className="absolute -bottom-24 left-1/3 h-72 w-72 rounded-full bg-[#1f4693]/8 blur-[110px]" />
+        <div className="absolute -top-24 right-1/3 h-72 w-72 rounded-full bg-[#f96706]/8 blur-[110px]" />
+        <div className="absolute -bottom-24 left-1/3 h-72 w-72 rounded-full bg-[#1c2f4a]/8 blur-[110px]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-bold tracking-[0.2em] text-[#1f4693] uppercase">
+          <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#f96706]">
+            <span aria-hidden="true" className="h-px w-8 bg-[#f96706]" />
             Why Work With Us
+            <span aria-hidden="true" className="h-px w-8 bg-[#f96706]" />
           </span>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#2b303b] sm:text-4xl">
-            What happens after you hit send
+          <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-[#1d2735] sm:text-4xl">
+            What happens after you{" "}
+            <span className="bg-gradient-to-r from-[#f96706] to-[#3089a6] bg-clip-text text-transparent">
+              hit send
+            </span>
           </h2>
-          <p className="mt-4 text-lg leading-relaxed text-[#676b7a]">
+          <p className="mt-4 text-lg leading-relaxed text-[#6c7889]">
             Reaching out shouldn&apos;t feel like a black box. Here&apos;s what
-            to expect.
+            to expect, in order.
           </p>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {REASONS.map(({ icon: Icon, title, description }) => (
-            <div
-              key={title}
-              className="group relative overflow-hidden rounded-2xl border border-white/70 bg-gradient-to-br from-white/80 to-[#1f4693]/[0.03] p-6 shadow-md shadow-[#1f4693]/5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:border-transparent hover:shadow-xl hover:shadow-[#1f4693]/10"
-            >
-              <span
-                aria-hidden="true"
-                className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-50 bg-gradient-to-r from-[#1f4693] to-[#f7941e] opacity-40 transition-all duration-300 group-hover:scale-x-100 group-hover:opacity-100"
-              />
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/70 bg-gradient-to-br from-[#1f4693]/20 to-[#f7941e]/20 shadow-md shadow-[#1f4693]/10 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
-                <Icon className="h-5 w-5 text-[#1f4693]" aria-hidden="true" />
-              </div>
-              <h3 className="mt-4 text-base font-semibold text-[#2b303b]">{title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-[#676b7a]">
-                {description}
-              </p>
-            </div>
-          ))}
+        {/* Connected process row — circular badges on a dashed connector,
+            same visual family as a step-by-step implementation timeline.
+            Step titles carry real weight since they ARE the content here. */}
+        <div className="relative mt-14 rounded-[28px] border border-[#e2e5ea] bg-white px-8 py-12 shadow-sm sm:px-10 lg:px-12">
+          <div className="relative flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between lg:gap-4">
+            <span
+              aria-hidden="true"
+              className="absolute top-[34px] left-[76px] right-[76px] hidden h-0.5 lg:block"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(90deg, #d9dde2 0, #d9dde2 8px, transparent 8px, transparent 15px)",
+              }}
+            />
+            {REASONS.map(({ icon: Icon, title, description }, index) => {
+              const accent = index % 2 === 0 ? "#f96706" : "#3089a6";
+              const accentDeep = index % 2 === 0 ? "#c9580d" : "#1c2f4a";
+              return (
+                <div
+                  key={title}
+                  className="group relative flex flex-1 flex-row items-start gap-4 text-left lg:flex-col lg:items-center lg:text-center"
+                >
+                  <span
+                    className="relative z-[1] flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-white shadow-lg transition-transform duration-300 group-hover:scale-110 lg:h-[68px] lg:w-[68px]"
+                    style={{
+                      background: `linear-gradient(135deg, ${accent}, ${accentDeep})`,
+                      boxShadow: `0 14px 26px -10px ${accentDeep}55`,
+                    }}
+                  >
+                    <Icon className="h-6 w-6 lg:h-7 lg:w-7" aria-hidden="true" />
+                  </span>
+                  <div className="lg:mt-4">
+                    <h3 className="text-lg font-extrabold leading-snug tracking-tight text-[#1d2735] lg:text-[17px]">
+                      {title}
+                    </h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-[#6c7889] lg:mt-2 lg:max-w-[200px]">
+                      {description}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

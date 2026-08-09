@@ -1,5 +1,4 @@
 import PageHero from "@/components/PageHero";
-import ContactInfo from "@/sections/ContactInfo";
 import ContactForm from "@/sections/ContactForm";
 import WhyWorkWithUs from "@/sections/WhyWorkWithUs";
 import Reveal from "@/components/Reveal";
@@ -21,9 +20,6 @@ export default function ContactPage() {
         image="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1920&q=80"
         imageAlt="Team having a conversation about a project"
       />
-      <Reveal>
-        <ContactInfo />
-      </Reveal>
       <Reveal>
         <ContactForm />
       </Reveal>
