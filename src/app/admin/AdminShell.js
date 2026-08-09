@@ -11,6 +11,8 @@ import {
   Briefcase,
   Users,
   FolderKanban,
+  Search,
+  BarChart3,
   Menu,
   X,
   LogOut,
@@ -26,6 +28,8 @@ const NAV_ITEMS = [
   { href: "/admin/careers", label: "Careers", icon: Briefcase },
   { href: "/admin/job-applications", label: "Job Applications", icon: Users },
   { href: "/admin/portfolio", label: "Portfolio", icon: FolderKanban },
+  { href: "/admin/seo", label: "SEO", icon: Search },
+  { href: "/admin/search-console", label: "Search Console", icon: BarChart3 },
 ];
 
 export default function AdminShell({ children }) {

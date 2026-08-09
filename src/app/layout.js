@@ -74,11 +74,10 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  // Session check runs on every page load, server-side — same
-  // getUser() pattern proxy.js already uses to guard /admin. This is
-  // what lets Header (a client component) know whether to show
-  // "Admin + email + Logout" or the normal "Careers / Login" bar,
-  // without Header doing its own client-side auth fetch.
+  // Session check runs on every page load, server-side — same getUser()
+  // pattern proxy.js already uses to guard /admin. This is what lets
+  // Header (a client component) show the logged-in state without doing
+  // its own client-side auth fetch.
   const supabase = await createSsrServerClient();
   const {
     data: { user },
