@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import PageFade from "@/components/PageFade";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import ScrollToTop from "@/components/ScrollToTop";
 import CookieConsent from "@/components/CookieConsent";
 
 export default function SiteChrome({ children, user }) {
@@ -26,6 +27,7 @@ export default function SiteChrome({ children, user }) {
       </main>
       {!isLogin && <Footer />}
       <FloatingWhatsApp />
+      <ScrollToTop />
       <CookieConsent />
     </>
   );

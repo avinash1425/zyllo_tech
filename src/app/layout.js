@@ -1,19 +1,13 @@
-import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import SiteChrome from "@/components/SiteChrome";
 import OrganizationJsonLd from "@/components/OrganizationJsonLd";
 import { SITE_URL, SITE_NAME, DEFAULT_DESCRIPTION, OG_IMAGE_PATH } from "@/lib/site-config";
 import { createSsrServerClient } from "@/lib/supabase/ssr-server";
 
-const bodyFont = Inter({
-  variable: "--font-body",
-  subsets: ["latin"],
-});
-
-const headingFont = Space_Grotesk({
-  variable: "--font-heading",
-  subsets: ["latin"],
-});
+// No custom webfont — matches gcoman.com, which runs entirely on the
+// native OS font (San Francisco on Mac, Segoe UI on Windows, Roboto on
+// Android) rather than a loaded Google Font. See globals.css for the
+// actual font-family stack.
 
 export const metadata = {
   // metadataBase resolves every relative OG/Twitter image and canonical
@@ -84,10 +78,7 @@ export default async function RootLayout({ children }) {
   } = await supabase.auth.getUser();
 
   return (
-    <html
-      lang="en"
-      className={`${bodyFont.variable} ${headingFont.variable} h-full antialiased`}
-    >
+    <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
         <OrganizationJsonLd />
         <SiteChrome user={user}>{children}</SiteChrome>

@@ -17,11 +17,11 @@ export default function ServiceTiles() {
   return (
     <section className="relative isolate overflow-hidden bg-[#0b0e17] py-10 lg:py-14">
       <Image
-        src="/logo_make_11_06_2023_425.jpg"
+        src="/home-service.jpg"
         alt=""
         fill
         sizes="100vw"
-        className="-z-20 object-cover object-[72%_38%] opacity-[0.42] saturate-[1.1] contrast-[1.05]"
+        className="-z-20 object-cover object-[80%_40%] opacity-[0.42] saturate-[1.1] contrast-[1.05]"
       />
       <div
         aria-hidden="true"
