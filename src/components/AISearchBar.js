@@ -150,12 +150,15 @@ export default function AISearchBar() {
                 <Image
                   src="/zyllo-icon.png"
                   alt=""
-                  width={1130}
-                  height={660}
+                  width={500}
+                  height={273}
                   className="h-6 w-auto shrink-0 drop-shadow-[0_0_6px_rgba(249,103,6,0.35)]"
                 />
                 <p className="flex-1 text-sm font-semibold text-[#1d2735]">
-                  Ask anything about Zyllo Tech
+                  Ask anything about{" "}
+                  <span className="bg-gradient-to-r from-[#f96706] to-[#3089a6] bg-clip-text text-transparent">
+                    Zyllo Tech
+                  </span>
                 </p>
                 <button
                   type="button"

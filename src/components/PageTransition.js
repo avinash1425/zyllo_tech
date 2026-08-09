@@ -208,8 +208,8 @@ export default function PageTransition() {
             <Image
               src="/zyllo-icon.png"
               alt=""
-              width={1130}
-              height={660}
+              width={500}
+              height={273}
               priority
               className="loader-icon-pulse h-11 w-auto drop-shadow-[0_0_16px_rgba(249,103,6,0.55)]"
             />

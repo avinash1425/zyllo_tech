@@ -40,15 +40,27 @@ export default function LoginPage() {
 
   return (
     <section className="relative isolate flex min-h-dvh items-center justify-center overflow-y-auto bg-[#0b0e17] px-4 py-8 sm:px-6 sm:py-10">
-      {/* Plain dark stage, no background photo — `isolate` above still
-          pins this section as its own stacking context so the glow blobs
-          inside the card stay correctly layered. */}
+      {/* Background lives in its own fixed layer, independent of section
+          height, so it always covers the full viewport — and never gets
+          clipped or scrolled away — no matter how tall the content grows
+          on small/short screens. `isolate` above pins this section as its
+          own stacking context so z-0 here reliably sits behind the card
+          instead of escaping to the page root and landing behind the
+          section's own solid background. */}
       <div aria-hidden="true" className="fixed inset-0 z-0">
+        <Image
+          src="/robo.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center opacity-70 saturate-[1.05] contrast-[1.05]"
+        />
         <div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 70% 60% at 50% 40%, rgba(48,137,166,0.1) 0%, transparent 60%), radial-gradient(ellipse 60% 60% at 20% 90%, rgba(249,103,6,0.08) 0%, transparent 60%)",
+              "radial-gradient(ellipse 65% 70% at 50% 50%, rgba(11,14,23,0.78) 0%, rgba(11,14,23,0.62) 45%, rgba(11,14,23,0.42) 75%, rgba(11,14,23,0.25) 100%)",
           }}
         />
       </div>
@@ -66,14 +78,24 @@ export default function LoginPage() {
 
       <div className="login-fade-in relative z-[1] w-full max-w-md" style={{ animationDelay: "0.05s" }}>
         <div className="flex flex-col items-center text-center">
-          <Image
-            src="/zyllo-logo-dark.png"
-            alt="Zyllo Tech Software Solutions Private Limited"
-            width={1846}
-            height={333}
-            priority
-            className="h-12 w-auto drop-shadow-[0_2px_14px_rgba(0,0,0,0.6)] sm:h-14"
-          />
+          <div className="flex items-center gap-2.5">
+            <Image
+              src="/zyllo-icon.png"
+              alt=""
+              width={500}
+              height={273}
+              priority
+              className="h-10 w-auto drop-shadow-[0_2px_14px_rgba(0,0,0,0.6)] sm:h-12"
+            />
+            <span className="text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">
+              <span className="bg-gradient-to-b from-[#ffd9a0] via-[#f96706] to-[#a83e07] bg-clip-text text-transparent">
+                Zyllo
+              </span>{" "}
+              <span className="bg-gradient-to-b from-[#bfe6f2] via-[#3089a6] to-[#173a52] bg-clip-text text-transparent">
+                Tech
+              </span>
+            </span>
+          </div>
           <span className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-semibold text-[#f96706] backdrop-blur-sm">
             <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
             AI-Driven Software Delivery
