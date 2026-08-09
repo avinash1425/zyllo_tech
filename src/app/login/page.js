@@ -5,10 +5,27 @@ import Link from "next/link";
 import { Suspense, useState } from "react";
 import { useActionState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Eye, EyeOff, Lock, Mail, ShieldCheck } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Eye,
+  EyeOff,
+  Gauge,
+  Lock,
+  Mail,
+  ShieldCheck,
+  Sparkles,
+  Users,
+} from "lucide-react";
 import { signIn } from "./actions";
 
 const initialState = { status: "idle", message: "" };
+
+const HIGHLIGHTS = [
+  { icon: Gauge, label: "Real-time visibility" },
+  { icon: Users, label: "Unified team workspace" },
+  { icon: ShieldCheck, label: "Permissioned access" },
+];
 
 function NextRedirectField() {
   const searchParams = useSearchParams();
@@ -17,132 +34,242 @@ function NextRedirectField() {
 }
 
 export default function LoginPage() {
+  const [mode, setMode] = useState("signin"); // "signin" | "signup"
   const [showPassword, setShowPassword] = useState(false);
   const [state, formAction, isPending] = useActionState(signIn, initialState);
 
   return (
-    <section className="relative min-h-[calc(100vh-64px)] overflow-hidden bg-white">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-32 -right-24 h-[28rem] w-[28rem] rounded-full bg-[#f7941e]/10 blur-[110px]" />
-        <div className="absolute -bottom-40 left-1/4 h-[24rem] w-[24rem] rounded-full bg-[#1f4693]/10 blur-[110px]" />
+    <section className="relative isolate flex min-h-dvh items-center justify-center overflow-y-auto bg-[#0b0e17] px-4 py-8 sm:px-6 sm:py-10">
+      {/* Background lives in its own fixed layer, independent of section
+          height, so it always covers the full viewport — and never gets
+          clipped or scrolled away — no matter how tall the content grows
+          on small/short screens. `isolate` above pins this section as its
+          own stacking context so z-0 here reliably sits behind the card
+          instead of escaping to the page root and landing behind the
+          section's own solid background. */}
+      <div aria-hidden="true" className="fixed inset-0 z-0">
+        {/* Full-bleed cover — fills the entire viewport edge to edge with
+            no letterbox bars, cropping only what's needed to fill the box */}
+        <Image
+          src="/technology-concept-with-futuristic-element.jpg"
+          alt="A humanoid AI robot working at a glowing interactive display, representing Zyllo Tech's AI-driven engineering"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center opacity-65 saturate-[1.1] contrast-[1.05]"
+        />
+        {/* Darker overlay than the halftone version used — this photo is
+            bright, so more scrim is needed to seat the card without glare */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 65% 70% at 50% 50%, rgba(11,14,23,0.75) 0%, rgba(11,14,23,0.6) 45%, rgba(11,14,23,0.4) 75%, rgba(11,14,23,0.22) 100%)",
+          }}
+        />
       </div>
 
-      <div className="relative mx-auto grid min-h-[calc(100vh-64px)] max-w-7xl grid-cols-1 lg:grid-cols-2">
-        {/* Left: illustration / branding panel */}
-        <div className="relative hidden flex-col items-center justify-center overflow-hidden border-r border-[#e7e9ee] px-12 py-16 lg:flex">
-          <div className="relative flex h-72 w-72 items-center justify-center">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#1f4693]/15 to-[#f7941e]/15 blur-2xl" />
-            <div className="relative flex h-56 w-56 items-center justify-center rounded-[2rem] border border-white/60 bg-white/70 shadow-xl backdrop-blur-xl">
-              <ShieldCheck className="h-24 w-24 text-[#1f4693]" strokeWidth={1.25} aria-hidden="true" />
-            </div>
-          </div>
+      <Link
+        href="/"
+        className="group absolute left-6 top-6 z-10 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:border-transparent hover:bg-gradient-to-r hover:from-[#f96706] hover:to-[#3089a6] hover:text-white"
+      >
+        <ArrowLeft
+          className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-0.5"
+          aria-hidden="true"
+        />
+        Back to Home
+      </Link>
 
-          <h2 className="mt-10 text-center text-3xl font-bold text-[#2b303b]">Welcome Back</h2>
-          <p className="mt-3 max-w-sm text-center text-base leading-relaxed text-[#676b7a]">
-            Secure Admin Portal — sign in to manage your Zyllo Tech workspace.
-          </p>
+      <div className="login-fade-in relative z-[1] w-full max-w-md" style={{ animationDelay: "0.05s" }}>
+        <div className="flex flex-col items-center text-center">
+          <Image
+            src="/zyllo-logo-dark.png"
+            alt="Zyllo Tech Software Solutions Private Limited"
+            width={1846}
+            height={333}
+            priority
+            className="h-12 w-auto drop-shadow-[0_2px_14px_rgba(0,0,0,0.6)] sm:h-14"
+          />
+          <span className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-semibold text-[#f96706] backdrop-blur-sm">
+            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+            AI-Driven Software Delivery
+          </span>
         </div>
 
-        {/* Right: login card */}
-        <div className="flex flex-col items-center justify-center px-6 py-16 lg:px-12">
-          <div className="w-full max-w-md">
-            <div className="mb-8 flex justify-center lg:hidden">
-              <Link href="/" className="inline-flex items-center rounded-lg bg-white px-4 py-2.5 shadow-sm">
-                <Image
-                  src="/zyllo-logo.png"
-                  alt="Zyllo Tech"
-                  width={200}
-                  height={40}
-                  priority
-                  className="h-20 w-auto"
-                />
-              </Link>
-            </div>
+        {/* Gradient border frame — orange-to-blue, matching the logo's own color combination */}
+        <div className="mt-7 rounded-[1.75rem] bg-gradient-to-br from-[#f96706] via-[#ffb15c]/70 to-[#3089a6] p-[2px] shadow-2xl shadow-black/70">
+          <div className="relative overflow-hidden rounded-[1.65rem] bg-[#0d1220] p-7 backdrop-blur-2xl sm:p-9">
+            <div
+              aria-hidden="true"
+              className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-[#f96706]/20 blur-[80px]"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-[#3089a6]/20 blur-[80px]"
+            />
 
-            <div className="rounded-2xl border border-[#e7e9ee] bg-white/70 p-8 shadow-xl backdrop-blur-xl">
-              <h1 className="text-center text-2xl font-bold text-[#2b303b]">Welcome back</h1>
-              <p className="mt-2 text-center text-sm text-[#676b7a]">
-                Sign in to your Zyllo Tech account
-              </p>
-
-              <form action={formAction} className="mt-8 flex flex-col gap-5">
-                <Suspense fallback={<input type="hidden" name="next" value="/admin" />}>
-                  <NextRedirectField />
-                </Suspense>
-
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="mb-1.5 block text-sm font-medium text-[#2b303b]"
-                  >
-                    Email
-                  </label>
-                  <div className="relative">
-                    <Mail
-                      className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-[#676b7a]/60"
-                      aria-hidden="true"
-                    />
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      required
-                      placeholder="you@company.com"
-                      className="w-full rounded-lg border border-[#e7e9ee] bg-white py-2.5 pl-10 pr-3.5 text-sm text-[#2b303b] placeholder:text-[#676b7a]/50 outline-none transition-colors focus:border-[#1f4693]/60"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-[#2b303b]">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <Lock
-                      className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-[#676b7a]/60"
-                      aria-hidden="true"
-                    />
-                    <input
-                      id="password"
-                      name="password"
-                      type={showPassword ? "text" : "password"}
-                      autoComplete="current-password"
-                      required
-                      placeholder="Enter your password"
-                      className="w-full rounded-lg border border-[#e7e9ee] bg-white py-2.5 pl-10 pr-11 text-sm text-[#2b303b] placeholder:text-[#676b7a]/50 outline-none transition-colors focus:border-[#1f4693]/60"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((show) => !show)}
-                      aria-label={showPassword ? "Hide password" : "Show password"}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#676b7a]/60 transition-colors hover:text-[#2b303b]"
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-4.5 w-4.5" aria-hidden="true" />
-                      ) : (
-                        <Eye className="h-4.5 w-4.5" aria-hidden="true" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                {state.status === "error" && (
-                  <p className="text-sm font-medium text-red-600">{state.message}</p>
-                )}
-
+            <div className="relative">
+              {/* Sign In / Sign Up segmented toggle */}
+              <div className="mx-auto flex w-full max-w-[15rem] rounded-full border border-white/10 bg-white/5 p-1">
                 <button
-                  type="submit"
-                  disabled={isPending}
-                  className="mt-1 inline-flex items-center justify-center gap-2 rounded-lg bg-[#1f4693] px-6 py-3 text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(31,70,147,0.35),0_8px_10px_-6px_rgba(31,70,147,0.35)] transition-transform duration-150 hover:-translate-y-0.5 hover:bg-[#183a7a] disabled:cursor-not-allowed disabled:opacity-60"
+                  type="button"
+                  onClick={() => setMode("signin")}
+                  className={`flex-1 rounded-full py-1.5 text-xs font-semibold transition-all duration-200 ${
+                    mode === "signin"
+                      ? "bg-gradient-to-r from-[#f96706] to-[#3089a6] text-white shadow-sm"
+                      : "text-white/50 hover:text-white/80"
+                  }`}
                 >
-                  {isPending ? "Signing in..." : "Login"}
+                  Sign In
                 </button>
-              </form>
+                <button
+                  type="button"
+                  onClick={() => setMode("signup")}
+                  className={`flex-1 rounded-full py-1.5 text-xs font-semibold transition-all duration-200 ${
+                    mode === "signup"
+                      ? "bg-gradient-to-r from-[#f96706] to-[#3089a6] text-white shadow-sm"
+                      : "text-white/50 hover:text-white/80"
+                  }`}
+                >
+                  Sign Up
+                </button>
+              </div>
+
+              {mode === "signin" ? (
+                <>
+                  <h1 className="mt-6 text-center text-2xl font-bold text-white">Welcome back</h1>
+                  <p className="mt-1.5 text-center text-sm text-white/60">
+                    Sign in to your Zyllo Tech account
+                  </p>
+
+                  <form action={formAction} className="mt-6 flex flex-col gap-3.5">
+                    <Suspense fallback={<input type="hidden" name="next" value="/admin" />}>
+                      <NextRedirectField />
+                    </Suspense>
+
+                    <div>
+                      <label htmlFor="email" className="mb-1 block text-sm font-medium text-white/80">
+                        Email
+                      </label>
+                      <div className="relative">
+                        <Mail
+                          className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-white/40"
+                          aria-hidden="true"
+                        />
+                        <input
+                          id="email"
+                          name="email"
+                          type="email"
+                          autoComplete="email"
+                          required
+                          placeholder="you@company.com"
+                          className="w-full rounded-lg border border-white/20 bg-white/[0.08] py-2.5 pl-10 pr-3.5 text-sm text-white placeholder:text-white/30 outline-none transition-all duration-200 focus:border-[#f96706]/60 focus:shadow-[0_0_0_3px_rgba(249,103,6,0.12),0_0_20px_-6px_rgba(48,137,166,0.5)]"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label htmlFor="password" className="mb-1 block text-sm font-medium text-white/80">
+                        Password
+                      </label>
+                      <div className="relative">
+                        <Lock
+                          className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-white/40"
+                          aria-hidden="true"
+                        />
+                        <input
+                          id="password"
+                          name="password"
+                          type={showPassword ? "text" : "password"}
+                          autoComplete="current-password"
+                          required
+                          placeholder="Enter your password"
+                          className="w-full rounded-lg border border-white/20 bg-white/[0.08] py-2.5 pl-10 pr-11 text-sm text-white placeholder:text-white/30 outline-none transition-all duration-200 focus:border-[#3089a6]/60 focus:shadow-[0_0_0_3px_rgba(48,137,166,0.12),0_0_20px_-6px_rgba(249,103,6,0.5)]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((show) => !show)}
+                          aria-label={showPassword ? "Hide password" : "Show password"}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 transition-colors hover:text-white"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4.5 w-4.5" aria-hidden="true" />
+                          ) : (
+                            <Eye className="h-4.5 w-4.5" aria-hidden="true" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {state.status === "error" && (
+                      <p className="text-sm font-medium text-red-400">{state.message}</p>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={isPending}
+                      className="mt-1 inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#f96706] to-[#f96706] bg-[length:200%_100%] bg-left px-6 py-3 text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(249,103,6,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-right hover:from-[#f96706] hover:to-[#3089a6] hover:shadow-[0_20px_25px_-5px_rgba(48,137,166,0.45)] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isPending ? "Signing in..." : "Sign In"}
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <div className="mt-6 flex flex-col items-center text-center">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#f96706] to-[#3089a6]">
+                    <Users className="h-5.5 w-5.5 text-white" aria-hidden="true" />
+                  </span>
+                  <h1 className="mt-4 text-2xl font-bold text-white">Request access</h1>
+                  <p className="mt-2 max-w-xs text-sm leading-relaxed text-white/60">
+                    Zyllo Tech accounts are provisioned by our team — there&apos;s no
+                    public self sign-up. Reach out and we&apos;ll set one up for you.
+                  </p>
+                  <Link
+                    href="/contact"
+                    className="mt-6 inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#f96706] to-[#3089a6] px-6 py-3 text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(249,103,6,0.35)] transition-all duration-300 hover:-translate-y-0.5"
+                  >
+                    Contact Us
+                    <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  </Link>
+                </div>
+              )}
+
+              <div className="mt-6 grid grid-cols-3 gap-2 border-t border-white/10 pt-5">
+                {HIGHLIGHTS.map((item) => (
+                  <div key={item.label} className="flex flex-col items-center gap-1 text-center">
+                    <item.icon className="h-4 w-4 text-[#f96706]" aria-hidden="true" />
+                    <span className="text-[10.5px] font-medium leading-tight text-white/50">
+                      {item.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
+
+        <p className="mt-5 flex items-center justify-center gap-1.5 text-center text-xs text-white/35">
+          <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
+          Access is restricted to authorized Zyllo Tech accounts
+        </p>
       </div>
+
+      <style jsx>{`
+        .login-fade-in {
+          opacity: 0;
+          animation: loginFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes loginFadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(14px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </section>
   );
 }
