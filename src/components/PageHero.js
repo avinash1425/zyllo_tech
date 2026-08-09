@@ -18,13 +18,19 @@ export default function PageHero({
   secondaryCta,
   breadcrumbLabel,
   quickLinks,
+  size = "default",
 }) {
   const structured = Boolean(breadcrumbLabel || quickLinks?.length);
+  const isLarge = size === "lg";
 
   return (
     <section
-      className={`relative flex overflow-hidden bg-[#171f2b] py-16 lg:py-20 ${
-        structured ? "min-h-[46vh] items-center" : "min-h-[54vh] items-center sm:min-h-[58vh] lg:min-h-[62vh]"
+      className={`relative flex overflow-hidden bg-[#171f2b] items-center ${
+        isLarge
+          ? "min-h-[60vh] py-16 lg:py-20"
+          : structured
+            ? "min-h-[46vh] py-16 lg:py-20"
+            : "min-h-[54vh] py-16 sm:min-h-[58vh] lg:min-h-[62vh] lg:py-20"
       }`}
     >
       <span
