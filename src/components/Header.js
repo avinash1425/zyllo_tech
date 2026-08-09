@@ -4,11 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, ArrowRight, ShieldCheck, LogOut } from "lucide-react";
+import { ChevronDown, ArrowRight } from "lucide-react";
 import { SERVICES } from "@/data/services";
 import { SERVICE_THEMES } from "@/sections/ServiceGrid";
-import SiteSearch from "@/components/SiteSearch";
-import { signOut } from "@/app/login/actions";
+import AISearchBar from "@/components/AISearchBar";
 
 const DEFAULT_SERVICE_THEME = SERVICE_THEMES["web-development"];
 
@@ -18,15 +17,15 @@ const NAV_LINKS = [
   { href: "/industries", label: "Industries" },
   { href: "/portfolio", label: "Portfolio" },
   { href: "/blog", label: "Blog" },
-  { href: "/contact", label: "Contact Us" },
 ];
 
 const UTILITY_LINKS = [
   { href: "/careers", label: "Careers" },
+  { href: "/contact", label: "Contact Us" },
   { href: "/login", label: "Login" },
 ];
 
-export default function Header({ user }) {
+export default function Header() {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const [isScrolled, setIsScrolled] = useState(false);
@@ -67,134 +66,89 @@ export default function Header({ user }) {
 
   return (
     <header className="sticky top-0 z-50 transition-all duration-300">
-      <div
-        className={`hidden w-full items-center justify-between gap-6 border-b px-6 py-2.5 text-sm font-semibold backdrop-blur-xl transition-all duration-300 lg:flex lg:px-8 ${
-          isHome
-            ? "border-[#f7941e]/15 bg-[#fff7ed]/60 text-[#676b7a]"
-            : "border-[#e5d9c3] bg-[#faf6ef] text-[#676b7a]"
-        }`}
-      >
-        <span className="inline-flex items-center gap-1.5" aria-label="India">
-          <svg
-            viewBox="0 0 30 20"
-            className="h-3.5 w-5 shrink-0 rounded-[2px] ring-1 ring-black/10"
-            aria-hidden="true"
+      <div className="hidden w-full border-b border-[#e2e5ea] bg-[#f3f4f6] text-[#6c7889] backdrop-blur-xl transition-all duration-300 lg:flex">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-end gap-5 px-6 py-2.5 text-[12.5px] font-semibold lg:px-8">
+          <Link
+            href="/careers"
+            className={`group relative inline-block pb-0.5 transition-colors duration-200 ease-out hover:text-[#f96706] ${
+              isActive("/careers") ? "text-[#f96706]" : ""
+            }`}
           >
-            <rect width="30" height="6.67" y="0" fill="#FF9933" />
-            <rect width="30" height="6.66" y="6.67" fill="#FFFFFF" />
-            <rect width="30" height="6.67" y="13.33" fill="#138808" />
-            <circle cx="15" cy="10" r="2.6" fill="none" stroke="#06038D" strokeWidth="0.3" />
-            <circle cx="15" cy="10" r="0.35" fill="#06038D" />
-            <g stroke="#06038D" strokeWidth="0.22">
-              <line x1="15" y1="7.4" x2="15" y2="12.6" />
-              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(15 15 10)" />
-              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(30 15 10)" />
-              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(45 15 10)" />
-              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(60 15 10)" />
-              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(75 15 10)" />
-              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(90 15 10)" />
-              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(105 15 10)" />
-              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(120 15 10)" />
-              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(135 15 10)" />
-              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(150 15 10)" />
-              <line x1="15" y1="7.4" x2="15" y2="12.6" transform="rotate(165 15 10)" />
-            </g>
-          </svg>
-          India
-        </span>
+            Careers
+            <span
+              aria-hidden="true"
+              className={`absolute -bottom-0.5 left-0 h-px rounded-full bg-[#f96706] transition-all duration-300 ease-out ${
+                isActive("/careers") ? "w-full" : "w-0 group-hover:w-full"
+              }`}
+            />
+          </Link>
 
-        <div className="flex items-center gap-6">
-          {user ? (
-            <>
-              <Link
-                href="/careers"
-                className={`transition-colors duration-200 hover:text-[#f7941e] ${
-                  isActive("/careers") ? "text-[#f7941e]" : ""
-                }`}
-              >
-                Careers
-              </Link>
-              <Link
-                href="/admin"
-                className={`inline-flex items-center gap-1.5 transition-colors duration-200 hover:text-[#f7941e] ${
-                  isActive("/admin") ? "text-[#f7941e]" : ""
-                }`}
-              >
-                <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
-                Admin
-              </Link>
-              <span className="text-[#9aa0ac]" aria-hidden="true">
-                {user.email}
-              </span>
-              <form action={signOut}>
-                <button
-                  type="submit"
-                  className="inline-flex items-center gap-1.5 transition-colors duration-200 hover:text-[#f7941e]"
-                >
-                  <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
-                  Logout
-                </button>
-              </form>
-            </>
-          ) : (
-            UTILITY_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`transition-colors duration-200 hover:text-[#f7941e] ${
-                  isActive(link.href) ? "text-[#f7941e]" : ""
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))
-          )}
+          <Link
+            href="/contact"
+            className={`group relative inline-block pb-0.5 transition-colors duration-200 ease-out hover:text-[#f96706] ${
+              isActive("/contact") ? "text-[#f96706]" : ""
+            }`}
+          >
+            Contact Us
+            <span
+              aria-hidden="true"
+              className={`absolute -bottom-0.5 left-0 h-px rounded-full bg-[#f96706] transition-all duration-300 ease-out ${
+                isActive("/contact") ? "w-full" : "w-0 group-hover:w-full"
+              }`}
+            />
+          </Link>
+
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[#f96706]/30 bg-white px-3.5 py-1 text-[#f96706] shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-transparent hover:bg-gradient-to-r hover:from-[#f96706] hover:to-[#3089a6] hover:text-white hover:shadow-md hover:shadow-[#f96706]/20"
+          >
+            Login
+          </Link>
         </div>
       </div>
 
       <div
-        className={`relative flex w-full items-center justify-between gap-8 border-b px-6 backdrop-blur-xl transition-all duration-300 lg:px-8 ${
-          isHome
-            ? "border-[#f7941e]/20 bg-gradient-to-r from-[#fff7ed]/80 via-white/70 to-[#eff4fc]/80"
-            : "border-[#e5d9c3] bg-gradient-to-r from-[#faf6ef] via-white to-[#f5efe4]"
-        } ${isScrolled ? "h-16 shadow-lg shadow-[#f7941e]/10" : "h-20 shadow-sm"}`}
+        className={`relative w-full border-b border-[#e2e5ea] bg-white backdrop-blur-xl transition-all duration-300 h-16 ${
+          isScrolled ? "shadow-lg shadow-[#f96706]/10" : "shadow-sm"
+        }`}
       >
         {isHome && (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#f7941e] to-transparent opacity-50"
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#f96706] to-transparent opacity-50"
           />
         )}
+        <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between gap-8 px-6 lg:px-8">
         <Link
           href="/"
-          className="flex shrink-0 items-center"
+          className="group flex shrink-0 items-center gap-2 transition-transform duration-300 ease-out hover:scale-[1.03]"
           aria-label="Zyllo Tech home"
         >
           <Image
             src="/zyllo-logo.png"
-            alt="Zyllo Tech"
-            width={280}
-            height={56}
+            alt="Zyllo Tech Software Solutions Private Limited"
+            width={1846}
+            height={333}
             priority
-            className="h-14 w-auto sm:h-16"
+            className="h-9 w-auto transition-all duration-300 sm:h-10"
           />
         </Link>
 
         <div className="hidden flex-1 items-center justify-end gap-8 lg:flex">
           <nav aria-label="Primary">
-            <ul className="flex items-center gap-8 text-sm font-medium text-[#2b303b]">
+            <ul className="flex items-center gap-8 text-[14.5px] font-semibold text-[#1d2735]">
               {NAV_LINKS.slice(0, 2).map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className={`group relative inline-block pb-1 transition-colors duration-200 hover:text-[#f7941e] ${
-                      isActive(link.href) ? "text-[#f7941e]" : ""
+                    className={`group relative inline-block pb-1 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:text-[#f96706] ${
+                      isActive(link.href) ? "text-[#f96706]" : ""
                     }`}
                   >
                     {link.label}
                     <span
                       aria-hidden="true"
-                      className={`absolute bottom-0 left-0 h-0.5 rounded-full bg-[#f7941e] transition-all duration-300 ease-out ${
+                      className={`absolute bottom-0 left-0 h-0.5 rounded-full bg-gradient-to-r from-[#f96706] to-[#3089a6] transition-all duration-300 ease-out ${
                         isActive(link.href) ? "w-full" : "w-0 group-hover:w-full"
                       }`}
                     />
@@ -212,8 +166,8 @@ export default function Header({ user }) {
                   onFocus={openServicesMenu}
                   aria-expanded={isServicesOpen}
                   aria-haspopup="true"
-                  className={`group relative inline-flex items-center gap-1 pb-1 transition-colors duration-200 hover:text-[#f7941e] ${
-                    isServicesActive || isServicesOpen ? "text-[#f7941e]" : ""
+                  className={`group relative inline-flex items-center gap-1 pb-1 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:text-[#f96706] ${
+                    isServicesActive || isServicesOpen ? "text-[#f96706]" : ""
                   }`}
                 >
                   Services
@@ -223,14 +177,14 @@ export default function Header({ user }) {
                   />
                   <span
                     aria-hidden="true"
-                    className={`absolute bottom-0 left-0 h-0.5 rounded-full bg-[#f7941e] transition-all duration-300 ease-out ${
+                    className={`absolute bottom-0 left-0 h-0.5 rounded-full bg-gradient-to-r from-[#f96706] to-[#3089a6] transition-all duration-300 ease-out ${
                       isServicesActive || isServicesOpen ? "w-full" : "w-0 group-hover:w-full"
                     }`}
                   />
                 </button>
 
                 {isServicesOpen && (
-                  <div className="services-dropdown absolute left-0 top-full z-50 mt-3 w-[620px] overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-2xl shadow-black/10">
+                  <div className="services-dropdown absolute left-1/2 top-full z-50 mt-3 w-[min(620px,calc(100vw-3rem))] -translate-x-1/2 overflow-hidden rounded-2xl border border-[#d9dde2] bg-white shadow-2xl shadow-black/10">
                     <div className="grid grid-cols-2 gap-3 p-4">
                       {SERVICES.map(({ slug, title, tagline, icon: Icon }) => {
                         const theme = SERVICE_THEMES[slug] ?? DEFAULT_SERVICE_THEME;
@@ -239,7 +193,7 @@ export default function Header({ user }) {
                             key={slug}
                             href={`/services/${slug}`}
                             onClick={() => setIsServicesOpen(false)}
-                            className="group flex items-start gap-3 rounded-xl border border-[#e7e9ee] p-3 transition-all duration-200 hover:border-[#f7941e]/40 hover:bg-[#fafbfc] hover:shadow-sm"
+                            className="group flex items-start gap-3 rounded-xl border border-[#d9dde2] p-3 transition-all duration-200 hover:border-[#f96706]/40 hover:bg-[#fafbfc] hover:shadow-sm"
                           >
                             <span
                               className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-white shadow-sm transition-transform duration-200 group-hover:scale-110 ${theme.badge}`}
@@ -247,10 +201,10 @@ export default function Header({ user }) {
                               <Icon className="h-5 w-5" aria-hidden="true" />
                             </span>
                             <span className="min-w-0">
-                              <span className="block text-sm font-semibold leading-snug text-[#2b303b] group-hover:text-[#f7941e]">
+                              <span className="block text-sm font-semibold leading-snug text-[#1d2735] group-hover:text-[#f96706]">
                                 {title}
                               </span>
-                              <span className="mt-0.5 block text-xs leading-snug text-[#676b7a]">
+                              <span className="mt-0.5 block text-xs leading-snug text-[#6c7889]">
                                 {tagline}
                               </span>
                             </span>
@@ -262,7 +216,7 @@ export default function Header({ user }) {
                     <Link
                       href="/services"
                       onClick={() => setIsServicesOpen(false)}
-                      className="flex items-center justify-center gap-1.5 border-t border-[#e7e9ee] bg-[#fafbfc] px-4 py-3.5 text-sm font-semibold text-[#f7941e] transition-colors duration-200 hover:bg-[#1f4693]/10 hover:text-[#1f4693]"
+                      className="flex items-center justify-center gap-1.5 border-t border-[#d9dde2] bg-[#fafbfc] px-4 py-3.5 text-sm font-semibold text-[#f96706] transition-colors duration-200 hover:bg-[#1c2f4a]/10 hover:text-[#1c2f4a]"
                     >
                       View all services
                       <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -275,63 +229,55 @@ export default function Header({ user }) {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className={`group relative inline-block pb-1 transition-colors duration-200 hover:text-[#f7941e] ${
-                      isActive(link.href) ? "text-[#f7941e]" : ""
+                    className={`group relative inline-block pb-1 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:text-[#f96706] ${
+                      isActive(link.href) ? "text-[#f96706]" : ""
                     }`}
                   >
                     {link.label}
                     <span
                       aria-hidden="true"
-                      className={`absolute bottom-0 left-0 h-0.5 rounded-full bg-[#f7941e] transition-all duration-300 ease-out ${
+                      className={`absolute bottom-0 left-0 h-0.5 rounded-full bg-gradient-to-r from-[#f96706] to-[#3089a6] transition-all duration-300 ease-out ${
                         isActive(link.href) ? "w-full" : "w-0 group-hover:w-full"
                       }`}
                     />
                   </Link>
                 </li>
               ))}
+
+              <li className="relative flex items-center">
+                <AISearchBar />
+              </li>
             </ul>
           </nav>
-
-          <Link
-            href="/contact"
-            className="group inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#f7941e] to-[#1f4693] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-4px_rgba(247,148,30,0.4)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-4px_rgba(31,70,147,0.55)]"
-          >
-            {NAV_LINKS[5].label}
-            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true" />
-          </Link>
-
-          <SiteSearch />
         </div>
 
-        <div className="flex items-center gap-1 lg:hidden">
-          <SiteSearch />
-          <button
-            type="button"
-            className="inline-flex items-center justify-center rounded-md p-2 text-[#2b303b] transition-colors duration-200 hover:bg-neutral-100"
-            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={isMenuOpen}
-            aria-controls="mobile-menu"
-            onClick={() => setIsMenuOpen((open) => !open)}
+        <button
+          type="button"
+          className="inline-flex items-center justify-center rounded-md p-2 text-[#1d2735] transition-colors duration-200 hover:bg-neutral-100 lg:hidden"
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isMenuOpen}
+          aria-controls="mobile-menu"
+          onClick={() => setIsMenuOpen((open) => !open)}
+        >
+          <svg
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.75}
+            stroke="currentColor"
+            aria-hidden="true"
           >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.75}
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              {isMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-              ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"
-                />
-              )}
-            </svg>
-          </button>
+            {isMenuOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+            ) : (
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"
+              />
+            )}
+          </svg>
+        </button>
         </div>
       </div>
 
@@ -339,66 +285,30 @@ export default function Header({ user }) {
         <nav
           id="mobile-menu"
           aria-label="Mobile"
-          className="border-t border-neutral-200 bg-white px-6 py-4 lg:hidden"
+          className="mobile-menu-in border-t border-neutral-200 bg-white px-6 py-4 lg:hidden"
         >
-          <div className="mb-2 flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-neutral-200 pb-3 text-sm font-semibold text-[#676b7a]">
-            {user ? (
-              <>
-                <Link
-                  href="/careers"
-                  className={`transition-colors hover:text-[#f7941e] ${
-                    isActive("/careers") ? "text-[#f7941e]" : ""
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Careers
-                </Link>
-                <Link
-                  href="/admin"
-                  className={`inline-flex items-center gap-1.5 transition-colors hover:text-[#f7941e] ${
-                    isActive("/admin") ? "text-[#f7941e]" : ""
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
-                  Admin
-                </Link>
-                <span className="w-full text-xs font-normal text-[#9aa0ac]" aria-hidden="true">
-                  {user.email}
-                </span>
-                <form action={signOut}>
-                  <button
-                    type="submit"
-                    className="inline-flex items-center gap-1.5 transition-colors hover:text-[#f7941e]"
-                  >
-                    <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
-                    Logout
-                  </button>
-                </form>
-              </>
-            ) : (
-              UTILITY_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`transition-colors hover:text-[#f7941e] ${
-                    isActive(link.href) ? "text-[#f7941e]" : ""
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))
-            )}
+          <div className="mb-2 flex items-center gap-6 border-b border-neutral-200 pb-3 text-sm font-semibold text-[#6c7889]">
+            {UTILITY_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`transition-colors hover:text-[#f96706] ${
+                  isActive(link.href) ? "text-[#f96706]" : ""
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
 
-          <ul className="flex flex-col gap-1 text-sm font-medium text-[#2b303b]">
+          <ul className="flex flex-col gap-1 text-sm font-medium text-[#1d2735]">
             {NAV_LINKS.slice(0, 2).map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`block rounded-md px-3 py-2.5 transition-colors hover:bg-neutral-100 hover:text-[#f7941e] ${
-                    isActive(link.href) ? "bg-[#f7941e]/10 text-[#f7941e]" : ""
+                  className={`block rounded-md px-3 py-2.5 transition-all duration-200 ease-out hover:translate-x-1 hover:bg-neutral-100 hover:text-[#f96706] ${
+                    isActive(link.href) ? "bg-[#f96706]/10 text-[#f96706]" : ""
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -412,8 +322,8 @@ export default function Header({ user }) {
                 type="button"
                 onClick={() => setIsMobileServicesOpen((open) => !open)}
                 aria-expanded={isMobileServicesOpen}
-                className={`flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left transition-colors hover:bg-neutral-100 hover:text-[#f7941e] ${
-                  isServicesActive ? "bg-[#f7941e]/10 text-[#f7941e]" : ""
+                className={`flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left transition-colors hover:bg-neutral-100 hover:text-[#f96706] ${
+                  isServicesActive ? "bg-[#f96706]/10 text-[#f96706]" : ""
                 }`}
               >
                 Services
@@ -435,7 +345,7 @@ export default function Header({ user }) {
                           setIsMenuOpen(false);
                           setIsMobileServicesOpen(false);
                         }}
-                        className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-[#676b7a] transition-colors hover:bg-neutral-100 hover:text-[#f7941e]"
+                        className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-[#6c7889] transition-colors hover:bg-neutral-100 hover:text-[#f96706]"
                       >
                         <span
                           className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-white ${theme.badge}`}
@@ -452,7 +362,7 @@ export default function Header({ user }) {
                       setIsMenuOpen(false);
                       setIsMobileServicesOpen(false);
                     }}
-                    className="rounded-md px-3 py-2 text-sm font-semibold text-[#f7941e] transition-colors hover:bg-[#f7941e]/10"
+                    className="rounded-md px-3 py-2 text-sm font-semibold text-[#f96706] transition-colors hover:bg-[#f96706]/10"
                   >
                     View all services
                   </Link>
@@ -464,8 +374,8 @@ export default function Header({ user }) {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`block rounded-md px-3 py-2.5 transition-colors hover:bg-neutral-100 hover:text-[#f7941e] ${
-                    isActive(link.href) ? "bg-[#f7941e]/10 text-[#f7941e]" : ""
+                  className={`block rounded-md px-3 py-2.5 transition-all duration-200 ease-out hover:translate-x-1 hover:bg-neutral-100 hover:text-[#f96706] ${
+                    isActive(link.href) ? "bg-[#f96706]/10 text-[#f96706]" : ""
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -490,6 +400,19 @@ export default function Header({ user }) {
         }
         .services-dropdown {
           animation: dropdownFadeIn 0.18s ease-out both;
+        }
+        @keyframes mobileMenuIn {
+          from {
+            opacity: 0;
+            transform: translateY(-8px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .mobile-menu-in {
+          animation: mobileMenuIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
       `}</style>
     </header>
