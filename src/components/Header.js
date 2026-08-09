@@ -127,8 +127,8 @@ export default function Header() {
           <Image
             src="/zyllo-logo.png"
             alt="Zyllo Tech Software Solutions Private Limited"
-            width={1846}
-            height={333}
+            width={1920}
+            height={384}
             priority
             className="h-9 w-auto transition-all duration-300 sm:h-10"
           />

@@ -40,31 +40,15 @@ export default function LoginPage() {
 
   return (
     <section className="relative isolate flex min-h-dvh items-center justify-center overflow-y-auto bg-[#0b0e17] px-4 py-8 sm:px-6 sm:py-10">
-      {/* Background lives in its own fixed layer, independent of section
-          height, so it always covers the full viewport — and never gets
-          clipped or scrolled away — no matter how tall the content grows
-          on small/short screens. `isolate` above pins this section as its
-          own stacking context so z-0 here reliably sits behind the card
-          instead of escaping to the page root and landing behind the
-          section's own solid background. */}
+      {/* Plain dark stage, no background photo — `isolate` above still
+          pins this section as its own stacking context so the glow blobs
+          inside the card stay correctly layered. */}
       <div aria-hidden="true" className="fixed inset-0 z-0">
-        {/* Full-bleed cover — fills the entire viewport edge to edge with
-            no letterbox bars, cropping only what's needed to fill the box */}
-        <Image
-          src="/technology-concept-with-futuristic-element.jpg"
-          alt="A humanoid AI robot working at a glowing interactive display, representing Zyllo Tech's AI-driven engineering"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-center opacity-65 saturate-[1.1] contrast-[1.05]"
-        />
-        {/* Darker overlay than the halftone version used — this photo is
-            bright, so more scrim is needed to seat the card without glare */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 65% 70% at 50% 50%, rgba(11,14,23,0.75) 0%, rgba(11,14,23,0.6) 45%, rgba(11,14,23,0.4) 75%, rgba(11,14,23,0.22) 100%)",
+              "radial-gradient(ellipse 70% 60% at 50% 40%, rgba(48,137,166,0.1) 0%, transparent 60%), radial-gradient(ellipse 60% 60% at 20% 90%, rgba(249,103,6,0.08) 0%, transparent 60%)",
           }}
         />
       </div>

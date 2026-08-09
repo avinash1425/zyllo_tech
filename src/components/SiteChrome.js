@@ -11,6 +11,7 @@ import CookieConsent from "@/components/CookieConsent";
 export default function SiteChrome({ children, user }) {
   const pathname = usePathname();
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
+  const isLogin = pathname === "/login";
 
   if (isAdmin) {
     return <>{children}</>;
@@ -19,11 +20,11 @@ export default function SiteChrome({ children, user }) {
   return (
     <>
       <PageTransition />
-      <Header user={user} />
+      {!isLogin && <Header user={user} />}
       <main className="flex-1">
         <PageFade>{children}</PageFade>
       </main>
-      <Footer />
+      {!isLogin && <Footer />}
       <FloatingWhatsApp />
       <CookieConsent />
     </>

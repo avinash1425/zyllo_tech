@@ -195,8 +195,8 @@ export default function Technologies({ tint = "tint" }) {
                 <Image
                   src="/zyllo-logo.png"
                   alt="Zyllo Tech Software Solutions Private Limited"
-                  width={1846}
-                  height={333}
+                  width={1920}
+                  height={384}
                   className="h-auto w-full"
                 />
               </div>
