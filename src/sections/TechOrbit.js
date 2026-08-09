@@ -18,15 +18,15 @@ const CATEGORY_ICONS = [Code2, Layers, Smartphone, Cloud, Database, Sparkles];
 
 export default function TechOrbit() {
   return (
-    <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-[#0b0e17] py-10 lg:py-14">
+    <section className="relative overflow-hidden border-t border-[#d9dde2] bg-[#171f2b] py-10 lg:py-14">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-32 -right-24 h-80 w-80 rounded-full bg-[#f7941e] opacity-[0.1] blur-[110px]" />
-        <div className="absolute -bottom-32 left-1/4 h-72 w-72 rounded-full bg-[#1f4693] opacity-25 blur-[110px]" />
+        <div className="absolute -top-32 -right-24 h-80 w-80 rounded-full bg-[#f96706] opacity-[0.1] blur-[110px]" />
+        <div className="absolute -bottom-32 left-1/4 h-72 w-72 rounded-full bg-[#1c2f4a] opacity-25 blur-[110px]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-bold tracking-[0.2em] text-[#f7941e] uppercase">
+          <span className="text-sm font-bold tracking-[0.2em] text-[#f96706] uppercase">
             Our Toolkit
           </span>
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
@@ -38,7 +38,7 @@ export default function TechOrbit() {
           </p>
         </div>
 
-        <div className="relative mx-auto mt-14 flex h-[420px] w-full max-w-xl items-center justify-center sm:h-[480px]">
+        <div className="relative mx-auto mt-14 flex aspect-square w-[min(90vw,480px)] items-center justify-center">
           <div
             aria-hidden="true"
             className="absolute inset-0 rounded-full border border-white/10"
@@ -51,8 +51,8 @@ export default function TechOrbit() {
           <div className="orbit-spin absolute inset-0">
             {ORBIT_ITEMS.map((item, index) => {
               const Icon = CATEGORY_ICONS[index % CATEGORY_ICONS.length];
-              const accent = index % 2 === 0 ? "#f7941e" : "#5b7fd4";
-              const radius = 50;
+              const accent = index % 2 === 0 ? "#f96706" : "#5b7fd4";
+              const radius = 38;
               const x = 50 + radius * Math.cos((item.angle * Math.PI) / 180);
               const y = 50 + radius * Math.sin((item.angle * Math.PI) / 180);
               return (
@@ -74,7 +74,7 @@ export default function TechOrbit() {
             })}
           </div>
 
-          <div className="relative flex h-32 w-32 flex-col items-center justify-center rounded-full border border-white/10 bg-gradient-to-br from-[#f7941e]/20 to-[#1f4693]/20 text-center shadow-xl shadow-black/20 backdrop-blur-md sm:h-36 sm:w-36">
+          <div className="relative flex h-32 w-32 flex-col items-center justify-center rounded-full border border-white/10 bg-gradient-to-br from-[#f96706]/20 to-[#1c2f4a]/20 text-center shadow-xl shadow-black/20 backdrop-blur-md sm:h-36 sm:w-36">
             <span className="text-sm font-bold text-white">Zyllo</span>
             <span className="text-[10px] font-semibold uppercase tracking-widest text-white/60">
               Tech Stack

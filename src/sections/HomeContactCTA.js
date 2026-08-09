@@ -1,20 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { Mail, MessageCircle, Phone } from "lucide-react";
+import { ArrowRight, Mail, MessageCircle, Phone } from "lucide-react";
 
-// Homepage-only Contact CTA. Kept separate from the shared ContactCTA.js
-// (used on About/Blog/Industries) so heading/copy stays homepage-specific,
-// but the icon-card style matches it and every other icon-card section on
-// the site — glowing gradient medallion with a pulsing blur.
+// Compact corporate banner instead of a big centered hero-style card —
+// heading/copy and the CTA button sit side by side in one row, contact
+// methods run as a slim strip below. Much smaller footprint than the
+// previous oversized centered treatment.
 const CONTACT_METHODS = [
   {
     icon: Phone,
     label: "Call us",
     value: "+91 70757 73680",
     href: "tel:+917075773680",
-    accent: "#f7941e",
-    accentSoft: "#fbbf62",
+    accent: "#f96706",
   },
   {
     icon: Mail,
@@ -22,15 +21,13 @@ const CONTACT_METHODS = [
     value: "info@zyllotech.com",
     href: "mailto:info@zyllotech.com",
     accent: "#f0650f",
-    accentSoft: "#fb923c",
   },
   {
     icon: MessageCircle,
     label: "WhatsApp",
     value: "Chat with us",
     href: "https://wa.me/917075773680",
-    accent: "#1f4693",
-    accentSoft: "#4d6fb8",
+    accent: "#3089a6",
   },
 ];
 
@@ -41,61 +38,76 @@ export default function HomeContactCTA({
   buttonHref = "/contact",
 }) {
   return (
-    <section className="relative overflow-hidden border-t border-[#fde8cc] bg-gradient-to-br from-[#fff7ed] via-white to-[#eff4fc] py-6 lg:py-8">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-[#1f4693]/12 blur-[110px]" />
-        <div className="absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-[#f7941e]/12 blur-[110px]" />
-      </div>
+    <section className="relative overflow-hidden border-t border-[#e2e5ea] bg-[#f8f9fb] py-10 lg:py-12">
+      <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="cta-in relative isolate overflow-hidden rounded-2xl border border-[#e2e5ea] bg-white shadow-sm">
+          {/* Subtle texture + accent glow — visual richness without adding
+              back the height/padding that made the previous version big. */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 opacity-[0.4]"
+            style={{
+              backgroundImage: "radial-gradient(rgba(15,23,42,0.06) 1px, transparent 1px)",
+              backgroundSize: "20px 20px",
+            }}
+          />
+          <div
+            aria-hidden="true"
+            className="absolute -right-16 -top-20 -z-10 h-56 w-56 rounded-full bg-[#3089a6]/10 blur-[80px]"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute -bottom-20 -left-10 -z-10 h-56 w-56 rounded-full bg-[#f96706]/10 blur-[80px]"
+          />
+          <span
+            aria-hidden="true"
+            className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-[#f96706] to-[#3089a6]"
+          />
 
-      <div className="relative mx-auto max-w-4xl px-6 text-center lg:px-8">
-        <div className="rounded-[28px] border border-white/60 bg-white/50 p-10 shadow-xl shadow-[#1f4693]/10 backdrop-blur-xl sm:p-14">
-          <h2 className="text-3xl font-bold tracking-tight text-[#0f172a] sm:text-4xl">
-            {heading}
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-[#475569]">
-            {description}
-          </p>
+          <div className="flex flex-col gap-5 p-7 sm:flex-row sm:items-center sm:justify-between lg:p-9">
+            <div className="max-w-xl">
+              <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#f96706]">
+                Get In Touch
+              </span>
+              <h2 className="mt-1.5 text-2xl font-extrabold tracking-tight text-[#0f172a] sm:text-[1.75rem]">
+                {heading}
+              </h2>
+              <p className="mt-1.5 text-sm leading-relaxed text-[#54607a]">
+                {description}
+              </p>
+            </div>
 
-          <div className="mt-8">
             <Link
               href={buttonHref}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#f7941e] to-[#1f4693] px-8 py-4 text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(247,148,30,0.35),0_8px_10px_-6px_rgba(31,70,147,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:brightness-110"
+              className="group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-[#f96706] to-[#3089a6] px-7 py-3.5 text-sm font-semibold text-white shadow-[0_12px_20px_-6px_rgba(249,103,6,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_20px_-6px_rgba(48,137,166,0.4)]"
             >
-              {buttonLabel}
+              <span className="cta-shine" aria-hidden="true" />
+              <span className="relative z-[1]">{buttonLabel}</span>
+              <ArrowRight
+                className="relative z-[1] h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
+                aria-hidden="true"
+              />
             </Link>
           </div>
 
-          <div className="mx-auto mt-10 grid max-w-2xl grid-cols-1 gap-4 sm:grid-cols-3">
-            {CONTACT_METHODS.map(({ icon: Icon, label, value, href, accent, accentSoft }) => (
+          <div className="flex flex-col divide-y divide-[#e2e5ea] border-t border-[#e2e5ea] sm:flex-row sm:divide-x sm:divide-y-0">
+            {CONTACT_METHODS.map(({ icon: Icon, label, value, href, accent }) => (
               <a
                 key={label}
                 href={href}
                 target={href.startsWith("http") ? "_blank" : undefined}
                 rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-                className="group flex flex-col items-center gap-1.5 rounded-xl border bg-white/60 px-4 py-5 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:bg-white/80 hover:shadow-lg"
-                style={{ borderColor: `${accent}30` }}
+                className="group flex flex-1 items-center justify-center gap-2.5 px-4 py-3.5 transition-colors duration-200 hover:bg-[#fafbfc]"
               >
-                <div className="relative flex flex-col items-center">
-                  <span
-                    aria-hidden="true"
-                    className="pulse-glow absolute top-1 h-11 w-11 rounded-full blur-lg"
-                    style={{ backgroundColor: accentSoft, opacity: 0.5 }}
-                  />
-                  <div
-                    className="relative flex h-11 w-11 items-center justify-center rounded-xl shadow-md transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-105"
-                    style={{
-                      background: `linear-gradient(135deg, ${accent}, ${accentSoft})`,
-                      boxShadow: `0 8px 18px -6px ${accent}55`,
-                    }}
-                  >
-                    <Icon className="h-5 w-5 text-white" aria-hidden="true" />
-                  </div>
-                </div>
-
-                <span className="mt-1 text-xs font-medium uppercase tracking-wide text-[#475569]">
-                  {label}
+                <Icon
+                  className="h-4 w-4 shrink-0"
+                  style={{ color: accent }}
+                  aria-hidden="true"
+                />
+                <span className="text-[13px]">
+                  <span className="font-medium text-[#94a3b8]">{label}: </span>
+                  <span className="font-semibold text-[#0f172a]">{value}</span>
                 </span>
-                <span className="text-sm font-semibold text-[#0f172a]">{value}</span>
               </a>
             ))}
           </div>
@@ -103,19 +115,31 @@ export default function HomeContactCTA({
       </div>
 
       <style jsx>{`
-        .pulse-glow {
-          animation: pulseGlow 3.5s ease-in-out infinite;
+        .cta-in {
+          animation: ctaFadeUp 0.6s ease-out both;
         }
-        @keyframes pulseGlow {
-          0%,
-          100% {
-            transform: scale(1);
-            opacity: 0.35;
+        @keyframes ctaFadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(16px);
           }
-          50% {
-            transform: scale(1.15);
-            opacity: 0.6;
+          to {
+            opacity: 1;
+            transform: translateY(0);
           }
+        }
+        .cta-shine {
+          position: absolute;
+          top: 0;
+          left: -75%;
+          height: 100%;
+          width: 50%;
+          background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
+          transform: skewX(-20deg);
+        }
+        a:hover .cta-shine {
+          left: 130%;
+          transition: left 0.6s ease;
         }
       `}</style>
     </section>

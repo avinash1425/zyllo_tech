@@ -14,6 +14,7 @@ export default function ContactPage() {
   return (
     <>
       <PageHero
+        breadcrumbLabel="Contact"
         eyebrow="Contact"
         title="Let's talk about your project"
         description="Reach out however works best for you, or fill out the form below and we'll get back to you within one business day."

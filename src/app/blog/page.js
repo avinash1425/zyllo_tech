@@ -14,6 +14,7 @@ export default function BlogPage() {
   return (
     <>
       <PageHero
+        breadcrumbLabel="Blog"
         eyebrow="Blog"
         title="Ideas, lessons, and notes from the team"
         description="Practical writing on engineering, design, and building software that lasts — not just theory."

@@ -13,6 +13,7 @@ export default function ServicesPage() {
   return (
     <>
       <PageHero
+        breadcrumbLabel="Services"
         eyebrow="Our Services"
         title="Technology Solutions for Modern Businesses"
         description="From strategy to deployment, we deliver complete software solutions that help businesses grow, innovate, and succeed."

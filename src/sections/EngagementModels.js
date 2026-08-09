@@ -1,7 +1,14 @@
-import { Check } from "lucide-react";
+"use client";
 
+import { Check, Clock, Target, Users } from "lucide-react";
+
+// Padding was py-6/py-8 — far tighter than every other section on the page
+// (which run py-12 to py-20), so this read as visually cramped next to
+// everything else. Brought in line, added icons per model and entrance
+// animation to match the polish level of the rest of the site.
 const MODELS = [
   {
+    icon: Target,
     name: "Fixed Scope",
     tagline: "For clearly defined projects",
     features: [
@@ -12,6 +19,7 @@ const MODELS = [
     highlighted: false,
   },
   {
+    icon: Users,
     name: "Dedicated Team",
     tagline: "For ongoing product development",
     features: [
@@ -22,6 +30,7 @@ const MODELS = [
     highlighted: true,
   },
   {
+    icon: Clock,
     name: "Time & Materials",
     tagline: "For evolving or exploratory work",
     features: [
@@ -35,56 +44,94 @@ const MODELS = [
 
 export default function EngagementModels() {
   return (
-    <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-white py-6 lg:py-8">
+    <section className="relative overflow-hidden border-t border-[#e2e5ea] bg-white py-14 lg:py-18">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 right-1/4 h-72 w-72 rounded-full bg-[#f7941e]/8 blur-[110px]" />
-        <div className="absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-[#1f4693]/8 blur-[110px]" />
+        <div className="absolute -top-24 right-1/4 h-72 w-72 rounded-full bg-[#f96706]/8 blur-[110px]" />
+        <div className="absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-[#1c2f4a]/8 blur-[110px]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-bold tracking-[0.2em] text-[#f7941e] uppercase">
+          <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#f96706]">
+            <span aria-hidden="true" className="h-px w-8 bg-[#f96706]" />
             How We Engage
+            <span aria-hidden="true" className="h-px w-8 bg-[#f96706]" />
           </span>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#2b303b] sm:text-4xl">
+          <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-[#0f172a] sm:text-4xl">
             An engagement model that fits how you work
           </h2>
-          <p className="mt-4 text-lg leading-relaxed text-[#676b7a]">
+          <p className="mt-4 text-base leading-relaxed text-[#54607a] sm:text-lg">
             Every project is different. Here are the three ways teams
             typically work with us.
           </p>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-3">
-          {MODELS.map(({ name, tagline, features, highlighted }) => (
+        {/* Styled as a comparison table, not another icon-badge card grid —
+            a top color band per tier + a divided feature list instead of
+            individual bordered cards with a square icon badge. */}
+        <div className="mt-10 grid grid-cols-1 overflow-hidden rounded-2xl border border-[#e2e5ea] shadow-sm lg:grid-cols-3">
+          {MODELS.map(({ icon: Icon, name, tagline, features, highlighted }, index) => (
             <div
               key={name}
-              className={`relative flex flex-col rounded-2xl border p-7 shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl ${
-                highlighted
-                  ? "border-[#f7941e]/40 bg-gradient-to-br from-[#f7941e]/[0.06] to-[#1f4693]/[0.04] shadow-[#f7941e]/10"
-                  : "border-white/70 bg-gradient-to-br from-white/80 to-[#1f4693]/[0.03] shadow-[#1f4693]/5 hover:shadow-[#1f4693]/10"
-              }`}
+              style={{ animationDelay: `${index * 0.1}s` }}
+              className={`model-in relative flex flex-col ${
+                highlighted ? "bg-[#fffaf5]" : "bg-white"
+              } ${index > 0 ? "border-t border-[#e2e5ea] lg:border-l lg:border-t-0" : ""}`}
             >
+              <div
+                className="h-1.5 w-full"
+                style={{
+                  background: highlighted
+                    ? "linear-gradient(90deg, #f96706, #3089a6)"
+                    : index === 0
+                      ? "#f96706"
+                      : "#3089a6",
+                }}
+              />
               {highlighted && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#f7941e] to-[#db7d17] px-4 py-1 text-xs font-bold text-white shadow-md shadow-[#f7941e]/25">
+                <span className="absolute right-5 top-5 rounded-full bg-gradient-to-r from-[#f96706] to-[#3089a6] px-3 py-1 text-[10.5px] font-bold uppercase tracking-wide text-white shadow-sm">
                   Most Common
                 </span>
               )}
-              <h3 className="text-xl font-bold tracking-tight text-[#2b303b]">{name}</h3>
-              <p className="mt-1.5 text-sm font-medium text-[#f7941e]">{tagline}</p>
 
-              <ul className="mt-6 flex flex-1 flex-col gap-3">
-                {features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2.5 text-sm text-[#676b7a]">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#f7941e]" aria-hidden="true" />
-                    <span className="leading-relaxed">{feature}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className="flex flex-1 flex-col p-8">
+                <Icon
+                  className="h-6 w-6"
+                  style={{ color: index === 1 ? "#f96706" : index === 0 ? "#f96706" : "#3089a6" }}
+                  aria-hidden="true"
+                />
+                <h3 className="mt-4 text-xl font-bold tracking-tight text-[#0f172a]">{name}</h3>
+                <p className="mt-1.5 text-sm font-medium text-[#f96706]">{tagline}</p>
+
+                <ul className="mt-6 flex flex-1 flex-col divide-y divide-[#eef0f2] border-t border-[#eef0f2]">
+                  {features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-2.5 py-3 text-sm text-[#54607a]">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#f96706]" aria-hidden="true" />
+                      <span className="leading-relaxed">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           ))}
         </div>
       </div>
+
+      <style jsx>{`
+        .model-in {
+          animation: modelFadeUp 0.6s ease-out both;
+        }
+        @keyframes modelFadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(16px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </section>
   );
 }

@@ -32,6 +32,7 @@ export default async function ServiceDetailPage({ params }) {
   return (
     <>
       <PageHero
+        breadcrumbLabel="Services"
         eyebrow="Our Services"
         title={service.title}
         description={service.description}
@@ -59,10 +60,10 @@ export default async function ServiceDetailPage({ params }) {
               >
                 What We Deliver
               </span>
-              <h2 className="mt-4 text-2xl font-bold tracking-tight text-[#2b303b] sm:text-3xl">
+              <h2 className="mt-4 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
                 {service.title}
               </h2>
-              <p className="mt-4 text-lg leading-relaxed text-[#676b7a]">
+              <p className="mt-4 text-lg leading-relaxed text-[#6c7889]">
                 {service.overview}
               </p>
 
@@ -75,7 +76,7 @@ export default async function ServiceDetailPage({ params }) {
                     >
                       <Check className="h-3.5 w-3.5" style={{ color: theme.accent }} aria-hidden="true" />
                     </span>
-                    <span className="text-base text-[#2b303b]">{point}</span>
+                    <span className="text-base text-[#1d2735]">{point}</span>
                   </li>
                 ))}
               </ul>

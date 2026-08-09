@@ -2,7 +2,6 @@ import PageHero from "@/components/PageHero";
 import Industries from "@/sections/Industries";
 import ChallengesSolutions from "@/sections/ChallengesSolutions";
 import SolutionsWeDeliver from "@/sections/SolutionsWeDeliver";
-import ContactCTA from "@/sections/ContactCTA";
 import Reveal from "@/components/Reveal";
 
 export const metadata = {
@@ -15,6 +14,7 @@ export default function IndustriesPage() {
   return (
     <>
       <PageHero
+        breadcrumbLabel="Industries"
         eyebrow="Industries"
         title="Software shaped around how your industry actually works"
         description="Every sector has its own rules, risks, and workflows. We bring the right context to every engagement, not a one-size-fits-all build."
@@ -34,13 +34,6 @@ export default function IndustriesPage() {
       </Reveal>
       <Reveal>
         <SolutionsWeDeliver />
-      </Reveal>
-      <Reveal>
-        <ContactCTA
-          heading="Don't see your industry listed?"
-          description="Chances are we've solved something close to it. Let's talk about your specific challenge."
-          buttonLabel="Discuss Your Industry"
-        />
       </Reveal>
     </>
   );

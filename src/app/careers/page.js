@@ -13,6 +13,7 @@ export default function CareersPage() {
   return (
     <>
       <PageHero
+        breadcrumbLabel="Careers"
         eyebrow="Careers"
         title="Grow Your Career with Zyllo Tech"
         description="Join a team that values innovation, collaboration, and continuous learning while building technology that makes an impact."
