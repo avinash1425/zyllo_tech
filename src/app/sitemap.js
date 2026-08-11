@@ -17,35 +17,54 @@ const STATIC_ROUTES = [
   { path: "/terms", priority: 0.2, changeFrequency: "yearly" },
 ];
 
+// This route runs at BUILD time, so anything it throws fails the whole
+// deploy — not just this one URL. When the Supabase credentials are
+// missing from the build environment, createServerSupabaseClient()
+// throws from the constructor ("Your project's URL and Key are
+// required"), which is *before* the `if (error)` checks below can catch
+// anything. So each helper is wrapped: a broken/absent backend degrades
+// the sitemap to its static routes instead of taking the build down.
+// The env vars still need to be set for the site to actually work — this
+// guard only stops a config problem from masquerading as a build error.
 async function getPublishedBlogSlugs() {
-  const supabase = await createServerSupabaseClient();
-  const { data, error } = await supabase
-    .from("blog_posts")
-    .select("slug, created_at")
-    .eq("status", "published");
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select("slug, created_at")
+      .eq("status", "published");
 
-  if (error) {
-    console.error("sitemap: failed to load blog posts:", error.message);
+    if (error) {
+      console.error("sitemap: failed to load blog posts:", error.message);
+      return [];
+    }
+    return data ?? [];
+  } catch (err) {
+    console.error("sitemap: skipping blog posts —", err.message);
     return [];
   }
-  return data ?? [];
 }
 
 async function getOpenJobIds() {
-  const supabase = await createServerSupabaseClient();
-  // job_postings has no updated_at column (confirmed against every other
-  // query in the codebase that touches this table) — created_at is the
-  // only real timestamp available.
-  const { data, error } = await supabase
-    .from("job_postings")
-    .select("id, created_at")
-    .eq("status", "open");
+  try {
+    const supabase = await createServerSupabaseClient();
+    // job_postings has no updated_at column (confirmed against every other
+    // query in the codebase that touches this table) — created_at is the
+    // only real timestamp available.
+    const { data, error } = await supabase
+      .from("job_postings")
+      .select("id, created_at")
+      .eq("status", "open");
 
-  if (error) {
-    console.error("sitemap: failed to load job postings:", error.message);
+    if (error) {
+      console.error("sitemap: failed to load job postings:", error.message);
+      return [];
+    }
+    return data ?? [];
+  } catch (err) {
+    console.error("sitemap: skipping job postings —", err.message);
     return [];
   }
-  return data ?? [];
 }
 
 export default async function sitemap() {
