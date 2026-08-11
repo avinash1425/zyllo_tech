@@ -41,7 +41,7 @@ export async function submitApplication(prevState, formData) {
     return { status: "error", message: "Resume must be under 5MB." };
   }
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const safeName = fullName.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40);
   const filePath = `${jobId}/${Date.now()}-${safeName || "resume"}.pdf`;

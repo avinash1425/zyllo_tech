@@ -11,7 +11,7 @@ function estimateReadTime(content) {
 }
 
 async function getLatestPosts() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   // Skip the newest post (id offset via range) since it's already shown by
   // FeaturedArticle above — fetch 1 extra then drop the first if present.
   const { data, error } = await supabase

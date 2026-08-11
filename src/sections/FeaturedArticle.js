@@ -11,7 +11,7 @@ function estimateReadTime(content) {
 }
 
 async function getFeaturedPost() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("blog_posts")
     .select("title, slug, category, excerpt, content, featured_image_url, created_at")

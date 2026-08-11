@@ -62,7 +62,7 @@ export async function createProject(prevState, formData) {
   const { payload, error } = buildProjectPayload(formData);
   if (error) return { status: "error", message: error };
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const imageFile = formData.get("image");
   const { url: imageUrl, error: imageError } = await uploadImageIfProvided(supabase, imageFile);
@@ -87,7 +87,7 @@ export async function updateProject(projectId, prevState, formData) {
   const { payload, error } = buildProjectPayload(formData);
   if (error) return { status: "error", message: error };
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const imageFile = formData.get("image");
   const { url: imageUrl, error: imageError } = await uploadImageIfProvided(supabase, imageFile);
@@ -116,7 +116,7 @@ export async function toggleProjectStatus(projectId, newStatus) {
     return { status: "error", message: "Invalid status." };
   }
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { error } = await supabase
     .from("portfolio_projects")
     .update({ status: newStatus })
@@ -133,7 +133,7 @@ export async function toggleProjectStatus(projectId, newStatus) {
 }
 
 export async function deleteProject(projectId) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { error } = await supabase.from("portfolio_projects").delete().eq("id", projectId);
 
   if (error) {

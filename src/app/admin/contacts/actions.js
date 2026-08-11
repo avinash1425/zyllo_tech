@@ -8,7 +8,7 @@ export async function updateSubmissionStatus(submissionId, newStatus) {
     return { status: "error", message: "Invalid status." };
   }
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { error } = await supabase
     .from("contact_submissions")
     .update({ status: newStatus })
@@ -24,7 +24,7 @@ export async function updateSubmissionStatus(submissionId, newStatus) {
 }
 
 export async function deleteSubmission(submissionId) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { error } = await supabase
     .from("contact_submissions")
     .delete()

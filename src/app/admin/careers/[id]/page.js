@@ -3,7 +3,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import ApplicantsManager from "./ApplicantsManager";
 
 async function getJobWithApplicants(id) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const { data: job, error: jobError } = await supabase
     .from("job_postings")

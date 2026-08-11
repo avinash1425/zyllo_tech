@@ -107,7 +107,7 @@ export async function GET(request) {
     }
   }
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const like = `%${query}%`;
 
   const [blogRes, jobsRes] = await Promise.all([

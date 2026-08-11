@@ -20,7 +20,7 @@ async function getSeoAudit() {
 
   const isPlaceholderDomain = SITE_URL === PLACEHOLDER_DOMAIN;
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const [{ count: publishedPosts }, { count: openJobs }] = await Promise.all([
     supabase.from("blog_posts").select("id", { count: "exact", head: true }).eq("status", "published"),
     supabase.from("job_postings").select("id", { count: "exact", head: true }).eq("status", "open"),

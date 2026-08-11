@@ -2,7 +2,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import PortfolioManager from "./PortfolioManager";
 
 async function getProjects() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("portfolio_projects")
     .select("id, title, tag, description, image_url, status, created_at")

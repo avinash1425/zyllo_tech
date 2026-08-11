@@ -16,7 +16,7 @@ function estimateReadTime(content) {
 }
 
 async function getPost(slug) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("blog_posts")
     .select("title, slug, category, author, excerpt, content, featured_image_url, status, created_at")
@@ -31,7 +31,7 @@ async function getPost(slug) {
 // the SQL function too). Not awaited by the caller so a slow view-count
 // write never delays the page render.
 function recordView(slug) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   supabase.rpc("increment_blog_post_views", { post_slug: slug }).then(({ error }) => {
     if (error) console.error("Failed to record blog view:", error.message);
   });

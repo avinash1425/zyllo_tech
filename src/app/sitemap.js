@@ -18,7 +18,7 @@ const STATIC_ROUTES = [
 ];
 
 async function getPublishedBlogSlugs() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("blog_posts")
     .select("slug, created_at")
@@ -32,7 +32,7 @@ async function getPublishedBlogSlugs() {
 }
 
 async function getOpenJobIds() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   // job_postings has no updated_at column (confirmed against every other
   // query in the codebase that touches this table) — created_at is the
   // only real timestamp available.

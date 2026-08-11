@@ -4,7 +4,7 @@ import { ArrowRight, CircleDot, Lightbulb, TrendingUp } from "lucide-react";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 async function getCaseStudies() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("portfolio_projects")
     .select("id, title, tag, image_url, challenge, solution, result")
