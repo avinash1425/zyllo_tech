@@ -45,7 +45,7 @@ export async function createBlogPost(prevState, formData) {
     return { status: "error", message: "Title is required." };
   }
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const baseSlug = slugify(slugInput || title);
   const slug = await uniqueSlug(supabase, baseSlug);
 
@@ -85,7 +85,7 @@ export async function updateBlogPost(prevState, formData) {
     return { status: "error", message: "Title is required." };
   }
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const baseSlug = slugify(slugInput || title);
   const slug = await uniqueSlug(supabase, baseSlug, id);
 
@@ -115,7 +115,7 @@ export async function updateBlogPost(prevState, formData) {
 }
 
 export async function togglePostStatus(id, currentStatus) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const nextStatus = currentStatus === "published" ? "draft" : "published";
   const { error } = await supabase
     .from("blog_posts")
@@ -133,7 +133,7 @@ export async function togglePostStatus(id, currentStatus) {
 }
 
 export async function deleteBlogPost(id) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { error } = await supabase.from("blog_posts").delete().eq("id", id);
 
   if (error) {

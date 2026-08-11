@@ -2,7 +2,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import CareersManager from "./CareersManager";
 
 async function getJobPostingsWithCounts() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const { data: jobs, error: jobsError } = await supabase
     .from("job_postings")

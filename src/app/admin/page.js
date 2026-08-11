@@ -23,7 +23,7 @@ import ApplicantsByJobPanel from "./ApplicantsByJobPanel";
 import ScrollToTopButton from "./ScrollToTopButton";
 
 async function getRecentActivity() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const [{ data: submissions, error: submissionsError }, { data: applicants, error: applicantsError }] =
     await Promise.all([
@@ -71,7 +71,7 @@ async function getRecentActivity() {
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 async function getWeeklyActivityCounts() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const since = new Date();
   since.setDate(since.getDate() - 6);
@@ -127,7 +127,7 @@ async function getWeeklyActivityCounts() {
 }
 
 async function getTotalCounts() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const [
     { count: contactsTotal },
@@ -183,7 +183,7 @@ async function getTotalCounts() {
 // admin/careers/page.js (job_postings + a status-annotated job_applications
 // pass) but only needs the total count per job, not per-status breakdowns.
 async function getApplicantsByJob() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const [{ data: jobs, error: jobsError }, { data: applications, error: appsError }] =
     await Promise.all([

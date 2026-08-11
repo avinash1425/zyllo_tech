@@ -5,7 +5,7 @@ import ApplyForm from "./ApplyForm";
 import JobPostingJsonLd from "@/components/JobPostingJsonLd";
 
 async function getJob(id) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("job_postings")
     .select(
@@ -23,8 +23,8 @@ async function getJob(id) {
 // never delay or break rendering the actual apply page. Logs one row
 // per page load (no de-dup), used by the admin dashboard to compute
 // submitted-applications ÷ page-views as a rough completion rate.
-function recordApplicationView(jobId) {
-  const supabase = createServerSupabaseClient();
+async function recordApplicationView(jobId) {
+  const supabase = await createServerSupabaseClient();
   supabase
     .from("job_application_views")
     .insert({ job_id: jobId })

@@ -2,7 +2,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import OpenPositionsGrid from "./OpenPositionsGrid";
 
 async function getOpenPositions() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { data: jobs, error } = await supabase
     .from("job_postings")
     .select(

@@ -5,7 +5,7 @@ import JobApplicationsManager from "./JobApplicationsManager";
 // per-job list at /admin/careers/[id]. Joins job_postings for the
 // Position/Department columns via PostgREST's embedded-resource syntax.
 async function getAllApplications() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
 
   const { data, error } = await supabase
     .from("job_applications")
@@ -27,7 +27,7 @@ async function getAllApplications() {
 }
 
 async function getJobTitleOptions() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("job_postings")
     .select("id, title")
@@ -48,7 +48,7 @@ async function getJobTitleOptions() {
 // so listing the bucket root returns virtual "folder" entries and each
 // one needs a second list() call to see the files inside it.
 async function getResumeLibrary(applications) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const bucket = supabase.storage.from("resumes");
 
   // Public URL -> applicant, so files can be matched back to who
@@ -90,10 +90,9 @@ async function getResumeLibrary(applications) {
   ];
 
   return allFiles.map((file) => {
-    const {
-      data: { publicUrl },
-    } = bucket.getPublicUrl(file.__path);
+    const publicUrl = `/api/media/resumes/${file.__path}`;
     const applicant = byUrl.get(publicUrl) ?? null;
+
 
     return {
       path: file.__path,

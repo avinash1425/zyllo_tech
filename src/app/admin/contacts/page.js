@@ -2,7 +2,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import ContactsManager from "./ContactsManager";
 
 async function getSubmissions() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("contact_submissions")
     .select("id, full_name, email, phone, company, service, message, status, created_at")

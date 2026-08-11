@@ -4,7 +4,7 @@ import { ArrowRight, FolderKanban } from "lucide-react";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 async function getFeaturedProjects() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("portfolio_projects")
     .select("id, title, tag, description, image_url")

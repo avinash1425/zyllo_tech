@@ -18,7 +18,7 @@ export async function createJobPosting(prevState, formData) {
     return { status: "error", message: "Openings must be at least 1." };
   }
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { error } = await supabase.from("job_postings").insert({
     title,
     department,
@@ -55,7 +55,7 @@ export async function updateJobPosting(prevState, formData) {
     return { status: "error", message: "Openings must be at least 1." };
   }
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { error } = await supabase
     .from("job_postings")
     .update({
@@ -83,7 +83,7 @@ export async function updateJobPosting(prevState, formData) {
 // applicant's status changes, since the DB trigger recomputes status from
 // selected-count vs total_openings on every job_applications change.
 export async function toggleJobStatus(id, currentStatus) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const nextStatus = currentStatus === "open" ? "closed" : "open";
   const { error } = await supabase
     .from("job_postings")
@@ -101,7 +101,7 @@ export async function toggleJobStatus(id, currentStatus) {
 }
 
 export async function deleteJobPosting(id) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { error } = await supabase.from("job_postings").delete().eq("id", id);
 
   if (error) {
@@ -135,7 +135,7 @@ export async function updateApplicationStatus(applicationId, newStatus) {
     return { status: "error", message: "Invalid status." };
   }
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { error } = await supabase
     .from("job_applications")
     .update({ status: newStatus })
@@ -163,7 +163,7 @@ export async function updateApplicationExperience(applicationId, years) {
     return { status: "error", message: "Experience must be a non-negative number." };
   }
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { error } = await supabase
     .from("job_applications")
     .update({ experience_years: parsed })
@@ -184,7 +184,7 @@ export async function updateApplicationProspectRating(applicationId, rating) {
     return { status: "error", message: "Rating must be between 1 and 5." };
   }
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const { error } = await supabase
     .from("job_applications")
     .update({ prospect_rating: parsed })

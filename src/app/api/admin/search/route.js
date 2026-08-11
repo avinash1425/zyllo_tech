@@ -75,7 +75,7 @@ export async function GET(request) {
     })
   );
 
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const like = `%${query}%`;
 
   // Promise.allSettled, not Promise.all — a thrown error on any single
