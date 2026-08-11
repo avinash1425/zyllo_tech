@@ -90,10 +90,9 @@ async function getResumeLibrary(applications) {
   ];
 
   return allFiles.map((file) => {
-    const {
-      data: { publicUrl },
-    } = bucket.getPublicUrl(file.__path);
+    const publicUrl = `/api/media/resumes/${file.__path}`;
     const applicant = byUrl.get(publicUrl) ?? null;
+
 
     return {
       path: file.__path,

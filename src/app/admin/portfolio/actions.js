@@ -31,11 +31,10 @@ async function uploadImageIfProvided(supabase, imageFile) {
     return { url: null, error: "Failed to upload image. Please try again." };
   }
 
-  const {
-    data: { publicUrl },
-  } = supabase.storage.from("portfolio-images").getPublicUrl(filePath);
+  // Private bucket (public buckets aren't allowed on this host) — serve
+  // the file through src/app/api/media/[...path] instead.
+  return { url: `/api/media/portfolio-images/${filePath}`, error: null };
 
-  return { url: publicUrl, error: null };
 }
 
 function buildProjectPayload(formData) {
