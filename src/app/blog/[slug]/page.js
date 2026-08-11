@@ -30,7 +30,7 @@ async function getPost(slug) {
 // Fire-and-forget atomic increment (published posts only, enforced inside
 // the SQL function too). Not awaited by the caller so a slow view-count
 // write never delays the page render.
-function recordView(slug) {
+async function recordView(slug) {
   const supabase = await createServerSupabaseClient();
   supabase.rpc("increment_blog_post_views", { post_slug: slug }).then(({ error }) => {
     if (error) console.error("Failed to record blog view:", error.message);

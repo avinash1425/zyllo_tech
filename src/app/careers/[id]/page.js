@@ -23,7 +23,7 @@ async function getJob(id) {
 // never delay or break rendering the actual apply page. Logs one row
 // per page load (no de-dup), used by the admin dashboard to compute
 // submitted-applications ÷ page-views as a rough completion rate.
-function recordApplicationView(jobId) {
+async function recordApplicationView(jobId) {
   const supabase = await createServerSupabaseClient();
   supabase
     .from("job_application_views")
