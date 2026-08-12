@@ -40,6 +40,7 @@
   "exclude": [
     "node_modules",
     "dist",
-    ".next"
+    ".next",
+    "src/integrations/supabase/client.ts"
   ]
 }
