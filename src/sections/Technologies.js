@@ -164,8 +164,10 @@ export default function Technologies({ tint = "tint" }) {
               {ORBIT_ITEMS.map(({ label, angle }, index) => {
                 const accent = index % 2 === 0 ? "#f96706" : "#3089a6";
                 const radius = 35;
-                const x = 50 + radius * Math.cos((angle * Math.PI) / 180);
-                const y = 50 + radius * Math.sin((angle * Math.PI) / 180);
+                // Normalize floating-point output so SSR and hydration emit
+                // byte-identical style attributes in every JS runtime.
+                const x = (50 + radius * Math.cos((angle * Math.PI) / 180)).toFixed(4);
+                const y = (50 + radius * Math.sin((angle * Math.PI) / 180)).toFixed(4);
                 return (
                   <div
                     key={label}
