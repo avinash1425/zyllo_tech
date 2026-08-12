@@ -35,8 +35,8 @@ export async function proxy(request) {
     }
   );
 
-  // Touching auth here is what triggers the refresh. The result IS used
-  // below now, to gate /admin/* behind a valid session.
+  // Touching auth here triggers the refresh. Admin routes also require the
+  // database-backed admin role; a valid session alone is not authorization.
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -44,7 +44,16 @@ export async function proxy(request) {
   const { pathname, search } = request.nextUrl;
   const isAdminRoute = pathname === "/admin" || pathname.startsWith("/admin/");
 
-  if (isAdminRoute && !user) {
+  let isAdmin = false;
+  if (isAdminRoute && user) {
+    const { data } = await supabase.rpc("has_role", {
+      _user_id: user.id,
+      _role: "admin",
+    });
+    isAdmin = data === true;
+  }
+
+  if (isAdminRoute && !isAdmin) {
     const loginUrl = new URL("/login", request.url);
     // Preserve where they were headed so login/page.js's NextRedirectField
     // + signIn() server action can send them straight back after auth.
