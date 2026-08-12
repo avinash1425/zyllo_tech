@@ -6,8 +6,8 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 // uploaded resumes and portfolio images can't be served from a direct
 // public storage URL. Instead we store a stable path like
 // /api/media/portfolio-images/<file> in the database and stream the file
-// through this route. Read access is still governed by the storage RLS
-// policy on the bucket (both buckets below are readable).
+// through this route. Read access is governed by storage RLS: portfolio
+// images are public, while resumes require an authenticated admin session.
 const ALLOWED_BUCKETS = new Set(["portfolio-images", "resumes"]);
 
 export async function GET(request, { params }) {
@@ -28,10 +28,14 @@ export async function GET(request, { params }) {
     return new Response("Not found", { status: 404 });
   }
 
+  const isPrivate = bucket === "resumes";
+
   return new Response(data.stream(), {
     headers: {
       "Content-Type": data.type || "application/octet-stream",
-      "Cache-Control": "public, max-age=3600",
+      "Cache-Control": isPrivate
+        ? "private, no-store"
+        : "public, max-age=3600, stale-while-revalidate=86400",
     },
   });
 }
