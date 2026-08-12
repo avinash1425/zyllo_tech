@@ -31,6 +31,10 @@ const nextConfig = {
   devIndicators: false,
   env,
 
+  // The platform's post-build check looks for a `dist/` directory, so emit the
+  // Next build there instead of the default `.next/`.
+  distDir: "dist",
+
   experimental: {
     serverActions: {
       bodySizeLimit: "8mb",
