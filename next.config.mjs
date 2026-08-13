@@ -31,9 +31,11 @@ const nextConfig = {
   devIndicators: false,
   env,
 
-  // The platform's post-build check looks for a `dist/` directory, so emit the
-  // Next build there instead of the default `.next/`.
-  distDir: "dist",
+  // Lovable's production check expects `dist/`, while Next development HMR
+  // must use a separate cache. Sharing `dist/` made preview reloads request
+  // stale production chunks and intermittently show "Preview has not been
+  // built". NODE_ENV is set by Next for both commands.
+  distDir: process.env.NODE_ENV === "production" ? "dist" : ".next",
 
   experimental: {
     serverActions: {

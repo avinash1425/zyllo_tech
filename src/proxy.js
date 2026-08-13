@@ -66,8 +66,8 @@ export async function proxy(request) {
 
 export const config = {
   matcher: [
-    // Run on everything except static assets/images, so cookies stay
-    // fresh whether you're on a page, an admin route, or an API call.
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // Lovable owns the HMR gate/flush routes used by its preview bridge.
+    // Do not run application auth/session work for those internal requests.
+    "/((?!_next/static|_next/image|__hmr_gate|__hmr_flush|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
