@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArthaGuru – AI Financial Education | ArthaAI by Zyllo Tech</title>
+  <meta name="description" content="ArthaGuru – India's first multilingual AI financial education engine. Learn about mutual funds, insurance, stocks, and more in your language." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ── ArthaGuru Page-Specific Styles ── */
+    .guru-hero {
+      background: linear-gradient(135deg, var(--db) 0%, #0d2540 50%, #1a2f4a 100%);
+      padding: 6rem 0 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .guru-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .guru-hero .container { position: relative; z-index: 1; }
+    .guru-hero h1 { color: #fff; font-size: 2.8rem; margin-bottom: 1rem; }
+    .guru-hero p { color: rgba(255,255,255,0.8); font-size: 1.15rem; max-width: 600px; margin: 0 auto 2rem; }
+    .guru-badge { display: inline-block; background: rgba(224,92,26,0.2); border: 1px solid var(--og); color: var(--og); padding: .35rem 1rem; border-radius: 100px; font-size: .8rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; margin-bottom: 1.2rem; }
+
+    /* ── Module Nav Tabs ── */
+    .guru-tabs { background: #fff; border-bottom: 1px solid var(--g200); position: sticky; top: 70px; z-index: 90; }
+    .guru-tabs .container { overflow-x: auto; display: flex; gap: 0; padding: 0; }
+    .guru-tab-btn { flex-shrink: 0; padding: 1rem 1.4rem; font-size: .9rem; font-weight: 500; color: var(--g500); border: none; background: none; border-bottom: 3px solid transparent; cursor: pointer; transition: all .2s; white-space: nowrap; display: flex; align-items: center; gap: .5rem; }
+    .guru-tab-btn:hover { color: var(--og); }
+    .guru-tab-btn.active { color: var(--og); border-bottom-color: var(--og); font-weight: 600; }
+    .guru-tab-btn .tab-icon { font-size: 1.1rem; }
+
+    /* ── Tab Panels ── */
+    .guru-panel { display: none; padding: 3rem 0; }
+    .guru-panel.active { display: block; }
+
+    /* ── Learn Section ── */
+    .learn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .learn-card { background: #fff; border: 1px solid var(--g200); border-radius: 16px; overflow: hidden; cursor: pointer; transition: all .2s; }
+    .learn-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--og); }
+    .learn-card-header { padding: 1.5rem; display: flex; align-items: center; gap: 1rem; background: linear-gradient(135deg, var(--db), var(--mb)); }
+    .learn-card-icon { width: 48px; height: 48px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+    .learn-card-header h3 { color: #fff; font-size: 1rem; font-weight: 600; margin: 0; }
+    .learn-card-header p { color: rgba(255,255,255,0.7); font-size: .8rem; margin: .2rem 0 0; }
+    .learn-card-body { padding: 1.2rem 1.5rem; }
+    .learn-topic-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .5rem; }
+    .learn-topic-list li { display: flex; align-items: center; gap: .6rem; font-size: .88rem; color: var(--g600); padding: .4rem 0; border-bottom: 1px solid var(--g100); cursor: pointer; transition: color .15s; }
+    .learn-topic-list li:last-child { border-bottom: none; }
+    .learn-topic-list li:hover { color: var(--og); }
+    .learn-topic-list li::before { content: '▶'; font-size: .6rem; color: var(--og); flex-shrink: 0; }
+
+    /* ── Article Viewer ── */
+    .article-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 1rem; }
+    .article-overlay.open { display: flex; }
+    .article-modal { background: #fff; border-radius: 20px; max-width: 680px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 2.5rem; position: relative; }
+    .article-close { position: absolute; top: 1rem; right: 1rem; width: 32px; height: 32px; border: none; background: var(--g100); border-radius: 50%; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; }
+    .article-modal h2 { color: var(--db); font-size: 1.4rem; margin-bottom: .5rem; }
+    .article-modal .article-meta { font-size: .82rem; color: var(--g400); margin-bottom: 1.5rem; }
+    .article-body p { font-size: .95rem; line-height: 1.75; color: var(--g700); margin-bottom: 1rem; }
+    .article-body h4 { color: var(--db); font-size: 1rem; font-weight: 600; margin: 1.5rem 0 .5rem; }
+    .article-body ul { padding-left: 1.2rem; margin-bottom: 1rem; }
+    .article-body ul li { font-size: .93rem; line-height: 1.7; color: var(--g600); margin-bottom: .3rem; }
+    .article-tip { background: #fff8f5; border-left: 4px solid var(--og); padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1.2rem 0; }
+    .article-tip p { margin: 0; font-size: .9rem; color: var(--g700); }
+
+    /* ── Risk Profiling ── */
+    .risk-intro { text-align: center; max-width: 560px; margin: 0 auto 2.5rem; }
+    .risk-intro h2 { color: var(--db); font-size: 1.6rem; margin-bottom: .8rem; }
+    .risk-intro p { color: var(--g500); font-size: .95rem; }
+    .quiz-card { background: #fff; border: 1px solid var(--g200); border-radius: 20px; padding: 2.5rem; max-width: 680px; margin: 0 auto; box-shadow: var(--shadow-md); }
+    .quiz-progress { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+    .quiz-progress-bar { flex: 1; height: 6px; background: var(--g100); border-radius: 3px; overflow: hidden; }
+    .quiz-progress-fill { height: 100%; background: var(--og); border-radius: 3px; transition: width .4s ease; }
+    .quiz-step-label { font-size: .82rem; color: var(--g400); font-weight: 500; white-space: nowrap; }
+    .quiz-question { margin-bottom: 1.5rem; }
+    .quiz-question h3 { color: var(--db); font-size: 1.15rem; font-weight: 600; margin-bottom: .4rem; }
+    .quiz-question p { color: var(--g500); font-size: .88rem; }
+    .quiz-options { display: flex; flex-direction: column; gap: .75rem; margin-bottom: 2rem; }
+    .quiz-option { padding: 1rem 1.2rem; border: 2px solid var(--g200); border-radius: 12px; cursor: pointer; transition: all .2s; display: flex; align-items: flex-start; gap: .75rem; }
+    .quiz-option:hover { border-color: var(--og); background: #fff8f5; }
+    .quiz-option.selected { border-color: var(--og); background: #fff8f5; }
+    .quiz-option .opt-label { width: 26px; height: 26px; border: 2px solid var(--g300); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .78rem; font-weight: 700; color: var(--g400); flex-shrink: 0; margin-top: .1rem; transition: all .2s; }
+    .quiz-option.selected .opt-label { background: var(--og); border-color: var(--og); color: #fff; }
+    .quiz-option .opt-text { flex: 1; }
+    .quiz-option .opt-text strong { display: block; font-size: .93rem; color: var(--g800); margin-bottom: .15rem; }
+    .quiz-option .opt-text span { font-size: .82rem; color: var(--g500); }
+    .quiz-actions { display: flex; gap: 1rem; justify-content: flex-end; }
+
+    /* ── Risk Result ── */
+    .risk-result { display: none; text-align: center; padding: 2rem 0; }
+    .risk-result.show { display: block; }
+    .risk-meter { max-width: 400px; margin: 0 auto 2rem; }
+    .risk-meter-bar { height: 20px; background: linear-gradient(90deg, #22c55e 0%, #f59e0b 50%, #ef4444 100%); border-radius: 10px; position: relative; margin-bottom: .75rem; }
+    .risk-needle { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 4px; height: 30px; background: var(--db); border-radius: 2px; transition: left .8s ease; }
+    .risk-labels { display: flex; justify-content: space-between; font-size: .78rem; color: var(--g500); }
+    .risk-result-card { background: linear-gradient(135deg, var(--db), var(--mb)); color: #fff; border-radius: 20px; padding: 2rem; max-width: 480px; margin: 0 auto 2rem; }
+    .risk-result-card h2 { color: #fff; font-size: 1.5rem; margin-bottom: .5rem; }
+    .risk-result-card .risk-score { font-size: 3rem; font-weight: 800; color: var(--og); line-height: 1; margin-bottom: .5rem; }
+    .risk-result-card p { color: rgba(255,255,255,0.8); font-size: .9rem; line-height: 1.6; }
+    .recommended-products { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; max-width: 680px; margin: 0 auto; }
+    .rp-card { background: #fff; border: 1px solid var(--g200); border-radius: 14px; padding: 1.2rem; text-align: center; }
+    .rp-icon { font-size: 2rem; margin-bottom: .5rem; }
+    .rp-card h4 { color: var(--db); font-size: .88rem; font-weight: 600; margin-bottom: .3rem; }
+    .rp-card p { color: var(--g500); font-size: .78rem; line-height: 1.5; }
+    .rp-badge { display: inline-block; padding: .2rem .6rem; border-radius: 100px; font-size: .72rem; font-weight: 600; margin-bottom: .4rem; }
+    .rp-badge.low { background: #dcfce7; color: #16a34a; }
+    .rp-badge.med { background: #fef3c7; color: #d97706; }
+    .rp-badge.high { background: #fee2e2; color: #dc2626; }
+
+    /* ── Compare ── */
+    .compare-intro { text-align: center; margin-bottom: 2.5rem; }
+    .compare-intro h2 { color: var(--db); font-size: 1.6rem; margin-bottom: .5rem; }
+    .compare-selector { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+    .compare-btn { padding: .6rem 1.2rem; border: 2px solid var(--g200); border-radius: 100px; font-size: .88rem; font-weight: 500; cursor: pointer; background: #fff; color: var(--g600); transition: all .2s; }
+    .compare-btn:hover, .compare-btn.active { border-color: var(--og); color: var(--og); background: #fff8f5; }
+    .compare-table-wrap { overflow-x: auto; background: #fff; border: 1px solid var(--g200); border-radius: 16px; box-shadow: var(--shadow-sm); }
+    .compare-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    .compare-table th { background: var(--db); color: #fff; padding: 1rem 1.2rem; text-align: left; font-weight: 600; }
+    .compare-table th:first-child { border-radius: 16px 0 0 0; }
+    .compare-table th:last-child { border-radius: 0 16px 0 0; }
+    .compare-table td { padding: .9rem 1.2rem; border-bottom: 1px solid var(--g100); color: var(--g700); vertical-align: top; }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table tr:hover td { background: var(--g50); }
+    .compare-table .feature-col { font-weight: 600; color: var(--g800); width: 25%; }
+    .verdict-row td { background: #f0fdf4 !important; }
+    .verdict-row .feature-col { color: #15803d; }
+    .tick { color: #22c55e; font-weight: 700; }
+    .cross { color: #ef4444; font-weight: 700; }
+    .partial { color: #f59e0b; font-weight: 700; }
+    .verdict-tag { display: inline-block; padding: .2rem .7rem; border-radius: 100px; font-size: .78rem; font-weight: 700; }
+    .verdict-tag.winner { background: #dcfce7; color: #16a34a; }
+    .verdict-tag.loser { background: #fee2e2; color: #dc2626; }
+    .verdict-tag.neutral { background: #fef9c3; color: #a16207; }
+    .verdict-box { background: linear-gradient(135deg, #fff8f5, #fff); border: 2px solid var(--og); border-radius: 16px; padding: 1.5rem 2rem; margin-top: 1.5rem; display: flex; align-items: flex-start; gap: 1rem; }
+    .verdict-box .v-icon { font-size: 2rem; flex-shrink: 0; }
+    .verdict-box h4 { color: var(--og); font-weight: 700; margin-bottom: .3rem; font-size: 1rem; }
+    .verdict-box p { color: var(--g600); font-size: .88rem; line-height: 1.6; margin: 0; }
+
+    /* ── ArthaGuru Chat ── */
+    .chat-layout { display: grid; grid-template-columns: 260px 1fr; gap: 1.5rem; align-items: start; }
+    .chat-sidebar { background: #fff; border: 1px solid var(--g200); border-radius: 16px; overflow: hidden; }
+    .chat-sidebar-header { background: linear-gradient(135deg, var(--db), var(--mb)); padding: 1.2rem; }
+    .chat-sidebar-header h3 { color: #fff; font-size: .95rem; font-weight: 600; margin: 0 0 .2rem; }
+    .chat-sidebar-header p { color: rgba(255,255,255,0.7); font-size: .78rem; margin: 0; }
+    .suggested-questions { padding: .75rem; display: flex; flex-direction: column; gap: .4rem; }
+    .sq-item { padding: .65rem .75rem; font-size: .82rem; color: var(--g600); background: var(--g50); border-radius: 8px; cursor: pointer; transition: all .2s; line-height: 1.4; }
+    .sq-item:hover { background: #fff8f5; color: var(--og); }
+    .sq-label { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--g400); padding: .75rem .75rem .25rem; }
+    .chat-main { background: #fff; border: 1px solid var(--g200); border-radius: 16px; display: flex; flex-direction: column; height: 580px; }
+    .chat-header { padding: 1rem 1.2rem; border-bottom: 1px solid var(--g100); display: flex; align-items: center; gap: .75rem; }
+    .chat-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--og), #f5844a); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+    .chat-header-info h4 { color: var(--db); font-size: .95rem; font-weight: 600; margin: 0; }
+    .chat-header-info p { font-size: .78rem; color: var(--g400); margin: 0; }
+    .chat-status { margin-left: auto; display: flex; align-items: center; gap: .4rem; font-size: .78rem; color: #16a34a; font-weight: 500; }
+    .chat-status::before { content: ''; width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block; }
+    .lang-selector { margin-left: .5rem; padding: .3rem .6rem; border: 1px solid var(--g200); border-radius: 6px; font-size: .78rem; color: var(--g600); cursor: pointer; background: #fff; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 1.2rem; display: flex; flex-direction: column; gap: 1rem; }
+    .msg { display: flex; gap: .75rem; max-width: 85%; }
+    .msg.user { flex-direction: row-reverse; align-self: flex-end; }
+    .msg-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .85rem; flex-shrink: 0; }
+    .msg-avatar.bot { background: linear-gradient(135deg, var(--og), #f5844a); }
+    .msg-avatar.user { background: var(--db); color: #fff; font-weight: 700; }
+    .msg-bubble { padding: .75rem 1rem; border-radius: 16px; font-size: .88rem; line-height: 1.55; }
+    .msg.bot .msg-bubble { background: var(--g50); color: var(--g800); border-radius: 4px 16px 16px 16px; }
+    .msg.user .msg-bubble { background: var(--og); color: #fff; border-radius: 16px 4px 16px 16px; }
+    .msg-bubble ul { padding-left: 1.1rem; margin: .5rem 0 0; }
+    .msg-bubble ul li { margin-bottom: .25rem; font-size: .85rem; }
+    .msg-bubble .msg-tag { display: inline-block; background: rgba(224,92,26,0.15); color: var(--og); font-size: .72rem; font-weight: 600; padding: .1rem .5rem; border-radius: 4px; margin-bottom: .4rem; }
+    .msg-time { font-size: .72rem; color: var(--g400); margin-top: .25rem; }
+    .msg.user .msg-time { text-align: right; }
+    .typing-indicator { display: flex; gap: .75rem; align-items: center; }
+    .typing-dots { display: flex; gap: .3rem; padding: .75rem 1rem; background: var(--g50); border-radius: 4px 16px 16px 16px; }
+    .typing-dot { width: 8px; height: 8px; background: var(--g400); border-radius: 50%; animation: typing 1.2s infinite; }
+    .typing-dot:nth-child(2) { animation-delay: .2s; }
+    .typing-dot:nth-child(3) { animation-delay: .4s; }
+    @keyframes typing { 0%, 60%, 100% { transform: translateY(0); opacity: .4; } 30% { transform: translateY(-6px); opacity: 1; } }
+    .chat-input-bar { padding: .75rem 1rem; border-top: 1px solid var(--g100); display: flex; gap: .75rem; align-items: flex-end; }
+    .chat-input { flex: 1; padding: .7rem 1rem; border: 1.5px solid var(--g200); border-radius: 12px; font-size: .9rem; font-family: inherit; resize: none; outline: none; line-height: 1.5; min-height: 44px; max-height: 120px; transition: border-color .2s; }
+    .chat-input:focus { border-color: var(--og); }
+    .chat-send-btn { width: 44px; height: 44px; background: var(--og); border: none; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s; flex-shrink: 0; }
+    .chat-send-btn:hover { background: #c94f14; }
+    .chat-disclaimer { padding: .5rem 1rem; font-size: .72rem; color: var(--g400); text-align: center; border-top: 1px solid var(--g100); }
+
+    /* ── Glossary ── */
+    .glossary-search-wrap { max-width: 520px; margin: 0 auto 2rem; position: relative; }
+    .glossary-search { width: 100%; padding: .9rem 1.2rem .9rem 3rem; border: 2px solid var(--g200); border-radius: 100px; font-size: .95rem; outline: none; transition: border-color .2s; }
+    .glossary-search:focus { border-color: var(--og); }
+    .glossary-search-icon { position: absolute; left: 1.1rem; top: 50%; transform: translateY(-50%); color: var(--g400); font-size: 1rem; }
+    .glossary-alpha { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; margin-bottom: 1.5rem; }
+    .alpha-btn { width: 34px; height: 34px; border: 1px solid var(--g200); border-radius: 8px; background: #fff; font-size: .82rem; font-weight: 600; color: var(--g500); cursor: pointer; transition: all .2s; }
+    .alpha-btn:hover, .alpha-btn.active { background: var(--og); color: #fff; border-color: var(--og); }
+    .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .glossary-item { background: #fff; border: 1px solid var(--g200); border-radius: 12px; padding: 1.1rem 1.3rem; transition: all .2s; cursor: pointer; }
+    .glossary-item:hover { border-color: var(--og); box-shadow: var(--shadow-sm); }
+    .glossary-item h4 { color: var(--db); font-size: .92rem; font-weight: 600; margin-bottom: .3rem; }
+    .glossary-item p { color: var(--g500); font-size: .82rem; line-height: 1.5; margin: 0; }
+    .glossary-item .term-letter { display: inline-block; background: var(--og); color: #fff; width: 24px; height: 24px; border-radius: 6px; font-size: .75rem; font-weight: 700; text-align: center; line-height: 24px; margin-right: .4rem; float: left; margin-top: .1rem; }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .learn-grid { grid-template-columns: 1fr; }
+      .recommended-products { grid-template-columns: 1fr 1fr; }
+      .chat-layout { grid-template-columns: 1fr; }
+      .chat-sidebar { display: none; }
+      .glossary-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .guru-hero h1 { font-size: 2rem; }
+      .recommended-products { grid-template-columns: 1fr; }
+      .quiz-card { padding: 1.5rem; }
+      .chat-main { height: 500px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav class="navbar" id="navbar">
+  <div class="container nav-inner">
+    <a href="index.html" class="nav-logo">
+      <span class="logo-artha">Artha</span><span class="logo-ai">AI</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="calculators.html">ArthaCalc</a></li>
+      <li><a href="planner.html">ArthaPlanner</a></li>
+      <li><a href="guru.html" class="active">ArthaGuru</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="#" class="btn btn-ghost">Sign In</a>
+      <a href="index.html#pricing" class="btn btn-primary">Get Free Access</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="guru-hero">
+  <div class="container">
+    <span class="guru-badge">🎓 ArthaGuru — AI Education Engine</span>
+    <h1>Financial Wisdom,<br>In Your Language</h1>
+    <p>India's first multilingual AI tutor for personal finance. Understand mutual funds, insurance, and taxes — explained simply, in 22 languages, commission-free.</p>
+    <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+      <a href="#learn" class="btn btn-primary" onclick="showPanel('learn')">Start Learning</a>
+      <a href="#chat" class="btn btn-white" onclick="showPanel('chat')">Chat with ArthaGuru</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Module Tabs ── -->
+<div class="guru-tabs">
+  <div class="container">
+    <button class="guru-tab-btn active" onclick="showPanel('learn')" id="tab-learn">
+      <span class="tab-icon">📚</span> Learn
+    </button>
+    <button class="guru-tab-btn" onclick="showPanel('risk')" id="tab-risk">
+      <span class="tab-icon">🎯</span> Risk Profiler
+    </button>
+    <button class="guru-tab-btn" onclick="showPanel('compare')" id="tab-compare">
+      <span class="tab-icon">⚖️</span> Compare Products
+    </button>
+    <button class="guru-tab-btn" onclick="showPanel('chat')" id="tab-chat">
+      <span class="tab-icon">💬</span> Ask ArthaGuru
+    </button>
+    <button class="guru-tab-btn" onclick="showPanel('glossary')" id="tab-glossary">
+      <span class="tab-icon">📖</span> Glossary
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PANEL 1: LEARN
+════════════════════════════════════════ -->
+<section class="guru-panel active" id="panel-learn">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:2.5rem;">
+      <h2 class="section-title">Financial Education Hub</h2>
+      <p class="section-subtitle">Bite-sized lessons on every financial product, designed for every Indian — from first-time earners to seasoned investors.</p>
+    </div>
+    <div class="learn-grid">
+
+      <!-- Mutual Funds -->
+      <div class="learn-card" onclick="openArticle('mf')">
+        <div class="learn-card-header">
+          <div class="learn-card-icon">📈</div>
+          <div>
+            <h3>Mutual Funds</h3>
+            <p>8 lessons · Beginner to Advanced</p>
+          </div>
+        </div>
+        <div class="learn-card-body">
+          <ul class="learn-topic-list">
+            <li onclick="openArticle('mf-what');event.stopPropagation()">What is a Mutual Fund?</li>
+            <li onclick="openArticle('mf-types');event.stopPropagation()">Types: Equity, Debt, Hybrid, ELSS</li>
+            <li onclick="openArticle('mf-sip');event.stopPropagation()">SIP vs Lumpsum — which is better?</li>
+            <li onclick="openArticle('mf-nav');event.stopPropagation()">Understanding NAV, Expense Ratio & Exit Load</li>
+            <li onclick="openArticle('mf-tax');event.stopPropagation()">Tax on Mutual Fund Gains (STCG & LTCG)</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Insurance -->
+      <div class="learn-card" onclick="openArticle('ins')">
+        <div class="learn-card-header" style="background:linear-gradient(135deg,#1a3a5c,#0d5c45);">
+          <div class="learn-card-icon">🛡️</div>
+          <div>
+            <h3>Insurance</h3>
+            <p>6 lessons · Beginner to Intermediate</p>
+          </div>
+        </div>
+        <div class="learn-card-body">
+          <ul class="learn-topic-list">
+            <li onclick="openArticle('ins-term');event.stopPropagation()">Term Life Insurance — The only life cover you need</li>
+            <li onclick="openArticle('ins-health');event.stopPropagation()">Health Insurance — Family Floater vs Individual</li>
+            <li onclick="openArticle('ins-ulip');event.stopPropagation()">Why ULIP is usually a bad idea</li>
+            <li onclick="openArticle('ins-endowment');event.stopPropagation()">Endowment & Traditional Plans — decoded</li>
+            <li onclick="openArticle('ins-claim');event.stopPropagation()">How to file an Insurance Claim</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Stock Market -->
+      <div class="learn-card">
+        <div class="learn-card-header" style="background:linear-gradient(135deg,#7c3aed,#5b21b6);">
+          <div class="learn-card-icon">📊</div>
+          <div>
+            <h3>Stock Market</h3>
+            <p>7 lessons · Beginner to Advanced</p>
+          </div>
+        </div>
+        <div class="learn-card-body">
+          <ul class="learn-topic-list">
+            <li onclick="openArticle('stocks-demat');event.stopPropagation()">Opening a Demat & Trading Account</li>
+            <li onclick="openArticle('stocks-basics');event.stopPropagation()">How to read a stock quote</li>
+            <li onclick="openArticle('stocks-fundamental');event.stopPropagation()">Fundamental Analysis basics (PE, PB, ROE)</li>
+            <li onclick="openArticle('stocks-index');event.stopPropagation()">Sensex & Nifty — what they mean</li>
+            <li onclick="openArticle('stocks-ipo');event.stopPropagation()">Applying for an IPO (Step-by-step)</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Tax Planning -->
+      <div class="learn-card">
+        <div class="learn-card-header" style="background:linear-gradient(135deg,#b45309,#92400e);">
+          <div class="learn-card-icon">🧾</div>
+          <div>
+            <h3>Tax Planning</h3>
+            <p>5 lessons · Intermediate</p>
+          </div>
+        </div>
+        <div class="learn-card-body">
+          <ul class="learn-topic-list">
+            <li onclick="openArticle('tax-slabs');event.stopPropagation()">Old vs New Tax Regime — which saves more?</li>
+            <li onclick="openArticle('tax-80c');event.stopPropagation()">80C investments — ELSS vs PPF vs NPS vs LIC</li>
+            <li onclick="openArticle('tax-hra');event.stopPropagation()">HRA, LTA & Standard Deduction explained</li>
+            <li onclick="openArticle('tax-itr');event.stopPropagation()">How to file ITR for the first time</li>
+            <li onclick="openArticle('tax-advance');event.stopPropagation()">Advance Tax — who pays, when, how</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Savings & Banking -->
+      <div class="learn-card">
+        <div class="learn-card-header" style="background:linear-gradient(135deg,#0369a1,#075985);">
+          <div class="learn-card-icon">🏦</div>
+          <div>
+            <h3>Savings & Banking</h3>
+            <p>5 lessons · Beginner</p>
+          </div>
+        </div>
+        <div class="learn-card-body">
+          <ul class="learn-topic-list">
+            <li onclick="openArticle('bank-fd');event.stopPropagation()">FD vs RD vs Savings Account — which earns more?</li>
+            <li onclick="openArticle('bank-ppf');event.stopPropagation()">PPF — The best tax-free safe investment</li>
+            <li onclick="openArticle('bank-sg');event.stopPropagation()">Sovereign Gold Bonds vs Physical Gold vs Gold ETF</li>
+            <li onclick="openArticle('bank-sweep');event.stopPropagation()">Sweep-in FD & Auto-Sweep accounts</li>
+            <li onclick="openArticle('bank-nb');event.stopPropagation()">Neo-banks vs Traditional banks</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Real Estate & Loans -->
+      <div class="learn-card">
+        <div class="learn-card-header" style="background:linear-gradient(135deg,#065f46,#047857);">
+          <div class="learn-card-icon">🏠</div>
+          <div>
+            <h3>Real Estate & Loans</h3>
+            <p>5 lessons · Intermediate</p>
+          </div>
+        </div>
+        <div class="learn-card-body">
+          <ul class="learn-topic-list">
+            <li onclick="openArticle('re-buy');event.stopPropagation()">Rent vs Buy — the full truth</li>
+            <li onclick="openArticle('re-emi');event.stopPropagation()">Understanding your home loan EMI breakdown</li>
+            <li onclick="openArticle('re-prepay');event.stopPropagation()">Prepaying your loan vs investing the extra</li>
+            <li onclick="openArticle('re-rera');event.stopPropagation()">RERA — Your rights as a homebuyer</li>
+            <li onclick="openArticle('re-stamp');event.stopPropagation()">Hidden costs when buying property</li>
+          </ul>
+        </div>
+      </div>
+
+    </div><!-- /learn-grid -->
+
+    <!-- Article Modal -->
+    <div class="article-overlay" id="articleOverlay" onclick="closeArticle(event)">
+      <div class="article-modal" id="articleModal">
+        <button class="article-close" onclick="closeArticle()">✕</button>
+        <h2 id="articleTitle">What is a Mutual Fund?</h2>
+        <div class="article-meta" id="articleMeta">📚 Mutual Funds · 5 min read</div>
+        <div class="article-body" id="articleBody"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PANEL 2: RISK PROFILER
+════════════════════════════════════════ -->
+<section class="guru-panel" id="panel-risk">
+  <div class="container">
+    <div class="risk-intro">
+      <h2>Find Your Investor Risk Profile</h2>
+      <p>Answer 7 quick questions. We'll tell you your risk appetite and the investment products best suited for you — unbiased, commission-free.</p>
+    </div>
+
+    <div class="quiz-card" id="quizCard">
+      <div class="quiz-progress">
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quizProgressFill" style="width:14%"></div></div>
+        <span class="quiz-step-label" id="quizStepLabel">Q 1 of 7</span>
+      </div>
+      <div class="quiz-question">
+        <h3 id="quizQuestionText">How would you react if your investment fell 20% in 3 months?</h3>
+        <p id="quizQuestionSub">Think about how you'd feel emotionally, not what you think is the "right" answer.</p>
+      </div>
+      <div class="quiz-options" id="quizOptions">
+        <!-- populated by JS -->
+      </div>
+      <div class="quiz-actions">
+        <button class="btn btn-ghost" id="quizBackBtn" onclick="quizBack()" style="display:none">← Back</button>
+        <button class="btn btn-primary" id="quizNextBtn" onclick="quizNext()" disabled>Next →</button>
+      </div>
+    </div>
+
+    <div class="risk-result" id="riskResult">
+      <h2 style="color:var(--db);margin-bottom:1.5rem;">Your Risk Profile</h2>
+      <div class="risk-meter">
+        <div class="risk-meter-bar"><div class="risk-needle" id="riskNeedle" style="left:20%"></div></div>
+        <div class="risk-labels"><span>Conservative</span><span>Moderate</span><span>Aggressive</span></div>
+      </div>
+      <div class="risk-result-card">
+        <h2 id="riskTitle">Moderate Investor</h2>
+        <div class="risk-score" id="riskScore">62</div>
+        <p id="riskDesc">You seek a balance between growth and safety. You can tolerate short-term market fluctuations but prefer your portfolio not to swing wildly. Balanced and hybrid funds suit you well.</p>
+      </div>
+      <h3 style="color:var(--db);margin-bottom:1rem;">Recommended Products for You</h3>
+      <div class="recommended-products" id="recommendedProducts"></div>
+      <div style="margin-top:2rem;">
+        <button class="btn btn-primary" onclick="retakeQuiz()">Retake Quiz</button>
+        <a href="calculators.html" class="btn btn-ghost" style="margin-left:.75rem;">Calculate SIP for These</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PANEL 3: COMPARE
+════════════════════════════════════════ -->
+<section class="guru-panel" id="panel-compare">
+  <div class="container">
+    <div class="compare-intro">
+      <h2>Unbiased Product Comparisons</h2>
+      <p class="section-subtitle">No commission. No bias. Just facts — so you can make the best choice for your money.</p>
+    </div>
+
+    <div class="compare-selector">
+      <button class="compare-btn active" onclick="loadComparison('ulip')">ULIP vs Term + MF</button>
+      <button class="compare-btn" onclick="loadComparison('endowment')">Endowment vs SIP</button>
+      <button class="compare-btn" onclick="loadComparison('ppf')">PPF vs ELSS</button>
+      <button class="compare-btn" onclick="loadComparison('nps')">NPS vs Mutual Fund</button>
+      <button class="compare-btn" onclick="loadComparison('gold')">Gold Bonds vs Gold ETF vs Physical</button>
+    </div>
+
+    <div class="compare-table-wrap">
+      <table class="compare-table" id="compareTable">
+        <!-- populated by JS -->
+      </table>
+    </div>
+    <div class="verdict-box" id="verdictBox">
+      <div class="v-icon">💡</div>
+      <div>
+        <h4 id="verdictTitle">Our Take</h4>
+        <p id="verdictText">Loading comparison…</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PANEL 4: CHAT
+════════════════════════════════════════ -->
+<section class="guru-panel" id="panel-chat">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:2rem;">
+      <h2 class="section-title">Ask ArthaGuru Anything</h2>
+      <p class="section-subtitle">Your AI financial tutor — available 24/7. Ask in Hindi, Telugu, Tamil, or any of 22 Indian languages.</p>
+    </div>
+    <div class="chat-layout">
+      <!-- Sidebar -->
+      <div class="chat-sidebar">
+        <div class="chat-sidebar-header">
+          <h3>💡 Suggested Questions</h3>
+          <p>Click any question to ask</p>
+        </div>
+        <div class="sq-label">Mutual Funds</div>
+        <div class="suggested-questions">
+          <div class="sq-item" onclick="askQuestion('What is the difference between growth and dividend option in mutual funds?')">Growth vs Dividend option — what should I pick?</div>
+          <div class="sq-item" onclick="askQuestion('How does expense ratio affect my returns over 10 years?')">How does expense ratio affect my long-term returns?</div>
+        </div>
+        <div class="sq-label">Insurance</div>
+        <div class="suggested-questions">
+          <div class="sq-item" onclick="askQuestion('How much life insurance cover do I actually need?')">How much life cover do I actually need?</div>
+          <div class="sq-item" onclick="askQuestion('Is ULIP better than term insurance + mutual fund?')">ULIP vs Term + MF — which is better?</div>
+        </div>
+        <div class="sq-label">Tax</div>
+        <div class="suggested-questions">
+          <div class="sq-item" onclick="askQuestion('Should I choose old tax regime or new tax regime for FY 2025-26?')">Which tax regime saves me more in FY26?</div>
+          <div class="sq-item" onclick="askQuestion('What are the best 80C investments to save tax?')">Best 80C options to save tax?</div>
+        </div>
+      </div>
+
+      <!-- Chat Window -->
+      <div class="chat-main">
+        <div class="chat-header">
+          <div class="chat-avatar">🧠</div>
+          <div class="chat-header-info">
+            <h4>ArthaGuru</h4>
+            <p>AI Financial Educator · SEBI Education Exemption Sec. 2(1)(g)</p>
+          </div>
+          <div class="chat-status">Online</div>
+          <select class="lang-selector" id="langSelect">
+            <option value="en">🇮🇳 English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="te">తెలుగు</option>
+            <option value="ta">தமிழ்</option>
+            <option value="mr">मराठी</option>
+            <option value="bn">বাংলা</option>
+            <option value="gu">ગુજરાતી</option>
+            <option value="kn">ಕನ್ನಡ</option>
+          </select>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+          <!-- Welcome message -->
+          <div class="msg bot">
+            <div class="msg-avatar bot">🧠</div>
+            <div>
+              <div class="msg-bubble">
+                <span class="msg-tag">ArthaGuru</span>
+                Namaste! 🙏 I'm ArthaGuru, your AI financial educator.<br><br>
+                I can explain any financial concept — mutual funds, insurance, taxes, stocks, and more — in simple language. I never give personalized investment advice or recommend specific products to buy.<br><br>
+                What would you like to learn today?
+              </div>
+              <div class="msg-time">Just now</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-bar">
+          <textarea class="chat-input" id="chatInput" placeholder="Ask anything about personal finance… (e.g. 'What is SIP?')" rows="1" onkeydown="handleChatKey(event)"></textarea>
+          <button class="chat-send-btn" onclick="sendMessage()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+        <div class="chat-disclaimer">📚 Educational information only · Not investment advice · Regulatory: SEBI Sec. 2(1)(g)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PANEL 5: GLOSSARY
+════════════════════════════════════════ -->
+<section class="guru-panel" id="panel-glossary">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:2rem;">
+      <h2 class="section-title">Financial Glossary</h2>
+      <p class="section-subtitle">200+ financial terms explained in plain language. Search or browse alphabetically.</p>
+    </div>
+    <div class="glossary-search-wrap">
+      <span class="glossary-search-icon">🔍</span>
+      <input type="text" class="glossary-search" id="glossarySearch" placeholder="Search a term… e.g. 'NAV', 'XIRR', 'Alpha'" oninput="filterGlossary(this.value)" />
+    </div>
+    <div class="glossary-alpha" id="glossaryAlpha"></div>
+    <div class="glossary-grid" id="glossaryGrid"></div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo"><span style="color:var(--og)">Artha</span><span style="color:var(--mb)">AI</span></div>
+        <p>Smart money guidance for every Indian. In your language. Commission-free.</p>
+        <div class="footer-badges">
+          <span class="footer-badge">🏢 Zyllo Tech Software</span>
+          <span class="footer-badge">📍 Hyderabad, India</span>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="calculators.html">ArthaCalc</a></li>
+          <li><a href="planner.html">ArthaPlanner</a></li>
+          <li><a href="guru.html">ArthaGuru</a></li>
+          <li><a href="index.html#pricing">Pricing</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">DPDP Compliance</a></li>
+          <li><a href="#">Disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Zyllo Tech Software Solutions Pvt Ltd · CIN: U62013AP2026PTC124120</p>
+      <p class="footer-disclaimer">⚠️ ArthaGuru provides financial <strong>education only</strong> and does not constitute investment advice. ArthaAI is not a SEBI-registered Investment Adviser. Content falls under SEBI Act Sec. 2(1)(g) educational exemption. Past performance is not indicative of future returns. Please consult a qualified financial advisor before investing.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+
+/* ── Panel Switcher ── */
+function showPanel(name) {
+  document.querySelectorAll('.guru-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.guru-tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  window.scrollTo({ top: document.querySelector('.guru-tabs').offsetTop - 80, behavior: 'smooth' });
+  if (name === 'compare') loadComparison('ulip');
+  if (name === 'glossary') renderGlossary();
+}
+
+/* ═══════════════════════════════════════
+   ARTICLE VIEWER
+═══════════════════════════════════════ */
+const articles = {
+  'mf-what': {
+    title: 'What is a Mutual Fund?',
+    meta: '📈 Mutual Funds · 4 min read · Beginner',
+    body: `
+      <p>A <strong>mutual fund</strong> is a pool of money collected from many investors and managed by a professional fund manager. The fund invests this money in a diversified portfolio of stocks, bonds, or other securities.</p>
+      <h4>How it works</h4>
+      <p>When you invest ₹10,000 in a mutual fund, you get units of that fund at the current NAV (Net Asset Value). Your money is combined with thousands of other investors and the fund manager uses it to buy securities on your behalf.</p>
+      <ul>
+        <li>You don't need to pick individual stocks</li>
+        <li>Professional management at low cost</li>
+        <li>Start with as little as ₹500/month via SIP</li>
+        <li>Regulated by SEBI — transparent and safe</li>
+      </ul>
+      <div class="article-tip"><p>💡 <strong>Artha Tip:</strong> SEBI mandates that mutual funds must disclose their portfolio every month. Always check the factsheet before investing.</p></div>
+      <h4>Key Terms to Know</h4>
+      <ul>
+        <li><strong>NAV:</strong> Net Asset Value — price of one unit of the fund today</li>
+        <li><strong>AUM:</strong> Assets Under Management — total money the fund manages</li>
+        <li><strong>Fund Manager:</strong> The professional who decides what to buy/sell</li>
+        <li><strong>Expense Ratio:</strong> Annual fee charged by the fund (typically 0.1–1.5%)</li>
+      </ul>
+      <p>Mutual funds are one of the safest and most accessible ways for regular Indians to participate in market growth. They have delivered 12–15% CAGR over long periods when diversified equity funds are held for 7+ years.</p>
+    `
+  },
+  'mf-types': {
+    title: 'Types of Mutual Funds: Equity, Debt, Hybrid & ELSS',
+    meta: '📈 Mutual Funds · 5 min read · Beginner',
+    body: `
+      <p>SEBI classifies mutual funds into distinct categories so investors can compare apples to apples. Here are the main types:</p>
+      <h4>1. Equity Funds</h4>
+      <p>Invest primarily in stocks. Higher risk, higher returns over long periods (7+ years). Best for wealth creation.</p>
+      <ul>
+        <li><strong>Large Cap:</strong> Top 100 companies by market cap. Stable, lower volatility.</li>
+        <li><strong>Mid Cap:</strong> Companies ranked 101–250. Higher growth potential, higher risk.</li>
+        <li><strong>Small Cap:</strong> Ranked 251+. Highest potential returns and highest risk.</li>
+        <li><strong>Flexi Cap:</strong> Manager can invest across all caps — good all-weather choice.</li>
+      </ul>
+      <h4>2. Debt Funds</h4>
+      <p>Invest in bonds, government securities, and money market instruments. Lower risk, lower returns. Good for 1–3 year goals.</p>
+      <div class="article-tip"><p>💡 <strong>Artha Tip:</strong> After April 2023, debt fund gains are taxed as per your income slab — making FD often more tax-efficient for those in the 30% bracket.</p></div>
+      <h4>3. Hybrid Funds</h4>
+      <p>Mix of equity and debt. Balanced Advantage Funds (BAFs) dynamically adjust the ratio. Good for moderate risk investors.</p>
+      <h4>4. ELSS (Equity Linked Savings Scheme)</h4>
+      <p>Tax-saving mutual funds under Section 80C. 3-year lock-in (shortest among all 80C options), equity exposure, and potential for higher returns than PPF.</p>
+    `
+  },
+  'ins-term': {
+    title: 'Term Life Insurance — The Only Life Cover You Need',
+    meta: '🛡️ Insurance · 4 min read · Beginner',
+    body: `
+      <p><strong>Term insurance</strong> is pure life cover — you pay a premium and your family receives a large sum (the "sum assured") if you die during the policy term. That's it. No maturity benefit, no investment component.</p>
+      <h4>Why is it the best life insurance?</h4>
+      <ul>
+        <li>Extremely affordable: ₹1 Cr cover costs just ₹8,000–12,000/year for a 30-year-old</li>
+        <li>No conflict of interest: pure protection, no returns to inflate the premium</li>
+        <li>High sum assured possible: ₹1–5 Cr easily</li>
+        <li>Tax deduction: premium eligible under Section 80C</li>
+      </ul>
+      <div class="article-tip"><p>💡 <strong>Artha Tip:</strong> Buy term insurance early. A 25-year-old pays 30–40% less premium than a 35-year-old for the same cover. Lock in rates when you're young and healthy.</p></div>
+      <h4>How Much Cover Do You Need?</h4>
+      <p>A simple thumb rule: <strong>10–15× your annual income</strong>. So if you earn ₹8L/year, aim for ₹80L–1.2 Cr cover. Consider adding your outstanding loans and dependent years.</p>
+      <h4>What to Look For</h4>
+      <ul>
+        <li>Claim Settlement Ratio (CSR) > 97%</li>
+        <li>Choose regular pay over limited pay</li>
+        <li>Add critical illness rider separately</li>
+        <li>Direct online plans are 20–30% cheaper than agent-sold plans</li>
+      </ul>
+    `
+  },
+  'ins-ulip': {
+    title: 'Why ULIP is Usually a Bad Idea',
+    meta: '🛡️ Insurance · 5 min read · Intermediate',
+    body: `
+      <p>A <strong>ULIP (Unit Linked Insurance Plan)</strong> combines insurance with investment. Sounds great — but the math rarely works in your favour.</p>
+      <h4>Where Your Premium Goes in a ULIP</h4>
+      <ul>
+        <li>Mortality charge (insurance cost)</li>
+        <li>Fund management charge (1.35–2.25%)</li>
+        <li>Premium allocation charge (first 1–3 years: 2–15% of premium!)</li>
+        <li>Policy administration charge</li>
+      </ul>
+      <p>After all charges, only 60–70% of your premium actually gets invested in Year 1. In a mutual fund, 99.5%+ gets invested on day 1.</p>
+      <div class="article-tip"><p>💡 <strong>Artha Tip:</strong> Run a simple comparison: ₹1L/year for 20 years in ULIP vs ₹1L/year split between Term Insurance (₹10K) + ELSS (₹90K). In almost every scenario, Term + ELSS wins — often by ₹50–80L over 20 years.</p></div>
+      <h4>When ULIP Can Make Sense</h4>
+      <ul>
+        <li>Very high income earners who have exhausted all other 80C options</li>
+        <li>If held for 10+ years without surrendering</li>
+        <li>Specific legacy planning with insurance companies offering guaranteed returns</li>
+      </ul>
+      <p>For most middle-class Indians, the answer is simple: <strong>Buy term. Invest in mutual funds separately.</strong></p>
+    `
+  },
+  'tax-slabs': {
+    title: 'Old vs New Tax Regime — Which Saves You More?',
+    meta: '🧾 Tax · 5 min read · Intermediate',
+    body: `
+      <p>Since FY 2024-25, the New Tax Regime is the default for salaried employees. But you can opt for the Old Regime if it saves you more. Here's how to decide:</p>
+      <h4>Tax Slabs Comparison (FY 2025-26)</h4>
+      <ul>
+        <li><strong>Old Regime:</strong> 5% up to ₹5L → 20% up to ₹10L → 30% above ₹10L</li>
+        <li><strong>New Regime:</strong> 0% up to ₹3L → 5% up to ₹7L → 10% up to ₹10L → 15% up to ₹12L → 20% up to ₹15L → 30% above ₹15L</li>
+      </ul>
+      <div class="article-tip"><p>💡 <strong>Artha Tip:</strong> New Regime has a ₹75,000 Standard Deduction for salaried. If your total deductions (80C + 80D + HRA + others) exceed ₹1.5L, Old Regime usually wins. Use the ArthaCalc Tax Savings calculator to know your exact savings!</p></div>
+      <h4>Quick Rule of Thumb</h4>
+      <ul>
+        <li>Income < ₹7L → New Regime (tax is nil after rebate)</li>
+        <li>Income ₹7–10L → Compare based on your deductions</li>
+        <li>Income > ₹15L with HRA + 80C + 80D claimed → Old Regime often better</li>
+        <li>No deductions at all → New Regime almost always better</li>
+      </ul>
+    `
+  }
+};
+
+function openArticle(id) {
+  const art = articles[id];
+  if (!art) {
+    // Default generic message for unmapped articles
+    document.getElementById('articleTitle').textContent = 'Article Coming Soon';
+    document.getElementById('articleMeta').textContent = '📚 ArthaGuru Content Library';
+    document.getElementById('articleBody').innerHTML = '<p>This article is being prepared by our financial educators team. Check back soon, or ask ArthaGuru directly using the Chat feature!</p>';
+  } else {
+    document.getElementById('articleTitle').textContent = art.title;
+    document.getElementById('articleMeta').textContent = art.meta;
+    document.getElementById('articleBody').innerHTML = art.body;
+  }
+  document.getElementById('articleOverlay').classList.add('open');
+}
+function closeArticle(event) {
+  if (!event || event.target === document.getElementById('articleOverlay')) {
+    document.getElementById('articleOverlay').classList.remove('open');
+  }
+}
+
+/* ═══════════════════════════════════════
+   RISK PROFILER
+═══════════════════════════════════════ */
+const quizQuestions = [
+  {
+    q: "How would you react if your investment fell 20% in 3 months?",
+    sub: "Think emotionally, not rationally.",
+    options: [
+      { label: "A", strong: "Sell everything immediately", text: "I can't handle this kind of loss", score: 1 },
+      { label: "B", strong: "Feel very anxious and sell some", text: "I'd reduce exposure to feel safer", score: 2 },
+      { label: "C", strong: "Stay put and wait", text: "Markets recover — I'll hold on", score: 3 },
+      { label: "D", strong: "Buy more!", text: "It's a great opportunity to average down", score: 4 }
+    ]
+  },
+  {
+    q: "What is your primary financial goal for the next 5–10 years?",
+    sub: "Select the one that fits most closely.",
+    options: [
+      { label: "A", strong: "Capital protection", text: "I just want to not lose money", score: 1 },
+      { label: "B", strong: "Regular income", text: "I want steady dividends or interest", score: 2 },
+      { label: "C", strong: "Balanced growth", text: "Moderate growth with manageable risk", score: 3 },
+      { label: "D", strong: "Maximum growth", text: "I'm willing to take risks for high returns", score: 4 }
+    ]
+  },
+  {
+    q: "How stable is your income?",
+    sub: "",
+    options: [
+      { label: "A", strong: "Very unstable", text: "Freelance / gig worker with irregular income", score: 1 },
+      { label: "B", strong: "Somewhat stable", text: "Small business or variable salary", score: 2 },
+      { label: "C", strong: "Stable", text: "Salaried employee with fixed income", score: 3 },
+      { label: "D", strong: "Very stable + surplus", text: "Stable job + additional rental or other income", score: 4 }
+    ]
+  },
+  {
+    q: "What percentage of your monthly income can you invest?",
+    sub: "",
+    options: [
+      { label: "A", strong: "Less than 10%", text: "Just a little after expenses", score: 1 },
+      { label: "B", strong: "10–20%", text: "Following the 50-30-20 rule loosely", score: 2 },
+      { label: "C", strong: "20–35%", text: "I'm a disciplined saver", score: 3 },
+      { label: "D", strong: "More than 35%", text: "My expenses are low; I invest aggressively", score: 4 }
+    ]
+  },
+  {
+    q: "When do you need this money?",
+    sub: "Your investment horizon matters a lot.",
+    options: [
+      { label: "A", strong: "Within 1 year", text: "Short-term need", score: 1 },
+      { label: "B", strong: "1–3 years", text: "Medium-term goal", score: 2 },
+      { label: "C", strong: "3–7 years", text: "Planning ahead", score: 3 },
+      { label: "D", strong: "7+ years", text: "Long-term wealth building", score: 4 }
+    ]
+  },
+  {
+    q: "How much financial knowledge do you have?",
+    sub: "",
+    options: [
+      { label: "A", strong: "Beginner", text: "I just know FD and savings account", score: 1 },
+      { label: "B", strong: "Basic", text: "I know about mutual funds and insurance", score: 2 },
+      { label: "C", strong: "Intermediate", text: "I follow markets and understand asset classes", score: 3 },
+      { label: "D", strong: "Advanced", text: "I actively research stocks and portfolios", score: 4 }
+    ]
+  },
+  {
+    q: "If you had ₹5 lakh to invest today, how would you allocate it?",
+    sub: "",
+    options: [
+      { label: "A", strong: "100% in FD or Bank", text: "Safe is best for me", score: 1 },
+      { label: "B", strong: "Split: 70% safe, 30% market", text: "Mostly safe with a little growth", score: 2 },
+      { label: "C", strong: "Split: 50% equity, 50% debt", text: "Balanced approach", score: 3 },
+      { label: "D", strong: "80%+ in equity/stocks", text: "I want maximum growth", score: 4 }
+    ]
+  }
+];
+
+let currentQuestion = 0;
+let quizAnswers = [];
+let quizScores = [];
+
+function renderQuestion() {
+  const q = quizQuestions[currentQuestion];
+  document.getElementById('quizQuestionText').textContent = q.q;
+  document.getElementById('quizQuestionSub').textContent = q.sub;
+  const progress = ((currentQuestion + 1) / quizQuestions.length) * 100;
+  document.getElementById('quizProgressFill').style.width = progress + '%';
+  document.getElementById('quizStepLabel').textContent = `Q ${currentQuestion + 1} of ${quizQuestions.length}`;
+  document.getElementById('quizBackBtn').style.display = currentQuestion > 0 ? '' : 'none';
+  document.getElementById('quizNextBtn').textContent = currentQuestion === quizQuestions.length - 1 ? 'See My Profile →' : 'Next →';
+  document.getElementById('quizNextBtn').disabled = quizAnswers[currentQuestion] === undefined;
+
+  const optContainer = document.getElementById('quizOptions');
+  optContainer.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-option' + (quizAnswers[currentQuestion] === i ? ' selected' : '');
+    div.innerHTML = `<div class="opt-label">${opt.label}</div><div class="opt-text"><strong>${opt.strong}</strong><span>${opt.text}</span></div>`;
+    div.onclick = () => selectOption(i, opt.score);
+    optContainer.appendChild(div);
+  });
+}
+
+function selectOption(index, score) {
+  quizAnswers[currentQuestion] = index;
+  quizScores[currentQuestion] = score;
+  document.querySelectorAll('.quiz-option').forEach((el, i) => {
+    el.classList.toggle('selected', i === index);
+  });
+  document.getElementById('quizNextBtn').disabled = false;
+}
+
+function quizNext() {
+  if (quizAnswers[currentQuestion] === undefined) return;
+  if (currentQuestion < quizQuestions.length - 1) {
+    currentQuestion++;
+    renderQuestion();
+  } else {
+    showRiskResult();
+  }
+}
+
+function quizBack() {
+  if (currentQuestion > 0) { currentQuestion--; renderQuestion(); }
+}
+
+function showRiskResult() {
+  const total = quizScores.reduce((a, b) => a + (b || 0), 0);
+  const max = quizQuestions.length * 4;
+  const pct = Math.round((total / max) * 100);
+
+  let profile, desc, needleLeft, products;
+  if (pct <= 35) {
+    profile = 'Conservative Investor';
+    desc = 'You prioritize capital safety above all. Market volatility makes you uncomfortable. Focus on capital preservation products.';
+    needleLeft = '15%';
+    products = [
+      { icon: '🏦', name: 'FD & RD', risk: 'low', desc: 'Bank Fixed Deposits. DICGC insured up to ₹5L. Returns 6.5–7.5%.' },
+      { icon: '📜', name: 'PPF', risk: 'low', desc: 'Tax-free, government-backed. 15-year lock-in. 7.1% p.a.' },
+      { icon: '🏛️', name: 'Debt Funds', risk: 'low', desc: 'Short-duration or liquid funds. Slightly better than FD after tax.' }
+    ];
+  } else if (pct <= 60) {
+    profile = 'Moderate Investor';
+    desc = 'You seek a balance between growth and safety. Short-term fluctuations are okay but you prefer stability overall.';
+    needleLeft = '50%';
+    products = [
+      { icon: '⚖️', name: 'Balanced Adv. Fund', risk: 'med', desc: 'Hybrid fund. 40–80% equity dynamically. Smoother ride.' },
+      { icon: '📈', name: 'Large Cap Fund', risk: 'med', desc: 'Top 100 companies. Lower volatility equity exposure.' },
+      { icon: '📜', name: 'NPS Tier I', risk: 'med', desc: 'Pension account. Tax savings + market exposure + annuity.' }
+    ];
+  } else {
+    profile = 'Aggressive Investor';
+    desc = 'You have a high risk appetite and long time horizon. You understand that short-term pain leads to long-term gain.';
+    needleLeft = '82%';
+    products = [
+      { icon: '🚀', name: 'Mid & Small Cap', risk: 'high', desc: 'High-growth companies. Volatile but can deliver 18–22% over 10Y.' },
+      { icon: '🌍', name: 'International Fund', risk: 'high', desc: 'Global diversification. Nasdaq, S&P 500 exposure from India.' },
+      { icon: '📊', name: 'Direct Stocks', risk: 'high', desc: 'Pick your own stocks after research. Highest risk-reward.' }
+    ];
+  }
+
+  document.getElementById('riskTitle').textContent = profile;
+  document.getElementById('riskScore').textContent = pct;
+  document.getElementById('riskDesc').textContent = desc;
+  document.getElementById('riskNeedle').style.left = needleLeft;
+
+  const rpContainer = document.getElementById('recommendedProducts');
+  rpContainer.innerHTML = products.map(p => `
+    <div class="rp-card">
+      <div class="rp-icon">${p.icon}</div>
+      <span class="rp-badge ${p.risk}">${p.risk === 'low' ? '🟢 Low Risk' : p.risk === 'med' ? '🟡 Medium Risk' : '🔴 High Risk'}</span>
+      <h4>${p.name}</h4>
+      <p>${p.desc}</p>
+    </div>
+  `).join('');
+
+  document.getElementById('quizCard').style.display = 'none';
+  document.getElementById('riskResult').classList.add('show');
+}
+
+function retakeQuiz() {
+  currentQuestion = 0;
+  quizAnswers = [];
+  quizScores = [];
+  document.getElementById('quizCard').style.display = '';
+  document.getElementById('riskResult').classList.remove('show');
+  renderQuestion();
+}
+
+renderQuestion();
+
+/* ═══════════════════════════════════════
+   PRODUCT COMPARISONS
+═══════════════════════════════════════ */
+const comparisons = {
+  ulip: {
+    cols: ['Feature', 'ULIP', 'Term + Mutual Fund'],
+    rows: [
+      ['Purpose', 'Insurance + Investment (mixed)', 'Insurance (Term) + Pure Investment (MF)'],
+      ['Premium Allocation', '60–80% invested (Year 1)', '99.5% invested immediately'],
+      ['Insurance Cover', '10× premium or more', 'Flexible — ₹1–5 Cr as needed'],
+      ['Charges', '3–4% annually (all-in)', '0.1–1.5% expense ratio only'],
+      ['Lock-in', '5 years mandatory', 'ELSS: 3 years | Others: nil'],
+      ['Liquidity', 'Low — surrender charges apply', 'High — redeem anytime (non-ELSS)'],
+      ['Transparency', 'Complex; hard to track', 'Full portfolio disclosed monthly'],
+      ['Tax on maturity', 'Tax-free if premium < 10% sum assured', 'LTCG 12.5% above ₹1.25L for equity MF'],
+      ['20-year corpus (₹1L/year)', '~₹35–45L (typical returns)', '~₹65–90L (Term ₹10K + ELSS ₹90K @ 13%)'],
+    ],
+    verdict: { title: 'Term + MF wins in almost all cases', text: 'The combination of a pure term plan (₹8,000–12,000/year) and diversified mutual funds delivers superior insurance cover AND significantly higher wealth creation over 10+ years. ULIPs serve a purpose only in specific legacy/estate planning scenarios or for those who need a "forced savings" mechanism and struggle with investment discipline.' }
+  },
+  endowment: {
+    cols: ['Feature', 'Endowment / Money Back', 'SIP in Mutual Fund'],
+    rows: [
+      ['Type', 'Traditional life insurance', 'Market-linked investment'],
+      ['Returns', '4–6% IRR (typical)', '11–15% CAGR (historical equity)'],
+      ['Life Cover', 'Included but low', 'Not included — buy term separately'],
+      ['Liquidity', 'Very low — high surrender penalty', 'High — exit anytime (no lock-in)'],
+      ['Inflation-adjusted returns', 'Often negative real returns', 'Positive — beats inflation over long run'],
+      ['Premiums', 'Fixed, high relative to cover', 'Flexible — start/stop/modify anytime'],
+      ['Tax', 'Tax-free maturity (if premium < 10%)', 'LTCG: 12.5% on gains > ₹1.25L'],
+      ['Corpus (₹50K/year × 20 years)', '₹15–20L', '₹52–75L @ 12% CAGR'],
+    ],
+    verdict: { title: 'SIP wins — Endowment is a value destroyer', text: 'Endowment and money-back plans were designed in an era of low financial literacy. Their returns (4–6% IRR) barely beat inflation and lock your money away. For the same premium, buying a term plan + investing the difference in a diversified SIP creates 3–5× more wealth over 20 years. The only reason to consider an endowment plan is if you truly need a guaranteed, fixed return with no market risk and don\'t trust yourself to invest separately.' }
+  },
+  ppf: {
+    cols: ['Feature', 'PPF', 'ELSS'],
+    rows: [
+      ['Category', 'Government small savings', 'Equity mutual fund'],
+      ['Returns', '7.1% (govt-set, quarterly)', '12–16% CAGR (market-linked)'],
+      ['Risk', 'Zero — government guaranteed', 'Market risk — can fall short-term'],
+      ['Lock-in', '15 years (partial w/d after 6Y)', '3 years (shortest 80C lock-in)'],
+      ['Tax on returns', 'Completely tax-free (EEE)', 'LTCG 12.5% on gains > ₹1.25L'],
+      ['80C benefit', 'Up to ₹1.5L', 'Up to ₹1.5L'],
+      ['Max investment', 'No limit (80C cap ₹1.5L)', 'No limit (80C cap ₹1.5L)'],
+      ['Corpus (₹1.5L/year × 15Y)', '~₹40–42L', '~₹75–90L @ 13% CAGR'],
+    ],
+    verdict: { title: 'ELSS for long-term, PPF for safety', text: 'ELSS historically generates 2× more wealth than PPF over 15+ years due to equity compounding. However, PPF is ideal if you are risk-averse, want a government guarantee, or are in the 20–30% tax bracket where the EEE (Exempt-Exempt-Exempt) benefit of PPF is highly valuable. Ideally, use both: max PPF for safety and tax-free guaranteed returns, and SIP into ELSS for growth.' }
+  },
+  nps: {
+    cols: ['Feature', 'NPS Tier I', 'Equity Mutual Fund'],
+    rows: [
+      ['Type', 'Pension scheme', 'Market-linked investment'],
+      ['Tax benefit', '80C ₹1.5L + extra 80CCD(1B) ₹50K', '80C ₹1.5L (ELSS only)'],
+      ['Lock-in', 'Till age 60', 'ELSS: 3 years; others: none'],
+      ['Withdrawal', '60% lump sum + 40% annuity', '100% flexible, any time'],
+      ['Returns', '10–12% CAGR (equity tier)', '12–15% CAGR (equity funds)'],
+      ['Annuity compulsion', 'Yes — 40% must buy annuity (taxable)', 'No — 100% yours'],
+      ['Transparency', 'Good — PFRDA regulated', 'Very high — SEBI regulated'],
+      ['Best for', 'Govt employees; high earners needing 80CCD(1B)', 'All investors for flexible wealth creation'],
+    ],
+    verdict: { title: 'NPS for tax benefit; MF for flexibility', text: 'NPS offers an exceptional additional ₹50,000 tax deduction under 80CCD(1B) — worth ₹15,000 annual saving for those in 30% bracket — that no mutual fund can match. However, the compulsory annuity (40% of corpus taxed as income) and lock-in till 60 limit its appeal. Strategy: max NPS for the extra tax benefit, then invest remaining surplus in mutual funds for flexible, 100% accessible wealth.' }
+  },
+  gold: {
+    cols: ['Feature', 'Sovereign Gold Bonds (SGBs)', 'Gold ETF', 'Physical Gold'],
+    rows: [
+      ['Issuer', 'RBI / Govt of India', 'Mutual Fund', 'Jeweller / Bank'],
+      ['Additional return', '2.5% p.a. interest (tax-free on maturity)', 'None', 'None'],
+      ['Storage', 'None (digital)', 'None (demat)', 'High risk + locker cost'],
+      ['Making charges', 'None', 'None', '8–20% lost immediately'],
+      ['Exit tax', 'Zero capital gains if held 8 years', 'LTCG 12.5% after 1Y', 'LTCG 12.5% after 2Y'],
+      ['Liquidity', 'Low (5-year lock-in for full benefit)', 'High (sell anytime on exchange)', 'Moderate'],
+      ['Best for', 'Long-term (8Y) gold allocation + income', 'Medium-term (1–5Y) gold allocation', 'Gifting, jewellery use only'],
+    ],
+    verdict: { title: 'SGBs win for investment; ETFs for flexibility', text: 'Sovereign Gold Bonds are the most superior way to invest in gold — you track gold prices, earn an additional 2.5% annual interest, and pay zero capital gains tax if held for 8 years. Gold ETFs are better if you need liquidity and can\'t commit 8 years. Physical gold (unless for jewellery use or gifting) is a wealth destroyer due to making charges, storage risk, and the same tax as ETFs.' }
+  }
+};
+
+function loadComparison(key) {
+  document.querySelectorAll('.compare-btn').forEach(b => b.classList.toggle('active', b.textContent.trim().startsWith(key === 'ulip' ? 'ULIP' : key === 'endowment' ? 'Endow' : key === 'ppf' ? 'PPF' : key === 'nps' ? 'NPS' : 'Gold')));
+  const comp = comparisons[key];
+  const table = document.getElementById('compareTable');
+  table.innerHTML = `
+    <thead><tr>${comp.cols.map(c => `<th>${c}</th>`).join('')}</tr></thead>
+    <tbody>
+      ${comp.rows.map((row, i) => `
+        <tr>
+          ${row.map((cell, ci) => ci === 0 ? `<td class="feature-col">${cell}</td>` : `<td>${cell}</td>`).join('')}
+        </tr>
+      `).join('')}
+    </tbody>
+  `;
+  document.getElementById('verdictTitle').textContent = comp.verdict.title;
+  document.getElementById('verdictText').textContent = comp.verdict.text;
+}
+loadComparison('ulip');
+
+/* ═══════════════════════════════════════
+   CHAT
+═══════════════════════════════════════ */
+const chatResponses = {
+  'sip': { tag: 'Mutual Funds', text: 'A <strong>SIP (Systematic Investment Plan)</strong> lets you invest a fixed amount in a mutual fund at regular intervals — typically monthly. Instead of timing the market, you benefit from <strong>Rupee Cost Averaging</strong>: you buy more units when markets are low and fewer when high, automatically averaging out your cost over time.<br><br>Benefits:<ul><li>Start with as little as ₹500/month</li><li>No need to watch the market</li><li>Disciplined wealth creation over 10–15 years</li><li>Compounding works in your favour</li></ul>' },
+  'mutual fund': { tag: 'Mutual Funds', text: 'A <strong>mutual fund</strong> pools money from thousands of investors to create a diversified portfolio managed by a professional fund manager. When you invest ₹10,000, you get "units" of the fund proportional to the current NAV.<br><br>Key types: <ul><li><strong>Equity funds</strong> — invest in stocks, higher returns, higher risk</li><li><strong>Debt funds</strong> — invest in bonds, lower risk</li><li><strong>Hybrid funds</strong> — mix of both</li><li><strong>ELSS</strong> — tax-saving equity funds</li></ul>' },
+  'term insurance': { tag: 'Insurance', text: '<strong>Term insurance</strong> is pure life cover. You pay a premium, and if you pass away during the policy term, your family receives a large "sum assured". There is no maturity benefit — it is pure protection, which is why premiums are very affordable.<br><br><strong>₹1 Crore cover</strong> for a healthy 30-year-old costs just <strong>₹8,000–12,000/year</strong>. Compare this to ULIP or endowment plans that charge ₹1L+/year for the same cover. Always choose term + mutual fund over any bundled product.' },
+  'ulip': { tag: 'Insurance', text: '<strong>ULIP (Unit Linked Insurance Plan)</strong> combines life insurance with investments — but charges heavy fees (3–4%/year) including premium allocation, fund management, mortality, and admin charges.<br><br>In Year 1, only 60–70% of your premium actually gets invested. Compare this to a mutual fund where 99.5% is invested immediately.<br><br>💡 Almost always better to: Buy <strong>Term Insurance</strong> (₹10K/year for ₹1Cr cover) + invest the rest in <strong>Mutual Funds</strong>.' },
+  'tax': { tag: 'Tax Planning', text: 'The two key income tax regimes in India for FY 2025-26:<br><br><strong>Old Regime:</strong> Higher tax rates but allows deductions (80C ₹1.5L, 80D ₹25K, HRA, etc.)<br><strong>New Regime:</strong> Lower tax rates but most deductions not available<br><br>💡 <strong>Quick guide:</strong> If your total deductions exceed ₹2L–2.5L, Old Regime usually saves more. Otherwise, New Regime is simpler and often cheaper. Use the ArthaCalc Tax Savings calculator for your exact numbers!' },
+  '80c': { tag: 'Tax Planning', text: '<strong>Section 80C</strong> allows you to deduct up to ₹1.5 lakh from your taxable income through certain investments/payments:<br><ul><li><strong>ELSS (best for wealth)</strong> — 3Y lock-in, market returns</li><li><strong>PPF</strong> — tax-free, safe, 15Y lock-in</li><li><strong>NPS</strong> — pension, extra ₹50K under 80CCD(1B)</li><li><strong>EPF</strong> — automatic for salaried</li><li><strong>Home Loan Principal</strong></li><li><strong>Life Insurance Premium</strong></li><li><strong>Children\'s Tuition Fees</strong></li></ul>' },
+  'nav': { tag: 'Mutual Funds', text: '<strong>NAV (Net Asset Value)</strong> is the price of one unit of a mutual fund on any given day. It is calculated as:<br><br><code>NAV = (Total Assets − Liabilities) ÷ Total Units</code><br><br>A lower NAV does NOT mean a fund is cheaper or better value — just like a stock price alone doesn\'t tell you if it\'s undervalued. What matters is the <strong>performance consistency</strong> and <strong>expense ratio</strong> of the fund.' },
+  'expense ratio': { tag: 'Mutual Funds', text: 'The <strong>expense ratio</strong> is the annual fee a mutual fund charges for managing your money, expressed as a percentage of AUM.<br><br>Example: A 1.5% expense ratio means if you have ₹1L invested, ₹1,500/year is deducted (automatically — you don\'t pay separately).<br><br>💡 Over 20 years, the difference between 0.5% and 1.5% expense ratio compounds to a <strong>massive</strong> wealth difference — up to 20% less corpus. Always prefer Direct Plans over Regular Plans, which have 0.5–1% lower expense ratios.' },
+  'default': { tag: 'ArthaGuru', text: 'Great question! I can help you understand this better. As an educational platform, I can explain financial concepts, compare products, and help you understand how different financial instruments work — but I cannot recommend specific products or give personalized investment advice.<br><br>Try asking me about: <ul><li>Mutual fund types and how they work</li><li>Term vs ULIP vs Endowment comparison</li><li>Tax saving options under 80C</li><li>How SIP compounding works</li></ul>' }
+};
+
+function getBotResponse(msg) {
+  const lower = msg.toLowerCase();
+  for (const [key, resp] of Object.entries(chatResponses)) {
+    if (key !== 'default' && lower.includes(key)) return resp;
+  }
+  return chatResponses['default'];
+}
+
+function addMessage(text, isUser = false, tag = '') {
+  const container = document.getElementById('chatMessages');
+  const now = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  const div = document.createElement('div');
+  div.className = 'msg ' + (isUser ? 'user' : 'bot');
+  if (isUser) {
+    div.innerHTML = `<div class="msg-avatar user">A</div><div><div class="msg-bubble">${text}</div><div class="msg-time">${now}</div></div>`;
+  } else {
+    div.innerHTML = `<div class="msg-avatar bot">🧠</div><div><div class="msg-bubble">${tag ? `<span class="msg-tag">${tag}</span><br>` : ''}${text}</div><div class="msg-time">${now}</div></div>`;
+  }
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function showTyping() {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg bot typing-indicator';
+  div.id = 'typingIndicator';
+  div.innerHTML = `<div class="msg-avatar bot">🧠</div><div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function hideTyping() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  input.style.height = 'auto';
+  addMessage(text, true);
+  showTyping();
+  setTimeout(() => {
+    hideTyping();
+    const resp = getBotResponse(text);
+    addMessage(resp.text, false, resp.tag);
+  }, 1200 + Math.random() * 800);
+}
+
+function askQuestion(q) {
+  showPanel('chat');
+  setTimeout(() => {
+    document.getElementById('chatInput').value = q;
+    sendMessage();
+  }, 400);
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+  // Auto-resize
+  const el = e.target;
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+/* ═══════════════════════════════════════
+   GLOSSARY
+═══════════════════════════════════════ */
+const glossaryTerms = [
+  { term: 'Alpha', def: 'The excess return of a fund over its benchmark index. Positive alpha means the fund outperformed its index.' },
+  { term: 'AUM', def: 'Assets Under Management — the total market value of assets a fund or manager oversees.' },
+  { term: 'Beta', def: 'A measure of a stock/fund\'s volatility relative to the market. Beta of 1 = moves with market; >1 = more volatile.' },
+  { term: 'CAGR', def: 'Compound Annual Growth Rate — the rate at which an investment grows annually, accounting for compounding.' },
+  { term: 'CIBIL Score', def: 'India\'s primary credit score (range 300–900). Score above 750 is considered good for loan approval.' },
+  { term: 'Debt Fund', def: 'A mutual fund that invests in fixed-income instruments like government bonds, corporate bonds, and money market instruments.' },
+  { term: 'Demat Account', def: 'Dematerialized account — holds shares and securities in electronic form, eliminating physical share certificates.' },
+  { term: 'Dividend', def: 'A portion of a company\'s profit distributed to shareholders. In mutual funds, it means distributing gains from the fund.' },
+  { term: 'ELSS', def: 'Equity Linked Savings Scheme — tax-saving mutual fund with 3-year lock-in, eligible for ₹1.5L deduction under 80C.' },
+  { term: 'EMI', def: 'Equated Monthly Instalment — fixed monthly payment for loan repayment covering both principal and interest.' },
+  { term: 'Expense Ratio', def: 'Annual fee charged by a mutual fund as a % of AUM. Includes fund management and administrative costs.' },
+  { term: 'FD', def: 'Fixed Deposit — a bank investment with guaranteed returns at a fixed interest rate for a fixed tenure.' },
+  { term: 'Flexi Cap', def: 'A mutual fund that can invest in any combination of large, mid, and small cap stocks without restriction.' },
+  { term: 'Folio Number', def: 'Unique identification number assigned to each investor in a mutual fund, like a customer ID.' },
+  { term: 'HRA', def: 'House Rent Allowance — salary component for rent payments, partially tax-exempt under Section 10(13A).' },
+  { term: 'Index Fund', def: 'A fund that passively tracks a market index (like Nifty 50) with very low expense ratios (0.1–0.2%).' },
+  { term: 'IRR', def: 'Internal Rate of Return — the actual annual return of an investment, accounting for timing of cash flows.' },
+  { term: 'ITR', def: 'Income Tax Return — the annual form filed with the Income Tax Department declaring income and taxes paid.' },
+  { term: 'KYC', def: 'Know Your Customer — mandatory identity and address verification required for all financial accounts in India.' },
+  { term: 'LTCG', def: 'Long Term Capital Gains — profits from assets held for the long term. Equity: 12.5% above ₹1.25L after 1 year.' },
+  { term: 'Lumpsum', def: 'A one-time large investment in a mutual fund, as opposed to regular SIP investments.' },
+  { term: 'NAV', def: 'Net Asset Value — the per-unit price of a mutual fund on a given day. Calculated as (Assets − Liabilities) ÷ Units.' },
+  { term: 'Nifty 50', def: 'India\'s benchmark stock market index comprising the 50 largest companies listed on NSE by market cap.' },
+  { term: 'NPS', def: 'National Pension System — government-backed pension scheme with tax benefits. 40% of corpus mandatorily used for annuity.' },
+  { term: 'P/E Ratio', def: 'Price-to-Earnings ratio — a stock\'s price divided by annual earnings per share. Lower P/E often means undervalued.' },
+  { term: 'PPF', def: 'Public Provident Fund — government small savings scheme with 15-year tenure, tax-free returns, EEE status.' },
+  { term: 'SEBI', def: 'Securities and Exchange Board of India — India\'s capital markets regulator overseeing mutual funds, stocks, and brokers.' },
+  { term: 'Sensex', def: 'Stock Exchange Sensitive Index — BSE\'s benchmark of 30 large, financially sound companies.' },
+  { term: 'SIP', def: 'Systematic Investment Plan — investing a fixed amount in a mutual fund at regular (usually monthly) intervals.' },
+  { term: 'STP', def: 'Systematic Transfer Plan — automatically transferring funds from one mutual fund to another on a regular basis.' },
+  { term: 'STCG', def: 'Short Term Capital Gains — profits from assets sold before the long-term holding period. Equity STCG: 20%.' },
+  { term: 'SWP', def: 'Systematic Withdrawal Plan — regularly withdrawing a fixed amount from your mutual fund, like a self-created pension.' },
+  { term: 'TDS', def: 'Tax Deducted at Source — tax deducted by payer before making payment. Applied on FD interest, salary, rent, etc.' },
+  { term: 'ULIP', def: 'Unit Linked Insurance Plan — combines life insurance with investments. Usually sub-optimal vs Term + MF combo.' },
+  { term: 'XIRR', def: 'Extended Internal Rate of Return — the most accurate way to calculate mutual fund returns when investments are irregular (as in SIP).' },
+];
+
+let currentFilter = '';
+
+function renderGlossary(filter = '') {
+  const alphaContainer = document.getElementById('glossaryAlpha');
+  const gridContainer = document.getElementById('glossaryGrid');
+
+  // Build alphabet buttons
+  const letters = [...new Set(glossaryTerms.map(t => t.term[0].toUpperCase()))].sort();
+  alphaContainer.innerHTML = letters.map(l =>
+    `<button class="alpha-btn ${currentFilter === l ? 'active' : ''}" onclick="filterAlpha('${l}')">${l}</button>`
+  ).join('') + `<button class="alpha-btn ${currentFilter === '' && filter === '' ? 'active' : ''}" onclick="filterAlpha('')" style="width:auto;padding:0 .75rem;">All</button>`;
+
+  // Filter
+  let terms = glossaryTerms;
+  if (filter) {
+    terms = terms.filter(t => t.term.toLowerCase().includes(filter.toLowerCase()) || t.def.toLowerCase().includes(filter.toLowerCase()));
+  } else if (currentFilter) {
+    terms = terms.filter(t => t.term[0].toUpperCase() === currentFilter);
+  }
+
+  gridContainer.innerHTML = terms.map(t => `
+    <div class="glossary-item">
+      <h4><span class="term-letter">${t.term[0]}</span>${t.term}</h4>
+      <p>${t.def}</p>
+    </div>
+  `).join('') || '<p style="color:var(--g400);grid-column:1/-1;text-align:center;padding:2rem">No terms found for your search.</p>';
+}
+
+function filterAlpha(letter) {
+  currentFilter = letter;
+  document.getElementById('glossarySearch').value = '';
+  renderGlossary();
+  document.querySelectorAll('.alpha-btn').forEach(b => b.classList.toggle('active', b.textContent === (letter || 'All')));
+}
+
+function filterGlossary(val) {
+  currentFilter = '';
+  renderGlossary(val);
+}
+
+renderGlossary();
+
+</script>
+</body>
+</html>
