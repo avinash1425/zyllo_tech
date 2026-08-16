@@ -1,0 +1,409 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 215 30% 16%;
+
+    --card: 210 18% 97%;
+    --card-foreground: 215 30% 16%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 30% 16%;
+
+    --primary: 24 95% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 215 45% 20%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 210 12% 94%;
+    --muted-foreground: 215 12% 48%;
+
+    --accent: 24 95% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 215 14% 87%;
+    --input: 215 14% 87%;
+    --ring: 24 95% 50%;
+
+    --radius: 0.75rem;
+
+    --navy: 215 30% 16%;
+    --navy-light: 215 25% 28%;
+    --teal: 195 55% 42%;
+    --teal-light: 195 45% 55%;
+    --orange: 24 95% 50%;
+    --orange-light: 24 90% 58%;
+    --orange-dark: 24 88% 42%;
+
+    --gradient-hero: linear-gradient(135deg, hsl(24 95% 50%), hsl(215 45% 20%));
+    --gradient-orange: linear-gradient(135deg, hsl(24 95% 50%), hsl(24 90% 58%));
+    --gradient-teal: linear-gradient(135deg, hsl(195 55% 42%), hsl(195 45% 55%));
+    --gradient-dark: linear-gradient(180deg, hsl(215 30% 13%), hsl(215 30% 19%));
+    --gradient-card: linear-gradient(135deg, hsl(210 18% 97%), hsl(210 12% 94%));
+    --glow-primary: 0 0 20px hsl(24 95% 50% / 0.22);
+    --glow-teal: 0 0 20px hsl(195 55% 42% / 0.2);
+    --glow-strong: 0 0 40px hsl(24 95% 50% / 0.28);
+
+    --sidebar-background: 215 30% 16%;
+    --sidebar-foreground: 210 12% 94%;
+    --sidebar-primary: 24 95% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 28% 22%;
+    --sidebar-accent-foreground: 210 12% 94%;
+    --sidebar-border: 215 22% 24%;
+    --sidebar-ring: 24 95% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  @property --pos-x {
+    syntax: '<percentage>';
+    initial-value: 11.14%;
+    inherits: false;
+  }
+
+  @property --pos-y {
+    syntax: '<percentage>';
+    initial-value: 140%;
+    inherits: false;
+  }
+
+  @property --spread-x {
+    syntax: '<percentage>';
+    initial-value: 150%;
+    inherits: false;
+  }
+
+  @property --spread-y {
+    syntax: '<percentage>';
+    initial-value: 180.06%;
+    inherits: false;
+  }
+
+  @property --color-1 {
+    syntax: '<color>';
+    initial-value: #1a0a05;
+    inherits: false;
+  }
+
+  @property --color-2 {
+    syntax: '<color>';
+    initial-value: #3d1a10;
+    inherits: false;
+  }
+
+  @property --color-3 {
+    syntax: '<color>';
+    initial-value: #8f3b13;
+    inherits: false;
+  }
+
+  @property --color-4 {
+    syntax: '<color>';
+    initial-value: #1c4d56;
+    inherits: false;
+  }
+
+  @property --color-5 {
+    syntax: '<color>';
+    initial-value: #0f1f32;
+    inherits: false;
+  }
+
+  @property --border-angle {
+    syntax: '<angle>';
+    initial-value: 20deg;
+    inherits: true;
+  }
+
+  @property --border-color-1 {
+    syntax: '<color>';
+    initial-value: hsla(24, 95%, 58%, 0.25);
+    inherits: true;
+  }
+
+  @property --border-color-2 {
+    syntax: '<color>';
+    initial-value: hsla(195, 55%, 42%, 0.75);
+    inherits: true;
+  }
+
+  @property --stop-1 {
+    syntax: '<percentage>';
+    initial-value: 37.35%;
+    inherits: false;
+  }
+
+  @property --stop-2 {
+    syntax: '<percentage>';
+    initial-value: 61.36%;
+    inherits: false;
+  }
+
+  @property --stop-3 {
+    syntax: '<percentage>';
+    initial-value: 78.42%;
+    inherits: false;
+  }
+
+  @property --stop-4 {
+    syntax: '<percentage>';
+    initial-value: 89.52%;
+    inherits: false;
+  }
+
+  @property --stop-5 {
+    syntax: '<percentage>';
+    initial-value: 100%;
+    inherits: false;
+  }
+}
+
+@layer components {
+  .gradient-button {
+    @apply relative appearance-none cursor-pointer;
+    background: radial-gradient(
+      var(--spread-x) var(--spread-y) at var(--pos-x) var(--pos-y),
+      var(--color-1) var(--stop-1),
+      var(--color-2) var(--stop-2),
+      var(--color-3) var(--stop-3),
+      var(--color-4) var(--stop-4),
+      var(--color-5) var(--stop-5)
+    );
+    transition:
+      --pos-x 0.5s,
+      --pos-y 0.5s,
+      --spread-x 0.5s,
+      --spread-y 0.5s,
+      --color-1 0.5s,
+      --color-2 0.5s,
+      --color-3 0.5s,
+      --color-4 0.5s,
+      --color-5 0.5s,
+      --border-angle 0.5s,
+      --border-color-1 0.5s,
+      --border-color-2 0.5s,
+      --stop-1 0.5s,
+      --stop-2 0.5s,
+      --stop-3 0.5s,
+      --stop-4 0.5s,
+      --stop-5 0.5s;
+  }
+
+  .gradient-button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(var(--border-angle), var(--border-color-1), var(--border-color-2));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .gradient-button:hover {
+    --pos-x: 0%;
+    --pos-y: 91.51%;
+    --spread-x: 120.24%;
+    --spread-y: 103.18%;
+    --color-1: #f36c21;
+    --color-2: #cc7d23;
+    --color-3: #2f6f7d;
+    --color-4: #1f3f6d;
+    --color-5: #10182a;
+    --border-angle: 190deg;
+    --border-color-1: hsla(24, 95%, 85%, 0.2);
+    --border-color-2: hsla(195, 55%, 85%, 0.6);
+    --stop-1: 0%;
+    --stop-2: 8.8%;
+    --stop-3: 21.44%;
+    --stop-4: 71.34%;
+    --stop-5: 85.76%;
+  }
+
+  .gradient-button-variant {
+    --color-1: #0b1024;
+    --color-2: #1f3f6d;
+    --color-3: #469396;
+    --color-4: #f38a2b;
+    --color-5: #1b0e08;
+    --border-angle: 200deg;
+    --border-color-1: hsla(24, 95%, 90%, 0.6);
+    --border-color-2: hsla(195, 55%, 90%, 0.2);
+  }
+
+  .gradient-button-variant:hover {
+    --pos-x: 0%;
+    --pos-y: 95.51%;
+    --spread-x: 110.24%;
+    --spread-y: 110.2%;
+    --color-1: #0b1024;
+    --color-2: #2f6f7d;
+    --color-3: #f38a2b;
+    --color-4: #1f3f6d;
+    --color-5: #0d1322;
+    --stop-1: 0%;
+    --stop-2: 10%;
+    --stop-3: 35.44%;
+    --stop-4: 71.34%;
+    --stop-5: 90.76%;
+    --border-angle: 210deg;
+    --border-color-1: hsla(24, 95%, 90%, 0.2);
+    --border-color-2: hsla(195, 55%, 90%, 0.75);
+  }
+}
+
+@layer utilities {
+  @keyframes fadeOutLabel {
+    0% {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+    70% {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(0.5rem) scale(0.95);
+    }
+  }
+
+  .animate-fadeOut {
+    animation: fadeOutLabel 2.6s ease forwards;
+  }
+
+  .text-gradient {
+    background: var(--gradient-hero);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bg-gradient-orange {
+    background: var(--gradient-orange);
+  }
+
+  .bg-gradient-teal {
+    background: var(--gradient-teal);
+  }
+
+  .bg-gradient-dark {
+    background: var(--gradient-dark);
+  }
+
+  .bg-gradient-card {
+    background: var(--gradient-card);
+  }
+
+  .glow {
+    box-shadow: var(--glow-primary);
+  }
+
+  .glow-teal {
+    box-shadow: var(--glow-teal);
+  }
+
+  .glow-strong {
+    box-shadow: var(--glow-strong);
+  }
+
+  .card-gradient {
+    background: linear-gradient(135deg, hsl(210 20% 97%), hsl(210 15% 95%));
+  }
+
+  .border-gradient {
+    border: 1px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+  }
+
+  .border-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, hsl(24 95% 50% / 0.3), hsl(215 45% 20% / 0.3));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .glass {
+    background: hsl(0 0% 100% / 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  @keyframes loader-rotate {
+    0% {
+      transform: rotate(90deg);
+      box-shadow:
+        0 10px 20px 0 #fff inset,
+        0 20px 30px 0 #ad5fff inset,
+        0 60px 60px 0 #471eec inset;
+    }
+    50% {
+      transform: rotate(270deg);
+      box-shadow:
+        0 10px 20px 0 #fff inset,
+        0 20px 10px 0 #d60a47 inset,
+        0 40px 60px 0 #311e80 inset;
+    }
+    100% {
+      transform: rotate(450deg);
+      box-shadow:
+        0 10px 20px 0 #fff inset,
+        0 20px 30px 0 #ad5fff inset,
+        0 60px 60px 0 #471eec inset;
+    }
+  }
+
+  .ai-loader-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .ai-loader-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+  }
+
+  .ai-loader-ball {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    animation: loader-rotate 1.7s linear infinite;
+  }
+}
