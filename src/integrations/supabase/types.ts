@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      blog_posts: {
+        Row: {
+          author: string
+          category: string
+          content: string
+          created_at: string
+          excerpt: string
+          featured_image_url: string | null
+          id: string
+          slug: string
+          status: string
+          title: string
+          updated_at: string
+          views: number
+        }
+        Insert: {
+          author?: string
+          category?: string
+          content?: string
+          created_at?: string
+          excerpt?: string
+          featured_image_url?: string | null
+          id?: string
+          slug: string
+          status?: string
+          title: string
+          updated_at?: string
+          views?: number
+        }
+        Update: {
+          author?: string
+          category?: string
+          content?: string
+          created_at?: string
+          excerpt?: string
+          featured_image_url?: string | null
+          id?: string
+          slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          views?: number
+        }
+        Relationships: []
+      }
       career_applications: {
         Row: {
           consent: boolean
@@ -61,34 +106,161 @@ export type Database = {
       }
       contact_submissions: {
         Row: {
+          company: string | null
           created_at: string
           email: string
+          full_name: string | null
           id: string
           message: string
-          name: string
+          name: string | null
           phone: string | null
           service: string | null
-          subject: string
+          status: string
+          subject: string | null
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id?: string
+          message: string
+          name?: string | null
+          phone?: string | null
+          service?: string | null
+          status?: string
+          subject?: string | null
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          message?: string
+          name?: string | null
+          phone?: string | null
+          service?: string | null
+          status?: string
+          subject?: string | null
+        }
+        Relationships: []
+      }
+      job_application_views: {
+        Row: {
+          created_at: string
+          id: string
+          job_id: string | null
         }
         Insert: {
           created_at?: string
-          email: string
           id?: string
-          message: string
-          name: string
-          phone?: string | null
-          service?: string | null
-          subject: string
+          job_id?: string | null
         }
         Update: {
           created_at?: string
-          email?: string
           id?: string
-          message?: string
-          name?: string
+          job_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_application_views_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_postings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_applications: {
+        Row: {
+          cover_note: string | null
+          created_at: string
+          email: string
+          experience_years: number | null
+          full_name: string
+          id: string
+          job_id: string
+          phone: string | null
+          prospect_rating: number | null
+          resume_url: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          cover_note?: string | null
+          created_at?: string
+          email: string
+          experience_years?: number | null
+          full_name: string
+          id?: string
+          job_id: string
           phone?: string | null
-          service?: string | null
-          subject?: string
+          prospect_rating?: number | null
+          resume_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          cover_note?: string | null
+          created_at?: string
+          email?: string
+          experience_years?: number | null
+          full_name?: string
+          id?: string
+          job_id?: string
+          phone?: string | null
+          prospect_rating?: number | null
+          resume_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_postings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_postings: {
+        Row: {
+          created_at: string
+          department: string
+          description: string
+          employment_type: string
+          id: string
+          location: string
+          status: string
+          title: string
+          total_openings: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          department: string
+          description?: string
+          employment_type?: string
+          id?: string
+          location?: string
+          status?: string
+          title: string
+          total_openings?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          department?: string
+          description?: string
+          employment_type?: string
+          id?: string
+          location?: string
+          status?: string
+          title?: string
+          total_openings?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -110,6 +282,48 @@ export type Database = {
           id?: string
           is_active?: boolean
           subscribed_at?: string
+        }
+        Relationships: []
+      }
+      portfolio_projects: {
+        Row: {
+          challenge: string | null
+          created_at: string
+          description: string
+          id: string
+          image_url: string | null
+          result: string | null
+          solution: string | null
+          status: string
+          tag: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          challenge?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          result?: string | null
+          solution?: string | null
+          status?: string
+          tag?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          challenge?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          result?: string | null
+          solution?: string | null
+          status?: string
+          tag?: string
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -169,6 +383,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_blog_post_views: {
+        Args: { post_slug: string }
+        Returns: undefined
       }
     }
     Enums: {
