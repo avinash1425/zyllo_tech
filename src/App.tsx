@@ -13,6 +13,7 @@ const Index = lazy(() => import("./pages/Index"));
 const Services = lazy(() => import("./pages/Services"));
 const About = lazy(() => import("./pages/About"));
 const Industries = lazy(() => import("./pages/Industries"));
+const Portfolio = lazy(() => import("./pages/Portfolio"));
 const Blog = lazy(() => import("./pages/Blog"));
 const ArticleDetail = lazy(() => import("./pages/ArticleDetail"));
 const Resources = lazy(() => import("./pages/Resources"));
@@ -54,8 +55,10 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/services" element={<Services />} />
+                <Route path="/services/:slug" element={<Services />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/industries" element={<Industries />} />
+                <Route path="/portfolio" element={<Portfolio />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<ArticleDetail />} />
                 <Route path="/resources" element={<Resources />} />
