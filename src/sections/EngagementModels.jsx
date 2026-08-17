@@ -117,7 +117,7 @@ export default function EngagementModels() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .model-in {
           animation: modelFadeUp 0.6s ease-out both;
         }

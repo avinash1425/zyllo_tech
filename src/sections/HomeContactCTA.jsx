@@ -114,7 +114,7 @@ export default function HomeContactCTA({
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .cta-in {
           animation: ctaFadeUp 0.6s ease-out both;
         }
