@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Suspense, lazy, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
-import AppLoader from "./components/AppLoader";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -49,7 +48,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <AppLoader>
+          <>
             <ScrollToTop />
             <Suspense fallback={null}>
               <Routes>
@@ -82,7 +81,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
-          </AppLoader>
+          </>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
