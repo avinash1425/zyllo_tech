@@ -1,5 +1,3 @@
-"use client";
-
 import { CompatLink as Link } from "@/components/NextCompat";
 import { ArrowRight, Mail, MessageCircle, Phone } from "lucide-react";
 
@@ -114,7 +112,7 @@ export default function HomeContactCTA({
         </div>
       </div>
 
-      <style>{`
+      <style jsx>{`
         .cta-in {
           animation: ctaFadeUp 0.6s ease-out both;
         }

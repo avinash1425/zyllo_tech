@@ -1,5 +1,3 @@
-"use client";
-
 import { Check, Clock, Target, Users } from "lucide-react";
 
 // Padding was py-6/py-8 — far tighter than every other section on the page
@@ -117,7 +115,7 @@ export default function EngagementModels() {
         </div>
       </div>
 
-      <style>{`
+      <style jsx>{`
         .model-in {
           animation: modelFadeUp 0.6s ease-out both;
         }
