@@ -1,5 +1,3 @@
-"use client";
-
 import { CompatImage as Image } from "@/components/NextCompat";
 import { CompatLink as Link } from "@/components/NextCompat";
 import { ArrowRight } from "lucide-react";
@@ -17,7 +15,7 @@ export default function ServiceTiles() {
   return (
     <section className="relative isolate overflow-hidden bg-[#0b0e17] py-10 lg:py-14">
       <Image
-        src="/home-service.jpg"
+        src="/logo_make_11_06_2023_425.jpg"
         alt=""
         fill
         sizes="100vw"
@@ -90,7 +88,7 @@ export default function ServiceTiles() {
         </div>
       </div>
 
-      <style>{`
+      <style jsx>{`
         .tile-in {
           animation: tileFadeUp 0.6s ease-out both;
         }

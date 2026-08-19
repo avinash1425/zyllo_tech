@@ -1,5 +1,3 @@
-"use client";
-
 import { Users, Rocket, ShieldCheck, Target } from "lucide-react";
 
 // Numbered connected timeline — same visual language as "Our Development
@@ -107,7 +105,7 @@ export default function WhyChooseUs() {
         </div>
       </div>
 
-      <style>{`
+      <style jsx>{`
         .pulse-glow {
           animation: pulseGlow 3.5s ease-in-out infinite;
         }

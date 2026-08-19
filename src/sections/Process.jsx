@@ -1,5 +1,3 @@
-"use client";
-
 import { CompatImage as Image } from "@/components/NextCompat";
 import { Compass, Hammer, PenTool, Rocket, Wrench } from "lucide-react";
 
@@ -128,7 +126,7 @@ export default function Process() {
         </div>
       </div>
 
-      <style>{`
+      <style jsx>{`
         @keyframes stepFadeUp {
           from {
             opacity: 0;

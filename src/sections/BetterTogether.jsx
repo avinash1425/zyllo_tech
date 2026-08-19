@@ -1,5 +1,3 @@
-"use client";
-
 import { Cloud, Code2, Lightbulb, Palette, Plus, ShieldCheck, Smartphone, Sparkles, TestTube2 } from "lucide-react";
 
 // Each pairing shows the two actual services being combined, joined by a
@@ -95,7 +93,7 @@ export default function BetterTogether() {
         </div>
       </div>
 
-      <style>{`
+      <style jsx>{`
         .pairing-in {
           animation: pairingFadeUp 0.6s ease-out both;
         }

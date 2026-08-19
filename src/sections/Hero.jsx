@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 import { CompatLink as Link } from "@/components/NextCompat";
 import { CompatImage as Image } from "@/components/NextCompat";
@@ -328,7 +326,7 @@ export default function Hero() {
         }}
       />
 
-      <style>{`
+      <style jsx>{`
         .hero-slider {
           min-height: 480px;
           height: 70vh;
