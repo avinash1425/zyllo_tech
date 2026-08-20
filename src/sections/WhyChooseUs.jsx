@@ -105,7 +105,7 @@ export default function WhyChooseUs() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .pulse-glow {
           animation: pulseGlow 3.5s ease-in-out infinite;
         }

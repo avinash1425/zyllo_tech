@@ -126,7 +126,7 @@ export default function Process() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes stepFadeUp {
           from {
             opacity: 0;

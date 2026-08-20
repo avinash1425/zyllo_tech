@@ -27,7 +27,9 @@
     "types": [
       "vitest/globals"
     ],
-    "useDefineForClassFields": true
+    "useDefineForClassFields": true,
+    "allowJs": true,
+    "checkJs": false
   },
   "include": [
     "src"

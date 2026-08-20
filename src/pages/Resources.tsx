@@ -121,10 +121,10 @@ const Resources = () => {
       />
       <Navbar />
       <PageHero
-        title="Resources"
-        highlight="Hub"
+        title="Resources Hub"
         description="Practical implementation guides, engineering playbooks, and industry blueprints — written by the engineers who build these systems."
-        breadcrumb="Resources"
+        breadcrumbLabel="Resources"
+        eyebrow="Resources"
       />
 
       <section className="py-20">

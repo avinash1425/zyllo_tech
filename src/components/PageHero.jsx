@@ -9,15 +9,15 @@ import { ChevronRight } from "lucide-react";
 // back to the original centered layout when no breadcrumbLabel/quickLinks
 // are passed, so every existing call site keeps working unchanged.
 export default function PageHero({
-  eyebrow,
-  title,
-  description,
-  image,
-  imageAlt,
-  primaryCta,
-  secondaryCta,
-  breadcrumbLabel,
-  quickLinks,
+  eyebrow = undefined,
+  title = undefined,
+  description = undefined,
+  image = undefined,
+  imageAlt = undefined,
+  primaryCta = undefined,
+  secondaryCta = undefined,
+  breadcrumbLabel = undefined,
+  quickLinks = undefined,
 }) {
   const structured = Boolean(breadcrumbLabel || quickLinks?.length);
 

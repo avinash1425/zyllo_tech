@@ -81,7 +81,7 @@ export default function TechOrbit() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .orbit-spin {
           animation: orbitSpin 40s linear infinite;
         }

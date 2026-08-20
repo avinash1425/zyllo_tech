@@ -87,7 +87,7 @@ export default function Values() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .pulse-glow {
           animation: pulseGlow 3.5s ease-in-out infinite;
         }

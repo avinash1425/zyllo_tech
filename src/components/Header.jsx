@@ -385,7 +385,7 @@ export default function Header() {
         </nav>
       )}
 
-      <style jsx>{`
+      <style>{`
         @keyframes dropdownFadeIn {
           from {
             opacity: 0;

@@ -19,10 +19,10 @@ const CookiePolicy = () => {
       />
       <Navbar />
       <PageHero
-        title="Cookie"
-        highlight="Policy"
+        title="Cookie Policy"
         description="How cookies and similar technologies are used on Zyllo Tech digital experiences."
-        breadcrumb="Cookie Policy"
+        breadcrumbLabel="Cookie Policy"
+        eyebrow="Legal"
       />
 
       <section className="py-14">
