@@ -2,7 +2,7 @@ import { useState } from "react";
 import { CompatLink as Link } from "@/components/NextCompat";
 import { ArrowRight, Briefcase, MapPin } from "lucide-react";
 import Modal from "@/components/Modal";
-import ApplyForm from "@/app/careers/[id]/ApplyForm";
+import ApplyForm from "@/components/ApplyForm";
 
 // Renders the Open Positions grid and owns both modals: a "View Details"
 // modal showing the full role description, and an "Apply Now" modal with

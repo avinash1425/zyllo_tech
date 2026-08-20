@@ -1,6 +1,7 @@
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useActionState } from "@/lib/useActionState";
 import { Check, ChevronDown, Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
-import { submitContactForm } from "@/app/contact/actions";
+import { submitContactForm } from "@/lib/actions/contact";
 
 const SERVICES = [
   "Web Development",
@@ -220,7 +221,7 @@ export default function ContactForm() {
                 </p>
               </div>
             ) : (
-              <form action={formAction} onSubmit={handleSubmit} className="flex flex-col gap-7">
+              <form onSubmit={(event) => { handleSubmit(event); if (!event.defaultPrevented) formAction(event); }} className="flex flex-col gap-7">
                 <div>
                   <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#1c2f4a]">
                     Your Details
