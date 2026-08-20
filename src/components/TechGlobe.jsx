@@ -96,7 +96,7 @@ export default function TechGlobe() {
         </span>
       ))}
 
-      <style jsx>{`
+      <style>{`
         .globe-spin {
           animation: globeSpin 24s linear infinite;
         }

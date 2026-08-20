@@ -209,7 +209,7 @@ export default function Technologies({ tint = "tint" }) {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .orbit-spin {
           animation: orbitSpin 40s linear infinite;
         }

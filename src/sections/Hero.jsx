@@ -326,7 +326,7 @@ export default function Hero() {
         }}
       />
 
-      <style jsx>{`
+      <style>{`
         .hero-slider {
           min-height: 480px;
           height: 70vh;

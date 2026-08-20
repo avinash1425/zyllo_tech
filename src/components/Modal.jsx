@@ -64,7 +64,7 @@ export default function Modal({ isOpen, onClose, children, maxWidthClassName = "
         <div className="max-h-[85vh] overflow-y-auto">{children}</div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .modal-fade-in {
           animation: modalFadeIn 0.2s ease-out both;
         }

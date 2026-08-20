@@ -54,7 +54,7 @@ export default function Reveal({ children, delay = 0, className = "" }) {
     >
       {children}
 
-      <style jsx>{`
+      <style>{`
         .reveal-wrap {
           overflow: clip;
           transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1),

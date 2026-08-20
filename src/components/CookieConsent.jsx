@@ -81,7 +81,7 @@ export default function CookieConsent() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes cookiePop {
           from {
             opacity: 0;

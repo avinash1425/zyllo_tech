@@ -236,7 +236,7 @@ export default function PageTransition() {
         </p>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .page-transition-content {
           animation: pulseIn 0.4s ease-out;
         }

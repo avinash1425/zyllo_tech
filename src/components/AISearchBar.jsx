@@ -256,7 +256,7 @@ export default function AISearchBar() {
               )}
             </div>
 
-            <style jsx>{`
+            <style>{`
               @keyframes aiSearchBackdropFadeIn {
                 from {
                   opacity: 0;

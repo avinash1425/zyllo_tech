@@ -93,7 +93,7 @@ export default function BetterTogether() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .pairing-in {
           animation: pairingFadeUp 0.6s ease-out both;
         }

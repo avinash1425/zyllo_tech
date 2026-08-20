@@ -108,7 +108,7 @@ export default function WhyJoinZyllo() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .join-card::before {
           content: "";
           position: absolute;

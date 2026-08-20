@@ -185,7 +185,7 @@ export default function ChallengesSolutions() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes panelFadeIn {
           from {
             opacity: 0;

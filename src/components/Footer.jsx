@@ -284,7 +284,7 @@ export default function Footer() {
         sections={TERMS_SECTIONS}
       />
 
-      <style jsx>{`
+      <style>{`
         .footer-brand {
           transition: transform 0.3s ease;
         }
