@@ -65,10 +65,10 @@ const StartupsPage = () => {
       />
       <Navbar />
       <PageHero
-        title="Our"
-        highlight="Startups"
+        title="Our Startups"
         description="Beyond client delivery — Zyllo Tech builds its own ventures. Products born from real problems, engineered for massive impact."
-        breadcrumb="Startups"
+        breadcrumbLabel="Startups"
+        eyebrow="Startups"
       />
 
       <section className="py-24">
