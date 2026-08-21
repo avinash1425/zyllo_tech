@@ -6,7 +6,7 @@ import PageFade from "@/components/PageFade";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import CookieConsent from "@/components/CookieConsent";
 
-export default function SiteChrome({ children, user }) {
+export default function SiteChrome({ children, user = undefined }) {
   const pathname = usePathname();
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
   const isLogin = pathname === "/login";
