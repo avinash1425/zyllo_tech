@@ -3,6 +3,7 @@ import { CompatLink as Link } from "@/components/NextCompat";
 import { ArrowRight, CircleDot, Lightbulb, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAsyncData } from "@/lib/useAsyncData";
+import { fallbackProjects } from "@/data/fallback-content";
 
 async function getCaseStudies() {
   const { data, error } = await supabase
@@ -16,10 +17,10 @@ async function getCaseStudies() {
 
   if (error) {
     console.error("Failed to load case studies:", error.message);
-    return [];
+    return fallbackProjects.slice(0, 3);
   }
 
-  return data ?? [];
+  return data && data.length > 0 ? data : fallbackProjects.slice(0, 3);
 }
 
 const FLOW = [
@@ -29,7 +30,7 @@ const FLOW = [
 ];
 
 export default function CaseStudies() {
-  const cases = useAsyncData(getCaseStudies, []);
+  const cases = useAsyncData(getCaseStudies, fallbackProjects.slice(0, 3));
 
   return (
     <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-white py-6 lg:py-8">

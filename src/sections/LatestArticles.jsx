@@ -4,6 +4,7 @@ import { Calendar, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAsyncData } from "@/lib/useAsyncData";
 import { safeImageUrl } from "@/lib/safe-image-url";
+import { fallbackPosts } from "@/data/fallback-content";
 
 function estimateReadTime(content) {
   const words = (content || "").trim().split(/\s+/).filter(Boolean).length;
@@ -23,13 +24,13 @@ async function getLatestPosts() {
 
   if (error) {
     console.error("Failed to load latest posts:", error.message);
-    return [];
+    return fallbackPosts.slice(1, 7);
   }
-  return data ?? [];
+  return data && data.length > 0 ? data : fallbackPosts.slice(1, 7);
 }
 
 export default function LatestArticles() {
-  const posts = useAsyncData(getLatestPosts, []);
+  const posts = useAsyncData(getLatestPosts, fallbackPosts.slice(1, 7));
   if (posts.length === 0) return null;
 
   return (
