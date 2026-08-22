@@ -4,6 +4,7 @@ import { ArrowRight, Calendar, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAsyncData } from "@/lib/useAsyncData";
 import { safeImageUrl } from "@/lib/safe-image-url";
+import { fallbackPosts } from "@/data/fallback-content";
 
 function estimateReadTime(content) {
   const words = (content || "").trim().split(/\s+/).filter(Boolean).length;
@@ -22,13 +23,13 @@ async function getFeaturedPost() {
 
   if (error) {
     console.error("Failed to load featured post:", error.message);
-    return null;
+    return fallbackPosts[0] ?? null;
   }
-  return data;
+  return data ?? fallbackPosts[0] ?? null;
 }
 
 export default function FeaturedArticle() {
-  const post = useAsyncData(getFeaturedPost, null);
+  const post = useAsyncData(getFeaturedPost, fallbackPosts[0] ?? null);
   if (!post) return null;
 
   const imageUrl = safeImageUrl(post.featured_image_url);

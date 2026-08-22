@@ -3,6 +3,7 @@ import { CompatLink as Link } from "@/components/NextCompat";
 import { ArrowRight, FolderKanban } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAsyncData } from "@/lib/useAsyncData";
+import { fallbackProjects } from "@/data/fallback-content";
 
 async function getFeaturedProjects() {
   const { data, error } = await supabase
@@ -14,14 +15,14 @@ async function getFeaturedProjects() {
 
   if (error) {
     console.error("Failed to load featured projects:", error.message);
-    return [];
+    return fallbackProjects;
   }
 
-  return data ?? [];
+  return data && data.length > 0 ? data : fallbackProjects;
 }
 
 export default function FeaturedProjects() {
-  const projects = useAsyncData(getFeaturedProjects, []);
+  const projects = useAsyncData(getFeaturedProjects, fallbackProjects);
 
   return (
     <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-[#fafbfc] py-6 lg:py-8">

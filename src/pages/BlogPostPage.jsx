@@ -10,6 +10,7 @@ import NotFound from "@/pages/NotFound";
 import { supabase } from "@/integrations/supabase/client";
 import { useAsyncData } from "@/lib/useAsyncData";
 import { safeImageUrl } from "@/lib/safe-image-url";
+import { findFallbackPost } from "@/data/fallback-content";
 
 function estimateReadTime(content) {
   const words = (content || "").trim().split(/\s+/).filter(Boolean).length;
@@ -36,7 +37,7 @@ export default function BlogPostPage() {
       });
     }
 
-    return { loaded: true, post: data ?? null };
+    return { loaded: true, post: data ?? findFallbackPost(slug) };
   }, { loaded: false, post: null });
 
   if (!result.loaded) return <div className="min-h-[60vh]" />;
