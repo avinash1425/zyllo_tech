@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
+import { brokeredPreviewStorage } from './previewAuthStorage';
 
 // Falls back to this project's own public anon key when VITE_SUPABASE_URL /
 // VITE_SUPABASE_PUBLISHABLE_KEY aren't injected at build time (e.g. Lovable's
@@ -19,7 +20,7 @@ const SUPABASE_PUBLISHABLE_KEY =
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
+    storage: brokeredPreviewStorage(),
     persistSession: true,
     autoRefreshToken: true,
   }
