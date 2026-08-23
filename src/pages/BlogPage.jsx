@@ -1,4 +1,4 @@
-import SEOHead from "@/components/SEOHead";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 import PageHero from "@/components/PageHero";
 import FeaturedArticle from "@/sections/FeaturedArticle";
 import LatestArticles from "@/sections/LatestArticles";
@@ -12,6 +12,10 @@ export default function BlogPage() {
         title="Blog | Zyllo Tech"
         description="Practical notes on engineering, design, AI, and product strategy from the Zyllo Tech team."
         canonical="/blog"
+        structuredData={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "Blog", url: `${SITE_URL}/blog` },
+        ])}
       />
       <PageHero
         breadcrumbLabel="Blog"

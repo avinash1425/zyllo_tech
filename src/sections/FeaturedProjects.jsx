@@ -79,6 +79,11 @@ export default function FeaturedProjects() {
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   )}
+                  {project.illustrative === true && (
+                    <span className="absolute right-3 top-3 rounded-full bg-black/70 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-wide text-white backdrop-blur-sm">
+                      Illustrative example
+                    </span>
+                  )}
                 </div>
                 <div className="p-6">
                   <span className="text-xs font-bold tracking-[0.15em] text-[#f7941e] uppercase">

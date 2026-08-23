@@ -77,6 +77,17 @@ export default function Reveal({ children, delay = 0, className = "" }) {
           filter: blur(0px);
           transform: scale(1) translateY(0);
         }
+        @media (prefers-reduced-motion: reduce) {
+          .reveal-wrap {
+            transition: none;
+          }
+          .reveal-hidden-down,
+          .reveal-hidden-up {
+            opacity: 1;
+            filter: blur(0px);
+            transform: none;
+          }
+        }
       `}</style>
     </div>
   );

@@ -6,7 +6,7 @@
 // production domain so every SEO artifact (sitemap, canonical tags, OG links,
 // JSON-LD) stays consistent.
 export const SITE_URL = (
-  import.meta.env.VITE_SITE_URL || "https://www.zyllotech.com"
+  import.meta.env.VITE_SITE_URL || "https://zyllotech.com"
 ).replace(/\/$/, "");
 
 export const SITE_NAME = "Zyllo Tech";

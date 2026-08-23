@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { Calendar, Clock, ArrowLeft } from "lucide-react";
 import { CompatLink as Link } from "@/components/NextCompat";
-import SEOHead from "@/components/SEOHead";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 import PageHero from "@/components/PageHero";
 import Reveal from "@/components/Reveal";
 import ContactCTA from "@/sections/ContactCTA";
@@ -51,6 +51,11 @@ export default function BlogPostPage() {
         title={`${post.title} | Zyllo Tech`}
         description={post.excerpt || undefined}
         canonical={`/blog/${post.slug}`}
+        structuredData={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "Blog", url: `${SITE_URL}/blog` },
+          { name: post.title, url: `${SITE_URL}/blog/${post.slug}` },
+        ])}
       />
       <ArticleJsonLd post={post} />
       <PageHero

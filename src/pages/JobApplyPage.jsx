@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import SEOHead from "@/components/SEOHead";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 import PageHero from "@/components/PageHero";
 import ApplyForm from "@/components/ApplyForm";
 import JobPostingJsonLd from "@/components/JobPostingJsonLd";
@@ -43,6 +43,11 @@ export default function JobApplyPage() {
         title={`Apply — ${job.title} | Zyllo Tech`}
         description={`Apply for the ${job.title} role at Zyllo Tech — ${job.location} · ${job.employment_type}.`}
         canonical={`/careers/${job.id}`}
+        structuredData={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "Careers", url: `${SITE_URL}/careers` },
+          { name: job.title, url: `${SITE_URL}/careers/${job.id}` },
+        ])}
       />
       <JobPostingJsonLd job={job} />
       <PageHero

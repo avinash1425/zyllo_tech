@@ -1,8 +1,18 @@
 import PageHero from "@/components/PageHero";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 
 export default function TermsPage() {
   return (
     <>
+      <SEOHead
+        title="Terms of Service | Zyllo Tech"
+        description="The terms governing use of zyllotech.com and Zyllo Tech's software design, development, and support services."
+        canonical="/terms-of-service"
+        structuredData={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "Terms of Service", url: `${SITE_URL}/terms-of-service` },
+        ])}
+      />
       <PageHero
         eyebrow="Legal"
         title="Terms of Service"

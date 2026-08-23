@@ -252,7 +252,7 @@ export default function Header() {
 
         <button
           type="button"
-          className="inline-flex items-center justify-center rounded-md p-2 text-[#1d2735] transition-colors duration-200 hover:bg-neutral-100 lg:hidden"
+          className="inline-flex items-center justify-center rounded-md p-3 text-[#1d2735] transition-colors duration-200 hover:bg-neutral-100 lg:hidden"
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           aria-expanded={isMenuOpen}
           aria-controls="mobile-menu"

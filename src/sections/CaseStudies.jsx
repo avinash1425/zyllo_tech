@@ -101,6 +101,11 @@ export default function CaseStudies() {
                     <span className="absolute bottom-4 left-4 inline-flex items-center rounded-full bg-white/90 px-3.5 py-1.5 text-xs font-bold tracking-[0.15em] text-[#f7941e] uppercase backdrop-blur-sm">
                       {item.tag}
                     </span>
+                    {item.illustrative === true && (
+                      <span className="absolute right-4 top-4 rounded-full bg-black/70 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-wide text-white backdrop-blur-sm">
+                        Illustrative example
+                      </span>
+                    )}
                   </div>
                 </div>
 

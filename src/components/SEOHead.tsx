@@ -4,7 +4,7 @@ export const SITE_URL = "https://zyllotech.com";
 export const SITE_NAME = "Zyllo Tech";
 export const SITE_LOGO = `${SITE_URL}/zyllo-logo.png`;
 export const SITE_OG_IMAGE = `${SITE_URL}/og-default.png`;
-export const SITE_TWITTER = "@ZylloTech";
+export const SITE_TWITTER = "@ZylloS85154";
 
 // ─── Global Organisation JSON-LD ────────────────────────────────────────────
 export const organizationSchema = {
@@ -49,11 +49,14 @@ export const organizationSchema = {
       availableLanguage: "English",
     },
   ],
+  // Facebook intentionally omitted: the previously-listed profile URL
+  // (profile.php?id=61588192247341) resolves to "This content isn't
+  // available" — dead/unverifiable, not a real page. Add it back once a
+  // real Zyllo Tech Facebook page URL is confirmed.
   sameAs: [
     "https://www.linkedin.com/company/zyllo-tech",
     "https://x.com/ZylloS85154",
     "https://www.instagram.com/zyllotechsoftwaresolutions/",
-    "https://www.facebook.com/profile.php?id=61588192247341",
     "https://www.youtube.com/@zylloTechSoftwareSolutions",
   ],
   knowsAbout: [

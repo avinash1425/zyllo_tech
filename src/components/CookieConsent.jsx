@@ -26,7 +26,9 @@ export default function CookieConsent() {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-[60] p-4 sm:p-6">
+    // Right padding clears the fixed WhatsApp button (bottom-5/6 right-5/6,
+    // ~56px + margin) so this full-width banner doesn't sit on top of it.
+    <div className="fixed inset-x-0 bottom-0 z-[60] p-4 pr-20 sm:p-6 sm:pr-24">
       <div className="cookie-pop relative mx-auto max-w-3xl overflow-hidden rounded-2xl border border-white/70 bg-white/95 p-5 shadow-2xl shadow-black/10 backdrop-blur-xl sm:p-6">
         <span
           aria-hidden="true"

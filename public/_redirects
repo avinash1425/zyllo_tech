@@ -1,0 +1,11 @@
+# Cloudflare Pages redirects — evaluated at the edge before the SPA loads.
+# Canonical duplicate cleanup: short legal-page paths → the sitemap's canonical form.
+/privacy   /privacy-policy      301
+/terms     /terms-of-service    301
+
+# Legacy service slugs → current equivalents (previously soft-404s: the SPA
+# rendered a "not found" page but the server still returned HTTP 200).
+/services/ai-ml-development   /services/ai-solutions             301
+/services/cloud-devops        /services/cloud-solutions          301
+/services/cybersecurity       /services/cybersecurity-engineering 301
+/services/qa-testing          /services/quality-engineering-qa   301

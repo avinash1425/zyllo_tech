@@ -1,5 +1,5 @@
 import { Briefcase, Layers, Mail, Users } from "lucide-react";
-import SEOHead from "@/components/SEOHead";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 import PageHero from "@/components/PageHero";
 import OurStory from "@/sections/OurStory";
 import WhyChooseUs from "@/sections/WhyChooseUs";
@@ -14,6 +14,10 @@ export default function AboutPage() {
         title="About Us | Zyllo Tech"
         description="Zyllo Tech is an India-based software company partnering with businesses to design, build, and support intelligent digital products."
         canonical="/about"
+        structuredData={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "About", url: `${SITE_URL}/about` },
+        ])}
       />
       <PageHero
         breadcrumbLabel="About"

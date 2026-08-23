@@ -1,4 +1,4 @@
-import SEOHead from "@/components/SEOHead";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 import PageHero from "@/components/PageHero";
 import WhyJoinZyllo from "@/sections/WhyJoinZyllo";
 import OpenPositions from "@/sections/OpenPositions";
@@ -11,6 +11,10 @@ export default function CareersPage() {
         title="Careers | Zyllo Tech"
         description="Join the team building software at Zyllo Tech. Explore open roles, life at the company, and the benefits of working with us."
         canonical="/careers"
+        structuredData={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "Careers", url: `${SITE_URL}/careers` },
+        ])}
       />
       <PageHero
         breadcrumbLabel="Careers"

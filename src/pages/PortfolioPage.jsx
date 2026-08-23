@@ -1,4 +1,4 @@
-import SEOHead from "@/components/SEOHead";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 import PageHero from "@/components/PageHero";
 import FeaturedProjects from "@/sections/FeaturedProjects";
 import CaseStudies from "@/sections/CaseStudies";
@@ -13,6 +13,10 @@ export default function PortfolioPage() {
         title="Portfolio | Zyllo Tech"
         description="A look at the kind of web, mobile, AI, and cloud projects Zyllo Tech builds — from featured work to case studies and our development process."
         canonical="/portfolio"
+        structuredData={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "Portfolio", url: `${SITE_URL}/portfolio` },
+        ])}
       />
       <PageHero
         breadcrumbLabel="Portfolio"

@@ -68,6 +68,10 @@ export const fallbackProjects = [
     result:
       "Average approval time dropped from 4 days to under 6 hours, and audit reporting that used to take a week is now generated on demand.",
     status: "published",
+    // Marks this as placeholder/example content (not a real completed
+    // engagement) so FeaturedProjects/CaseStudies can show a visible
+    // "Illustrative example" badge instead of implying a verified result.
+    illustrative: true,
   },
   {
     id: "fallback-healthcare-portal",
@@ -83,6 +87,10 @@ export const fallbackProjects = [
     result:
       "Front-desk call volume fell by roughly 60%, and no-shows dropped sharply after automated reminders went live.",
     status: "published",
+    // Marks this as placeholder/example content (not a real completed
+    // engagement) so FeaturedProjects/CaseStudies can show a visible
+    // "Illustrative example" badge instead of implying a verified result.
+    illustrative: true,
   },
   {
     id: "fallback-retail-commerce",
@@ -98,6 +106,10 @@ export const fallbackProjects = [
     result:
       "Oversells were effectively eliminated and page loads improved to under 1.5s on mobile, lifting conversion double digits.",
     status: "published",
+    // Marks this as placeholder/example content (not a real completed
+    // engagement) so FeaturedProjects/CaseStudies can show a visible
+    // "Illustrative example" badge instead of implying a verified result.
+    illustrative: true,
   },
   {
     id: "fallback-logistics-visibility",
@@ -113,6 +125,10 @@ export const fallbackProjects = [
     result:
       "On-time delivery improved by 18% in two quarters and customer status enquiries reduced significantly.",
     status: "published",
+    // Marks this as placeholder/example content (not a real completed
+    // engagement) so FeaturedProjects/CaseStudies can show a visible
+    // "Illustrative example" badge instead of implying a verified result.
+    illustrative: true,
   },
   {
     id: "fallback-ai-document-ai",
@@ -128,6 +144,10 @@ export const fallbackProjects = [
     result:
       "Research time per query fell from ~25 minutes to under 2, with every answer traceable to the source clause.",
     status: "published",
+    // Marks this as placeholder/example content (not a real completed
+    // engagement) so FeaturedProjects/CaseStudies can show a visible
+    // "Illustrative example" badge instead of implying a verified result.
+    illustrative: true,
   },
   {
     id: "fallback-saas-mvp",
@@ -143,5 +163,9 @@ export const fallbackProjects = [
     result:
       "The MVP launched in 11 weeks, onboarded its first paying cohort, and the same codebase carried the team through their next raise.",
     status: "published",
+    // Marks this as placeholder/example content (not a real completed
+    // engagement) so FeaturedProjects/CaseStudies can show a visible
+    // "Illustrative example" badge instead of implying a verified result.
+    illustrative: true,
   },
 ];

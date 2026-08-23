@@ -1,8 +1,18 @@
 import PageHero from "@/components/PageHero";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 
 export default function PrivacyPage() {
   return (
     <>
+      <SEOHead
+        title="Privacy Policy | Zyllo Tech"
+        description="How Zyllo Tech collects, uses, and protects information when you visit zyllotech.com, including our use of cookies."
+        canonical="/privacy-policy"
+        structuredData={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "Privacy Policy", url: `${SITE_URL}/privacy-policy` },
+        ])}
+      />
       <PageHero eyebrow="Legal" title="Privacy Policy" description="Last updated: August 2026" />
 
       <section className="bg-white py-6 lg:py-8">
