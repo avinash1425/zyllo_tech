@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { Check } from "lucide-react";
-import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
+import SEOHead, { breadcrumbSchema, serviceSchema, SITE_URL } from "@/components/SEOHead";
 import PageHero from "@/components/PageHero";
 import OtherServices from "@/sections/OtherServices";
 import NotFound from "@/pages/NotFound";
@@ -24,11 +24,18 @@ export default function ServiceDetailPage() {
         title={`${service.title} | Zyllo Tech`}
         description={service.description}
         canonical={`/services/${service.slug}`}
-        structuredData={breadcrumbSchema([
-          { name: "Home", url: SITE_URL },
-          { name: "Services", url: `${SITE_URL}/services` },
-          { name: service.title, url: `${SITE_URL}/services/${service.slug}` },
-        ])}
+        structuredData={[
+          breadcrumbSchema([
+            { name: "Home", url: SITE_URL },
+            { name: "Services", url: `${SITE_URL}/services` },
+            { name: service.title, url: `${SITE_URL}/services/${service.slug}` },
+          ]),
+          serviceSchema({
+            name: service.title,
+            description: service.description,
+            url: `${SITE_URL}/services/${service.slug}`,
+          }),
+        ]}
       />
       <PageHero
         breadcrumbLabel="Services"

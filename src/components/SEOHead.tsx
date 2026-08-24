@@ -102,6 +102,28 @@ export const webSiteSchema = {
   inLanguage: ["en-IN", "en-US"],
 };
 
+// ─── Service helper ──────────────────────────────────────────────────────────
+export function serviceSchema({
+  name,
+  description,
+  url,
+}: {
+  name: string;
+  description: string;
+  url: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    serviceType: name,
+    name,
+    description,
+    url,
+    provider: { "@id": `${SITE_URL}/#organization` },
+    areaServed: ["IN", "US", "GB", "AE", "SG", "AU", "CA"],
+  };
+}
+
 // ─── Breadcrumb helper ───────────────────────────────────────────────────────
 export function breadcrumbSchema(items: Array<{ name: string; url: string }>) {
   return {
