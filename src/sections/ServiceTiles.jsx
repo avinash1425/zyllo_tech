@@ -15,7 +15,7 @@ export default function ServiceTiles() {
   return (
     <section className="relative isolate overflow-hidden bg-[#0b0e17] py-10 lg:py-14">
       <Image
-        src="/logo_make_11_06_2023_425.jpg"
+        src="/robo.jpg"
         alt=""
         fill
         sizes="100vw"

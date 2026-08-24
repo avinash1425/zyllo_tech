@@ -48,7 +48,14 @@ export const CompatImage = forwardRef<HTMLImageElement, CompatImageProps>(functi
     <img
       ref={ref}
       {...props}
-      loading={priority ? "eager" : props.loading}
+      // Every image on the site renders through this shim, so the default set
+      // here is the site-wide default. Anything not explicitly marked
+      // `priority` (hero slide 1, the logo, page heroes) is below the fold or
+      // offscreen in a carousel, so it should not compete with the LCP element
+      // for bandwidth. An explicit `loading` prop still wins.
+      loading={priority ? "eager" : props.loading ?? "lazy"}
+      decoding={props.decoding ?? "async"}
+      fetchPriority={props.fetchPriority ?? (priority ? "high" : undefined)}
       style={
         fill
           ? { position: "absolute", inset: 0, width: "100%", height: "100%", ...style }
