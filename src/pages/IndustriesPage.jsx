@@ -1,4 +1,4 @@
-import SEOHead from "@/components/SEOHead";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 import PageHero from "@/components/PageHero";
 import Industries from "@/sections/Industries";
 import ChallengesSolutions from "@/sections/ChallengesSolutions";
@@ -12,6 +12,10 @@ export default function IndustriesPage() {
         title="Industries | Zyllo Tech"
         description="Zyllo Tech builds software for startups, healthcare, finance, retail, logistics, and more — solutions shaped around how each industry actually works."
         canonical="/industries"
+        structuredData={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "Industries", url: `${SITE_URL}/industries` },
+        ])}
       />
       <PageHero
         breadcrumbLabel="Industries"

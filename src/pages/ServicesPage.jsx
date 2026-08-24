@@ -1,4 +1,4 @@
-import SEOHead from "@/components/SEOHead";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 import PageHero from "@/components/PageHero";
 import WhatWeBelieve from "@/sections/WhatWeBelieve";
 import ServiceGrid from "@/sections/ServiceGrid";
@@ -11,6 +11,10 @@ export default function ServicesPage() {
         title="Services | Zyllo Tech"
         description="Web, mobile, AI, cloud, and security engineering services from Zyllo Tech — end-to-end software delivery under one team."
         canonical="/services"
+        structuredData={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "Services", url: `${SITE_URL}/services` },
+        ])}
       />
       <PageHero
         breadcrumbLabel="Services"

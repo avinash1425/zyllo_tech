@@ -1,0 +1,24 @@
+# Zyllo Tech
+
+> Zyllo Tech is a software engineering company based in Hyderabad, India, delivering web and mobile applications, AI/ML solutions, cloud DevOps, cybersecurity, and quality engineering for businesses in India, the US, and globally.
+
+## Services
+- [Software Development](https://zyllotech.com/services/product-strategy-consulting)
+- [Web Development](https://zyllotech.com/services/web-development)
+- [Mobile App Development](https://zyllotech.com/services/mobile-app-development)
+- [UI/UX Design](https://zyllotech.com/services/ui-ux-design)
+- [Cloud Solutions](https://zyllotech.com/services/cloud-solutions)
+- [AI Solutions](https://zyllotech.com/services/ai-solutions)
+- [Maintenance & Support](https://zyllotech.com/services/maintenance-support)
+- [Cybersecurity](https://zyllotech.com/services/cybersecurity-engineering)
+- [Quality Assurance](https://zyllotech.com/services/quality-engineering-qa)
+
+## Company
+- [About](https://zyllotech.com/about)
+- [Industries](https://zyllotech.com/industries)
+- [Portfolio](https://zyllotech.com/portfolio)
+- [Careers](https://zyllotech.com/careers)
+- [Contact](https://zyllotech.com/contact)
+
+## Resources
+- [Blog](https://zyllotech.com/blog)

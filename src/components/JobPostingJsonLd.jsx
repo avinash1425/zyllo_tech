@@ -58,6 +58,7 @@ export default function JobPostingJsonLd({ job }) {
       address: {
         "@type": "PostalAddress",
         addressLocality: job.location || undefined,
+        addressCountry: "IN",
       },
     },
     directApply: true,

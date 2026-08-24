@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Suspense, lazy, useEffect } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -59,6 +59,12 @@ const App = () => (
                   <Route path="/about" element={<AboutPage />} />
                   <Route path="/services" element={<ServicesPage />} />
                   <Route path="/services/:slug" element={<ServiceDetailPage />} />
+                  {/* Legacy slugs from the pre-rename service catalog — 301-equivalent
+                      client redirects since these still get inbound/indexed traffic. */}
+                  <Route path="/services/ai-ml-development" element={<Navigate to="/services/ai-solutions" replace />} />
+                  <Route path="/services/cloud-devops" element={<Navigate to="/services/cloud-solutions" replace />} />
+                  <Route path="/services/cybersecurity" element={<Navigate to="/services/cybersecurity-engineering" replace />} />
+                  <Route path="/services/qa-testing" element={<Navigate to="/services/quality-engineering-qa" replace />} />
                   <Route path="/industries" element={<IndustriesPage />} />
                   <Route path="/portfolio" element={<PortfolioPage />} />
                   <Route path="/blog" element={<BlogPage />} />
@@ -66,9 +72,11 @@ const App = () => (
                   <Route path="/careers" element={<CareersPage />} />
                   <Route path="/careers/:id" element={<JobApplyPage />} />
                   <Route path="/contact" element={<ContactPage />} />
-                  <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                  {/* Short paths redirect to the canonical long form instead of
+                      duplicate-rendering the same page at two URLs. */}
+                  <Route path="/privacy" element={<Navigate to="/privacy-policy" replace />} />
                   <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-                  <Route path="/terms" element={<TermsOfServicePage />} />
+                  <Route path="/terms" element={<Navigate to="/terms-of-service" replace />} />
                   <Route path="/terms-of-service" element={<TermsOfServicePage />} />
                   <Route path="/cookie-policy" element={<CookiePolicy />} />
                   <Route path="/sitemap" element={<SitemapPage />} />
