@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { notifyAdmin } from "@/lib/notify";
 
 // Ported from the Next.js server action. The contact_submissions RLS policy
 // allows public inserts, so this works unchanged from the browser client.
@@ -30,6 +31,8 @@ export async function submitContactForm(prevState, formData) {
       message: "Something went wrong sending your message. Please try again.",
     };
   }
+
+  notifyAdmin("contact", { full_name: fullName, email, phone, company, service, message });
 
   return { status: "success", message: "Thanks — we've got your message." };
 }

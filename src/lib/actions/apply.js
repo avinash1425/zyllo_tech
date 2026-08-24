@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { notifyAdmin } from "@/lib/notify";
 
 const MAX_RESUME_BYTES = 5 * 1024 * 1024; // 5MB
 
@@ -67,6 +68,15 @@ export async function submitApplication(prevState, formData) {
       message: "Something went wrong submitting your application. Please try again.",
     };
   }
+
+  notifyAdmin("career", {
+    full_name: fullName,
+    email,
+    phone,
+    experience_years: experienceYears,
+    resume_url: filePath,
+    cover_note: coverNote,
+  });
 
   return { status: "success", message: "Application submitted." };
 }
