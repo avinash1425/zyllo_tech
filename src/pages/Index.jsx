@@ -8,7 +8,6 @@ import Process from "@/sections/Process";
 import EngagementModels from "@/sections/EngagementModels";
 import HomeContactCTA from "@/sections/HomeContactCTA";
 import Reveal from "@/components/Reveal";
-import OrganizationJsonLd from "@/components/OrganizationJsonLd";
 
 export default function Index() {
   return (
@@ -18,7 +17,6 @@ export default function Index() {
         description="Zyllo Tech builds scalable web, mobile, AI and cloud solutions for growing businesses and enterprises."
         canonical="/"
       />
-      <OrganizationJsonLd />
       <Hero />
       <Reveal>
         <About />

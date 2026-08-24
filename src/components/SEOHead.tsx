@@ -169,7 +169,10 @@ const SEOHead = ({
   }
 
   return (
-    <Helmet>
+    <Helmet defer={false}>
+      {/* Sync commit: react-helmet-async defaults to requestAnimationFrame,
+          which browsers pause entirely for hidden/background tabs — a real
+          risk for crawlers or prerendering contexts that never gain focus. */}
       {/* ── Core ── */}
       <html lang={lang} />
       <title>{fullTitle}</title>

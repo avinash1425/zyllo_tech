@@ -4,51 +4,54 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Primary Meta Tags — overridden per-page by react-helmet-async -->
+    <!-- Primary Meta Tags — fallback shell only. Every tag below that
+         react-helmet-async also manages on mounted pages carries data-rh="true"
+         so Helmet's hydration takes over cleanly instead of leaving a stale
+         duplicate (e.g. two conflicting <link rel="canonical"> tags). -->
     <title>Zyllo Tech | Software Development Company India | Web, Mobile, AI &amp; Cloud</title>
-    <meta name="description" content="Zyllo Tech is a software engineering company in  India delivering web &amp; mobile apps, AI/ML solutions, cloud DevOps, cybersecurity, and QA for enterprises across India, USA, UAE, UK, and globally.">
-    <meta name="keywords" content="software development company India, software company Hyderabad, web development company India, mobile app development India, AI ML solutions India, cloud DevOps India, software outsourcing India, IT company India USA, enterprise software India" />
-    <meta name="author" content="Zyllo Tech" />
+    <meta name="description" content="Zyllo Tech is a software engineering company in  India delivering web &amp; mobile apps, AI/ML solutions, cloud DevOps, cybersecurity, and QA for enterprises across India, USA, UAE, UK, and globally." data-rh="true">
+    <meta name="keywords" content="software development company India, software company Hyderabad, web development company India, mobile app development India, AI ML solutions India, cloud DevOps India, software outsourcing India, IT company India USA, enterprise software India" data-rh="true" />
+    <meta name="author" content="Zyllo Tech" data-rh="true" />
     <meta name="google-site-verification" content="_6xwMfBmkqmAt9Kzgu2CqZhANVGls8loK8h1da-FPec" />
-    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1" />
-    <meta name="theme-color" content="#f97316" />
-    <link rel="canonical" href="https://zyllotech.com/" />
+    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1" data-rh="true" />
+    <meta name="theme-color" content="#f97316" data-rh="true" />
+    <link rel="canonical" href="https://zyllotech.com/" data-rh="true" />
 
     <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="Zyllo Tech" />
+    <link rel="manifest" href="/manifest.json" data-rh="true" />
+    <meta name="mobile-web-app-capable" content="yes" data-rh="true" />
+    <meta name="apple-mobile-web-app-capable" content="yes" data-rh="true" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" data-rh="true" />
+    <meta name="apple-mobile-web-app-title" content="Zyllo Tech" data-rh="true" />
 
     <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Zyllo Tech" />
-    
-    
-    <meta property="og:url" content="https://zyllotech.com/" />
-    <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/KCdCgzQqlrUlZx0GJf8ZTPlKH1p2/social-images/social-1772909865329-Zyllo_Tech_-_PNG_Logo_Icon.webp">
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:locale" content="en_IN" />
-    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:type" content="website" data-rh="true" />
+    <meta property="og:site_name" content="Zyllo Tech" data-rh="true" />
+
+
+    <meta property="og:url" content="https://zyllotech.com/" data-rh="true" />
+    <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/KCdCgzQqlrUlZx0GJf8ZTPlKH1p2/social-images/social-1772909865329-Zyllo_Tech_-_PNG_Logo_Icon.webp" data-rh="true">
+    <meta property="og:image:width" content="1200" data-rh="true" />
+    <meta property="og:image:height" content="630" data-rh="true" />
+    <meta property="og:locale" content="en_IN" data-rh="true" />
+    <meta property="og:locale:alternate" content="en_US" data-rh="true" />
 
     <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@ZylloS85154" />
-    <meta name="twitter:creator" content="@ZylloS85154" />
-    
-    
-    <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/KCdCgzQqlrUlZx0GJf8ZTPlKH1p2/social-images/social-1772909865329-Zyllo_Tech_-_PNG_Logo_Icon.webp">
+    <meta name="twitter:card" content="summary_large_image" data-rh="true" />
+    <meta name="twitter:site" content="@ZylloS85154" data-rh="true" />
+    <meta name="twitter:creator" content="@ZylloS85154" data-rh="true" />
+
+
+    <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/KCdCgzQqlrUlZx0GJf8ZTPlKH1p2/social-images/social-1772909865329-Zyllo_Tech_-_PNG_Logo_Icon.webp" data-rh="true">
 
     <!-- Geo targeting — India-first, global reach (India + USA primary) -->
-    <meta name="geo.region" content="IN-TG" />
-    <meta name="geo.placename" content="Hyderabad, India" />
-    <meta name="geo.position" content="17.3850;78.4867" />
-    <meta name="ICBM" content="17.3850, 78.4867" />
-    <meta name="language" content="English" />
-    <meta name="distribution" content="global" />
-    <meta name="rating" content="general" />
+    <meta name="geo.region" content="IN-TG" data-rh="true" />
+    <meta name="geo.placename" content="Hyderabad, India" data-rh="true" />
+    <meta name="geo.position" content="17.3850;78.4867" data-rh="true" />
+    <meta name="ICBM" content="17.3850, 78.4867" data-rh="true" />
+    <meta name="language" content="English" data-rh="true" />
+    <meta name="distribution" content="global" data-rh="true" />
+    <meta name="rating" content="general" data-rh="true" />
     <meta name="coverage" content="Worldwide" />
     <meta name="target" content="all" />
 
@@ -62,10 +65,10 @@
   
   
   
-  <meta property="og:title" content="Zyllo Tech | Software Development Company India | Web, Mobile, AI &amp; Cloud">
-  <meta name="twitter:title" content="Zyllo Tech | Software Development Company India | Web, Mobile, AI &amp; Cloud">
-  <meta property="og:description" content="Zyllo Tech is a software engineering company in  India delivering web &amp; mobile apps, AI/ML solutions, cloud DevOps, cybersecurity, and QA for enterprises across India, USA, UAE, UK, and globally.">
-  <meta name="twitter:description" content="Zyllo Tech is a software engineering company in  India delivering web &amp; mobile apps, AI/ML solutions, cloud DevOps, cybersecurity, and QA for enterprises across India, USA, UAE, UK, and globally.">
+  <meta property="og:title" content="Zyllo Tech | Software Development Company India | Web, Mobile, AI &amp; Cloud" data-rh="true">
+  <meta name="twitter:title" content="Zyllo Tech | Software Development Company India | Web, Mobile, AI &amp; Cloud" data-rh="true">
+  <meta property="og:description" content="Zyllo Tech is a software engineering company in  India delivering web &amp; mobile apps, AI/ML solutions, cloud DevOps, cybersecurity, and QA for enterprises across India, USA, UAE, UK, and globally." data-rh="true">
+  <meta name="twitter:description" content="Zyllo Tech is a software engineering company in  India delivering web &amp; mobile apps, AI/ML solutions, cloud DevOps, cybersecurity, and QA for enterprises across India, USA, UAE, UK, and globally." data-rh="true">
 </head>
   <body>
     <div id="root"></div>
