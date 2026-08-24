@@ -107,10 +107,10 @@ export default function Footer() {
                 matter what the footer's own background is. */}
             <span className="footer-brand inline-block rounded-lg bg-white p-3 shadow-sm transition-shadow duration-300 hover:shadow-lg">
               <Image
-                src="/zyllo-logo.png"
+                src="/zyllo-logo-nav.png"
                 alt="Zyllo Tech Software Solutions Private Limited"
-                width={1920}
-                height={384}
+                width={400}
+                height={80}
                 className="footer-logo h-10 w-auto"
               />
             </span>

@@ -124,10 +124,10 @@ export default function Header() {
           aria-label="Zyllo Tech home"
         >
           <Image
-            src="/zyllo-logo.png"
+            src="/zyllo-logo-nav.png"
             alt="Zyllo Tech Software Solutions Private Limited"
-            width={1920}
-            height={384}
+            width={400}
+            height={80}
             priority
             className="h-9 w-auto transition-all duration-300 sm:h-10"
           />

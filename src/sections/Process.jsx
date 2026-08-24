@@ -53,7 +53,7 @@ export default function Process() {
   return (
     <section className="relative isolate overflow-hidden bg-white py-12 lg:py-16">
       <Image
-        src="/hero-home1.png"
+        src="/hero-home1.webp"
         alt=""
         fill
         sizes="100vw"

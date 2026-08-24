@@ -22,11 +22,11 @@ export default function ArticleJsonLd({ post }) {
     author: post.author
       ? { "@type": "Person", name: post.author }
       : { "@type": "Organization", name: SITE_NAME },
-    publisher: {
-      "@type": "Organization",
-      name: SITE_NAME,
-      logo: { "@type": "ImageObject", url: `${SITE_URL}${OG_IMAGE_PATH}` },
-    },
+    // Reference the full Organization node (emitted by SEOHead on every
+    // page) by @id instead of inlining a second, partial copy — Google's
+    // parser joins nodes by @id within the same page, and the canonical
+    // node carries the complete logo/contact data.
+    publisher: { "@id": `${SITE_URL}/#organization` },
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": `${SITE_URL}/blog/${post.slug}`,

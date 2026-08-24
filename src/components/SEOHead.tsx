@@ -17,8 +17,11 @@ export const organizationSchema = {
   logo: {
     "@type": "ImageObject",
     url: SITE_LOGO,
-    width: 200,
-    height: 60,
+    // Real pixel dimensions of public/zyllo-logo.png. Declaring the wrong
+    // size (previously 200×60) is a validation defect — Google checks these
+    // against the fetched asset.
+    width: 1920,
+    height: 384,
   },
   image: SITE_OG_IMAGE,
   description:

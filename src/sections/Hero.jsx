@@ -16,7 +16,7 @@ const TRUST_ITEMS = [
 
 const SLIDES = [
   {
-    image: "/hero-home1.png",
+    image: "/hero-home1.webp",
     accent: "#f96706",
     accentSoft: "#ffb15c",
     eyebrow: "Custom Software Development",
@@ -27,7 +27,7 @@ const SLIDES = [
     secondaryCta: { label: "Explore Services", href: "/services" },
   },
   {
-    image: "/hero-home3.png",
+    image: "/hero-home3.webp",
     accent: "#3089a6",
     accentSoft: "#6d94d6",
     eyebrow: "Mobile App Development",
@@ -38,7 +38,7 @@ const SLIDES = [
     secondaryCta: { label: "Request a Quote", href: "/contact" },
   },
   {
-    image: "/hero-home5.png",
+    image: "/hero-home5.webp",
     accent: "#f96706",
     accentSoft: "#ffb15c",
     eyebrow: "AI Solutions",
@@ -49,7 +49,7 @@ const SLIDES = [
     secondaryCta: { label: "Request a Quote", href: "/contact" },
   },
   {
-    image: "/hero-home4.png",
+    image: "/hero-home4.webp",
     accent: "#3089a6",
     accentSoft: "#6d94d6",
     eyebrow: "Cloud & DevOps",

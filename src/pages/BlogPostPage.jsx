@@ -18,6 +18,75 @@ function estimateReadTime(content) {
   return `${minutes} min read`;
 }
 
+// Renders the structured content blocks that fallback articles carry
+// (see src/data/articles.ts) as real semantic HTML — h2/h3 headings,
+// ul/ol lists — instead of one undifferentiated text blob. Search engines
+// and AI answer engines key on this structure; a `whitespace-pre-line`
+// div reads fine to humans but is a single paragraph to a parser.
+function ArticleBody({ blocks }) {
+  return (
+    <div className="mt-8 text-base leading-relaxed text-[#2b303b]">
+      {blocks.map((block, i) => {
+        switch (block.type) {
+          case "h2":
+            return (
+              <h2 key={i} className="mt-9 text-xl font-bold tracking-tight text-[#151a22] first:mt-0">
+                {block.text}
+              </h2>
+            );
+          case "h3":
+            return (
+              <h3 key={i} className="mt-7 text-lg font-semibold tracking-tight text-[#151a22]">
+                {block.text}
+              </h3>
+            );
+          case "ul":
+            return (
+              <ul key={i} className="mt-4 list-disc space-y-2 pl-6">
+                {block.items.map((item, j) => (
+                  <li key={j}>{item}</li>
+                ))}
+              </ul>
+            );
+          case "ol":
+            return (
+              <ol key={i} className="mt-4 list-decimal space-y-2 pl-6">
+                {block.items.map((item, j) => (
+                  <li key={j}>{item}</li>
+                ))}
+              </ol>
+            );
+          case "callout":
+            return (
+              <aside key={i} className="mt-6 border-l-4 border-[#f96706] bg-[#fdf3ea] p-4 text-[#4a3a2a]">
+                {block.text}
+              </aside>
+            );
+          case "metrics":
+            // Deliberately rendered as plain label/value lines — visually no
+            // louder than the flattened-text rendering it replaces.
+            return (
+              <ul key={i} className="mt-4 space-y-1 pl-0">
+                {block.items.map((item, j) => (
+                  <li key={j}>
+                    {item.label}: {item.value}
+                  </li>
+                ))}
+              </ul>
+            );
+          case "p":
+          default:
+            return (
+              <p key={i} className="mt-4 first:mt-0">
+                {block.text}
+              </p>
+            );
+        }
+      })}
+    </div>
+  );
+}
+
 export default function BlogPostPage() {
   const { slug } = useParams();
 
@@ -92,9 +161,13 @@ export default function BlogPostPage() {
             </span>
           </div>
 
-          <div className="mt-8 whitespace-pre-line text-base leading-relaxed text-[#2b303b]">
-            {post.content || "This post doesn't have any content yet."}
-          </div>
+          {Array.isArray(post.blocks) && post.blocks.length > 0 ? (
+            <ArticleBody blocks={post.blocks} />
+          ) : (
+            <div className="mt-8 whitespace-pre-line text-base leading-relaxed text-[#2b303b]">
+              {post.content || "This post doesn't have any content yet."}
+            </div>
+          )}
         </div>
       </section>
 

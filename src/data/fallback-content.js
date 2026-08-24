@@ -38,6 +38,12 @@ export const fallbackPosts = articles
     author: article.author,
     excerpt: article.excerpt,
     content: article.content.map(blockToText).filter(Boolean).join("\n\n"),
+    // Structured source blocks (h2/h3/p/ul/ol/callout/metrics). BlogPostPage
+    // renders these as real semantic HTML when present; the flattened
+    // `content` string above stays for read-time estimation and for anything
+    // else that expects plain text. Supabase posts won't have this field and
+    // fall back to plain-text rendering.
+    blocks: article.content,
     featured_image_url: IMAGE_BY_CATEGORY[article.category] || "/blog.png",
     status: "published",
     created_at: new Date(article.date || Date.now()).toISOString(),

@@ -57,7 +57,10 @@ const StartupsPage = () => {
                 name: "ArthaAI",
                 applicationCategory: "FinanceApplication",
                 description: "India's first AI-powered multilingual personal finance guidance platform.",
-                url: `${SITE_URL}/arthaai/`,
+                // No trailing slash — must match the canonical form used by
+                // sitemap.xml and the page itself.
+                url: `${SITE_URL}/arthaai`,
+                creator: { "@id": `${SITE_URL}/#organization` },
               },
             ],
           },

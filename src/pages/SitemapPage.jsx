@@ -1,4 +1,5 @@
 import { CompatLink as Link } from "@/components/NextCompat";
+import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 import PageHero from "@/components/PageHero";
 import { SERVICES } from "@/data/services";
 
@@ -42,6 +43,15 @@ const GROUPS = [
 export default function SitemapPage() {
   return (
     <>
+      <SEOHead
+        title="Sitemap | Zyllo Tech"
+        description="A complete overview of every page on the Zyllo Tech website — services, industries, blog, careers, and legal pages."
+        canonical="/sitemap"
+        structuredData={breadcrumbSchema([
+          { name: "Home", url: SITE_URL },
+          { name: "Sitemap", url: `${SITE_URL}/sitemap` },
+        ])}
+      />
       <PageHero
         breadcrumbLabel="Sitemap"
         eyebrow="Navigate"

@@ -191,10 +191,10 @@ export default function Technologies({ tint = "tint" }) {
             <div className="relative rounded-full bg-gradient-to-br from-[#f96706] to-[#3089a6] p-[3px] shadow-xl shadow-black/30">
               <div className="flex h-28 w-28 items-center justify-center rounded-full bg-white p-4 sm:h-32 sm:w-32 lg:h-36 lg:w-36">
                 <Image
-                  src="/zyllo-logo.png"
+                  src="/zyllo-logo-nav.png"
                   alt="Zyllo Tech Software Solutions Private Limited"
-                  width={1920}
-                  height={384}
+                  width={400}
+                  height={80}
                   className="h-auto w-full"
                 />
               </div>
