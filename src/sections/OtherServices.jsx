@@ -21,7 +21,7 @@ export default function OtherServices({ excludeSlug }) {
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-bold tracking-[0.2em] text-[#f7941e] uppercase">
+          <span className="text-sm font-bold tracking-[0.2em] text-[#c2410c] uppercase">
             Explore More
           </span>
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#2b303b] sm:text-4xl">
@@ -57,7 +57,7 @@ export default function OtherServices({ excludeSlug }) {
 
                 <div className="flex flex-1 flex-col p-5">
                   <h3 className="text-lg font-semibold text-[#2b303b]">{service.title}</h3>
-                  <p className="mt-1 text-sm font-semibold" style={{ color: theme.accent }}>
+                  <p className="mt-1 text-sm font-semibold" style={{ color: theme.text ?? theme.accent }}>
                     {service.tagline}
                   </p>
                   <p className="mt-2 text-sm leading-relaxed text-[#676b7a]">

@@ -11,54 +11,81 @@ import { SERVICES } from "@/data/services";
 export const SERVICE_THEMES = {
   "ui-ux-design": {
     accent: "#3b82f6",
+    // Darker same-hue variant for accent-colored TEXT on light backgrounds
+    // (the raw accent fails WCAG AA at small sizes; decorative uses keep accent).
+    text: "#1d4ed8",
     border: "border-[#3b82f6]/25 hover:border-[#3b82f6]/50",
     wash: "from-[#3b82f6]/[0.1] via-white to-white",
     badge: "bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] shadow-[#3b82f6]/30",
   },
   "web-development": {
     accent: "#10b981",
+    // Darker same-hue variant for accent-colored TEXT on light backgrounds
+    // (the raw accent fails WCAG AA at small sizes; decorative uses keep accent).
+    text: "#047857",
     border: "border-[#10b981]/25 hover:border-[#10b981]/50",
     wash: "from-[#10b981]/[0.1] via-white to-white",
     badge: "bg-gradient-to-br from-[#10b981] to-[#34d399] shadow-[#10b981]/30",
   },
   "mobile-app-development": {
     accent: "#6366f1",
+    // Darker same-hue variant for accent-colored TEXT on light backgrounds
+    // (the raw accent fails WCAG AA at small sizes; decorative uses keep accent).
+    text: "#4338ca",
     border: "border-[#6366f1]/25 hover:border-[#6366f1]/50",
     wash: "from-[#6366f1]/[0.1] via-white to-white",
     badge: "bg-gradient-to-br from-[#6366f1] to-[#818cf8] shadow-[#6366f1]/30",
   },
   "product-strategy-consulting": {
     accent: "#f59e0b",
+    // Darker same-hue variant for accent-colored TEXT on light backgrounds
+    // (the raw accent fails WCAG AA at small sizes; decorative uses keep accent).
+    text: "#b45309",
     border: "border-[#f59e0b]/25 hover:border-[#f59e0b]/50",
     wash: "from-[#f59e0b]/[0.1] via-white to-white",
     badge: "bg-gradient-to-br from-[#f59e0b] to-[#fbbf24] shadow-[#f59e0b]/30",
   },
   "cloud-solutions": {
     accent: "#06b6d4",
+    // Darker same-hue variant for accent-colored TEXT on light backgrounds
+    // (the raw accent fails WCAG AA at small sizes; decorative uses keep accent).
+    text: "#0e7490",
     border: "border-[#06b6d4]/25 hover:border-[#06b6d4]/50",
     wash: "from-[#06b6d4]/[0.1] via-white to-white",
     badge: "bg-gradient-to-br from-[#06b6d4] to-[#22d3ee] shadow-[#06b6d4]/30",
   },
   "ai-solutions": {
     accent: "#8b5cf6",
+    // Darker same-hue variant for accent-colored TEXT on light backgrounds
+    // (the raw accent fails WCAG AA at small sizes; decorative uses keep accent).
+    text: "#6d28d9",
     border: "border-[#8b5cf6]/25 hover:border-[#8b5cf6]/50",
     wash: "from-[#8b5cf6]/[0.1] via-white to-white",
     badge: "bg-gradient-to-br from-[#8b5cf6] to-[#a78bfa] shadow-[#8b5cf6]/30",
   },
   "cybersecurity-engineering": {
     accent: "#ef4444",
+    // Darker same-hue variant for accent-colored TEXT on light backgrounds
+    // (the raw accent fails WCAG AA at small sizes; decorative uses keep accent).
+    text: "#b91c1c",
     border: "border-[#ef4444]/25 hover:border-[#ef4444]/50",
     wash: "from-[#ef4444]/[0.1] via-white to-white",
     badge: "bg-gradient-to-br from-[#ef4444] to-[#f87171] shadow-[#ef4444]/30",
   },
   "quality-engineering-qa": {
     accent: "#eab308",
+    // Darker same-hue variant for accent-colored TEXT on light backgrounds
+    // (the raw accent fails WCAG AA at small sizes; decorative uses keep accent).
+    text: "#a16207",
     border: "border-[#eab308]/25 hover:border-[#eab308]/50",
     wash: "from-[#eab308]/[0.1] via-white to-white",
     badge: "bg-gradient-to-br from-[#eab308] to-[#facc15] shadow-[#eab308]/30",
   },
   "maintenance-support": {
     accent: "#14b8a6",
+    // Darker same-hue variant for accent-colored TEXT on light backgrounds
+    // (the raw accent fails WCAG AA at small sizes; decorative uses keep accent).
+    text: "#0f766e",
     border: "border-[#14b8a6]/25 hover:border-[#14b8a6]/50",
     wash: "from-[#14b8a6]/[0.1] via-white to-white",
     badge: "bg-gradient-to-br from-[#14b8a6] to-[#2dd4bf] shadow-[#14b8a6]/30",

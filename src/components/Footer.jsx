@@ -140,7 +140,7 @@ export default function Footer() {
                 />
                 <button
                   type="submit"
-                  className="flex shrink-0 items-center gap-1.5 bg-[#2f8fe0] px-4 text-[12px] font-bold tracking-wide text-white transition-colors duration-200 hover:bg-[#2478c4]"
+                  className="flex shrink-0 items-center gap-1.5 bg-[#1d6fb8] px-4 text-[12px] font-bold tracking-wide text-white transition-colors duration-200 hover:bg-[#175a96]"
                 >
                   SUBSCRIBE
                   <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />

@@ -56,13 +56,13 @@ export default function ServiceDetailPage() {
             </div>
 
             <div>
-              <span className="text-sm font-bold uppercase tracking-[0.2em]" style={{ color: theme.accent }}>
+              <span className="text-sm font-bold uppercase tracking-[0.2em]" style={{ color: theme.text ?? theme.accent }}>
                 What We Deliver
               </span>
               <h2 className="mt-4 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
                 {service.title}
               </h2>
-              <p className="mt-4 text-lg leading-relaxed text-[#6c7889]">{service.overview}</p>
+              <p className="mt-4 text-lg leading-relaxed text-[#5d6878]">{service.overview}</p>
 
               <ul className="mt-6 flex flex-col gap-3">
                 {service.highlights.map((point) => (
@@ -87,7 +87,7 @@ export default function ServiceDetailPage() {
           {/* How we work */}
           <section className="bg-[#fafbfc] py-10 lg:py-14">
             <div className="mx-auto max-w-6xl px-6 lg:px-8">
-              <span className="text-sm font-bold uppercase tracking-[0.2em]" style={{ color: theme.accent }}>
+              <span className="text-sm font-bold uppercase tracking-[0.2em]" style={{ color: theme.text ?? theme.accent }}>
                 How We Work
               </span>
               <h2 className="mt-3 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
@@ -96,7 +96,7 @@ export default function ServiceDetailPage() {
               <ol className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {details.process.map((step, i) => (
                   <li key={step.title} className="rounded-xl border border-[#e7e9ee] bg-white p-6">
-                    <span className="text-sm font-bold" style={{ color: theme.accent }}>
+                    <span className="text-sm font-bold" style={{ color: theme.text ?? theme.accent }}>
                       Step {i + 1}
                     </span>
                     <h3 className="mt-2 text-base font-semibold text-[#1d2735]">{step.title}</h3>

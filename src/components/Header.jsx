@@ -65,7 +65,7 @@ export default function Header() {
   return (
     <header className="relative z-50">
       {/* Utility bar scrolls away with the page — only the nav row below stays pinned. */}
-      <div className="hidden w-full border-b border-[#e2e5ea] bg-[#f3f4f6] text-[#6c7889] backdrop-blur-xl transition-all duration-300 lg:flex">
+      <div className="hidden w-full border-b border-[#e2e5ea] bg-[#f3f4f6] text-[#57606f] backdrop-blur-xl transition-all duration-300 lg:flex">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-end gap-5 px-6 py-2.5 text-[12.5px] font-semibold lg:px-8">
           <Link
             href="/careers"

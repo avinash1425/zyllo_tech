@@ -63,8 +63,25 @@ const SLIDES = [
 
 export default function Hero() {
   const [activeIndex, setActiveIndex] = useState(0);
+  // Only slides that have been (or are about to be) shown mount their
+  // <Image>. All five slides stack inside the viewport, so `loading="lazy"`
+  // can never defer them — without this, every hero image downloads upfront
+  // and competes with the LCP image. Starts with slide 0 + 1; each change
+  // adds the new active slide and preloads its neighbours so the cross-fade
+  // never fades to an image that hasn't arrived yet.
+  const [loadedSlides, setLoadedSlides] = useState(() => new Set([0, 1 % SLIDES.length]));
   const intervalRef = useRef(null);
   const touchStartRef = useRef(null);
+
+  useEffect(() => {
+    setLoadedSlides((prev) => {
+      const nextSet = new Set(prev);
+      nextSet.add(activeIndex);
+      nextSet.add((activeIndex + 1) % SLIDES.length);
+      nextSet.add((activeIndex - 1 + SLIDES.length) % SLIDES.length);
+      return nextSet.size === prev.size ? prev : nextSet;
+    });
+  }, [activeIndex]);
 
   function goTo(index) {
     setActiveIndex(((index % SLIDES.length) + SLIDES.length) % SLIDES.length);
@@ -137,16 +154,18 @@ export default function Hero() {
             }`}
             aria-hidden={!isActive}
           >
-            <Image
-              src={slide.image}
-              alt=""
-              fill
-              priority={index === 0}
-              sizes="100vw"
-              className={`hero-slide-img object-cover transition-transform duration-[9000ms] ease-out ${
-                isActive ? "scale-100" : "scale-[1.08]"
-              }`}
-            />
+            {loadedSlides.has(index) && (
+              <Image
+                src={slide.image}
+                alt=""
+                fill
+                priority={index === 0}
+                sizes="100vw"
+                className={`hero-slide-img object-cover transition-transform duration-[9000ms] ease-out ${
+                  isActive ? "scale-100" : "scale-[1.08]"
+                }`}
+              />
+            )}
             <div
               aria-hidden="true"
               className="absolute inset-0"
