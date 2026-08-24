@@ -2,9 +2,6 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, UserPlus, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import FloatingButtons from "@/components/FloatingButtons";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -56,9 +53,9 @@ const Signup = () => {
       await signUp({ name, email, password });
       toast({
         title: "Account created",
-        description: "Please check your email to confirm your account, then sign in.",
+        description: "You're signed in. Welcome to Zyllo Tech.",
       });
-      navigate("/login", { replace: true });
+      navigate("/dashboard", { replace: true });
     } catch (signupError) {
       setError(signupError instanceof Error ? signupError.message : "Unable to create account.");
     } finally {
@@ -68,7 +65,6 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
-      <Navbar />
       <main className="pt-28 md:pt-32 pb-16">
         <div className="container mx-auto px-4 sm:px-6 flex items-center justify-center min-h-[60vh]">
           <motion.div
@@ -158,8 +154,6 @@ const Signup = () => {
           </motion.div>
         </div>
       </main>
-      <Footer />
-      <FloatingButtons />
     </div>
   );
 };

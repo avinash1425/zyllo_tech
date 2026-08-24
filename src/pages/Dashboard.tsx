@@ -7,7 +7,6 @@ import {
   ArrowRight, Check, X, AlertCircle,
   GraduationCap, Award, Gem, Wallet,
 } from "lucide-react";
-import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { DonutChart as UIDonutChart } from "@/components/ui/donut-chart";
@@ -3724,7 +3723,6 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50/80">
-      <Navbar />
 
       <div className="pt-20">
         {/* Top bar */}
