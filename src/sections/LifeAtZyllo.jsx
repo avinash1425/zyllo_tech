@@ -2,17 +2,17 @@ import { CompatImage as Image } from "@/components/NextCompat";
 
 const MOMENTS = [
   {
-    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=700&q=80",
+    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=700&q=70&auto=format",
     title: "Collaborative by default",
     description: "Open discussions, shared whiteboards, and no silos between design and engineering.",
   },
   {
-    image: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=700&q=80",
+    image: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=700&q=70&auto=format",
     title: "Focused deep work",
     description: "Flexible hours built around getting meaningful work done, not watching the clock.",
   },
   {
-    image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=700&q=80",
+    image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=700&q=70&auto=format",
     title: "Time to recharge",
     description: "Regular team breaks and a culture that treats rest as part of doing good work.",
   },

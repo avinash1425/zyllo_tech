@@ -10,12 +10,67 @@ import NotFound from "@/pages/NotFound";
 import { supabase } from "@/integrations/supabase/client";
 import { useAsyncData } from "@/lib/useAsyncData";
 import { safeImageUrl } from "@/lib/safe-image-url";
-import { findFallbackPost } from "@/data/fallback-content";
+import { findFallbackPost, fallbackPosts } from "@/data/fallback-content";
+
+// Maps a post category to the service page it naturally supports, so every
+// article links contextually into the commercial pages (and not only via the
+// boilerplate header/footer nav).
+const CATEGORY_SERVICE = {
+  "AI & ML": { href: "/services/ai-solutions", label: "AI Solutions" },
+  Cloud: { href: "/services/cloud-solutions", label: "Cloud Solutions" },
+  Development: { href: "/services/web-development", label: "Web Development" },
+  Design: { href: "/services/ui-ux-design", label: "UI/UX Design" },
+  Business: { href: "/services/product-strategy-consulting", label: "Software Development" },
+  "Industry Solutions": { href: "/services/product-strategy-consulting", label: "Software Development" },
+};
 
 function estimateReadTime(content) {
   const words = (content || "").trim().split(/\s+/).filter(Boolean).length;
   const minutes = Math.max(1, Math.round(words / 200));
   return `${minutes} min read`;
+}
+
+// Contextual internal links: up to three same-category articles plus the
+// service page the topic supports. Uses the fallback article list — the same
+// source the blog index renders from.
+function RelatedReading({ post }) {
+  const related = fallbackPosts
+    .filter((p) => p.category === post.category && p.slug !== post.slug)
+    .slice(0, 3);
+  const service = CATEGORY_SERVICE[post.category];
+  if (related.length === 0 && !service) return null;
+
+  return (
+    <section className="bg-[#fafbfc] py-10">
+      <div className="mx-auto max-w-3xl px-6 lg:px-8">
+        <h2 className="text-xl font-bold tracking-tight text-[#151a22]">Related Reading</h2>
+        <ul className="mt-5 flex flex-col gap-3">
+          {related.map((p) => (
+            <li key={p.slug}>
+              <Link
+                href={`/blog/${p.slug}`}
+                className="text-base font-medium text-[#1d2735] underline decoration-[#e7e9ee] underline-offset-4 transition-colors hover:text-[#f96706] hover:decoration-[#f96706]"
+              >
+                {p.title}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        {service && (
+          <p className="mt-6 text-base text-[#54607a]">
+            Building something in this space?{" "}
+            <Link
+              href={service.href}
+              className="font-semibold text-[#1d2735] underline decoration-[#e7e9ee] underline-offset-4 transition-colors hover:text-[#f96706] hover:decoration-[#f96706]"
+            >
+              See our {service.label} services
+            </Link>
+            .
+          </p>
+        )}
+      </div>
+    </section>
+  );
 }
 
 // Renders the structured content blocks that fallback articles carry
@@ -170,6 +225,8 @@ export default function BlogPostPage() {
           )}
         </div>
       </section>
+
+      <RelatedReading post={post} />
 
       <Reveal>
         <ContactCTA

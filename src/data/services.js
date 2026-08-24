@@ -17,7 +17,7 @@ export const SERVICES = [
     slug: "product-strategy-consulting",
     icon: Lightbulb,
     image:
-      "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1200&q=80",
+      "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1200&q=70&auto=format",
     title: "Software Development",
     tagline: "From idea to roadmap",
     description:
@@ -40,7 +40,7 @@ export const SERVICES = [
     slug: "web-development",
     icon: Code2,
     image:
-      "https://images.unsplash.com/photo-1547658719-da2b51169166?w=1200&q=80",
+      "https://images.unsplash.com/photo-1547658719-da2b51169166?w=1200&q=70&auto=format",
     title: "Web Development",
     tagline: "Built fast, built to grow",
     description:
@@ -63,7 +63,7 @@ export const SERVICES = [
     slug: "mobile-app-development",
     icon: Smartphone,
     image:
-      "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=1200&q=80",
+      "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=1200&q=70&auto=format",
     title: "Mobile App Development",
     tagline: "Apps people actually use",
     description:
@@ -82,7 +82,7 @@ export const SERVICES = [
     slug: "ui-ux-design",
     icon: Palette,
     image:
-      "https://images.unsplash.com/photo-1559028006-448665bd7c7f?w=1200&q=80",
+      "https://images.unsplash.com/photo-1559028006-448665bd7c7f?w=1200&q=70&auto=format",
     title: "UI/UX Design",
     tagline: "Designed to convert",
     description:
@@ -101,7 +101,7 @@ export const SERVICES = [
     slug: "cloud-solutions",
     icon: Cloud,
     image:
-      "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1200&q=80",
+      "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1200&q=70&auto=format",
     title: "Cloud Solutions",
     tagline: "Scales as you grow",
     description:
@@ -120,7 +120,7 @@ export const SERVICES = [
     slug: "ai-solutions",
     icon: Sparkles,
     image:
-      "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&q=80",
+      "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&q=70&auto=format",
     title: "AI Solutions",
     tagline: "Practical, not novelty",
     description:
@@ -139,7 +139,7 @@ export const SERVICES = [
     slug: "maintenance-support",
     icon: Wrench,
     image:
-      "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1200&q=80",
+      "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1200&q=70&auto=format",
     title: "Maintenance & Support",
     tagline: "Healthy, long after launch",
     description:
@@ -162,7 +162,7 @@ export const SERVICES = [
     slug: "cybersecurity-engineering",
     icon: ShieldCheck,
     image:
-      "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1200&q=80",
+      "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1200&q=70&auto=format",
     title: "Cybersecurity",
     tagline: "Security-first delivery",
     description:
@@ -185,7 +185,7 @@ export const SERVICES = [
     slug: "quality-engineering-qa",
     icon: TestTube2,
     image:
-      "https://images.unsplash.com/photo-1516110833967-0b5716ca1387?w=1200&q=80",
+      "https://images.unsplash.com/photo-1516110833967-0b5716ca1387?w=1200&q=70&auto=format",
     title: "Quality Assurance",
     tagline: "Caught before it ships",
     description:

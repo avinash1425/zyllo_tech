@@ -60,7 +60,7 @@ export default function OurStory() {
             <div className="absolute -inset-4 -z-10 rounded-[28px] bg-gradient-to-br from-[#1c2f4a]/15 to-[#f96706]/15 blur-2xl" />
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-white/60 shadow-xl">
               <Image
-                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1000&q=80"
+                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1000&q=70&auto=format"
                 alt="Zyllo Tech engineers planning a project"
                 fill
                 sizes="(min-width: 1024px) 50vw, 100vw"

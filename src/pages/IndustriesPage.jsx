@@ -22,7 +22,7 @@ export default function IndustriesPage() {
         eyebrow="Industries"
         title="Software shaped around how your industry actually works"
         description="Every sector has its own rules, risks, and workflows. We bring the right context to every engagement, not a one-size-fits-all build."
-        image="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1920&q=80"
+        image="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1920&q=70&auto=format"
         imageAlt="Team reviewing industry-specific data and analytics"
       />
       <Reveal>

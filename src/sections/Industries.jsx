@@ -3,72 +3,72 @@ import { CompatLink as Link } from "@/components/NextCompat";
 
 const INDUSTRIES = [
   {
-    image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&q=70&auto=format",
     title: "Startups & SaaS",
     description: "Scalable products, MVPs, and SaaS platforms built for rapid growth.",
   },
   {
-    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&q=70&auto=format",
     title: "Healthcare",
     description: "Secure healthcare applications, patient management systems, and telehealth solutions.",
   },
   {
-    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&q=70&auto=format",
     title: "Finance & FinTech",
     description: "Reliable financial platforms with secure transactions and regulatory compliance.",
   },
   {
-    image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=70&auto=format",
     title: "E-Commerce & Retail",
     description: "Online stores, inventory management, payment integration, and customer engagement solutions.",
   },
   {
-    image: "https://images.unsplash.com/photo-1565043666747-69f6646db940?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1565043666747-69f6646db940?w=600&q=70&auto=format",
     title: "Manufacturing",
     description: "Smart manufacturing systems that improve productivity and operational efficiency.",
   },
   {
-    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&q=70&auto=format",
     title: "Education",
     description: "Learning management systems, e-learning platforms, and educational portals.",
   },
   {
-    image: "https://images.unsplash.com/photo-1601597111158-2fceff292cdc?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1601597111158-2fceff292cdc?w=600&q=70&auto=format",
     title: "Banking",
     description: "Digital banking solutions, customer portals, and secure financial applications.",
   },
   {
-    image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=70&auto=format",
     title: "Real Estate",
     description: "Property management platforms, listing portals, and real estate business solutions.",
   },
   {
-    image: "https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=600&q=70&auto=format",
     title: "Logistics & Transportation",
     description: "Fleet management, shipment tracking, warehouse, and logistics automation.",
   },
   {
-    image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600&q=70&auto=format",
     title: "Travel & Hospitality",
     description: "Booking systems, travel platforms, hotel management, and customer experience solutions.",
   },
   {
-    image: "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=600&q=70&auto=format",
     title: "Media & Entertainment",
     description: "Streaming platforms, content management systems, and digital media applications.",
   },
   {
-    image: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=600&q=70&auto=format",
     title: "Telecommunications",
     description: "Telecom management systems, customer portals, and network management solutions.",
   },
   {
-    image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=600&q=70&auto=format",
     title: "Agriculture",
     description: "Smart farming, IoT monitoring, and agriculture management solutions.",
   },
   {
-    image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&q=70&auto=format",
     title: "Gaming",
     description: "Game backend services, multiplayer infrastructure, and gaming platforms.",
   },

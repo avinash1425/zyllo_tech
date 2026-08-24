@@ -7,98 +7,98 @@ const ROWS = [
     title: "Ship an MVP before your runway runs out",
     description:
       "Early-stage teams need to validate fast without burning months on infrastructure. We scope lean, build in focused sprints, and get a working product in front of real users quickly.",
-    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=900&q=80",
+    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=900&q=70&auto=format",
   },
   {
     tag: "Healthcare",
     title: "Handle sensitive data without slowing down care",
     description:
       "Patient records and telehealth platforms demand strict compliance alongside a smooth experience for clinicians and patients. We build with security and usability as equal priorities from day one.",
-    image: "https://images.unsplash.com/photo-1550831107-1553da8c8464?w=900&q=80",
+    image: "https://images.unsplash.com/photo-1550831107-1553da8c8464?w=900&q=70&auto=format",
   },
   {
     tag: "Finance & Fintech",
     title: "Move money and data with zero room for error",
     description:
       "Financial systems can't afford downtime or inconsistency. We design for auditability, resilience, and clear monitoring so every transaction is traceable and every failure is caught early.",
-    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=900&q=80",
+    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=900&q=70&auto=format",
   },
   {
     tag: "E-commerce & Retail",
     title: "Keep storefronts, stock, and payments in sync",
     description:
       "When systems don't talk to each other, stock counts drift and checkouts lose sales. We connect storefronts, inventory, and payment integrations into one accurate, real-time picture.",
-    image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=900&q=80",
+    image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=900&q=70&auto=format",
   },
   {
     tag: "Manufacturing",
     title: "Connect the factory floor to the front office",
     description:
       "Production data often stays trapped on the shop floor, disconnected from planning and sales. We build operational software that gives everyone the same real-time view.",
-    image: "https://images.unsplash.com/photo-1565043666747-69f6646db940?w=900&q=80",
+    image: "https://images.unsplash.com/photo-1565043666747-69f6646db940?w=900&q=70&auto=format",
   },
   {
     tag: "Education & EdTech",
     title: "Build learning tools people actually want to use",
     description:
       "Clunky portals frustrate students and teachers alike. We design learning platforms around real classroom workflows, not just feature checklists.",
-    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&q=80",
+    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&q=70&auto=format",
   },
   {
     tag: "Banking & Financial Services",
     title: "Modernize core systems without breaking trust",
     description:
       "Banking platforms carry decades of legacy constraints and zero tolerance for downtime. We modernize incrementally, with compliance and reliability built in from the start.",
-    image: "https://images.unsplash.com/photo-1601597111158-2fceff292cdc?w=900&q=80",
+    image: "https://images.unsplash.com/photo-1601597111158-2fceff292cdc?w=900&q=70&auto=format",
   },
   {
     tag: "Agriculture & Environment",
     title: "Turn field data into decisions you can act on",
     description:
       "Environmental and farm data is often scattered across sensors, spreadsheets, and paper logs. We build platforms that centralize it into something actually usable.",
-    image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=900&q=80",
+    image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=900&q=70&auto=format",
   },
   {
     tag: "Gaming & Entertainment",
     title: "Handle scale without breaking the experience",
     description:
       "Games and streaming platforms live or die on latency and uptime during peak traffic. We build backends and infrastructure engineered to hold up under real load.",
-    image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=900&q=80",
+    image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=900&q=70&auto=format",
   },
   {
     tag: "Telecom & IT Services",
     title: "Manage complex networks with confidence",
     description:
       "Telecom providers need visibility across sprawling infrastructure and fast response when something breaks. We build monitoring and management tools built for that scale.",
-    image: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=900&q=80",
+    image: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=900&q=70&auto=format",
   },
   {
     tag: "Media & Publishing",
     title: "Publish faster without losing editorial control",
     description:
       "Publishing teams need speed without sacrificing structure or governance. We build content platforms that keep editorial workflows organized as they scale.",
-    image: "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=900&q=80",
+    image: "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=900&q=70&auto=format",
   },
   {
     tag: "Travel & Hospitality",
     title: "Make booking and guest experience effortless",
     description:
       "Guests expect booking and service to feel seamless end to end. We build reservation engines and guest experience tools that remove friction at every step.",
-    image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=900&q=80",
+    image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=900&q=70&auto=format",
   },
   {
     tag: "Real Estate & Construction",
     title: "Bring listings and projects into one system",
     description:
       "Property and project data often lives across disconnected tools and spreadsheets. We build listing platforms and project management tools that keep builders and buyers aligned.",
-    image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=900&q=80",
+    image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=900&q=70&auto=format",
   },
   {
     tag: "Logistics & Transportation",
     title: "Track fleets and shipments in real time",
     description:
       "Delays are often invisible until it's too late to fix them. We build fleet tracking and route optimization tools that give full visibility across the supply chain.",
-    image: "https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=900&q=80",
+    image: "https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=900&q=70&auto=format",
   },
 ];
 

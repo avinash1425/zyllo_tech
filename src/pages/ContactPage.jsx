@@ -21,7 +21,7 @@ export default function ContactPage() {
         eyebrow="Contact"
         title="Let's talk about your project"
         description="Reach out however works best for you, or fill out the form below and we'll get back to you within one business day."
-        image="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1920&q=80"
+        image="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1920&q=70&auto=format"
         imageAlt="Team having a conversation about a project"
       />
       <Reveal>

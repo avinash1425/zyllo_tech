@@ -21,7 +21,7 @@ export default function ServicesPage() {
         eyebrow="Our Services"
         title="Technology Solutions for Modern Businesses"
         description="From strategy to deployment, we deliver complete software solutions that help businesses grow, innovate, and succeed."
-        image="https://images.unsplash.com/photo-1547658719-da2b51169166?w=1920&q=80"
+        image="https://images.unsplash.com/photo-1547658719-da2b51169166?w=1920&q=70&auto=format"
         imageAlt="Developer working on web application code"
       />
       <Reveal>
