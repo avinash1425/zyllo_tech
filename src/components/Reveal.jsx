@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Wraps a section and animates it into view as it enters the viewport —
- * scrolling down: rises up from below, scaling/fading in.
+ * Wraps a section and animates it into view the first time it enters the
+ * viewport — scrolling down: rises up from below, scaling/fading in.
  * scrolling up: drops down from above, scaling/fading in.
- * Re-triggers every time the section crosses in or out of view, in either direction.
+ * Reveals once and stays visible after that, so scrolling back up to
+ * re-read a section doesn't re-hide it.
  */
 export default function Reveal({ children, delay = 0, className = "" }) {
   const ref = useRef(null);
@@ -23,9 +24,10 @@ export default function Reveal({ children, delay = 0, className = "" }) {
 
         if (entry.isIntersecting) {
           setState("visible");
+          observer.disconnect();
         } else {
-          // Leaving the viewport — decide which side it exited from so the
-          // next entrance animates from the matching direction.
+          // Hasn't been revealed yet — decide which side it's approaching
+          // from so the entrance animates from the matching direction.
           const rect = entry.boundingClientRect;
           const exitedAbove = rect.top < 0;
           setState(exitedAbove ? "hidden-up" : "hidden-down");

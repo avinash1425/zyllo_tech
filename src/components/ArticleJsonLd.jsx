@@ -1,12 +1,13 @@
 import { SITE_URL, SITE_NAME, OG_IMAGE_PATH } from "@/lib/site-config";
 
-// Article structured data for a single published blog post. Only uses
-// fields the post row actually has (see blog/[slug]/page.js's select) —
-// no dateModified since blog_posts has no updated_at column to draw from.
+// Article structured data for a single published blog post.
 export default function ArticleJsonLd({ post }) {
-  const image = post.featured_image_url
-    ? post.featured_image_url
-    : `${SITE_URL}${OG_IMAGE_PATH}`;
+  const rawImage = post.featured_image_url || OG_IMAGE_PATH;
+  // Schema.org wants an absolute image URL — post.featured_image_url can be
+  // a site-relative path (real posts store free-typed URLs; fallback posts
+  // use local /public paths like "/blog.png"), so resolve it against
+  // SITE_URL rather than emitting a relative path.
+  const image = rawImage.startsWith("/") ? `${SITE_URL}${rawImage}` : rawImage;
 
   const data = {
     "@context": "https://schema.org",
@@ -15,6 +16,9 @@ export default function ArticleJsonLd({ post }) {
     description: post.excerpt || undefined,
     image: [image],
     datePublished: post.created_at,
+    // Falls back to datePublished when there's no real edit timestamp
+    // (fallback/static posts) rather than omitting the field outright.
+    dateModified: post.updated_at || post.created_at,
     author: post.author
       ? { "@type": "Person", name: post.author }
       : { "@type": "Organization", name: SITE_NAME },

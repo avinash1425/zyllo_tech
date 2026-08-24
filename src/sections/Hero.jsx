@@ -211,7 +211,7 @@ export default function Hero() {
                 />
 
                 <p
-                  className={`mt-4 max-w-2xl text-[14.5px] leading-[1.6] text-white/90 [text-shadow:0_1px_10px_rgba(0,0,0,0.55)] sm:text-base ${
+                  className={`mt-4 max-w-2xl text-base leading-[1.6] text-white/90 [text-shadow:0_1px_10px_rgba(0,0,0,0.55)] ${
                     isActive ? "hero-rise" : ""
                   }`}
                   style={isActive ? { animationDelay: "0.28s" } : undefined}

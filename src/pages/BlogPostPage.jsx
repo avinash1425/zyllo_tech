@@ -24,7 +24,7 @@ export default function BlogPostPage() {
   const result = useAsyncData(async () => {
     const { data, error } = await supabase
       .from("blog_posts")
-      .select("title, slug, category, author, excerpt, content, featured_image_url, status, created_at")
+      .select("title, slug, category, author, excerpt, content, featured_image_url, status, created_at, updated_at")
       .eq("slug", slug)
       .eq("status", "published")
       .maybeSingle();
