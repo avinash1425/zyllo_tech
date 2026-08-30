@@ -41,7 +41,7 @@ type CompatImageProps = React.ImgHTMLAttributes<HTMLImageElement> & {
   unoptimized?: boolean;
 };
 export const CompatImage = forwardRef<HTMLImageElement, CompatImageProps>(function CompatImage(
-  { fill, priority, quality, unoptimized, style, ...props },
+  { fill, priority, quality, unoptimized, style, fetchPriority, ...props },
   ref,
 ) {
   return (
@@ -57,7 +57,7 @@ export const CompatImage = forwardRef<HTMLImageElement, CompatImageProps>(functi
       decoding={props.decoding ?? "async"}
       // React 18 does not map the camelCase `fetchPriority` prop, so pass the
       // real lowercase HTML attribute instead of triggering a DOM warning.
-      {...({ fetchpriority: props.fetchPriority ?? (priority ? "high" : undefined) } as Record<string, string | undefined>)}
+      {...({ fetchpriority: fetchPriority ?? (priority ? "high" : undefined) } as Record<string, string | undefined>)}
 
       style={
         fill
