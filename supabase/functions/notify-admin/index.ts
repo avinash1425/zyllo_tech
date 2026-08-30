@@ -62,9 +62,21 @@ async function sendMail(opts: {
   const decoder = new TextDecoder();
   const buffer = new Uint8Array(4096);
 
+  // SMTP replies can be multi-line ("250-..." continuation lines) and can also
+  // arrive across several TCP reads, so keep reading until a final line
+  // ("250 ...") is complete.
   const read = async () => {
-    const n = await conn.read(buffer);
-    const text = n ? decoder.decode(buffer.subarray(0, n)) : "";
+    let text = "";
+    for (let i = 0; i < 20; i++) {
+      const n = await conn.read(buffer);
+      if (!n) break;
+      text += decoder.decode(buffer.subarray(0, n));
+      if (/^\d{3} [^\n]*\r?\n$/m.test(text.split(/\r?\n(?=\d{3})/).pop() ?? "") || /^\d{3} .*\r\n$/m.test(text)) {
+        const lines = text.split(/\r?\n/).filter(Boolean);
+        const last = lines[lines.length - 1] ?? "";
+        if (/^\d{3} /.test(last)) break;
+      }
+    }
     return text;
   };
   const send = async (line: string, expect = "2") => {
