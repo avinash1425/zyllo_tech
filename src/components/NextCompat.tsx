@@ -55,7 +55,10 @@ export const CompatImage = forwardRef<HTMLImageElement, CompatImageProps>(functi
       // for bandwidth. An explicit `loading` prop still wins.
       loading={priority ? "eager" : props.loading ?? "lazy"}
       decoding={props.decoding ?? "async"}
-      fetchPriority={props.fetchPriority ?? (priority ? "high" : undefined)}
+      // React 18 does not map the camelCase `fetchPriority` prop, so pass the
+      // real lowercase HTML attribute instead of triggering a DOM warning.
+      {...({ fetchpriority: props.fetchPriority ?? (priority ? "high" : undefined) } as Record<string, string | undefined>)}
+
       style={
         fill
           ? { position: "absolute", inset: 0, width: "100%", height: "100%", ...style }
