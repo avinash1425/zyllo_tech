@@ -71,18 +71,17 @@ async function sendMail(opts: {
       const n = await conn.read(buffer);
       if (!n) break;
       text += decoder.decode(buffer.subarray(0, n));
-      if (/^\d{3} [^\n]*\r?\n$/m.test(text.split(/\r?\n(?=\d{3})/).pop() ?? "") || /^\d{3} .*\r\n$/m.test(text)) {
-        const lines = text.split(/\r?\n/).filter(Boolean);
-        const last = lines[lines.length - 1] ?? "";
-        if (/^\d{3} /.test(last)) break;
-      }
+      const lines = text.split(/\r?\n/).filter(Boolean);
+      const last = lines[lines.length - 1] ?? "";
+      // A final reply line is "250 text"; "250-text" means more lines follow.
+      if (/^\d{3} /.test(last) && /\r?\n$/.test(text)) break;
     }
     return text;
   };
   const send = async (line: string, expect = "2") => {
     await conn.write(encoder.encode(line + "\r\n"));
     const reply = await read();
-    if (!reply.startsWith(expect)) throw new Error(`SMTP error after "${line.split(" ")[0]}": ${reply}`);
+    if (!reply.trimStart().startsWith(expect)) throw new Error(`SMTP error after "${line.split(" ")[0]}": ${reply}`);
     return reply;
   };
 
