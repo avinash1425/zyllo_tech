@@ -1,5 +1,4 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
-import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const ADMIN_EMAIL = "info@zyllotech.com";
 const SMTP_HOST = "smtp.zoho.in";
@@ -49,6 +48,69 @@ function render(payload: Payload): { subject: string; body: string } {
   }
 }
 
+
+// Minimal SMTP-over-TLS client. Third-party mailer libraries exceed the edge
+// runtime's CPU budget, so we speak just enough SMTP to send one plain message.
+async function sendMail(opts: {
+  password: string;
+  subject: string;
+  body: string;
+  replyTo?: string;
+}) {
+  const conn = await Deno.connectTls({ hostname: SMTP_HOST, port: 465 });
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+  const buffer = new Uint8Array(4096);
+
+  // SMTP replies can be multi-line ("250-..." continuation lines) and can also
+  // arrive across several TCP reads, so keep reading until a final line
+  // ("250 ...") is complete.
+  const read = async () => {
+    let text = "";
+    for (let i = 0; i < 20; i++) {
+      const n = await conn.read(buffer);
+      if (!n) break;
+      text += decoder.decode(buffer.subarray(0, n));
+      const lines = text.split(/\r?\n/).filter(Boolean);
+      const last = lines[lines.length - 1] ?? "";
+      // A final reply line is "250 text"; "250-text" means more lines follow.
+      if (/^\d{3} /.test(last) && /\r?\n$/.test(text)) break;
+    }
+    return text;
+  };
+  const send = async (line: string, expect = "2") => {
+    await conn.write(encoder.encode(line + "\r\n"));
+    const reply = await read();
+    if (!reply.trimStart().startsWith(expect)) throw new Error(`SMTP error after "${line.split(" ")[0]}": ${reply}`);
+    return reply;
+  };
+
+  try {
+    await read(); // greeting
+    await send(`EHLO zyllotech.com`);
+    await send("AUTH LOGIN", "3");
+    await send(btoa(ADMIN_EMAIL), "3");
+    await send(btoa(opts.password), "2");
+    await send(`MAIL FROM:<${ADMIN_EMAIL}>`);
+    await send(`RCPT TO:<${ADMIN_EMAIL}>`);
+    await send("DATA", "3");
+
+    const headers = [
+      `From: Zyllo Tech Website <${ADMIN_EMAIL}>`,
+      `To: ${ADMIN_EMAIL}`,
+      opts.replyTo ? `Reply-To: ${opts.replyTo}` : null,
+      `Subject: ${opts.subject}`,
+      "MIME-Version: 1.0",
+      'Content-Type: text/plain; charset="utf-8"',
+    ].filter(Boolean).join("\r\n");
+    const safeBody = opts.body.replace(/\r?\n/g, "\r\n").replace(/\r\n\./g, "\r\n..");
+    await send(`${headers}\r\n\r\n${safeBody}\r\n.`);
+    await send("QUIT", "2").catch(() => {});
+  } finally {
+    try { conn.close(); } catch { /* already closed */ }
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -74,24 +136,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    const client = new SMTPClient({
-      connection: {
-        hostname: SMTP_HOST,
-        port: 465,
-        tls: true,
-        auth: { username: ADMIN_EMAIL, password },
-      },
-    });
-
     try {
-      await client.send({
-        from: `Zyllo Tech Website <${ADMIN_EMAIL}>`,
-        to: ADMIN_EMAIL,
-        replyTo: typeof payload.data?.email === "string" ? payload.data.email : undefined,
+      await sendMail({
+        password,
         subject,
-        content: body,
+        body,
+        replyTo: typeof payload.data?.email === "string" ? payload.data.email : undefined,
       });
-      await client.close();
     } catch (mailError) {
       console.error("[notify-admin] SMTP delivery failed:", mailError);
       console.log(`[notify-admin] fallback log — ${subject}\n${body}`);
