@@ -78,6 +78,41 @@ function RelatedReading({ post }) {
 // ul/ol lists — instead of one undifferentiated text blob. Search engines
 // and AI answer engines key on this structure; a `whitespace-pre-line`
 // div reads fine to humans but is a single paragraph to a parser.
+// Inline [label](href) links inside block text — internal paths go through
+// the router Link, external URLs open in a new tab. Deliberately minimal: no
+// other markdown syntax is supported. Mirrored by the `inline` helper in
+// scripts/prerender.mjs and stripped by blockToText in fallback-content.js.
+const INLINE_LINK = /\[([^\]]+)\]\((\/[^)\s]*|https?:\/\/[^)\s]+)\)/g;
+const INLINE_LINK_CLASS =
+  "font-medium text-[#1d2735] underline decoration-[#e7e9ee] underline-offset-4 transition-colors hover:text-[#f96706] hover:decoration-[#f96706]";
+
+function renderInline(text) {
+  if (typeof text !== "string") return text;
+  const nodes = [];
+  let last = 0;
+  let match;
+  INLINE_LINK.lastIndex = 0;
+  while ((match = INLINE_LINK.exec(text))) {
+    if (match.index > last) nodes.push(text.slice(last, match.index));
+    const [, label, href] = match;
+    nodes.push(
+      href.startsWith("/") ? (
+        <Link key={match.index} href={href} className={INLINE_LINK_CLASS}>
+          {label}
+        </Link>
+      ) : (
+        <a key={match.index} href={href} target="_blank" rel="noopener noreferrer" className={INLINE_LINK_CLASS}>
+          {label}
+        </a>
+      ),
+    );
+    last = INLINE_LINK.lastIndex;
+  }
+  if (nodes.length === 0) return text;
+  if (last < text.length) nodes.push(text.slice(last));
+  return nodes;
+}
+
 function ArticleBody({ blocks }) {
   return (
     <div className="mt-8 text-base leading-relaxed text-[#2b303b]">
@@ -99,7 +134,7 @@ function ArticleBody({ blocks }) {
             return (
               <ul key={i} className="mt-4 list-disc space-y-2 pl-6">
                 {block.items.map((item, j) => (
-                  <li key={j}>{item}</li>
+                  <li key={j}>{renderInline(item)}</li>
                 ))}
               </ul>
             );
@@ -107,14 +142,14 @@ function ArticleBody({ blocks }) {
             return (
               <ol key={i} className="mt-4 list-decimal space-y-2 pl-6">
                 {block.items.map((item, j) => (
-                  <li key={j}>{item}</li>
+                  <li key={j}>{renderInline(item)}</li>
                 ))}
               </ol>
             );
           case "callout":
             return (
               <aside key={i} className="mt-6 border-l-4 border-[#f96706] bg-[#fdf3ea] p-4 text-[#4a3a2a]">
-                {block.text}
+                {renderInline(block.text)}
               </aside>
             );
           case "metrics":
@@ -133,7 +168,7 @@ function ArticleBody({ blocks }) {
           default:
             return (
               <p key={i} className="mt-4 first:mt-0">
-                {block.text}
+                {renderInline(block.text)}
               </p>
             );
         }

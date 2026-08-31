@@ -199,15 +199,24 @@ async function main() {
   }
 
   // ── Blog posts ────────────────────────────────────────────────────────────
+  // Inline [label](href) links inside block text — mirrors renderInline in
+  // src/pages/BlogPostPage.jsx. Escape the whole string first; the link
+  // syntax uses only [ ] ( ) so it survives esc() untouched.
+  const inline = (s) =>
+    esc(s).replace(/\[([^\]]+)\]\((\/[^)\s]*|https?:\/\/[^)\s]+)\)/g, (_, label, href) =>
+      href.startsWith("/")
+        ? `<a href="${href}">${label}</a>`
+        : `<a href="${href}" rel="noopener noreferrer">${label}</a>`,
+    );
   const blockHtml = (b) => {
     switch (b.type) {
       case "h2": return `<h2>${esc(b.text)}</h2>`;
       case "h3": return `<h3>${esc(b.text)}</h3>`;
-      case "ul": return `<ul>${b.items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>`;
-      case "ol": return `<ol>${b.items.map((i) => `<li>${esc(i)}</li>`).join("")}</ol>`;
-      case "callout": return `<aside><p>${esc(b.text)}</p></aside>`;
+      case "ul": return `<ul>${b.items.map((i) => `<li>${inline(i)}</li>`).join("")}</ul>`;
+      case "ol": return `<ol>${b.items.map((i) => `<li>${inline(i)}</li>`).join("")}</ol>`;
+      case "callout": return `<aside><p>${inline(b.text)}</p></aside>`;
       case "metrics": return `<ul>${b.items.map((i) => `<li>${esc(i.label)}: ${esc(i.value)}</li>`).join("")}</ul>`;
-      default: return `<p>${esc(b.text)}</p>`;
+      default: return `<p>${inline(b.text)}</p>`;
     }
   };
 

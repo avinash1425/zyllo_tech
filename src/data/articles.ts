@@ -49,10 +49,10 @@ export const articles: Article[] = [
       { type: "h2", text: "The Five AI Patterns We See Most in Enterprise Builds" },
       { type: "ol", items: ["Intelligent Document Processing — Replacing manual data entry with OCR + LLM extraction pipelines that achieve >96% field accuracy on unstructured documents.", "Conversational AI & Copilots — AI assistants embedded in enterprise workflows (HR, finance, IT support) that handle 60–80% of tier-1 queries without human intervention.", "Predictive Analytics Engines — ML models that forecast demand, detect anomalies, and surface recommendations inside BI dashboards.", "Automated QA and Code Review — AI agents that review PRs, flag security issues, and write regression test cases — reducing QA cycles by 30–40%.", "Generative Content Pipelines — Product descriptions, marketing copy, and report generation at scale, with human review gates for quality control."] },
       { type: "h2", text: "The Implementation Reality" },
-      { type: "p", text: "Most enterprise AI projects fail not because the models are bad, but because the data infrastructure isn't ready. Clean, labeled, governed data is the prerequisite. Before any AI feature goes live, we run a data readiness audit — assessing data quality, volume, bias risk, and lineage tracking. This step alone saves months of rework." },
+      { type: "p", text: "Most enterprise AI projects fail not because the models are bad, but because the data infrastructure isn't ready. Clean, labeled, governed data is the prerequisite. Before any AI feature goes live, we run a [data readiness audit](/services/ai-solutions) — assessing data quality, volume, bias risk, and lineage tracking. This step alone saves months of rework." },
       { type: "callout", text: "The teams shipping AI features fastest in 2025 are those who invested in data infrastructure 18 months ago. If you haven't started, start now — not with models, but with pipelines." },
       { type: "h2", text: "What's Coming Next" },
-      { type: "p", text: "Agentic AI — systems where multiple LLM-powered agents collaborate on multi-step tasks — is moving from research to production. Expect 2025–2026 to see the first wave of enterprise agentic deployments in domains like financial reconciliation, procurement automation, and code generation pipelines." },
+      { type: "p", text: "Agentic AI — systems where multiple [LLM-powered agents](/blog/langchain-vs-llamaindex-rag) collaborate on multi-step tasks — is moving from research to production. Expect 2025–2026 to see the first wave of enterprise agentic deployments in domains like financial reconciliation, procurement automation, and code generation pipelines." },
     ],
   },
   {
@@ -72,13 +72,13 @@ export const articles: Article[] = [
     metaDescription:
       "A practical step-by-step playbook for migrating monolithic applications to microservices architecture — covering strangler fig pattern, data decomposition, and deployment strategies.",
     content: [
-      { type: "p", text: "Microservices migration is one of the most requested — and most mishandled — engineering initiatives we see. Teams underestimate the organizational complexity, overestimate the immediate performance benefits, and often end up with a distributed monolith that's worse than what they started with. This guide shares what actually works." },
+      { type: "p", text: "[Microservices migration](/services/cloud-solutions) is one of the most requested — and most mishandled — engineering initiatives we see. Teams underestimate the organizational complexity, overestimate the immediate performance benefits, and often end up with a distributed monolith that's worse than what they started with. This guide shares what actually works." },
       { type: "h2", text: "Step 1: Don't Start with Decomposition" },
       { type: "p", text: "The first instinct is to split the monolith into services. Resist it. Start by improving observability inside the monolith — structured logging, distributed tracing, dependency graphs. You can't decompose what you don't understand. Spend 4–6 weeks mapping the actual call graph, not the org chart." },
       { type: "h2", text: "Step 2: Apply the Strangler Fig Pattern" },
-      { type: "p", text: "The strangler fig is the safest migration pattern: build new capabilities as services, redirect traffic to them, and gradually \"strangle\" the monolith. Never do a big-bang rewrite — the risk of total failure is too high, and you'll be maintaining two codebases in a broken state for months." },
+      { type: "p", text: "The [strangler fig](https://martinfowler.com/bliki/StranglerFigApplication.html) is the safest migration pattern: build new capabilities as services, redirect traffic to them, and gradually \"strangle\" the monolith. Never do a big-bang rewrite — the risk of total failure is too high, and you'll be maintaining two codebases in a broken state for months." },
       { type: "h2", text: "Step 3: Data Decomposition is the Hard Part" },
-      { type: "p", text: "Service decomposition is easy. Database decomposition is where projects stall. You cannot have two services sharing a database — that creates invisible coupling. Use the Database-per-Service pattern, and accept the eventual consistency trade-off for non-critical data. For critical financial or inventory data, use the Saga pattern with compensating transactions." },
+      { type: "p", text: "Service decomposition is easy. Database decomposition is where projects stall. You cannot have two services sharing a database — that creates invisible coupling. Use the Database-per-Service pattern, and accept the eventual consistency trade-off for non-critical data. For critical financial or inventory data, use the [Saga pattern](https://microservices.io/patterns/data/saga.html) with compensating transactions." },
       { type: "h2", text: "Step 4: API Gateway & Service Mesh" },
       { type: "ul", items: ["API Gateway handles cross-cutting concerns: auth, rate limiting, request routing, SSL termination.", "Service Mesh (Istio or Linkerd) handles service-to-service security, circuit breaking, and observability.", "Don't implement both on day 1 — start with an API gateway, add service mesh when you have 10+ services."] },
       { type: "h2", text: "Common Mistakes to Avoid" },
@@ -102,13 +102,13 @@ export const articles: Article[] = [
     metaDescription:
       "Learn best practices for building scalable React + TypeScript applications — covering folder structure, state management, performance optimization, and team conventions.",
     content: [
-      { type: "p", text: "Most React TypeScript projects start clean and degrade fast. After working on 40+ production React applications, we've identified the patterns that separate codebases that age well from those that become unmaintainable within 18 months." },
+      { type: "p", text: "Most [React TypeScript projects](/services/web-development) start clean and degrade fast. After working on 40+ production React applications, we've identified the patterns that separate codebases that age well from those that become unmaintainable within 18 months." },
       { type: "h2", text: "Folder Structure That Scales" },
       { type: "p", text: "Feature-based folder structure beats layer-based. Group by domain (auth, payments, dashboard) not by type (components, hooks, utils). Each feature owns its components, hooks, types, and services. When you need to delete or refactor a feature, everything is co-located." },
       { type: "h2", text: "TypeScript Discipline" },
-      { type: "ul", items: ["Strict mode from day 1. No `any` escape hatches.", "Define domain types in a central `types/` folder, never in component files.", "Use Zod for runtime validation at API boundaries — parse, don't trust.", "Discriminated unions for state machines (loading/error/success/idle)."] },
+      { type: "ul", items: ["Strict mode from day 1. No `any` escape hatches.", "Define domain types in a central `types/` folder, never in component files.", "Use [Zod](https://zod.dev) for runtime validation at API boundaries — parse, don't trust.", "Discriminated unions for state machines (loading/error/success/idle)."] },
       { type: "h2", text: "State Management" },
-      { type: "p", text: "Don't reach for Redux or Zustand immediately. Server state (TanStack Query) + URL state (React Router) handles 80% of real-world needs. Local state for UI, context for theme/auth, and a store (Zustand) only for genuinely global client state." },
+      { type: "p", text: "Don't reach for Redux or Zustand immediately. Server state ([TanStack Query](https://tanstack.com/query/latest)) + URL state (React Router) handles 80% of real-world needs. Local state for UI, context for theme/auth, and a store (Zustand) only for genuinely global client state." },
       { type: "h2", text: "Performance" },
       { type: "ol", items: ["Code splitting at route level — lazy load every page.", "Virtualize lists over 100 items (TanStack Virtual).", "Memoize expensive computations (useMemo), not renders (React.memo) — get the dependency arrays right.", "Bundle analyze quarterly — find unused imports before they accumulate."] },
     ],
@@ -130,13 +130,13 @@ export const articles: Article[] = [
     metaDescription:
       "Comprehensive comparison of LangChain vs LlamaIndex for building RAG applications — covering architecture, retrieval strategies, production readiness, and when to use each.",
     content: [
-      { type: "p", text: "Both LangChain and LlamaIndex have matured significantly in 2024–2025. The question is no longer 'which is more capable' but 'which fits your use case, team, and production requirements better'. Here's what we've learned after building 15+ RAG systems in production." },
+      { type: "p", text: "Both [LangChain](https://www.langchain.com) and [LlamaIndex](https://www.llamaindex.ai) have matured significantly in 2024–2025. The question is no longer 'which is more capable' but 'which fits your use case, team, and production requirements better'. Here's what we've learned after building 15+ RAG systems in production." },
       { type: "h2", text: "LangChain: Best for Agentic Workflows" },
       { type: "p", text: "LangChain shines when you need complex orchestration — multi-step reasoning chains, tool use, agent loops, and multi-model pipelines. Its expression language (LCEL) makes chain composition composable and observable. If you're building an AI agent that uses tools, searches the web, and writes code, LangChain is the right foundation." },
       { type: "h2", text: "LlamaIndex: Best for Document-Centric RAG" },
       { type: "p", text: "LlamaIndex's data framework is purpose-built for document ingestion, indexing, and retrieval. Its query engine abstractions, node parser ecosystem, and multi-index strategies (vector + knowledge graph + SQL) give you more control over retrieval quality. For enterprise knowledge bases, internal document Q&A, and high-precision RAG, LlamaIndex wins." },
       { type: "h2", text: "Production Considerations" },
-      { type: "ul", items: ["Observability: Both integrate with LangSmith (LangChain) and LlamaCloud — use one from day 1.", "Latency: LlamaIndex's query pipeline is generally faster for retrieval-only workloads.", "Cost control: Both support prompt caching and streaming — implement both.", "Evaluation: Use RAGAS framework to benchmark retrieval quality before shipping."] },
+      { type: "ul", items: ["Observability: Both integrate with LangSmith (LangChain) and LlamaCloud — use one from day 1.", "Latency: LlamaIndex's query pipeline is generally faster for retrieval-only workloads.", "Cost control: Both support prompt caching and streaming — implement both.", "Evaluation: Use the [RAGAS](https://docs.ragas.io/) framework to benchmark retrieval quality before shipping."] },
       { type: "h2", text: "Our Recommendation" },
       { type: "p", text: "Start with LlamaIndex if your use case is document Q&A or knowledge retrieval. Start with LangChain if you're building an agent that needs to use tools and execute multi-step tasks. Many production systems use both — LlamaIndex for retrieval, LangChain for orchestration." },
     ],
@@ -158,13 +158,13 @@ export const articles: Article[] = [
     metaDescription:
       "A practical guide to building scalable design systems for large teams — covering token architecture, component governance, versioning, documentation, and Figma/code synchronization.",
     content: [
-      { type: "p", text: "A design system is a product that serves other products. The biggest mistake teams make is treating it as a one-time deliverable rather than an evolving platform with its own roadmap, governance, and team." },
+      { type: "p", text: "A [design system](/services/ui-ux-design) is a product that serves other products. The biggest mistake teams make is treating it as a one-time deliverable rather than an evolving platform with its own roadmap, governance, and team." },
       { type: "h2", text: "Token Architecture First" },
       { type: "p", text: "Design tokens are the foundation — not components. Start with a three-tier token structure: Primitive tokens (raw values: colors, spacing, radii), Semantic tokens (purpose-mapped: --color-surface-primary, --spacing-layout-gap), and Component tokens (scoped: --button-padding-horizontal). This separation lets you retheme without touching component code." },
       { type: "h2", text: "Component Governance" },
-      { type: "ul", items: ["Every component needs a champion — one designer and one developer own it.", "Contribution guidelines: proposal → design review → code review → documentation → release.", "A component without documentation doesn't exist. Make Storybook the source of truth.", "Semver for design systems: major = breaking, minor = new, patch = fix."] },
+      { type: "ul", items: ["Every component needs a champion — one designer and one developer own it.", "Contribution guidelines: proposal → design review → code review → documentation → release.", "A component without documentation doesn't exist. Make [Storybook](https://storybook.js.org) the source of truth.", "Semver for design systems: major = breaking, minor = new, patch = fix."] },
       { type: "h2", text: "Figma ↔ Code Synchronization" },
-      { type: "p", text: "Use Token Studio or Style Dictionary to automate token syncing between Figma and code. Manual synchronization drifts within weeks. The toolchain investment (typically 2–3 weeks) pays for itself in the first quarter." },
+      { type: "p", text: "Use Token Studio or [Style Dictionary](https://styledictionary.com) to automate token syncing between Figma and code. Manual synchronization drifts within weeks. The toolchain investment (typically 2–3 weeks) pays for itself in the first quarter." },
     ],
   },
   {
@@ -190,6 +190,7 @@ export const articles: Article[] = [
       { type: "h2", text: "The Most Common Mistakes" },
       { type: "ul", items: ["Describing the solution instead of the problem — let vendors propose architecture.", "Hiding the budget — it creates adversarial dynamics from day 1.", "Too many mandatory requirements — vendors will say yes to everything and deliver nothing.", "No named contact — anonymous RFPs signal that there's no real champion for the project."] },
       { type: "callout", text: "The best RFPs we've seen are 4–6 pages. They explain the business problem, the constraints, the success metrics, and the budget range. Everything else is noise." },
+      { type: "p", text: "If you're preparing an RFP for a web, mobile, or AI project, [talk to our team](/contact) about scoping it — or see how we structure engagements across our [software development services](/services/product-strategy-consulting)." },
     ],
   },
   {
@@ -209,11 +210,11 @@ export const articles: Article[] = [
     metaDescription:
       "10 proven Kubernetes cost optimization tactics — from right-sizing and spot instances to autoscaling and namespace-level cost allocation.",
     content: [
-      { type: "p", text: "Kubernetes infrastructure costs spiral because teams provision for peak load and never revisit their allocations. After running cost optimization engagements for 20+ clients, here are the 10 tactics with the highest ROI." },
+      { type: "p", text: "[Kubernetes](https://kubernetes.io) infrastructure costs spiral because teams provision for peak load and never revisit their allocations. After running cost optimization engagements for 20+ clients, here are the 10 tactics with the highest ROI." },
       { type: "h2", text: "The Big 3 (Tackle These First)" },
-      { type: "ol", items: ["Right-size your requests and limits — 70% of clusters are over-provisioned by 2x. Use Goldilocks or VPA to get data-driven recommendations.", "Enable cluster autoscaler — match capacity to actual load. Most teams run 30–40% idle nodes 24/7.", "Use Spot/Preemptible instances for stateless workloads — 60–80% cheaper, with proper disruption handling via PodDisruptionBudgets."] },
+      { type: "ol", items: ["Right-size your requests and limits — 70% of clusters are over-provisioned by 2x. Use [Goldilocks](https://github.com/FairwindsOps/goldilocks) or VPA to get data-driven recommendations.", "Enable cluster autoscaler — match capacity to actual load. Most teams run 30–40% idle nodes 24/7.", "Use Spot/Preemptible instances for stateless workloads — 60–80% cheaper, with proper disruption handling via PodDisruptionBudgets."] },
       { type: "h2", text: "The Next 7" },
-      { type: "ol", items: ["Namespace-level resource quotas to prevent runaway costs from dev/staging.", "Delete idle namespaces — dev environments that nobody accesses for 7+ days.", "Use Karpenter instead of Cluster Autoscaler for faster, cheaper node provisioning.", "Multi-architecture nodes (ARM) — Graviton instances are 20% cheaper with comparable performance.", "Image size optimization — smaller images = faster pulls = lower egress costs.", "Reserved instances for baseline load (1-year savings: 30–40%).", "Cost allocation tagging — you can't optimize what you can't attribute."] },
+      { type: "ol", items: ["Namespace-level resource quotas to prevent runaway costs from dev/staging.", "Delete idle namespaces — dev environments that nobody accesses for 7+ days.", "Use [Karpenter](https://karpenter.sh) instead of Cluster Autoscaler for faster, cheaper node provisioning.", "Multi-architecture nodes (ARM) — Graviton instances are 20% cheaper with comparable performance.", "Image size optimization — smaller images = faster pulls = lower egress costs.", "Reserved instances for baseline load (1-year savings: 30–40%).", "Cost allocation tagging — you can't optimize what you can't attribute."] },
     ],
   },
   {
@@ -233,13 +234,13 @@ export const articles: Article[] = [
     metaDescription:
       "API design principles for exceptional developer experience — covering REST conventions, error handling, versioning, pagination, and documentation that developers love.",
     content: [
-      { type: "p", text: "A great API is one that developers don't have to read docs for — it's discoverable, predictable, and forgiving. Building APIs that developers enjoy is a craft, and it separates platforms that get adopted from those that don't." },
+      { type: "p", text: "A great API is one that developers don't have to read docs for — it's discoverable, predictable, and forgiving. [Building APIs](/services/web-development) that developers enjoy is a craft, and it separates platforms that get adopted from those that don't." },
       { type: "h2", text: "Naming & Resource Design" },
       { type: "ul", items: ["Plural nouns for resources: /orders, /products, not /order, /getProduct.", "Nested resources for clear ownership: /users/{id}/orders.", "Consistent casing: kebab-case for URLs, camelCase for JSON properties.", "No verbs in URLs — use HTTP methods for actions."] },
       { type: "h2", text: "Error Handling" },
       { type: "p", text: "Errors should tell developers what went wrong AND what to do about it. Use structured error responses: { code, message, details, helpUrl }. Map errors to semantic HTTP status codes. Never return 200 with an error body — it breaks every HTTP client in existence." },
       { type: "h2", text: "Versioning & Lifecycle" },
-      { type: "p", text: "URL versioning (/v1/, /v2/) is still the most practical approach for REST APIs. Deprecation notices via Deprecation and Sunset headers give integrators time to migrate. Document your API lifecycle policy upfront — 12 months minimum support after deprecation announcement." },
+      { type: "p", text: "URL versioning (/v1/, /v2/) is still the most practical approach for REST APIs. Deprecation notices via Deprecation and [Sunset headers](https://datatracker.ietf.org/doc/html/rfc8594) give integrators time to migrate. Document your API lifecycle policy upfront — 12 months minimum support after deprecation announcement." },
     ],
   },
   {
@@ -259,13 +260,13 @@ export const articles: Article[] = [
     metaDescription:
       "How to design and implement micro-interactions that delight users — covering trigger/feedback/loop patterns, Framer Motion implementation, and performance considerations.",
     content: [
-      { type: "p", text: "Micro-interactions are the small moments of feedback that make users feel the product is alive and responsive. A button that resists then bounces on press, a success checkmark that draws itself, a form field that gently shakes when validation fails — these moments are remembered even when users can't articulate why they liked the experience." },
+      { type: "p", text: "[Micro-interactions](/services/ui-ux-design) are the small moments of feedback that make users feel the product is alive and responsive. A button that resists then bounces on press, a success checkmark that draws itself, a form field that gently shakes when validation fails — these moments are remembered even when users can't articulate why they liked the experience." },
       { type: "h2", text: "The 4-Part Framework: Trigger → Rules → Feedback → Loops" },
       { type: "p", text: "Every micro-interaction has four parts. The trigger initiates it (a click, a scroll position, a state change). The rules define what happens. The feedback makes it visible. The loop or mode determines whether it repeats or what happens when conditions change." },
       { type: "h2", text: "Implementing with Framer Motion" },
       { type: "ul", items: ["Use spring physics (type: 'spring') for natural, organic movement.", "Stagger children animations to guide attention sequentially.", "layoutId for shared layout animations between route transitions.", "whileHover and whileTap for immediate, synchronous micro-feedback.", "AnimatePresence for mount/unmount animations — never abrupt element removal."] },
       { type: "h2", text: "Performance Rules" },
-      { type: "p", text: "Only animate CSS properties that don't trigger layout: transform and opacity. Animating width, height, top, left causes layout thrash and janky 15fps animations. Use will-change sparingly — it consumes GPU memory. Test on a mid-range Android device, not your M3 MacBook." },
+      { type: "p", text: "Only animate CSS properties that don't trigger layout: transform and opacity. Animating width, height, top, left causes layout thrash and janky 15fps animations. Use [will-change](https://developer.mozilla.org/en-US/docs/Web/CSS/will-change) sparingly — it consumes GPU memory. Test on a mid-range Android device, not your M3 MacBook." },
     ],
   },
 
@@ -345,7 +346,7 @@ export const articles: Article[] = [
       {
         type: "ul",
         items: [
-          "OAuth 2.0 / OIDC compliant identity server — never build your own auth from scratch.",
+          "[OAuth 2.0](https://oauth.net/2/) / OIDC compliant identity server — never build your own auth from scratch.",
           "Adaptive MFA with step-up authentication for high-risk transactions (transaction amount threshold, new device, geo-anomaly).",
           "Device fingerprinting and behavioural biometrics for continuous authentication.",
           "Zero Trust network model — no implicit trust based on network location.",
@@ -374,7 +375,7 @@ export const articles: Article[] = [
           "Async event bus (Kafka or AWS EventBridge) so the digital layer continues operating during core banking maintenance windows.",
           "Circuit breaker patterns (Resilience4j or AWS SDK retry configurations) to handle core banking downtime without cascading failures.",
           "Idempotency keys on all financial transactions — critical for preventing double-charges if network timeouts cause retries.",
-          "Saga pattern for distributed transactions across services (fund transfers, loan disbursements, bill payments).",
+          "[Saga pattern](/blog/migrating-to-microservices-playbook) for distributed transactions across services (fund transfers, loan disbursements, bill payments).",
           "Compensation logic for failed transaction rollbacks with full audit trails.",
         ],
       },
@@ -394,7 +395,7 @@ export const articles: Article[] = [
         type: "ul",
         items: [
           "Queue-based payment processing with Redis Streams for real-time status tracking and WebSocket push to the frontend.",
-          "ISO 20022 message format compliance for SWIFT gpi, SEPA, and modern domestic payment rails.",
+          "[ISO 20022](https://www.iso20022.org) message format compliance for SWIFT gpi, SEPA, and modern domestic payment rails.",
           "Dynamic routing between payment processors based on cost, availability, and success rate — typically reduces payment failure rates by 8–12%.",
           "Real-time fraud detection combining rule engines with ML anomaly detection — reducing false positives by 40–60% vs rule-only systems.",
           "UPI, NEFT, RTGS, IMPS integration for India; ACH, SWIFT, RTP for US/global.",
@@ -407,8 +408,8 @@ export const articles: Article[] = [
       {
         type: "ul",
         items: [
-          "OWASP ASVS Level 3 compliance checklist applied across all API endpoints.",
-          "Static (SAST) and dynamic (DAST) security testing gated in CI/CD — no merge without passing security scan.",
+          "[OWASP ASVS](https://owasp.org/www-project-application-security-verification-standard/) Level 3 compliance checklist applied across all API endpoints.",
+          "Static (SAST) and dynamic (DAST) [security testing](/services/cybersecurity-engineering) gated in CI/CD — no merge without passing security scan.",
           "Penetration testing by an independent security firm before every major release.",
           "End-to-end encryption with customer-controlled keys (BYOK) using AWS KMS or HashiCorp Vault.",
           "Field-level encryption for PII columns in PostgreSQL using pgcrypto.",
@@ -476,7 +477,7 @@ export const articles: Article[] = [
       },
       {
         type: "p",
-        text: "Headless means your frontend (React, Next.js, or a mobile app) talks to commerce APIs instead of a coupled CMS+commerce monolith. The backend still handles catalogue management, cart, checkout, order management, pricing, and promotions — but via well-defined APIs that any frontend can consume. What it doesn't mean: rebuilding everything from scratch. You compose best-of-breed services rather than building each one.",
+        text: "Headless means your frontend (React, Next.js, or a [mobile app](/services/mobile-app-development)) talks to commerce APIs instead of a coupled CMS+commerce monolith. The backend still handles catalogue management, cart, checkout, order management, pricing, and promotions — but via well-defined APIs that any frontend can consume. What it doesn't mean: rebuilding everything from scratch. You compose best-of-breed services rather than building each one.",
       },
       {
         type: "h2",
@@ -485,7 +486,7 @@ export const articles: Article[] = [
       {
         type: "ul",
         items: [
-          "Commerce API: Commercetools, Medusa.js (open source), or custom-built for specific requirements.",
+          "Commerce API: Commercetools, [Medusa.js](https://medusajs.com) (open source), or custom-built for specific requirements.",
           "CMS: Contentful, Sanity, or Strapi for content-heavy catalogues.",
           "Search: Algolia or Elasticsearch for product discovery — never database full-text search for catalogues above 10K SKUs.",
           "Payments: Stripe, Razorpay, or Adyen — abstracted behind a payment provider interface to switch processors without code changes.",
@@ -542,7 +543,7 @@ export const articles: Article[] = [
           "Next.js with ISR (Incremental Static Regeneration) for PLPs — pre-rendered at the edge, refreshed in the background on inventory changes.",
           "Algolia InstantSearch for client-side filtering — faceted search results in <100ms.",
           "Image optimization: Cloudflare Images or imgix for automatic WebP/AVIF conversion and responsive sizing.",
-          "Core Web Vitals targets: LCP < 2.5s, FID < 100ms, CLS < 0.1. We track these in CI and block deploys that regress metrics.",
+          "[Core Web Vitals](https://web.dev/articles/vitals) targets: LCP < 2.5s, FID < 100ms, CLS < 0.1. We track these in CI and block deploys that regress metrics.",
           "Preloading: next/link prefetching on hover for instant PDP loads.",
         ],
       },
@@ -611,7 +612,7 @@ export const articles: Article[] = [
     content: [
       {
         type: "p",
-        text: "Healthcare software development combines two of the hardest engineering challenges: clinical data standards with zero margin for error, and consumer-grade UX expectations from patients used to Netflix and Uber. Failure on either front has consequences — regulatory risk on one side, low adoption on the other. This guide covers how Zyllo Tech designs and delivers patient portal platforms that succeed on both dimensions.",
+        text: "Healthcare software development combines two of the hardest engineering challenges: clinical data standards with zero margin for error, and [consumer-grade UX](/services/ui-ux-design) expectations from patients used to Netflix and Uber. Failure on either front has consequences — regulatory risk on one side, low adoption on the other. This guide covers how Zyllo Tech designs and delivers patient portal platforms that succeed on both dimensions.",
       },
       {
         type: "h2",
@@ -637,13 +638,13 @@ export const articles: Article[] = [
       },
       {
         type: "p",
-        text: "FHIR (Fast Healthcare Interoperability Resources) is the international standard for healthcare data exchange. Most modern EMR/EHR systems (Epic, Cerner, Meditech) expose FHIR R4 APIs. Building against FHIR rather than proprietary APIs future-proofs your platform and enables interoperability.",
+        text: "[FHIR](https://hl7.org/fhir/) (Fast Healthcare Interoperability Resources) is the international standard for healthcare data exchange. Most modern EMR/EHR systems (Epic, Cerner, Meditech) expose FHIR R4 APIs. Building against FHIR rather than proprietary APIs future-proofs your platform and enables interoperability.",
       },
       {
         type: "ul",
         items: [
           "FHIR R4 conformance: Patient, Encounter, Observation, MedicationRequest, DiagnosticReport, and Appointment resources.",
-          "SMART on FHIR for authorisation — the standard OAuth 2.0 extension for healthcare context (patient-facing and provider-facing launch contexts).",
+          "[SMART on FHIR](https://hl7.org/fhir/smart-app-launch/) for authorisation — the standard OAuth 2.0 extension for healthcare context (patient-facing and provider-facing launch contexts).",
           "Bulk FHIR export for population health analytics using the $export operation.",
           "FHIR facade pattern: wrap legacy HL7 v2 messages from older EMRs with an FHIR translation layer using open-source tools like Mirth Connect or Google Healthcare API.",
           "CDS Hooks for real-time clinical decision support triggers integrated into provider workflows.",
@@ -700,7 +701,7 @@ export const articles: Article[] = [
       {
         type: "ul",
         items: [
-          "HIPAA Security Rule compliance: Administrative, Physical, and Technical safeguards all addressed.",
+          "[HIPAA Security Rule](https://www.hhs.gov/hipaa/for-professionals/security/index.html) compliance: Administrative, Physical, and Technical safeguards all addressed.",
           "Session timeout: 15 minutes idle for clinical users, 30 minutes for patients — non-negotiable.",
           "PHI data masking in application logs — your logging infrastructure should never capture SSN, DOB, or diagnostic codes in plaintext.",
           "Vulnerability management: monthly SAST scans, quarterly penetration testing, annual SOC 2 audit.",
@@ -741,7 +742,7 @@ export const articles: Article[] = [
     content: [
       {
         type: "p",
-        text: "EdTech platforms face a unique engineering challenge: the load profile is extremely spiky (everyone is online during class time, offline otherwise), the content type is video-heavy (expensive to serve at scale), and learner engagement directly correlates with UX quality (a buffering video means a dropped course). This guide covers the full stack implementation approach Zyllo Tech uses for EdTech platforms serving 10,000 to 500,000 learners.",
+        text: "EdTech platforms face a unique engineering challenge: the load profile is extremely spiky (everyone is online during class time, offline otherwise), the content type is video-heavy (expensive to serve at scale), and learner engagement directly correlates with [UX quality](/services/ui-ux-design) (a buffering video means a dropped course). This guide covers the full stack implementation approach Zyllo Tech uses for EdTech platforms serving 10,000 to 500,000 learners.",
       },
       {
         type: "h2",
@@ -755,7 +756,7 @@ export const articles: Article[] = [
         type: "ul",
         items: [
           "Video processing pipeline: upload → transcode → HLS adaptive streaming → CDN distribution. Use AWS Elemental MediaConvert or Mux for transcoding to multiple quality levels (360p, 540p, 720p, 1080p).",
-          "HLS (HTTP Live Streaming) for adaptive bitrate — automatically downgrades quality on poor connections without buffering.",
+          "[HLS](https://developer.apple.com/streaming/) (HTTP Live Streaming) for adaptive bitrate — automatically downgrades quality on poor connections without buffering.",
           "CDN selection: Cloudflare Stream or AWS CloudFront with S3 origin. Edge caching is essential — never serve video from origin for active learners.",
           "Signed URLs with 24-hour expiry for content protection — prevent public URL sharing.",
           "Offline download for mobile apps using HLS download (iOS AVFoundation, Android ExoPlayer) with device-level DRM.",
@@ -816,7 +817,7 @@ export const articles: Article[] = [
       {
         type: "ul",
         items: [
-          "xAPI event stream for every learner interaction — video play, pause, quiz attempt, forum post, assignment submission.",
+          "[xAPI](https://adlnet.gov/projects/xapi/) event stream for every learner interaction — video play, pause, quiz attempt, forum post, assignment submission.",
           "Learning Record Store (LRS) — Watershed or a custom PostgreSQL + Redshift pipeline for analytics.",
           "Engagement alerts: learners who haven't logged in for 7 days get an automated personalised nudge (email + push).",
           "Progress dashboards for learners, instructors, and enterprise admins — each with different metrics.",
@@ -830,7 +831,7 @@ export const articles: Article[] = [
       {
         type: "ul",
         items: [
-          "React Native for iOS and Android from a single codebase — reduces maintenance overhead by 40%.",
+          "[React Native](https://reactnative.dev) for iOS and Android from a single codebase — reduces maintenance overhead by 40%.",
           "Offline-first architecture: downloaded courses available without connectivity, progress synced on reconnect.",
           "Background video download using native APIs (iOS Background App Refresh, Android WorkManager).",
           "Push notifications for assignment deadlines, live class reminders, and grade releases via Firebase Cloud Messaging.",
@@ -866,7 +867,7 @@ export const articles: Article[] = [
     content: [
       {
         type: "p",
-        text: "Logistics and transportation companies generate enormous operational value when they can see their fleet in real time, route vehicles optimally, and give customers live visibility into their deliveries. The engineering challenge is ingesting high-frequency GPS telemetry from thousands of devices, processing it in real time, and presenting actionable insights without overwhelming operators or running up massive cloud bills.",
+        text: "Logistics and transportation companies generate enormous operational value when they can see their fleet in real time, route vehicles optimally, and give customers live visibility into their deliveries. The engineering challenge is ingesting high-frequency GPS telemetry from thousands of devices, processing it in real time, and presenting actionable insights without overwhelming operators or running up [massive cloud bills](/blog/kubernetes-cost-optimization).",
       },
       {
         type: "h2",
@@ -879,7 +880,7 @@ export const articles: Article[] = [
       {
         type: "ul",
         items: [
-          "MQTT broker (AWS IoT Core or EMQX) as the primary device communication protocol — lightweight, designed for unreliable networks.",
+          "[MQTT](https://mqtt.org) broker (AWS IoT Core or EMQX) as the primary device communication protocol — lightweight, designed for unreliable networks.",
           "Message buffering on the device for offline scenarios — store and forward when connectivity resumes.",
           "Device shadow / digital twin pattern: maintain the last-known state of each vehicle so dashboards don't go blank when a device temporarily disconnects.",
           "Device authentication using X.509 certificates per device — never shared secrets for IoT fleets.",
@@ -911,7 +912,7 @@ export const articles: Article[] = [
       {
         type: "ul",
         items: [
-          "Google OR-Tools or open-source VRP solvers for fleet route planning with time windows, vehicle capacity, and driver shift constraints.",
+          "[Google OR-Tools](https://developers.google.com/optimization) or open-source VRP solvers for fleet route planning with time windows, vehicle capacity, and driver shift constraints.",
           "Dynamic re-routing: when a delivery is added or cancelled mid-day, recalculate affected routes in <30 seconds.",
           "Traffic integration: Google Maps Platform or HERE Traffic for real-time traffic-adjusted ETAs.",
           "Cluster deliveries by geographic proximity to minimise total distance driven — typically reduces fuel cost by 18–25%.",
@@ -975,7 +976,7 @@ export const articles: Article[] = [
     content: [
       {
         type: "p",
-        text: "Unplanned equipment downtime in manufacturing costs an average of $260,000 per hour across industries — and most of it is preventable. Predictive maintenance (PdM) uses sensor data and machine learning to predict failures before they happen, shifting maintenance from reactive (break-fix) to proactive (predict-and-prevent). This guide details the engineering approach Zyllo Tech uses to build these systems.",
+        text: "Unplanned equipment downtime in manufacturing costs an average of $260,000 per hour across industries — and most of it is preventable. Predictive maintenance (PdM) uses sensor data and [machine learning](/services/ai-solutions) to predict failures before they happen, shifting maintenance from reactive (break-fix) to proactive (predict-and-prevent). This guide details the engineering approach Zyllo Tech uses to build these systems.",
       },
       {
         type: "h2",
@@ -993,7 +994,7 @@ export const articles: Article[] = [
           "Temperature sensors for thermal anomaly detection — motors running hot indicate lubrication or overload issues.",
           "Current/power monitoring for electrical machinery — power consumption spikes often precede failure.",
           "Acoustic sensors for high-frequency anomaly detection in pneumatic systems and gearboxes.",
-          "OPC-UA protocol for modern industrial equipment; Modbus RTU/TCP for legacy PLCs and SCADA systems.",
+          "[OPC-UA](https://opcfoundation.org) protocol for modern industrial equipment; Modbus RTU/TCP for legacy PLCs and SCADA systems.",
         ],
       },
       {
@@ -1119,9 +1120,9 @@ export const articles: Article[] = [
         type: "ul",
         items: [
           "WebSocket for persistent connections — eliminates HTTP handshake overhead for game state updates.",
-          "UDP via QUIC protocol for real-time game data where some packet loss is acceptable (position updates) — use TCP/WebSocket for reliable events (purchases, achievements).",
+          "UDP via [QUIC](https://www.rfc-editor.org/rfc/rfc9000) protocol for real-time game data where some packet loss is acceptable (position updates) — use TCP/WebSocket for reliable events (purchases, achievements).",
           "Edge deployment on Cloudflare Workers or AWS Global Accelerator to minimise RTT — a player in Mumbai connecting to a Mumbai edge node instead of Singapore saves 40–60ms.",
-          "Dedicated game servers (AWS GameLift, Agones on Kubernetes) for physics-authoritative games vs client-authoritative for mobile games.",
+          "Dedicated game servers (AWS GameLift, [Agones](https://agones.dev) on Kubernetes) for physics-authoritative games vs client-authoritative for mobile games.",
           "Regional matchmaking: never route players across continents — the latency makes the game unplayable.",
         ],
       },
@@ -1136,7 +1137,7 @@ export const articles: Article[] = [
       {
         type: "ul",
         items: [
-          "Skill-based matchmaking (SBMM): Elo, TrueSkill, or Glicko-2 rating systems — TrueSkill2 works better for team games.",
+          "Skill-based matchmaking (SBMM): Elo, [TrueSkill](https://www.microsoft.com/en-us/research/project/trueskill-ranking-system/), or Glicko-2 rating systems — TrueSkill2 works better for team games.",
           "Latency constraints: only match players who can achieve <80ms P95 RTT to the same game server.",
           "Wait time vs quality trade-off: progressively relax skill constraints as wait time increases to prevent indefinite queuing.",
           "Queue priority for returning players after disconnect to restore them to the same match.",
@@ -1215,7 +1216,7 @@ export const articles: Article[] = [
     content: [
       {
         type: "p",
-        text: "Real estate and construction operate on extraordinarily long project cycles — a residential development can span 3–5 years from land acquisition to handover. Managing this with spreadsheets and email threads causes missed milestones, documentation gaps, and costly disputes. PropTech platforms that digitise these workflows create significant operational advantages. Here's how Zyllo Tech builds them.",
+        text: "Real estate and construction operate on extraordinarily long project cycles — a residential development can span 3–5 years from land acquisition to handover. Managing this with spreadsheets and email threads causes missed milestones, documentation gaps, and costly disputes. [PropTech platforms](/services/web-development) that digitise these workflows create significant operational advantages. Here's how Zyllo Tech builds them.",
       },
       {
         type: "h2",
@@ -1265,7 +1266,7 @@ export const articles: Article[] = [
           "Document versioning with change tracking — critical for construction drawings and legal documents.",
           "Electronic signature integration (DocuSign or Adobe Sign) for agreements — replaces courier-dependent signing cycles.",
           "Document expiry tracking: regulatory approvals, insurance certificates, and contractor licences with automated renewal alerts.",
-          "OCR indexing of scanned documents for full-text search across the entire project document archive.",
+          "[OCR indexing](/services/ai-solutions) of scanned documents for full-text search across the entire project document archive.",
         ],
       },
       {
@@ -1312,7 +1313,7 @@ export const articles: Article[] = [
     content: [
       {
         type: "p",
-        text: "The travel technology stack is one of the most complex in any industry: real-time inventory that expires the moment it's not booked, globally distributed users, multiple distribution channels (OTA, direct, corporate, GDS), complex pricing algorithms, and revenue management requirements. This guide covers how Zyllo Tech engineers booking platforms that serve hotels, hotel chains, and travel aggregators.",
+        text: "The travel technology stack is one of the most complex in any industry: real-time inventory that expires the moment it's not booked, globally distributed users, multiple distribution channels (OTA, direct, corporate, GDS), complex pricing algorithms, and revenue management requirements. This guide covers how Zyllo Tech [engineers booking platforms](/services/web-development) that serve hotels, hotel chains, and travel aggregators.",
       },
       {
         type: "h2",
@@ -1356,7 +1357,7 @@ export const articles: Article[] = [
       {
         type: "ul",
         items: [
-          "OTA connection via OpenTravel Alliance (OTA) XML or HTNG APIs — each OTA has a slightly different implementation.",
+          "OTA connection via [OpenTravel Alliance](https://opentravel.org) (OTA) XML or HTNG APIs — each OTA has a slightly different implementation.",
           "Two-way sync: push rate/availability updates to OTAs within 30 seconds of change; receive new reservations and cancellations.",
           "GDS connectivity (Sabre, Amadeus, Galileo) via Switch or direct THISCO integration for corporate travel bookings.",
           "Rate parity enforcement: alert revenue managers when the same room is cheaper on an OTA than the direct booking engine.",
@@ -1430,7 +1431,7 @@ export const articles: Article[] = [
       },
       {
         type: "p",
-        text: "Customer portals and billing systems don't exist in isolation — they integrate with the operator's BSS (Business Support Systems) and OSS (Operations Support Systems) stack:",
+        text: "Customer portals and billing systems don't exist in isolation — they integrate with the operator's [BSS](https://www.tmforum.org) (Business Support Systems) and OSS (Operations Support Systems) stack:",
       },
       {
         type: "ul",
@@ -1479,10 +1480,10 @@ export const articles: Article[] = [
       {
         type: "ul",
         items: [
-          "AI-powered chatbot handling tier-1 queries (usage enquiries, bill explanations, common troubleshooting) — deflects 55–70% of contact centre volume.",
+          "[AI-powered chatbot](/services/ai-solutions) handling tier-1 queries (usage enquiries, bill explanations, common troubleshooting) — deflects 55–70% of contact centre volume.",
           "Intelligent routing: classify inbound contacts by intent and route to appropriate agent queue with full customer context pre-loaded.",
           "Network outage detection integration: proactively notify affected customers via push/SMS before they call in.",
-          "Knowledge base search: semantic search (not keyword) for support agents and self-service — using embedding-based retrieval.",
+          "Knowledge base search: semantic search (not keyword) for support agents and self-service — using [embedding-based retrieval](/blog/langchain-vs-llamaindex-rag).",
           "Case deflection: serve relevant KB articles at point of ticket creation to resolve before submission.",
         ],
       },
@@ -1539,7 +1540,7 @@ export const articles: Article[] = [
         type: "ul",
         items: [
           "Multi-channel publishing from a single content API: web, iOS app, Android app, newsletter, Apple News, Google Discover, Alexa Flash Briefing.",
-          "Frontend freedom: React/Next.js frontends perform 3–5x better than server-rendered monolithic CMS templates on Core Web Vitals.",
+          "Frontend freedom: [React/Next.js frontends](/services/web-development) perform 3–5x better than server-rendered monolithic CMS templates on Core Web Vitals.",
           "Editorial workflow decoupled from frontend deployment — content team publishes without a developer deploy.",
           "Content as a product: treat editorial content as structured data, not HTML blobs — enables personalisation, machine translation, and AI content generation workflows.",
         ],
@@ -1572,7 +1573,7 @@ export const articles: Article[] = [
           "Next.js with ISR (Incremental Static Regeneration) for article pages — pre-rendered at the edge, revalidated within 60 seconds of publish.",
           "Cloudflare Cache-Control headers: 'stale-while-revalidate' delivers cached content instantly while the CDN fetches fresh content in the background.",
           "Image CDN: Cloudflare Images or imgix for on-the-fly resizing, WebP/AVIF conversion — never serve original 12MP photography to mobile browsers.",
-          "Core Web Vitals targets: LCP < 1.8s (news content has high organic search dependency — CWV affects SEO ranking directly).",
+          "[Core Web Vitals](https://web.dev/articles/vitals) targets: LCP < 1.8s (news content has high organic search dependency — CWV affects SEO ranking directly).",
           "AMP support: maintain AMP variants for Google News carousels via automated transformation pipeline.",
         ],
       },
@@ -1611,7 +1612,7 @@ export const articles: Article[] = [
       {
         type: "ul",
         items: [
-          "Header bidding with Prebid.js for programmatic revenue maximisation.",
+          "Header bidding with [Prebid.js](https://prebid.org) for programmatic revenue maximisation.",
           "Google Ad Manager (GAM) as primary ad server for direct-sold inventory.",
           "Core Web Vitals protection: lazy load ads below the fold, reserve space for ad slots to prevent CLS.",
           "Contextual targeting metadata: pass IAB content taxonomy categories with ad requests for contextual relevance without third-party cookies.",
@@ -1660,7 +1661,7 @@ export const articles: Article[] = [
       {
         type: "ul",
         items: [
-          "LoRaWAN for long-range, low-power sensor communication — 2–15km range without cellular coverage; gateway installed at farm HQ.",
+          "[LoRaWAN](https://lora-alliance.org) for long-range, low-power sensor communication — 2–15km range without cellular coverage; gateway installed at farm HQ.",
           "NB-IoT as an alternative where cellular coverage exists — more reliable than LoRaWAN in dense deployments.",
           "Solar-powered sensor nodes with supercapacitor buffer for cloudy periods — typically > 10-year battery-free operation.",
           "Sensor types: soil moisture/temperature at multiple depths, rainfall, atmospheric pressure, leaf wetness, solar radiation.",
@@ -1695,7 +1696,7 @@ export const articles: Article[] = [
         type: "ul",
         items: [
           "Lot/batch tracking from harvest: each harvest lot assigned a unique ID capturing plot, date, variety, inputs used, and harvesting conditions.",
-          "GS1 EPCIS for standardised supply chain event recording — interoperable with retailers and food companies' systems.",
+          "[GS1 EPCIS](https://www.gs1.org/standards/epcis) for standardised supply chain event recording — interoperable with retailers and food companies' systems.",
           "Cold chain monitoring: temperature data logger (IoT) assigned to each shipment lot — alerts for temperature exceedance with timestamp and location.",
           "Aggregation and disaggregation tracking: when farm lots are combined at a processing facility, parent-child lot relationships are maintained for full trace-back.",
           "QR code consumer trace: scan product QR code, see the farm, farmer, harvest date, certifications, and journey to shelf — builds brand trust.",
@@ -1726,7 +1727,7 @@ export const articles: Article[] = [
         items: [
           "React Native app working fully offline — critical for field use with poor connectivity.",
           "Plot-level activity logging: spray records, fertiliser application, irrigation events — photo evidence attached.",
-          "Crop scouting: systematic field observation with GPS tagging, pest/disease identification via on-device ML model.",
+          "Crop scouting: systematic field observation with GPS tagging, pest/disease identification via [on-device ML model](/services/ai-solutions).",
           "Advisory push notifications: real-time alerts for irrigation needs, disease risk warnings, market price alerts.",
           "Voice input for rapid field data entry — farmers log observations without stopping to type.",
         ],

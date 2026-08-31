@@ -4,17 +4,21 @@ import { articles } from "@/data/articles";
 // can manage them. Until content is published there, the site falls back to
 // this editorial content so pages are never empty.
 
+// Block text may carry inline [label](href) links (see ArticleBody in
+// BlogPostPage.jsx). The flattened plain-text form keeps just the label.
+const stripLinks = (text) => text.replace(/\[([^\]]+)\]\((?:\/[^)\s]*|https?:\/\/[^)\s]+)\)/g, "$1");
+
 function blockToText(block) {
   switch (block.type) {
     case "p":
     case "h2":
     case "h3":
     case "callout":
-      return block.text;
+      return stripLinks(block.text);
     case "ul":
-      return block.items.map((item) => `• ${item}`).join("\n");
+      return block.items.map((item) => `• ${stripLinks(item)}`).join("\n");
     case "ol":
-      return block.items.map((item, index) => `${index + 1}. ${item}`).join("\n");
+      return block.items.map((item, index) => `${index + 1}. ${stripLinks(item)}`).join("\n");
     case "metrics":
       return block.items.map((item) => `${item.label}: ${item.value}`).join("\n");
     default:
