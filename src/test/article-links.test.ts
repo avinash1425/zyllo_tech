@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { articles } from "@/data/articles";
 import { fallbackPosts } from "@/data/fallback-content";
+import { SERVICE_DETAILS } from "@/data/service-details";
 import { SERVICES } from "@/data/services";
 
 // Same syntax accepted by renderInline (BlogPostPage.jsx), the prerender
@@ -53,6 +54,16 @@ describe("article inline links", () => {
     for (const { href, slug } of allLinks) {
       if (href.startsWith("/")) continue;
       expect(href.startsWith("https://"), `non-https link ${href} in article ${slug}`).toBe(true);
+    }
+  });
+
+  it("every service relatedReading slug resolves to a real article", () => {
+    for (const [serviceSlug, details] of Object.entries(
+      SERVICE_DETAILS as Record<string, { relatedReading?: string[] }>,
+    )) {
+      for (const slug of details.relatedReading ?? []) {
+        expect(articleSlugs.has(slug), `dead relatedReading slug ${slug} on service ${serviceSlug}`).toBe(true);
+      }
     }
   });
 

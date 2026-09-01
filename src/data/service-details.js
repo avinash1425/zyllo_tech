@@ -14,6 +14,9 @@ export const SERVICE_DETAILS = {
     seoTitle: "Custom Software Development Company India | Zyllo Tech",
     seoDescription:
       "Custom software development from Hyderabad, India — discovery, roadmap, and delivery for enterprise apps and business platforms. Fixed-scope or dedicated teams.",
+    // Blog/guide slugs (see src/data/articles.ts) shown as "Further reading"
+    // on the service page and in its prerendered HTML.
+    relatedReading: ["software-rfp-guide", "proptech-crm-project-management", "telecom-customer-portal-billing-automation"],
     process: [
       { title: "Discovery workshop", text: "We start with a structured workshop covering your users, workflows, constraints, and what success looks like — before anyone talks about features." },
       { title: "Scope & roadmap", text: "You get a written scope for a right-sized first version, a phased roadmap beyond it, and honest guidance on what to postpone." },
@@ -41,6 +44,7 @@ export const SERVICE_DETAILS = {
     seoTitle: "Web Application Development Services India | Zyllo Tech",
     seoDescription:
       "Web development company in Hyderabad building fast, secure React and Node.js web applications, business websites, and e-commerce — performance and SEO built in.",
+    relatedReading: ["headless-commerce-architecture-retail", "headless-cms-migration-media-publishing", "api-design-principles"],
     process: [
       { title: "Requirements & wireframes", text: "We map the pages, user flows, and content model first, so the build starts from an agreed blueprint instead of guesswork." },
       { title: "Design system & build", text: "Components are built against a shared design system, so every page stays consistent and future pages get faster to add." },
@@ -68,6 +72,7 @@ export const SERVICE_DETAILS = {
     seoTitle: "Mobile App Development Company India | iOS & Android | Zyllo Tech",
     seoDescription:
       "Mobile app development in India — native iOS/Android and cross-platform React Native or Flutter apps, from wireframe to App Store and Play Store launch.",
+    relatedReading: ["lms-scaling-edtech-implementation", "fleet-tracking-iot-cloud-implementation", "iot-farm-monitoring-agritech-implementation"],
     process: [
       { title: "Platform strategy", text: "Native or cross-platform is a cost and UX decision, not an ideology. We recommend based on your audience, budget, and the features you actually need." },
       { title: "Design & prototype", text: "Clickable prototypes come before code, so navigation and flows get tested on a phone in your hand — where problems are cheap to fix." },
@@ -95,6 +100,7 @@ export const SERVICE_DETAILS = {
     seoTitle: "UI/UX Design Services India | Product & App Design | Zyllo Tech",
     seoDescription:
       "UI/UX design services from Hyderabad — research, wireframes, prototypes, and design systems for web and mobile products, validated with real usability testing.",
+    relatedReading: ["design-systems-that-scale", "micro-interactions-ux", "hotel-booking-engine-travel-implementation"],
     process: [
       { title: "Research & user flows", text: "We interview stakeholders, map who the users are and what they came to do, and turn that into concrete user flows before drawing screens." },
       { title: "Wireframes first", text: "Low-fidelity wireframes settle structure and navigation cheaply. Layout debates happen here, where a change costs minutes instead of sprints." },
@@ -122,6 +128,7 @@ export const SERVICE_DETAILS = {
     seoTitle: "Cloud & DevOps Services India | AWS, CI/CD, Migration | Zyllo Tech",
     seoDescription:
       "Cloud solutions from Hyderabad — AWS and GCP architecture, cloud migration, Kubernetes, CI/CD pipelines, and cost optimization with 24/7 monitoring.",
+    relatedReading: ["migrating-to-microservices-playbook", "kubernetes-cost-optimization", "fleet-tracking-iot-cloud-implementation"],
     process: [
       { title: "Infrastructure review", text: "We map what you run today — servers, costs, deployment steps, failure points — and identify what should change first and what shouldn't change at all." },
       { title: "Architecture & migration plan", text: "You get a target architecture and a stepwise migration plan designed so the business keeps running throughout — no big-bang cutovers." },
@@ -149,6 +156,7 @@ export const SERVICE_DETAILS = {
     seoTitle: "AI Development Company India | LLM Apps & Automation | Zyllo Tech",
     seoDescription:
       "AI solutions from Hyderabad, India — LLM-powered copilots, RAG systems, chatbots, and workflow automation built on OpenAI, Claude, and open models.",
+    relatedReading: ["ai-reshaping-enterprise-software-2025", "langchain-vs-llamaindex-rag", "predictive-maintenance-manufacturing-implementation"],
     process: [
       { title: "Use-case qualification", text: "We start by finding where AI genuinely saves time in your workflows — and we'll say so plainly if a use case doesn't justify the cost." },
       { title: "Data readiness check", text: "AI features are only as good as the data behind them. We assess what you have, what needs cleaning, and what governance the use case needs." },
@@ -176,6 +184,7 @@ export const SERVICE_DETAILS = {
     seoTitle: "Application Maintenance & Support Services India | Zyllo Tech",
     seoDescription:
       "Software maintenance and support from India — monitoring, security patching, bug fixes, and performance tuning under clear SLAs, for apps we built or inherited.",
+    relatedReading: ["kubernetes-cost-optimization", "predictive-maintenance-manufacturing-implementation"],
     process: [
       { title: "Onboarding & audit", text: "We review the codebase, infrastructure, and known issues, and document the system's current health so the baseline is explicit." },
       { title: "Stabilise", text: "Monitoring, alerting, and backups are verified or added first — you can't support what you can't see." },
@@ -203,6 +212,7 @@ export const SERVICE_DETAILS = {
     seoTitle: "Application Security Services India | OWASP, Audits | Zyllo Tech",
     seoDescription:
       "Cybersecurity engineering from India — secure development, OWASP-aligned code review, security assessments, and data protection for web and mobile applications.",
+    relatedReading: ["digital-banking-platform-implementation-guide", "fhir-patient-portal-implementation", "game-backend-architecture-scaling"],
     process: [
       { title: "Threat model first", text: "We map what you're protecting, from whom, and what an attacker would actually target — so effort goes where the risk is, not where the checklist says." },
       { title: "Assess", text: "Code review, dependency audit, configuration review, and authentication/authorization testing against OWASP guidance, with findings ranked by real-world severity." },
@@ -230,6 +240,7 @@ export const SERVICE_DETAILS = {
     seoTitle: "QA & Test Automation Services India | Zyllo Tech",
     seoDescription:
       "Quality engineering from India — automated test suites, regression testing, and performance testing for web and mobile apps, wired into your CI/CD pipeline.",
+    relatedReading: ["api-design-principles", "scalable-react-typescript", "ai-reshaping-enterprise-software-2025"],
     process: [
       { title: "Risk-map the product", text: "We identify the flows where a bug costs real money or trust — payments, sign-up, data integrity — and weight testing effort accordingly." },
       { title: "Automate the critical paths", text: "The high-risk flows get automated first, so every future release is checked against what matters most within minutes, not days." },

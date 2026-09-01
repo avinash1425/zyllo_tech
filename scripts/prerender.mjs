@@ -193,6 +193,16 @@ async function main() {
         .map((f) => `<h3>${esc(f.q)}</h3><p>${esc(f.a)}</p>`)
         .join("")}</section>`;
     }
+    if (det.relatedReading?.length) {
+      const related = det.relatedReading
+        .map((slug) => fallbackPosts.find((p) => p.slug === slug))
+        .filter(Boolean);
+      if (related.length) {
+        body += `<section><h2>Further Reading</h2><ul>${related
+          .map((p) => `<li><a href="/blog/${esc(p.slug)}">${esc(p.title)}</a></li>`)
+          .join("")}</ul></section>`;
+      }
+    }
     body += `<footer><p><a href="/services">All services</a> · <a href="/contact">Contact Zyllo Tech</a></p></footer>`;
     writeRoute(routePath, renderPage({ title, description, canonicalPath: routePath, schemas, body }));
     written++;

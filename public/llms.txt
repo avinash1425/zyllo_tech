@@ -22,3 +22,18 @@
 
 ## Resources
 - [Blog](https://zyllotech.com/blog)
+- [Resources Hub](https://zyllotech.com/resources)
+
+## Industry Implementation Guides
+- [Digital Banking Platform Guide](https://zyllotech.com/blog/digital-banking-platform-implementation-guide): compliant banking architecture, KYC automation, payment rails, security hardening
+- [Headless Commerce for Retail](https://zyllotech.com/blog/headless-commerce-architecture-retail): composable commerce, inventory sync, flash-sale engineering
+- [FHIR Patient Portal Blueprint](https://zyllotech.com/blog/fhir-patient-portal-implementation): HIPAA controls, EHR integration, telehealth infrastructure
+- [Scaling an LMS to 10,000+ Learners](https://zyllotech.com/blog/lms-scaling-edtech-implementation): video infrastructure, adaptive assessment, live classrooms
+- [Real-Time Fleet Tracking with IoT](https://zyllotech.com/blog/fleet-tracking-iot-cloud-implementation): GPS telemetry ingestion, route optimisation, driver apps
+- [Predictive Maintenance for Manufacturing](https://zyllotech.com/blog/predictive-maintenance-manufacturing-implementation): sensor networks, anomaly-detection ML, MES/ERP integration
+- [Low-Latency Game Backends](https://zyllotech.com/blog/game-backend-architecture-scaling): matchmaking, state sync, in-game economy, anti-cheat
+- [PropTech Platform Implementation](https://zyllotech.com/blog/proptech-crm-project-management): property CRM, construction tracking, document management
+- [Hotel Booking Engine Architecture](https://zyllotech.com/blog/hotel-booking-engine-travel-implementation): rate management, channel managers, loyalty systems
+- [Telecom Customer Portal & Billing](https://zyllotech.com/blog/telecom-customer-portal-billing-automation): BSS/OSS integration, billing automation, support automation
+- [Headless CMS Migration for Publishers](https://zyllotech.com/blog/headless-cms-migration-media-publishing): content modelling, paywalls, multi-channel delivery
+- [IoT Farm Monitoring & Traceability](https://zyllotech.com/blog/iot-farm-monitoring-agritech-implementation): sensor networks, precision agriculture, supply-chain traceability

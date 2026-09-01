@@ -1,5 +1,7 @@
 import { useParams } from "react-router-dom";
 import { Check } from "lucide-react";
+import { CompatLink as Link } from "@/components/NextCompat";
+import { getArticleBySlug } from "@/data/articles";
 import SEOHead, { breadcrumbSchema, serviceSchema, SITE_URL } from "@/components/SEOHead";
 import PageHero from "@/components/PageHero";
 import OtherServices from "@/sections/OtherServices";
@@ -163,6 +165,34 @@ export default function ServiceDetailPage() {
               </div>
             </div>
           </section>
+
+          {/* Further reading — resolves slugs from service-details against the
+              article data so a renamed/removed post drops out instead of 404ing
+              (also guarded by src/test/article-links.test.ts). */}
+          {details.relatedReading?.length > 0 && (
+            <section className="bg-white py-10 lg:py-14">
+              <div className="mx-auto max-w-3xl px-6 lg:px-8">
+                <h2 className="text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
+                  Further Reading
+                </h2>
+                <ul className="mt-6 flex flex-col gap-3">
+                  {details.relatedReading
+                    .map((slug) => getArticleBySlug(slug))
+                    .filter(Boolean)
+                    .map((article) => (
+                      <li key={article.slug}>
+                        <Link
+                          href={`/blog/${article.slug}`}
+                          className="text-base font-medium text-[#1d2735] underline decoration-[#e7e9ee] underline-offset-4 transition-colors hover:text-[#f96706] hover:decoration-[#f96706]"
+                        >
+                          {article.title}
+                        </Link>
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            </section>
+          )}
         </>
       )}
 
