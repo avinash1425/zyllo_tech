@@ -65,6 +65,8 @@ export const SERVICE_DETAILS = {
       { q: "Do you work with our existing design or brand?", a: "Either way — we can build precisely to designs you supply, or our UI/UX team can design first. Brand guidelines, fonts, and existing component styles are followed where they exist." },
       { q: "Can you migrate our current website without losing SEO?", a: "Yes. Migrations include a URL inventory, redirect map, and structured-data parity check so existing rankings carry over instead of resetting." },
       { q: "What happens after launch?", a: "You can hand operation to your own team — everything is documented — or keep us on a maintenance plan for updates, monitoring, and continued improvements." },
+      { q: "How much does a web application cost?", a: "It depends on scope, so we price from a written scope rather than a rate card: fixed-scope quotes for well-defined builds, or a dedicated monthly team for evolving products. The main cost drivers are the number of distinct screens and workflows, integrations with other systems, and admin/reporting needs — after a discovery call you get an itemised estimate by phase, not a single opaque number." },
+      { q: "How long does a web project take?", a: "A content or marketing website typically ships in 3–6 weeks. A web application's first production version usually lands in the 8–16 week range depending on complexity — the discovery phase exists partly to give you a realistic timeline before you commit budget. You see working software in weekly demos throughout, not a single reveal at the end." },
     ],
   },
 
@@ -233,6 +235,8 @@ export const SERVICE_DETAILS = {
       { q: "We had a security scare. Where do we start?", a: "With a rapid assessment: verify what happened, close the immediate hole, then a structured review to find related weaknesses. Panic-driven rewrites usually create more risk than they remove." },
       { q: "Can you help with compliance requirements?", a: "We implement the technical controls — access control, encryption, logging, data retention — that frameworks like ISO 27001 or SOC 2 require, and prepare the technical evidence for your auditors. Certification itself is issued by accredited auditors, not by us." },
       { q: "Is security a one-time project?", a: "The assessment is a project; staying secure is a practice. The lasting value is wiring scanning and secure defaults into your development workflow so new code ships safe without heroics." },
+      { q: "How much does a security assessment cost?", a: "Cost scales with the size of the attack surface: number of applications, APIs and user roles in scope, and whether code review is included alongside configuration and access audits. We scope it in a short call and quote a fixed price for the assessment — ongoing secure-development support is priced monthly. You always know the full cost before work starts." },
+      { q: "How long does a security assessment take?", a: "A focused assessment of a single web or mobile application typically runs 2–4 weeks: scoping, testing and review, then a findings report ranked by severity with concrete remediation steps. Fixing the findings is a separate, scoped effort — we can do it, or hand your team an actionable list." },
     ],
   },
 

@@ -47,7 +47,7 @@ export const articles: Article[] = [
     color: "bg-blue-500",
     tags: ["AI", "Enterprise", "Automation"],
     metaDescription:
-      "How artificial intelligence is transforming enterprise software in 2026 — agentic AI in production, LLM-powered copilots, intelligent automation, and AI governance.",
+      "How artificial intelligence is transforming enterprise software in 2026 — agentic AI in production, LLM-powered copilots, intelligent automation.",
     content: [
       { type: "p", text: "The enterprise software landscape in 2026 looks fundamentally different from just three years ago. Artificial intelligence has moved from an experimental feature to a core infrastructure requirement — and engineering teams that haven't adapted are already falling behind. This article was originally published in early 2025 and updated in September 2026 to reflect how quickly the ground has shifted." },
       { type: "h2", text: "The Shift from Rule-Based to Model-Driven Systems" },
@@ -78,13 +78,14 @@ export const articles: Article[] = [
     author: "Priya Reddy",
     role: "Cloud Architect",
     date: "Feb 12, 2025",
+    updated: "Aug 31, 2026",
     readTime: "10 min read",
     featured: false,
     initials: "PR",
     color: "bg-teal-600",
     tags: ["Cloud", "DevOps", "Architecture"],
     metaDescription:
-      "A practical step-by-step playbook for migrating monolithic applications to microservices architecture — covering strangler fig pattern, data decomposition, and deployment strategies.",
+      "A practical step-by-step playbook for migrating monolithic applications to microservices architecture — covering strangler fig pattern, data decomposition.",
     content: [
       { type: "p", text: "[Microservices migration](/services/cloud-solutions) is one of the most requested — and most mishandled — engineering initiatives we see. Teams underestimate the organizational complexity, overestimate the immediate performance benefits, and often end up with a distributed monolith that's worse than what they started with. This guide shares what actually works." },
       { type: "h2", text: "Step 1: Don't Start with Decomposition" },
@@ -108,13 +109,14 @@ export const articles: Article[] = [
     author: "Kiran Babu",
     role: "Senior Developer",
     date: "Feb 5, 2025",
+    updated: "Aug 31, 2026",
     readTime: "7 min read",
     featured: false,
     initials: "KB",
     color: "bg-orange-500",
     tags: ["React", "TypeScript", "Frontend"],
     metaDescription:
-      "Learn best practices for building scalable React + TypeScript applications — covering folder structure, state management, performance optimization, and team conventions.",
+      "Learn best practices for building scalable React + TypeScript applications — covering folder structure, state management, performance optimization.",
     content: [
       { type: "p", text: "Most [React TypeScript projects](/services/web-development) start clean and degrade fast. After working on 40+ production React applications, we've identified the patterns that separate codebases that age well from those that become unmaintainable within 18 months." },
       { type: "h2", text: "Folder Structure That Scales" },
@@ -136,13 +138,14 @@ export const articles: Article[] = [
     author: "Arun Sharma",
     role: "AI Lead",
     date: "Jan 28, 2025",
+    updated: "Aug 31, 2026",
     readTime: "9 min read",
     featured: false,
     initials: "AS",
     color: "bg-blue-500",
     tags: ["LLM", "RAG", "Python"],
     metaDescription:
-      "Comprehensive comparison of LangChain vs LlamaIndex for building RAG applications — covering architecture, retrieval strategies, production readiness, and when to use each.",
+      "Comprehensive comparison of LangChain vs LlamaIndex for building RAG applications — covering architecture, retrieval strategies, production readiness.",
     content: [
       { type: "p", text: "Both [LangChain](https://www.langchain.com) and [LlamaIndex](https://www.llamaindex.ai) have matured significantly in 2024–2025. The question is no longer 'which is more capable' but 'which fits your use case, team, and production requirements better'. Here's what we've learned after building 15+ RAG systems in production." },
       { type: "h2", text: "LangChain: Best for Agentic Workflows" },
@@ -164,13 +167,14 @@ export const articles: Article[] = [
     author: "Meera Joshi",
     role: "Head of Design",
     date: "Jan 20, 2025",
+    updated: "Aug 31, 2026",
     readTime: "6 min read",
     featured: false,
     initials: "MJ",
     color: "bg-purple-600",
     tags: ["Design System", "Figma", "UI/UX"],
     metaDescription:
-      "A practical guide to building scalable design systems for large teams — covering token architecture, component governance, versioning, documentation, and Figma/code synchronization.",
+      "A practical guide to building scalable design systems for large teams — covering token architecture, component governance, versioning, documentation.",
     content: [
       { type: "p", text: "A [design system](/services/ui-ux-design) is a product that serves other products. The biggest mistake teams make is treating it as a one-time deliverable rather than an evolving platform with its own roadmap, governance, and team." },
       { type: "h2", text: "Token Architecture First" },
@@ -190,6 +194,7 @@ export const articles: Article[] = [
     author: "Rahul Nair",
     role: "Business Development",
     date: "Jan 14, 2025",
+    updated: "Aug 31, 2026",
     readTime: "5 min read",
     featured: false,
     initials: "RN",
@@ -216,7 +221,8 @@ export const articles: Article[] = [
     author: "Priya Reddy",
     role: "Cloud Architect",
     date: "Jan 8, 2025",
-    readTime: "8 min read",
+    updated: "Sep 1, 2026",
+    readTime: "9 min read",
     featured: false,
     initials: "PR",
     color: "bg-teal-600",
@@ -224,11 +230,20 @@ export const articles: Article[] = [
     metaDescription:
       "10 proven Kubernetes cost optimization tactics — from right-sizing and spot instances to autoscaling and namespace-level cost allocation.",
     content: [
-      { type: "p", text: "[Kubernetes](https://kubernetes.io) infrastructure costs spiral because teams provision for peak load and never revisit their allocations. After running cost optimization engagements for 20+ clients, here are the 10 tactics with the highest ROI." },
+      { type: "p", text: "[Kubernetes](https://kubernetes.io) infrastructure costs spiral because teams provision for peak load and never revisit their allocations. After running cost optimization engagements for 20+ clients, here are the 10 tactics with the highest ROI — plus how to measure savings, a 30-day plan for working through them, and the mistakes that quietly undo the wins." },
+      { type: "h2", text: "Why Kubernetes Bills Balloon" },
+      { type: "p", text: "Kubernetes makes it easy to request capacity and very quiet about waste. A developer copies a deployment manifest with 2 CPU / 4Gi requests from another service, the scheduler dutifully reserves that capacity on a node, and the pod actually uses 200 millicores. Multiply by a few hundred pods and the cluster runs at 15–25% real utilisation while the cloud bill reflects 100% of the reserved nodes. Three structural facts drive this: requests (not usage) determine node count; nobody owns the gap between the two; and dev/staging environments replicate production sizing without production traffic." },
       { type: "h2", text: "The Big 3 (Tackle These First)" },
-      { type: "ol", items: ["Right-size your requests and limits — 70% of clusters are over-provisioned by 2x. Use [Goldilocks](https://github.com/FairwindsOps/goldilocks) or VPA to get data-driven recommendations.", "Enable cluster autoscaler — match capacity to actual load. Most teams run 30–40% idle nodes 24/7.", "Use Spot/Preemptible instances for stateless workloads — 60–80% cheaper, with proper disruption handling via PodDisruptionBudgets."] },
+      { type: "ol", items: ["Right-size your requests and limits — 70% of clusters we see are over-provisioned by 2x or more. Use [Goldilocks](https://github.com/FairwindsOps/goldilocks) or the Vertical Pod Autoscaler in recommendation mode to compare each workload's requests against its actual P95 usage over a couple of representative weeks, then cut requests to P95 plus sensible headroom. This is pure waste removal: no architecture change, no user-visible risk if you move in steps.", "Enable cluster autoscaling — match node capacity to actual load instead of running for peak 24/7. Most teams we audit keep 30–40% idle nodes around the clock for traffic that arrives two hours a day. Autoscaling only works when step 1 is done: over-stated requests make the autoscaler think the cluster is full when it isn't.", "Move stateless workloads to Spot/Preemptible instances — 60–80% cheaper for interruption-tolerant work (API replicas behind a load balancer, queue consumers, CI runners, batch jobs). Handle the interruptions properly: PodDisruptionBudgets, more than one instance type in the node pool, and graceful shutdown hooks so a reclaimed node drains instead of dropping requests."] },
       { type: "h2", text: "The Next 7" },
-      { type: "ol", items: ["Namespace-level resource quotas to prevent runaway costs from dev/staging.", "Delete idle namespaces — dev environments that nobody accesses for 7+ days.", "Use [Karpenter](https://karpenter.sh) instead of Cluster Autoscaler for faster, cheaper node provisioning.", "Multi-architecture nodes (ARM) — Graviton instances are 20% cheaper with comparable performance.", "Image size optimization — smaller images = faster pulls = lower egress costs.", "Reserved instances for baseline load (1-year savings: 30–40%).", "Cost allocation tagging — you can't optimize what you can't attribute."] },
+      { type: "ol", items: ["Namespace-level resource quotas — cap dev/staging so an experiment can't quietly triple the cluster. Quotas turn cost conversations from archaeology into a pull request.", "Delete idle environments — preview and dev namespaces nobody has touched for 7+ days. A TTL controller or a scheduled job that flags (then removes) stale namespaces routinely claws back 10–15% of the bill.", "Use [Karpenter](https://karpenter.sh) instead of the classic Cluster Autoscaler on AWS — it provisions right-sized nodes directly from pending pods in seconds, picks cheaper instance types automatically, and consolidates underused nodes without manual node-group tuning.", "Adopt ARM nodes (Graviton and equivalents) — typically ~20% cheaper for comparable performance. Most mainstream runtimes and base images ship multi-arch today; start with stateless services whose images already publish arm64 variants.", "Optimise image size — multi-stage builds and slim base images cut pull times (faster scale-up, which lets autoscaling run tighter), registry storage, and cross-zone egress. Going from a 1.2GB image to 150MB is common and free.", "Buy reserved capacity or savings plans for the baseline — after right-sizing, a steady floor of usage remains; committing to it for 1 year typically saves 30–40% versus on-demand. Do this last, not first: committing to today's inflated baseline locks the waste in.", "Cost allocation tagging and showback — label workloads by team/product and put a weekly cost report in front of the owners. You can't optimise what you can't attribute, and in practice visibility alone changes engineer behaviour within a sprint or two."] },
+      { type: "h2", text: "Measure Before and After" },
+      { type: "p", text: "Pick your metrics before touching anything, or you won't be able to prove the savings. The two that matter: cost per namespace/team (from [OpenCost](https://opencost.io) or Kubecost, both of which map cloud billing onto Kubernetes objects) and cluster utilisation — actual CPU/memory usage divided by allocatable capacity. A healthy production cluster after optimisation typically runs 50–65% utilisation; below 30% means you're paying for air. Snapshot both for two weeks before the first change." },
+      { type: "h2", text: "A Realistic 30-Day Plan" },
+      { type: "ol", items: ["Week 1 — visibility: deploy OpenCost/Kubecost, label workloads by owner, snapshot utilisation and per-team cost. No changes yet.", "Week 2 — right-size the top 20 workloads by reserved capacity, using two weeks of usage data. This alone usually cuts 20–30%.", "Week 3 — turn on autoscaling (or migrate to Karpenter), add PodDisruptionBudgets, and move the first batch of stateless workloads to Spot.", "Week 4 — quotas on non-production, idle-environment cleanup, and only now price reserved capacity for the remaining steady baseline."] },
+      { type: "h2", text: "Mistakes That Undo the Savings" },
+      { type: "ul", items: ["Buying reserved instances before right-sizing — the single most common way to lock waste in for a year.", "Setting CPU limits far below requests 'for safety' — causes throttling incidents that get answered by re-inflating requests everywhere.", "Running Spot without disruption handling — one bad reclaim event and the team swears off Spot forever, forfeiting the biggest single discount available.", "Treating optimisation as a one-off project — costs drift back within a quarter without quotas, showback, and someone owning the utilisation number."] },
+      { type: "callout", text: "The pattern behind every tactic here: make reserved capacity track real usage, and make someone accountable for the gap. Tools help, but ownership plus visibility is what keeps the bill down after the engagement ends." },
     ],
   },
   {
@@ -240,13 +255,14 @@ export const articles: Article[] = [
     author: "Kiran Babu",
     role: "Senior Developer",
     date: "Dec 30, 2024",
+    updated: "Aug 31, 2026",
     readTime: "7 min read",
     featured: false,
     initials: "KB",
     color: "bg-orange-500",
     tags: ["API", "Backend", "Developer Experience"],
     metaDescription:
-      "API design principles for exceptional developer experience — covering REST conventions, error handling, versioning, pagination, and documentation that developers love.",
+      "API design principles for exceptional developer experience — covering REST conventions, error handling, versioning, pagination.",
     content: [
       { type: "p", text: "A great API is one that developers don't have to read docs for — it's discoverable, predictable, and forgiving. [Building APIs](/services/web-development) that developers enjoy is a craft, and it separates platforms that get adopted from those that don't." },
       { type: "h2", text: "Naming & Resource Design" },
@@ -266,13 +282,14 @@ export const articles: Article[] = [
     author: "Meera Joshi",
     role: "Head of Design",
     date: "Dec 22, 2024",
+    updated: "Aug 31, 2026",
     readTime: "5 min read",
     featured: false,
     initials: "MJ",
     color: "bg-purple-600",
     tags: ["UX", "Animation", "Framer Motion"],
     metaDescription:
-      "How to design and implement micro-interactions that delight users — covering trigger/feedback/loop patterns, Framer Motion implementation, and performance considerations.",
+      "How to design and implement micro-interactions that delight users — covering trigger/feedback/loop patterns, Framer Motion implementation.",
     content: [
       { type: "p", text: "[Micro-interactions](/services/ui-ux-design) are the small moments of feedback that make users feel the product is alive and responsive. A button that resists then bounces on press, a success checkmark that draws itself, a form field that gently shakes when validation fails — these moments are remembered even when users can't articulate why they liked the experience." },
       { type: "h2", text: "The 4-Part Framework: Trigger → Rules → Feedback → Loops" },
@@ -288,19 +305,20 @@ export const articles: Article[] = [
   {
     slug: "digital-banking-platform-implementation-guide",
     category: "Industry Solutions",
-    title: "Building a Compliant Digital Banking Platform: The Complete Technical Guide",
+    title: "Building a Compliant Digital Banking Platform: A Technical Guide",
     excerpt:
       "From KYC automation to real-time payment processing — a comprehensive engineering blueprint for financial institutions launching or modernising digital banking products.",
     author: "Arun Sharma",
     role: "AI Lead",
     date: "Mar 1, 2025",
+    updated: "Aug 31, 2026",
     readTime: "14 min read",
     featured: false,
     initials: "AS",
     color: "bg-blue-500",
     tags: ["Banking", "FinTech", "KYC", "Payments", "Security"],
     metaDescription:
-      "A complete technical guide to building a compliant digital banking platform — covering KYC automation, payment integration, security hardening, and OWASP compliance.",
+      "A complete technical guide to building a compliant digital banking platform — covering KYC automation, payment integration, security hardening.",
     content: [
       {
         type: "p",
@@ -409,7 +427,7 @@ export const articles: Article[] = [
         type: "ul",
         items: [
           "Queue-based payment processing with Redis Streams for real-time status tracking and WebSocket push to the frontend.",
-          "[ISO 20022](https://www.iso20022.org) message format compliance for SWIFT gpi, SEPA, and modern domestic payment rails.",
+          "[ISO 20022](https://en.wikipedia.org/wiki/ISO_20022) message format compliance for SWIFT gpi, SEPA, and modern domestic payment rails.",
           "Dynamic routing between payment processors based on cost, availability, and success rate — typically reduces payment failure rates by 8–12%.",
           "Real-time fraud detection combining rule engines with ML anomaly detection — reducing false positives by 40–60% vs rule-only systems.",
           "UPI, NEFT, RTGS, IMPS integration for India; ACH, SWIFT, RTP for US/global.",
@@ -467,19 +485,20 @@ export const articles: Article[] = [
   {
     slug: "headless-commerce-architecture-retail",
     category: "Industry Solutions",
-    title: "Headless Commerce Architecture for High-Volume Retail: From Blueprint to Production",
+    title: "Headless Commerce for High-Volume Retail: An Implementation Guide",
     excerpt:
       "How to architect and implement a headless commerce platform that scales to millions of SKUs, handles flash sales, and integrates with modern retail tech stacks.",
     author: "Kiran Babu",
     role: "Senior Developer",
     date: "Mar 2, 2025",
+    updated: "Aug 31, 2026",
     readTime: "12 min read",
     featured: false,
     initials: "KB",
     color: "bg-orange-500",
     tags: ["E-Commerce", "Headless", "Retail", "Performance", "Commerce APIs"],
     metaDescription:
-      "Complete guide to headless commerce architecture for high-volume retail — covering composable commerce, inventory sync, CDN strategy, and flash sale engineering.",
+      "Complete guide to headless commerce architecture for high-volume retail — covering composable commerce, inventory sync, CDN strategy.",
     content: [
       {
         type: "p",
@@ -616,13 +635,14 @@ export const articles: Article[] = [
     author: "Priya Reddy",
     role: "Cloud Architect",
     date: "Mar 3, 2025",
+    updated: "Aug 31, 2026",
     readTime: "13 min read",
     featured: false,
     initials: "PR",
     color: "bg-teal-600",
     tags: ["Healthcare", "FHIR", "HIPAA", "EHR", "Telehealth"],
     metaDescription:
-      "Technical blueprint for building FHIR-compliant patient portals — covering HIPAA security controls, EHR integration, telehealth infrastructure, and clinical data workflows.",
+      "Technical blueprint for building FHIR-compliant patient portals — covering HIPAA security controls, EHR integration, telehealth infrastructure.",
     content: [
       {
         type: "p",
@@ -746,13 +766,14 @@ export const articles: Article[] = [
     author: "Kiran Babu",
     role: "Senior Developer",
     date: "Mar 4, 2025",
+    updated: "Aug 31, 2026",
     readTime: "11 min read",
     featured: false,
     initials: "KB",
     color: "bg-orange-500",
     tags: ["EdTech", "LMS", "Video Streaming", "Learning Analytics", "Mobile"],
     metaDescription:
-      "Engineering playbook for scaling an LMS to 10,000+ concurrent learners — covering video infrastructure, adaptive learning, live classes, and mobile app architecture.",
+      "Engineering playbook for scaling an LMS to 10,000+ concurrent learners — covering video infrastructure, adaptive learning, live classes.",
     content: [
       {
         type: "p",
@@ -831,7 +852,7 @@ export const articles: Article[] = [
       {
         type: "ul",
         items: [
-          "[xAPI](https://adlnet.gov/projects/xapi/) event stream for every learner interaction — video play, pause, quiz attempt, forum post, assignment submission.",
+          "[xAPI](https://xapi.com) event stream for every learner interaction — video play, pause, quiz attempt, forum post, assignment submission.",
           "Learning Record Store (LRS) — Watershed or a custom PostgreSQL + Redshift pipeline for analytics.",
           "Engagement alerts: learners who haven't logged in for 7 days get an automated personalised nudge (email + push).",
           "Progress dashboards for learners, instructors, and enterprise admins — each with different metrics.",
@@ -871,13 +892,14 @@ export const articles: Article[] = [
     author: "Priya Reddy",
     role: "Cloud Architect",
     date: "Mar 5, 2025",
+    updated: "Aug 31, 2026",
     readTime: "11 min read",
     featured: false,
     initials: "PR",
     color: "bg-teal-600",
     tags: ["Logistics", "IoT", "Fleet Management", "GPS", "Real-Time"],
     metaDescription:
-      "Complete IoT and cloud architecture guide for building real-time fleet tracking systems — covering GPS integration, route optimization, driver apps, and logistics dashboards.",
+      "Complete IoT and cloud architecture guide for building real-time fleet tracking systems — covering GPS integration, route optimization, driver apps.",
     content: [
       {
         type: "p",
@@ -974,19 +996,20 @@ export const articles: Article[] = [
   {
     slug: "predictive-maintenance-manufacturing-implementation",
     category: "Industry Solutions",
-    title: "Predictive Maintenance Systems for Manufacturing: A Practical Implementation Guide",
+    title: "Predictive Maintenance for Manufacturing: An Implementation Guide",
     excerpt:
       "How to build IoT-connected predictive maintenance platforms that reduce unplanned downtime, optimise maintenance schedules, and integrate with existing MES and ERP systems.",
     author: "Arun Sharma",
     role: "AI Lead",
     date: "Mar 6, 2025",
+    updated: "Aug 31, 2026",
     readTime: "12 min read",
     featured: false,
     initials: "AS",
     color: "bg-blue-500",
     tags: ["Manufacturing", "IoT", "Predictive Maintenance", "ML", "MES"],
     metaDescription:
-      "Implementation guide for manufacturing predictive maintenance platforms — covering IoT sensor integration, anomaly detection ML models, MES integration, and maintenance workflow automation.",
+      "Implementation guide for manufacturing predictive maintenance platforms — covering IoT sensor integration, anomaly detection ML models, MES integration.",
     content: [
       {
         type: "p",
@@ -1110,13 +1133,14 @@ export const articles: Article[] = [
     author: "Kiran Babu",
     role: "Senior Developer",
     date: "Mar 7, 2025",
+    updated: "Aug 31, 2026",
     readTime: "12 min read",
     featured: false,
     initials: "KB",
     color: "bg-orange-500",
     tags: ["Gaming", "Real-Time", "WebSocket", "Matchmaking", "Low-Latency"],
     metaDescription:
-      "Engineering guide for building scalable game backends — covering low-latency networking, matchmaking algorithms, real-time game state sync, in-game economy, and anti-cheat systems.",
+      "Engineering guide for building scalable game backends — covering low-latency networking, matchmaking algorithms, real-time game state sync, in-game economy.",
     content: [
       {
         type: "p",
@@ -1214,19 +1238,20 @@ export const articles: Article[] = [
   {
     slug: "proptech-crm-project-management",
     category: "Industry Solutions",
-    title: "PropTech Platform Implementation: CRM, Project Tracking & Document Management",
+    title: "PropTech Platforms: CRM, Project Tracking & Document Management",
     excerpt:
       "A practical guide to building property CRM, construction project management, and document management systems that serve real estate developers, agents, and buyers.",
     author: "Rahul Nair",
     role: "Business Development",
     date: "Mar 8, 2025",
+    updated: "Aug 31, 2026",
     readTime: "10 min read",
     featured: false,
     initials: "RN",
     color: "bg-emerald-600",
     tags: ["Real Estate", "PropTech", "CRM", "Construction", "Document Management"],
     metaDescription:
-      "Complete guide to building PropTech platforms for real estate — covering property CRM, construction project tracking, document management, and buyer portal implementation.",
+      "Complete guide to building PropTech platforms for real estate — covering property CRM, construction project tracking, document management.",
     content: [
       {
         type: "p",
@@ -1317,13 +1342,14 @@ export const articles: Article[] = [
     author: "Meera Joshi",
     role: "Head of Design",
     date: "Mar 9, 2025",
+    updated: "Aug 31, 2026",
     readTime: "11 min read",
     featured: false,
     initials: "MJ",
     color: "bg-purple-600",
     tags: ["Travel", "Hospitality", "Booking Engine", "Channel Manager", "Loyalty"],
     metaDescription:
-      "Technical guide for building hotel booking engines — covering rate management, channel manager integration, real-time availability, loyalty systems, and conversion optimization.",
+      "Technical guide for building hotel booking engines — covering rate management, channel manager integration, real-time availability, loyalty systems.",
     content: [
       {
         type: "p",
@@ -1427,13 +1453,14 @@ export const articles: Article[] = [
     author: "Priya Reddy",
     role: "Cloud Architect",
     date: "Mar 10, 2025",
+    updated: "Aug 31, 2026",
     readTime: "10 min read",
     featured: false,
     initials: "PR",
     color: "bg-teal-600",
     tags: ["Telecom", "Billing", "Customer Portal", "Self-Service", "BSS"],
     metaDescription:
-      "Technical implementation guide for telecom customer portals and billing automation — covering BSS/OSS integration, self-service features, invoice management, and support automation.",
+      "Technical implementation guide for telecom customer portals and billing automation — covering BSS/OSS integration, self-service features, invoice management.",
     content: [
       {
         type: "p",
@@ -1534,13 +1561,14 @@ export const articles: Article[] = [
     author: "Meera Joshi",
     role: "Head of Design",
     date: "Mar 11, 2025",
+    updated: "Aug 31, 2026",
     readTime: "11 min read",
     featured: false,
     initials: "MJ",
     color: "bg-purple-600",
     tags: ["Media", "Publishing", "Headless CMS", "Content Delivery", "Subscription"],
     metaDescription:
-      "Technical roadmap for migrating media publishers to headless CMS — covering content modelling, CDN strategy, paywall implementation, personalisation, and multi-channel delivery.",
+      "Technical roadmap for migrating media publishers to headless CMS — covering content modelling, CDN strategy, paywall implementation, personalisation.",
     content: [
       {
         type: "p",
@@ -1652,13 +1680,14 @@ export const articles: Article[] = [
     author: "Arun Sharma",
     role: "AI Lead",
     date: "Mar 12, 2025",
+    updated: "Aug 31, 2026",
     readTime: "11 min read",
     featured: false,
     initials: "AS",
     color: "bg-blue-500",
     tags: ["Agriculture", "IoT", "Supply Chain", "Traceability", "Sustainability"],
     metaDescription:
-      "Technical guide for building AgriTech platforms — covering IoT farm monitoring, precision agriculture, supply chain traceability, sustainability reporting, and mobile field apps.",
+      "Technical guide for building AgriTech platforms — covering IoT farm monitoring, precision agriculture, supply chain traceability, sustainability reporting.",
     content: [
       {
         type: "p",

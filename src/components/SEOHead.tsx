@@ -75,17 +75,21 @@ export const organizationSchema = {
     "Data Engineering",
     "Quality Assurance",
   ],
+  // Mirrors the 9 live service pages one-to-one, each Offer carrying the URL
+  // of its Service page so the catalog resolves to real entities.
   hasOfferCatalog: {
     "@type": "OfferCatalog",
     name: "Software Engineering Services",
     itemListElement: [
-      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Web & Mobile App Development", description: "Business websites, customer portals, iOS and Android applications built for performance and scale." } },
-      { "@type": "Offer", itemOffered: { "@type": "Service", name: "AI & Data Engineering", description: "Data pipelines, ML models, RAG-based AI systems, and business intelligence platforms." } },
-      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Cloud Solutions & DevOps", description: "Cloud architecture, migration, IaC pipelines, monitoring, and cost optimization." } },
-      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Cybersecurity Engineering", description: "OWASP-aligned secure delivery, threat modeling, vulnerability management, and compliance controls." } },
-      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Quality Engineering & Test Automation", description: "Automated test suites, shift-left testing, performance validation across web, mobile, and APIs." } },
-      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Dedicated Development Teams", description: "Embedded engineering teams as an extended delivery arm for long-term product development." } },
-      { "@type": "Offer", itemOffered: { "@type": "Service", name: "App Support & Maintenance", description: "Post-launch support, SLAs, bug fixing, performance optimization, and product evolution." } },
+      { "@type": "Offer", url: `${SITE_URL}/services/product-strategy-consulting`, itemOffered: { "@type": "Service", name: "Custom Software Development", url: `${SITE_URL}/services/product-strategy-consulting`, description: "Discovery, roadmap, and end-to-end delivery of enterprise applications and business platforms." } },
+      { "@type": "Offer", url: `${SITE_URL}/services/web-development`, itemOffered: { "@type": "Service", name: "Web Development", url: `${SITE_URL}/services/web-development`, description: "Fast, secure React and Node.js web applications, business websites, and e-commerce." } },
+      { "@type": "Offer", url: `${SITE_URL}/services/mobile-app-development`, itemOffered: { "@type": "Service", name: "Mobile App Development", url: `${SITE_URL}/services/mobile-app-development`, description: "Native iOS/Android and cross-platform React Native or Flutter apps, wireframe to store launch." } },
+      { "@type": "Offer", url: `${SITE_URL}/services/ui-ux-design`, itemOffered: { "@type": "Service", name: "UI/UX Design", url: `${SITE_URL}/services/ui-ux-design`, description: "Research, wireframes, prototypes, and design systems validated with real usability testing." } },
+      { "@type": "Offer", url: `${SITE_URL}/services/cloud-solutions`, itemOffered: { "@type": "Service", name: "Cloud Solutions & DevOps", url: `${SITE_URL}/services/cloud-solutions`, description: "Cloud architecture, migration, Kubernetes, CI/CD pipelines, and cost optimization." } },
+      { "@type": "Offer", url: `${SITE_URL}/services/ai-solutions`, itemOffered: { "@type": "Service", name: "AI Solutions", url: `${SITE_URL}/services/ai-solutions`, description: "LLM-powered copilots, RAG systems, chatbots, and workflow automation." } },
+      { "@type": "Offer", url: `${SITE_URL}/services/maintenance-support`, itemOffered: { "@type": "Service", name: "Maintenance & Support", url: `${SITE_URL}/services/maintenance-support`, description: "Monitoring, security patching, bug fixes, and performance tuning under clear SLAs." } },
+      { "@type": "Offer", url: `${SITE_URL}/services/cybersecurity-engineering`, itemOffered: { "@type": "Service", name: "Cybersecurity Engineering", url: `${SITE_URL}/services/cybersecurity-engineering`, description: "Secure development, OWASP-aligned code review, security assessments, and data protection." } },
+      { "@type": "Offer", url: `${SITE_URL}/services/quality-engineering-qa`, itemOffered: { "@type": "Service", name: "Quality Engineering & QA", url: `${SITE_URL}/services/quality-engineering-qa`, description: "Automated test suites, regression testing, and performance testing wired into CI/CD." } },
     ],
   },
 };

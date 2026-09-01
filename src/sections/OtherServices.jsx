@@ -47,6 +47,10 @@ export default function OtherServices({ excludeSlug }) {
                     alt={service.title}
                     fill
                     sizes="320px"
+                    // Marquee tiles sit far outside the viewport in a wide flex
+                    // track — native lazy-loading never fires until the track
+                    // scrolls them in, leaving blank tiles for seconds.
+                    loading="eager"
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-black/20" />

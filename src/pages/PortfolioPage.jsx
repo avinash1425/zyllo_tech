@@ -23,7 +23,7 @@ export default function PortfolioPage() {
         eyebrow="Our Work"
         title="A look at what we build"
         description="From early-stage MVPs to platforms serving thousands of users, here's the kind of work our team takes on."
-        image="/protfolio.png"
+        image="/protfolio.webp"
         imageAlt="Zyllo Tech portfolio of work"
         primaryCta={{ label: "Start Your Project", href: "/contact" }}
         secondaryCta={{ label: "Contact Us", href: "/contact" }}

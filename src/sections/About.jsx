@@ -80,7 +80,7 @@ export default function About() {
           <div className="rounded-[1.6rem] bg-gradient-to-br from-[#f96706] via-[#ffb15c] to-[#3089a6] p-[3px] shadow-xl shadow-[#1c2f4a]/10">
             <div className="relative aspect-[4/3.4] w-full overflow-hidden rounded-[1.45rem] bg-white">
               <Image
-                src="/protfolio.png"
+                src="/protfolio.webp"
                 alt="The Zyllo Tech team collaborating in the studio"
                 fill
                 sizes="(min-width: 1024px) 48vw, 100vw"

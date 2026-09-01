@@ -27,6 +27,7 @@ const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
 const Resources = lazy(() => import("./pages/Resources"));
 const Startups = lazy(() => import("./pages/Startups"));
 const ArthaAI = lazy(() => import("./pages/ArthaAI"));
+const HyderabadPage = lazy(() => import("./pages/HyderabadPage"));
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -53,7 +54,11 @@ const App = () => (
           <BrowserRouter>
             <ScrollToTop />
             <SiteChrome>
-              <Suspense fallback={<div className="min-h-[60vh]" />}>
+              {/* Fallback must be at least viewport-height: a shorter placeholder
+                  lets the footer paint inside the first viewport and then jump
+                  down when the lazy route mounts — measured as the entire 0.32
+                  sitewide CLS (the footer was the sole layout-shift source). */}
+              <Suspense fallback={<div className="min-h-screen" />}>
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/about" element={<AboutPage />} />
@@ -83,6 +88,7 @@ const App = () => (
                   <Route path="/resources" element={<Resources />} />
                   <Route path="/startups" element={<Startups />} />
                   <Route path="/arthaai" element={<ArthaAI />} />
+                  <Route path="/custom-software-development-hyderabad" element={<HyderabadPage />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/dashboard" element={<Dashboard />} />

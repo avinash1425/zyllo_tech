@@ -27,11 +27,11 @@ function blockToText(block) {
 }
 
 const IMAGE_BY_CATEGORY = {
-  "AI & ML": "/blogs/AI.png",
-  Cloud: "/globe.png",
+  "AI & ML": "/blogs/AI.webp",
+  Cloud: "/globe.webp",
   Development: "/home-service.jpg",
   Design: "/woman-enjoying-vr-headset.jpg",
-  Business: "/about.png",
+  Business: "/about.webp",
 };
 
 export const fallbackPosts = articles
@@ -48,7 +48,7 @@ export const fallbackPosts = articles
     // else that expects plain text. Supabase posts won't have this field and
     // fall back to plain-text rendering.
     blocks: article.content,
-    featured_image_url: IMAGE_BY_CATEGORY[article.category] || "/blog.png",
+    featured_image_url: IMAGE_BY_CATEGORY[article.category] || "/blog.webp",
     status: "published",
     created_at: new Date(article.date || Date.now()).toISOString(),
     // Real edit timestamp when the article carries one — feeds Article
@@ -74,7 +74,7 @@ export const fallbackProjects = [
     tag: "FinTech",
     description:
       "An end-to-end loan origination platform with KYC, credit scoring, and disbursal workflows for a fast-growing NBFC.",
-    image_url: "/protfolio.png",
+    image_url: "/protfolio.webp",
     challenge:
       "Loan files moved through spreadsheets and email, so approvals took days and compliance evidence was scattered across teams.",
     solution:
@@ -131,7 +131,7 @@ export const fallbackProjects = [
     tag: "Logistics",
     description:
       "Real-time tracking, route analytics, and delivery SLA monitoring for a regional logistics operator.",
-    image_url: "/globe.png",
+    image_url: "/globe.webp",
     challenge:
       "Dispatchers reacted to delays only after customers called, with no reliable view of where vehicles actually were.",
     solution:
@@ -150,7 +150,7 @@ export const fallbackProjects = [
     tag: "AI & ML",
     description:
       "A retrieval-augmented assistant that answers questions across thousands of internal policy and contract documents.",
-    image_url: "/blogs/AI.png",
+    image_url: "/blogs/AI.webp",
     challenge:
       "Teams lost hours searching contracts and policies, and answers varied depending on who was asked.",
     solution:

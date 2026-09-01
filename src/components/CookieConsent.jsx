@@ -45,7 +45,9 @@ export default function CookieConsent() {
         </button>
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/70 bg-gradient-to-br from-[#f7941e]/20 to-[#1f4693]/20 shadow-md shadow-[#f7941e]/10">
+          {/* Icon hidden on phones — the banner already eats a large share of a
+              390px-tall-viewport's height; every row saved matters there. */}
+          <div className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/70 bg-gradient-to-br from-[#f7941e]/20 to-[#1f4693]/20 shadow-md shadow-[#f7941e]/10 sm:flex">
             <Cookie className="h-5 w-5 text-[#f7941e]" aria-hidden="true" />
           </div>
 
@@ -56,7 +58,7 @@ export default function CookieConsent() {
               how it&apos;s used. Read our{" "}
               <Link
                 href="/privacy"
-                className="font-medium text-[#f7941e] underline decoration-[#f7941e]/30 underline-offset-2 transition-colors duration-200 hover:text-[#db7d17] hover:decoration-[#db7d17]/40"
+                className="font-medium text-[#c2410c] underline decoration-[#c2410c]/40 underline-offset-2 transition-colors duration-200 hover:text-[#9a3412] hover:decoration-[#9a3412]/50"
               >
                 Privacy Policy
               </Link>{" "}
@@ -64,18 +66,20 @@ export default function CookieConsent() {
             </p>
           </div>
 
+          {/* min-h-12 keeps both buttons at the 48px touch-target guideline on
+              mobile, where the banner is the main thing under the thumb. */}
           <div className="flex shrink-0 items-center gap-2.5">
             <button
               type="button"
               onClick={() => respond("declined")}
-              className="rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm font-semibold text-[#676b7a] transition-all duration-200 hover:border-[#2b303b]/20 hover:text-[#2b303b]"
+              className="min-h-12 rounded-lg border border-[#e7e9ee] bg-white px-4 py-2.5 text-sm font-semibold text-[#676b7a] transition-all duration-200 hover:border-[#2b303b]/20 hover:text-[#2b303b]"
             >
               Decline
             </button>
             <button
               type="button"
               onClick={() => respond("accepted")}
-              className="rounded-lg bg-[#f7941e] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#db7d17]"
+              className="min-h-12 rounded-lg bg-[#f7941e] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#db7d17]"
             >
               Accept All
             </button>

@@ -58,6 +58,10 @@
     <!-- Performance: preconnect to key third-party origins -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- The LCP element (first hero slide) is otherwise undiscoverable until
+         React renders — the shell HTML contains no <img>. Preloading lets the
+         browser fetch it in parallel with the JS bundles. -->
+    <link rel="preload" as="image" href="/hero-home1.webp" fetchpriority="high" />
 
     <!-- Favicon -->
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

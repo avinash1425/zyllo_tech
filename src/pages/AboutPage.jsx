@@ -25,7 +25,7 @@ export default function AboutPage() {
         eyebrow="About Zyllo Tech"
         title="Building Digital Solutions That Drive Growth"
         description="We are a technology company dedicated to delivering innovative, scalable, and reliable software solutions for businesses worldwide."
-        image="/about.png"
+        image="/about.webp"
         imageAlt="The Zyllo Tech team at work"
         quickLinks={[
           { icon: Layers, label: "Services", href: "/services" },

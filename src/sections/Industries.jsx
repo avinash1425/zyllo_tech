@@ -117,6 +117,9 @@ export default function Industries({
                 alt={industry.title}
                 fill
                 sizes="320px"
+                // Same as OtherServices: marquee tiles never intersect the
+                // viewport until the track animates, so lazy-load leaves them blank.
+                loading="eager"
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />

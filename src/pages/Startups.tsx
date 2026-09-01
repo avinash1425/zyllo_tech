@@ -54,6 +54,9 @@ const StartupsPage = () => {
             hasPart: [
               {
                 "@type": "SoftwareApplication",
+                // Same @id the /arthaai page declares, so both pages describe
+                // one entity instead of two disconnected ones.
+                "@id": `${SITE_URL}/arthaai#software`,
                 name: "ArthaAI",
                 applicationCategory: "FinanceApplication",
                 description: "India's first AI-powered multilingual personal finance guidance platform.",
