@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async";
+import { serializeJsonLd } from "@/lib/jsonld";
 
 export const SITE_URL = "https://zyllotech.com";
 export const SITE_NAME = "Zyllo Tech";
@@ -260,7 +261,7 @@ const SEOHead = ({
       {/* ── Structured Data ── */}
       {schemas.map((schema, i) => (
         <script key={i} type="application/ld+json">
-          {JSON.stringify(schema)}
+          {serializeJsonLd(schema)}
         </script>
       ))}
     </Helmet>

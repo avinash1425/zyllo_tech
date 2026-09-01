@@ -1,4 +1,5 @@
 import { SITE_URL, SITE_NAME, OG_IMAGE_PATH } from "@/lib/site-config";
+import { serializeJsonLd } from "@/lib/jsonld";
 
 // Article structured data for a single published blog post.
 export default function ArticleJsonLd({ post }) {
@@ -37,7 +38,7 @@ export default function ArticleJsonLd({ post }) {
     <script
       type="application/ld+json"
       // eslint-disable-next-line react/no-danger
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: serializeJsonLd(data) }}
     />
   );
 }

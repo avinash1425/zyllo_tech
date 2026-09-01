@@ -1,4 +1,5 @@
 import { SITE_URL, LEGAL_NAME, OG_IMAGE_PATH } from "@/lib/site-config";
+import { serializeJsonLd } from "@/lib/jsonld";
 
 // schema.org JobPosting requires employmentType from a fixed enum, but
 // employment_type in job_postings is a free-text admin field (see
@@ -68,7 +69,7 @@ export default function JobPostingJsonLd({ job }) {
     <script
       type="application/ld+json"
       // eslint-disable-next-line react/no-danger
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: serializeJsonLd(data) }}
     />
   );
 }
