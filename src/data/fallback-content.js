@@ -51,6 +51,10 @@ export const fallbackPosts = articles
     featured_image_url: IMAGE_BY_CATEGORY[article.category] || "/blog.png",
     status: "published",
     created_at: new Date(article.date || Date.now()).toISOString(),
+    // Real edit timestamp when the article carries one — feeds Article
+    // dateModified in JSON-LD (runtime and prerender). Undefined otherwise,
+    // in which case consumers fall back to created_at.
+    updated_at: article.updated ? new Date(article.updated).toISOString() : undefined,
   }))
   .sort((a, b) => {
     const aFeatured = articles.find((x) => x.slug === a.slug)?.featured ? 1 : 0;

@@ -15,6 +15,11 @@ export interface Article {
   author: string;
   role: string;
   date: string;
+  // Set when a post receives a substantive content update — flows through
+  // fallback-content.js as `updated_at` into Article dateModified (JSON-LD
+  // at runtime and in the prerendered HTML). Only set it alongside a real
+  // content change, never for fake freshness.
+  updated?: string;
   readTime: string;
   featured: boolean;
   initials: string;
@@ -29,30 +34,39 @@ export const articles: Article[] = [
   {
     slug: "ai-reshaping-enterprise-software-2025",
     category: "AI & ML",
-    title: "How AI is Reshaping Enterprise Software in 2025",
+    title: "How AI is Reshaping Enterprise Software in 2026",
     excerpt:
-      "From intelligent automation to generative AI copilots, explore how artificial intelligence is fundamentally changing the way enterprise software is built and used.",
+      "From intelligent automation to agentic AI in production, explore how artificial intelligence is fundamentally changing the way enterprise software is built and used — updated for 2026.",
     author: "Arun Sharma",
     role: "AI Lead",
     date: "Feb 20, 2025",
+    updated: "Sep 1, 2026",
     readTime: "8 min read",
     featured: true,
     initials: "AS",
     color: "bg-blue-500",
     tags: ["AI", "Enterprise", "Automation"],
     metaDescription:
-      "Discover how artificial intelligence is transforming enterprise software in 2025 — from LLM-powered copilots to intelligent automation and decision engines.",
+      "How artificial intelligence is transforming enterprise software in 2026 — agentic AI in production, LLM-powered copilots, intelligent automation, and AI governance.",
     content: [
-      { type: "p", text: "The enterprise software landscape in 2025 looks fundamentally different from just three years ago. Artificial intelligence has moved from an experimental feature to a core infrastructure requirement — and engineering teams that haven't adapted are already falling behind." },
+      { type: "p", text: "The enterprise software landscape in 2026 looks fundamentally different from just three years ago. Artificial intelligence has moved from an experimental feature to a core infrastructure requirement — and engineering teams that haven't adapted are already falling behind. This article was originally published in early 2025 and updated in September 2026 to reflect how quickly the ground has shifted." },
       { type: "h2", text: "The Shift from Rule-Based to Model-Driven Systems" },
       { type: "p", text: "Traditional enterprise software operated on explicit, hand-crafted rules. Approval workflows, fraud detection, content moderation — everything was coded as logic trees. The problem: rules don't generalize, and maintaining them at scale is an enormous operational burden. AI flips this model. Instead of engineers writing rules, models learn patterns from data and generalize to new inputs. This has unlocked capabilities that were simply impossible before." },
       { type: "h2", text: "The Five AI Patterns We See Most in Enterprise Builds" },
       { type: "ol", items: ["Intelligent Document Processing — Replacing manual data entry with OCR + LLM extraction pipelines that achieve >96% field accuracy on unstructured documents.", "Conversational AI & Copilots — AI assistants embedded in enterprise workflows (HR, finance, IT support) that handle 60–80% of tier-1 queries without human intervention.", "Predictive Analytics Engines — ML models that forecast demand, detect anomalies, and surface recommendations inside BI dashboards.", "Automated QA and Code Review — AI agents that review PRs, flag security issues, and write regression test cases — reducing QA cycles by 30–40%.", "Generative Content Pipelines — Product descriptions, marketing copy, and report generation at scale, with human review gates for quality control."] },
       { type: "h2", text: "The Implementation Reality" },
       { type: "p", text: "Most enterprise AI projects fail not because the models are bad, but because the data infrastructure isn't ready. Clean, labeled, governed data is the prerequisite. Before any AI feature goes live, we run a [data readiness audit](/services/ai-solutions) — assessing data quality, volume, bias risk, and lineage tracking. This step alone saves months of rework." },
-      { type: "callout", text: "The teams shipping AI features fastest in 2025 are those who invested in data infrastructure 18 months ago. If you haven't started, start now — not with models, but with pipelines." },
+      { type: "callout", text: "The teams shipping AI features fastest today are those who invested in data infrastructure 18 months ago. If you haven't started, start now — not with models, but with pipelines." },
+      { type: "h2", text: "2026 Update: The Agentic Wave Arrived" },
+      { type: "p", text: "When this article was first published, we predicted that agentic AI — systems where [LLM-powered agents](/blog/langchain-vs-llamaindex-rag) plan and execute multi-step tasks — would move from research to production during 2025–2026. That happened faster than most roadmaps assumed. The pattern shifted from single-model copilots that suggest to agent systems that do: reading tickets, querying systems, drafting changes, and escalating to a human at defined checkpoints." },
+      { type: "ul", items: [
+        "Standardised tool connectivity — the Model Context Protocol (MCP), introduced by Anthropic in late 2024, was adopted across the major AI vendors during 2025 and became the de-facto standard for connecting agents to enterprise tools and data, replacing one-off integration code.",
+        "Evaluation became an engineering discipline — production teams now maintain eval suites and tracing for AI behaviour the way they maintain regression tests for code; shipping an agent without them is the new 'shipping without tests'.",
+        "Model routing over model loyalty — with capable small models becoming dramatically cheaper, well-run teams route routine steps to lightweight models and reserve frontier models for hard reasoning, cutting inference spend without visible quality loss.",
+        "Governance stopped being optional — the EU AI Act's general-purpose AI obligations began applying in August 2025, and enterprises selling into Europe now treat AI system inventories, risk classification, and documentation as compliance work, not paperwork theatre.",
+      ] },
       { type: "h2", text: "What's Coming Next" },
-      { type: "p", text: "Agentic AI — systems where multiple [LLM-powered agents](/blog/langchain-vs-llamaindex-rag) collaborate on multi-step tasks — is moving from research to production. Expect 2025–2026 to see the first wave of enterprise agentic deployments in domains like financial reconciliation, procurement automation, and code generation pipelines." },
+      { type: "p", text: "The frontier is shifting from single agents to coordinated multi-agent systems — planner/worker patterns where specialised agents hand off work under an orchestrator — and to computer-use agents that operate real interfaces rather than just APIs. The unglamorous fundamentals haven't changed, though: the teams getting durable value are still the ones with clean data pipelines, human review gates on consequential actions, and honest measurement of what the AI actually saves." },
     ],
   },
   {
