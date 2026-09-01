@@ -199,7 +199,7 @@ export default function BlogPostPage() {
     return { loaded: true, post: data ?? findFallbackPost(slug) };
   }, { loaded: false, post: null });
 
-  if (!result.loaded) return <div className="min-h-[60vh]" />;
+  if (!result.loaded) return <div className="min-h-screen" />;
   if (!result.post) return <NotFound />;
 
   const post = result.post;

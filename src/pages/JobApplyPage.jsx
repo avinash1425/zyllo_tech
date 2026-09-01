@@ -32,7 +32,7 @@ export default function JobApplyPage() {
     return { loaded: true, job: data ?? null };
   }, { loaded: false, job: null });
 
-  if (!result.loaded) return <div className="min-h-[60vh]" />;
+  if (!result.loaded) return <div className="min-h-screen" />;
   if (!result.job) return <NotFound />;
 
   const job = result.job;
