@@ -13,7 +13,7 @@ export const organizationSchema = {
   "@type": ["Organization", "ProfessionalService"],
   "@id": `${SITE_URL}/#organization`,
   name: SITE_NAME,
-  legalName: "Zyllo Tech Software Solutions Pvt. Ltd.",
+  legalName: "Zyllo Tech Software Solutions Private Limited",
   url: SITE_URL,
   logo: {
     "@type": "ImageObject",
@@ -26,7 +26,7 @@ export const organizationSchema = {
   },
   image: SITE_OG_IMAGE,
   description:
-    "Zyllo Tech is a software engineering company delivering enterprise-grade web & mobile applications, AI/ML solutions, cloud DevOps, and quality engineering for businesses across India and globally.",
+    "Zyllo Tech is a software engineering company based in Hyderabad, India, delivering web and mobile applications, AI/ML solutions, cloud DevOps, cybersecurity, and quality engineering for businesses in India, the US, and globally.",
   foundingDate: "2023",
   numberOfEmployees: { "@type": "QuantitativeValue", minValue: 10, maxValue: 50 },
   areaServed: ["IN", "US", "GB", "AE", "SG", "AU", "CA"],
@@ -100,7 +100,7 @@ export const webSiteSchema = {
   "@id": `${SITE_URL}/#website`,
   url: SITE_URL,
   name: SITE_NAME,
-  description: "Enterprise software engineering — AI, cloud, web, mobile, and security solutions.",
+  description: "Hyderabad-based software engineering company — web, mobile, AI/ML, cloud DevOps, cybersecurity, and quality engineering solutions.",
   publisher: { "@id": `${SITE_URL}/#organization` },
   potentialAction: {
     "@type": "SearchAction",

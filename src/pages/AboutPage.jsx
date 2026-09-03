@@ -13,7 +13,7 @@ export default function AboutPage() {
     <>
       <SEOHead
         title="About Us | Zyllo Tech"
-        description="Zyllo Tech is an India-based software company partnering with businesses to design, build, and support intelligent digital products."
+        description="Zyllo Tech is a Hyderabad-based software engineering company. Meet the team behind our web, mobile, AI/ML, and cloud solutions."
         canonical="/about"
         structuredData={breadcrumbSchema([
           { name: "Home", url: SITE_URL },
@@ -27,6 +27,7 @@ export default function AboutPage() {
         description="We are a technology company dedicated to delivering innovative, scalable, and reliable software solutions for businesses worldwide."
         image="/about.webp"
         imageAlt="The Zyllo Tech team at work"
+        primaryCta={{ label: "Start Your Project", href: "/contact" }}
         quickLinks={[
           { icon: Layers, label: "Services", href: "/services" },
           { icon: Briefcase, label: "Portfolio", href: "/portfolio" },

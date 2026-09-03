@@ -16,6 +16,6 @@ export const SITE_NAME = "Zyllo Tech";
 export const LEGAL_NAME = "Zyllo Tech Software Solutions Private Limited";
 
 export const DEFAULT_DESCRIPTION =
-  "Zyllo Tech builds custom software, mobile apps, and AI-powered digital products for ambitious companies. Explore our services, portfolio, and careers.";
+  "Zyllo Tech is a Hyderabad-based software engineering company delivering web, mobile, AI/ML, cloud, cybersecurity, and QA solutions for businesses worldwide.";
 
 export const OG_IMAGE_PATH = "/zyllo-logo.png";

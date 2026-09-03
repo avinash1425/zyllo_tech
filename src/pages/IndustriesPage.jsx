@@ -24,6 +24,8 @@ export default function IndustriesPage() {
         description="Every sector has its own rules, risks, and workflows. We bring the right context to every engagement, not a one-size-fits-all build."
         image="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1920&q=70&auto=format"
         imageAlt="Team reviewing industry-specific data and analytics"
+        primaryCta={{ label: "Talk to Our Team", href: "/contact" }}
+        secondaryCta={{ label: "View Our Work", href: "/portfolio" }}
       />
       <Reveal>
         <Industries

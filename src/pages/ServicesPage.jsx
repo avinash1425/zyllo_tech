@@ -23,6 +23,8 @@ export default function ServicesPage() {
         description="From strategy to deployment, we deliver complete software solutions that help businesses grow, innovate, and succeed."
         image="https://images.unsplash.com/photo-1547658719-da2b51169166?w=1920&q=70&auto=format"
         imageAlt="Developer working on web application code"
+        primaryCta={{ label: "Start Your Project", href: "/contact" }}
+        secondaryCta={{ label: "View Our Work", href: "/portfolio" }}
       />
       <Reveal>
         <WhatWeBelieve />
