@@ -1,6 +1,7 @@
 import { CompatLink as Link } from "@/components/NextCompat";
 import { Cookie, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { initAnalytics } from "@/lib/analytics";
 
 const STORAGE_KEY = "zyllo-cookie-consent";
 
@@ -21,6 +22,7 @@ export default function CookieConsent() {
       JSON.stringify({ choice, date: new Date().toISOString() })
     );
     setVisible(false);
+    if (choice === "accepted") initAnalytics();
   }
 
   if (!visible) return null;
@@ -79,7 +81,7 @@ export default function CookieConsent() {
             <button
               type="button"
               onClick={() => respond("accepted")}
-              className="min-h-12 rounded-lg bg-[#f7941e] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#db7d17]"
+              className="min-h-12 rounded-lg bg-[#c2410c] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#9a3412]"
             >
               Accept All
             </button>

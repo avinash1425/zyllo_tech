@@ -1,30 +1,38 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "@/components/NextCompat";
-import { Search, X, Loader2, FileText, Briefcase, Layers, Newspaper } from "lucide-react";
+import { Search, X, Loader2, FileText, Layers, Newspaper, ArrowRight } from "lucide-react";
 
-const TYPE_ICON = {
-  Page: FileText,
-  Service: Layers,
-  "Blog Post": Newspaper,
-  "Open Role": Briefcase,
+const TYPE_META = {
+  page: { label: "Page", icon: FileText },
+  service: { label: "Service", icon: Layers },
+  article: { label: "Blog Post", icon: Newspaper },
 };
 
 // Suggestions shown as clickable chips before the user types anything.
-// Picked to cover the most common things people come looking for.
+// Every one of these returns real results from the local index.
 const SUGGESTED_QUERIES = [
-  "What services do you offer?",
   "Mobile app development",
+  "AI solutions",
   "Careers",
   "Contact us",
 ];
 
-// Site-wide public search, styled as a centered modal ("AI Search"-style
-// card: title row, big input + Search button, suggestion chips, results
-// list). Despite the look, this is plain keyword search over site
-// content — not an AI assistant — backed by /api/search (see that route
-// for what's indexed: static pages, services, and live Supabase blog
-// posts / open job postings).
+// The index module is imported lazily on first open so the blog archive in
+// articles.ts never lands in the main bundle (this component ships with the
+// sitewide Header). The promise is cached at module scope — one fetch ever.
+let searchModulePromise = null;
+function loadSearchModule() {
+  if (!searchModulePromise) {
+    searchModulePromise = import("@/lib/site-search-index");
+  }
+  return searchModulePromise;
+}
+
+// Site-wide public search, styled as a centered modal (title row, big input +
+// Search button, suggestion chips, results list). Plain keyword search over
+// site content — pages, services, and blog articles — matched entirely
+// client-side via src/lib/site-search-index.js. No backend involved.
 export default function SiteSearch({ variant = "desktop" }) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -51,6 +59,8 @@ export default function SiteSearch({ variant = "desktop" }) {
     if (isOpen) {
       inputRef.current?.focus();
       document.body.style.overflow = "hidden";
+      // Warm the index chunk while the user is still typing.
+      loadSearchModule();
     } else {
       document.body.style.overflow = "";
     }
@@ -69,22 +79,23 @@ export default function SiteSearch({ variant = "desktop" }) {
       return;
     }
 
+    // Local search is instant; the tiny debounce just avoids re-ranking on
+    // every keystroke of a fast typist.
+    let cancelled = false;
     setLoading(true);
     const timeout = setTimeout(async () => {
-      try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}`);
-        const data = await res.json();
-        setResults(data.results || []);
-        setActiveIndex(-1);
-      } catch {
-        setResults([]);
-      } finally {
-        setLoading(false);
-        setHasSearched(true);
-      }
-    }, 250);
+      const { search } = await loadSearchModule();
+      if (cancelled) return;
+      setResults(search(trimmed, { limit: 8 }));
+      setActiveIndex(-1);
+      setLoading(false);
+      setHasSearched(true);
+    }, 100);
 
-    return () => clearTimeout(timeout);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
   }, [query]);
 
   function openSearch() {
@@ -127,9 +138,11 @@ export default function SiteSearch({ variant = "desktop" }) {
     if (e.key === "Enter") {
       e.preventDefault();
       const target = activeIndex >= 0 ? results[activeIndex] : results[0];
-      if (target) goTo(target.href);
+      if (target) goTo(target.url);
     }
   }
+
+  const hasArticleResults = results.some((result) => result.type === "article");
 
   return (
     <>
@@ -165,7 +178,7 @@ export default function SiteSearch({ variant = "desktop" }) {
                 <div>
                   <p className="text-base font-bold text-[#2b303b]">Search Zyllo Tech</p>
                   <p className="mt-0.5 text-sm text-[#676b7a]">
-                    Find services, pages, blog posts, and open roles.
+                    Find services, pages, and blog posts.
                   </p>
                 </div>
               </div>
@@ -195,7 +208,7 @@ export default function SiteSearch({ variant = "desktop" }) {
                   type="button"
                   onClick={() => {
                     const target = results[0];
-                    if (target) goTo(target.href);
+                    if (target) goTo(target.url);
                   }}
                   className="shrink-0 rounded-full bg-gradient-to-r from-[#f7941e] to-[#1f4693] px-5 py-2 text-sm font-semibold text-white transition-transform duration-150 hover:-translate-y-0.5"
                 >
@@ -207,7 +220,7 @@ export default function SiteSearch({ variant = "desktop" }) {
             {query.trim().length < 2 && (
               <div className="px-6 py-5">
                 <p className="text-xs font-bold uppercase tracking-wide text-[#676b7a]/70">
-                  Try asking
+                  Try searching
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {SUGGESTED_QUERIES.map((suggestion) => (
@@ -249,12 +262,13 @@ export default function SiteSearch({ variant = "desktop" }) {
 
                 {!loading &&
                   results.map((result, i) => {
-                    const Icon = TYPE_ICON[result.type] || FileText;
+                    const meta = TYPE_META[result.type] || TYPE_META.page;
+                    const Icon = meta.icon;
                     return (
                       <button
-                        key={`${result.type}-${result.href}-${i}`}
+                        key={`${result.type}-${result.url}-${i}`}
                         type="button"
-                        onClick={() => goTo(result.href)}
+                        onClick={() => goTo(result.url)}
                         onMouseEnter={() => setActiveIndex(i)}
                         className={`flex w-full items-start gap-3 rounded-xl px-4 py-3 text-left transition-colors ${
                           activeIndex === i ? "bg-[#fff7ed]" : "hover:bg-[#fafbfc]"
@@ -265,16 +279,27 @@ export default function SiteSearch({ variant = "desktop" }) {
                           <p className="truncate text-sm font-semibold text-[#2b303b]">
                             {result.title}
                           </p>
-                          {result.subtitle && (
-                            <p className="truncate text-xs text-[#676b7a]">{result.subtitle}</p>
+                          {result.description && (
+                            <p className="truncate text-xs text-[#676b7a]">{result.description}</p>
                           )}
                           <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-[#f7941e]/80">
-                            {result.type}
+                            {meta.label}
                           </p>
                         </div>
                       </button>
                     );
                   })}
+
+                {!loading && hasArticleResults && (
+                  <button
+                    type="button"
+                    onClick={() => goTo(`/blog?q=${encodeURIComponent(query.trim())}`)}
+                    className="flex w-full items-center gap-1.5 rounded-xl px-4 py-3 text-left text-sm font-semibold text-[#1f4693] transition-colors hover:bg-[#fafbfc] hover:text-[#f7941e]"
+                  >
+                    See all blog results for &ldquo;{query.trim()}&rdquo;
+                    <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  </button>
+                )}
               </div>
             )}
           </div>

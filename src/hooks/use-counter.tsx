@@ -22,6 +22,7 @@ export function useCounter(end: number, duration = 2000, start = 0) {
     if (!hasStarted) return;
     const startTime = performance.now();
     const range = end - start;
+    let frameId: number;
 
     const step = (now: number) => {
       const elapsed = now - startTime;
@@ -29,10 +30,11 @@ export function useCounter(end: number, duration = 2000, start = 0) {
       // Ease-out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
       setCount(Math.round(start + range * eased));
-      if (progress < 1) requestAnimationFrame(step);
+      if (progress < 1) frameId = requestAnimationFrame(step);
     };
 
-    requestAnimationFrame(step);
+    frameId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frameId);
   }, [hasStarted, end, start, duration]);
 
   return { count, ref };

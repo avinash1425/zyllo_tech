@@ -1,6 +1,3 @@
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import FloatingButtons from "@/components/FloatingButtons";
 import PageHero from "@/components/PageHero";
 import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 
@@ -17,7 +14,6 @@ const CookiePolicy = () => {
           { name: "Cookie Policy", url: `${SITE_URL}/cookie-policy` },
         ])}
       />
-      <Navbar />
       <PageHero
         title="Cookie Policy"
         description="How cookies and similar technologies are used on Zyllo Tech digital experiences."
@@ -75,9 +71,6 @@ const CookiePolicy = () => {
           </article>
         </div>
       </section>
-
-      <Footer />
-      <FloatingButtons />
     </div>
   );
 };

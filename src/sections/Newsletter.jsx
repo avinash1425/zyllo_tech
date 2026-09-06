@@ -1,6 +1,33 @@
+import { useState } from "react";
 import { Mail } from "lucide-react";
+import { isValidEmail, subscribeToNewsletter } from "@/lib/newsletter";
 
 export default function Newsletter() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("idle"); // "idle" | "loading" | "success" | "error"
+  const [errorMessage, setErrorMessage] = useState("");
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    if (status === "loading") return;
+
+    if (!isValidEmail(email)) {
+      setStatus("error");
+      setErrorMessage("Please enter a valid email address.");
+      return;
+    }
+
+    setStatus("loading");
+    setErrorMessage("");
+    try {
+      await subscribeToNewsletter(email);
+      setStatus("success");
+    } catch (error) {
+      setStatus("error");
+      setErrorMessage(error.message);
+    }
+  }
+
   return (
     <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-white py-6 lg:py-8">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
@@ -22,21 +49,40 @@ export default function Newsletter() {
             when we actually have something worth sharing.
           </p>
 
-          <form className="mx-auto mt-6 flex max-w-md flex-col gap-3 sm:flex-row">
-            <input
-              type="email"
-              required
-              placeholder="you@company.com"
-              aria-label="Email address"
-              className="w-full flex-1 rounded-lg border border-[#e7e9ee] bg-white px-4 py-3 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-all duration-200 focus:border-[#f7941e]/60 focus:ring-4 focus:ring-[#f7941e]/10"
-            />
-            <button
-              type="submit"
-              className="shrink-0 rounded-full bg-[#f7941e] px-6 py-3 text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(247,148,30,0.35),0_8px_10px_-6px_rgba(247,148,30,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-[#db7d17]"
-            >
-              Subscribe
-            </button>
-          </form>
+          {status === "success" ? (
+            <p className="mx-auto mt-6 max-w-md text-base font-semibold text-[#1f4693]" role="status">
+              You&apos;re subscribed — thank you!
+            </p>
+          ) : (
+            <>
+              <form
+                onSubmit={handleSubmit}
+                className="mx-auto mt-6 flex max-w-md flex-col gap-3 sm:flex-row"
+              >
+                <input
+                  type="email"
+                  required
+                  placeholder="you@company.com"
+                  aria-label="Email address"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  className="w-full flex-1 rounded-lg border border-[#e7e9ee] bg-white px-4 py-3 text-sm text-[#2b303b] placeholder:text-[#676b7a]/60 outline-none transition-all duration-200 focus:border-[#f7941e]/60 focus:ring-4 focus:ring-[#f7941e]/10"
+                />
+                <button
+                  type="submit"
+                  disabled={status === "loading"}
+                  className="shrink-0 rounded-full bg-[#f7941e] px-6 py-3 text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(247,148,30,0.35),0_8px_10px_-6px_rgba(247,148,30,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-[#db7d17] disabled:pointer-events-none disabled:opacity-60"
+                >
+                  {status === "loading" ? "Subscribing..." : "Subscribe"}
+                </button>
+              </form>
+              {status === "error" && (
+                <p className="mt-3 text-sm font-medium text-[#c2410c]" role="alert">
+                  {errorMessage}
+                </p>
+              )}
+            </>
+          )}
         </div>
       </div>
     </section>

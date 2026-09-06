@@ -8,12 +8,45 @@ type Payload = {
   data: Record<string, string | number | null | undefined>;
 };
 
+const VALID_TYPES = ["contact", "career", "newsletter"] as const;
+const MAX_BODY_BYTES = 20 * 1024; // reject oversized payloads outright
+const MAX_FIELD_CHARS = 500; // per-field cap for short values
+const MAX_MESSAGE_CHARS = 5000; // cap for free-text message / cover note
+const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,255}\.[A-Za-z]{2,}$/;
+
+// Header values are interpolated into raw SMTP DATA lines; any CR/LF (or
+// null byte) in them would let a caller inject extra headers or terminate
+// the message early. Strip those characters at every interpolation site.
+function sanitizeHeader(value: unknown): string {
+  return String(value ?? "")
+    .replace(/[\r\n\0]/g, " ")
+    .trim();
+}
+
+// Body values only need null bytes removed and a length cap; the body
+// writer already normalizes newlines and dot-stuffs.
+function clip(value: unknown, max = MAX_FIELD_CHARS): string {
+  return String(value ?? "").replace(/\0/g, "").slice(0, max);
+}
+
+function sanitizeData(
+  data: Record<string, string | number | null | undefined>,
+): Record<string, string | undefined> {
+  const out: Record<string, string | undefined> = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (value === null || value === undefined) continue;
+    const max = key === "message" || key === "cover_note" ? MAX_MESSAGE_CHARS : MAX_FIELD_CHARS;
+    out[key] = clip(value, max);
+  }
+  return out;
+}
+
 function render(payload: Payload): { subject: string; body: string } {
-  const d = payload.data;
+  const d = sanitizeData(payload.data);
   switch (payload.type) {
     case "contact":
       return {
-        subject: `New enquiry from ${d.full_name || d.name || "website visitor"}`,
+        subject: `New enquiry from ${sanitizeHeader(d.full_name || d.name || "website visitor")}`,
         body: [
           `Name: ${d.full_name || d.name || "-"}`,
           `Email: ${d.email || "-"}`,
@@ -27,7 +60,7 @@ function render(payload: Payload): { subject: string; body: string } {
       };
     case "career":
       return {
-        subject: `New application: ${d.role || "Open role"} — ${d.full_name || ""}`,
+        subject: `New application: ${sanitizeHeader(d.role || "Open role")} — ${sanitizeHeader(d.full_name || "")}`,
         body: [
           `Name: ${d.full_name || "-"}`,
           `Email: ${d.email || "-"}`,
@@ -42,8 +75,8 @@ function render(payload: Payload): { subject: string; body: string } {
       };
     default:
       return {
-        subject: `New newsletter subscriber: ${d.email}`,
-        body: `A new visitor subscribed to the newsletter.\n\nEmail: ${d.email}`,
+        subject: `New newsletter subscriber: ${sanitizeHeader(d.email)}`,
+        body: `A new visitor subscribed to the newsletter.\n\nEmail: ${d.email || "-"}`,
       };
   }
 }
@@ -98,8 +131,8 @@ async function sendMail(opts: {
     const headers = [
       `From: Zyllo Tech Website <${ADMIN_EMAIL}>`,
       `To: ${ADMIN_EMAIL}`,
-      opts.replyTo ? `Reply-To: ${opts.replyTo}` : null,
-      `Subject: ${opts.subject}`,
+      opts.replyTo ? `Reply-To: ${sanitizeHeader(opts.replyTo)}` : null,
+      `Subject: ${sanitizeHeader(opts.subject)}`,
       "MIME-Version: 1.0",
       'Content-Type: text/plain; charset="utf-8"',
     ].filter(Boolean).join("\r\n");
@@ -117,9 +150,23 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const payload = (await req.json()) as Payload;
-    if (!payload?.type || !["contact", "career", "newsletter"].includes(payload.type)) {
+    const raw = await req.text();
+    if (new TextEncoder().encode(raw).length > MAX_BODY_BYTES) {
+      return new Response(JSON.stringify({ error: "Payload too large" }), {
+        status: 413,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const payload = JSON.parse(raw) as Payload;
+    if (!payload?.type || !VALID_TYPES.includes(payload.type)) {
       return new Response(JSON.stringify({ error: "Invalid notification type" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (payload.data !== undefined && (typeof payload.data !== "object" || Array.isArray(payload.data))) {
+      return new Response(JSON.stringify({ error: "Invalid payload data" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -137,11 +184,21 @@ Deno.serve(async (req) => {
     }
 
     try {
+      // Only use the visitor-supplied email as Reply-To when it looks like a
+      // plausible single address (after header sanitization); otherwise omit
+      // the header entirely rather than pass attacker-shaped input to SMTP.
+      const replyToCandidate =
+        typeof payload.data?.email === "string" ? sanitizeHeader(payload.data.email) : "";
+      const replyTo =
+        replyToCandidate.length <= 320 && EMAIL_RE.test(replyToCandidate)
+          ? replyToCandidate
+          : undefined;
+
       await sendMail({
         password,
         subject,
         body,
-        replyTo: typeof payload.data?.email === "string" ? payload.data.email : undefined,
+        replyTo,
       });
     } catch (mailError) {
       console.error("[notify-admin] SMTP delivery failed:", mailError);

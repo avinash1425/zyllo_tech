@@ -1,1 +1,7 @@
 project_id = "zfjeflpvwizlteflypsx"
+
+# The site calls this function via supabase.functions.invoke, which always
+# sends the anon-key Authorization header — so requiring a valid JWT costs
+# legit callers nothing while blocking bare unauthenticated POSTs.
+[functions.notify-admin]
+verify_jwt = true

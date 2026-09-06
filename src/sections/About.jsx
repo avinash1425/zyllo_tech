@@ -29,7 +29,7 @@ export default function About() {
       <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
           <div>
-            <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#f96706]">
+            <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#c2410c]">
               <span aria-hidden="true" className="h-px w-8 bg-gradient-to-r from-[#f96706] to-[#3089a6]" />
               About Us
             </span>

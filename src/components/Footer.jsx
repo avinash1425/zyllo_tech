@@ -2,13 +2,7 @@ import { ArrowRight, Mail, MapPin, Phone, Sparkles } from "lucide-react";
 import { CompatImage as Image } from "@/components/NextCompat";
 import { CompatLink as Link } from "@/components/NextCompat";
 import { useState } from "react";
-import LegalModal from "@/components/LegalModal";
-import {
-  PRIVACY_LAST_UPDATED,
-  PRIVACY_SECTIONS,
-  TERMS_LAST_UPDATED,
-  TERMS_SECTIONS,
-} from "@/data/legal-content";
+import { isValidEmail, subscribeToNewsletter } from "@/lib/newsletter";
 
 // Company/Services links kept as this site's own real pages — the
 // zyllotech.com reference lists different labels (Industries, Resources,
@@ -90,12 +84,29 @@ function FooterLink({ href, children }) {
 
 export default function Footer() {
   const year = new Date().getFullYear();
-  const [openLegal, setOpenLegal] = useState(null); // null | "privacy" | "terms"
-  const [subscribed, setSubscribed] = useState(false);
+  const [email, setEmail] = useState("");
+  const [subscribeStatus, setSubscribeStatus] = useState("idle"); // "idle" | "loading" | "success" | "error"
+  const [subscribeError, setSubscribeError] = useState("");
 
-  function handleSubscribe(event) {
+  async function handleSubscribe(event) {
     event.preventDefault();
-    setSubscribed(true);
+    if (subscribeStatus === "loading") return;
+
+    if (!isValidEmail(email)) {
+      setSubscribeStatus("error");
+      setSubscribeError("Please enter a valid email address.");
+      return;
+    }
+
+    setSubscribeStatus("loading");
+    setSubscribeError("");
+    try {
+      await subscribeToNewsletter(email);
+      setSubscribeStatus("success");
+    } catch (error) {
+      setSubscribeStatus("error");
+      setSubscribeError(error.message);
+    }
   }
 
   return (
@@ -123,29 +134,40 @@ export default function Footer() {
             <div className="mt-6">
               <FooterHeading dot>Stay Updated</FooterHeading>
             </div>
-            {subscribed ? (
-              <p className="mt-3 text-[12.5px] font-semibold text-[#2f8fe0]">
+            {subscribeStatus === "success" ? (
+              <p className="mt-3 text-[12.5px] font-semibold text-[#2f8fe0]" role="status">
                 You&apos;re subscribed — thank you!
               </p>
             ) : (
-              <form
-                onSubmit={handleSubscribe}
-                className="footer-form mt-3 flex w-full max-w-xs items-stretch overflow-hidden rounded-lg border border-white/15"
-              >
-                <input
-                  type="email"
-                  required
-                  placeholder="you@company.com"
-                  className="h-11 min-w-0 flex-1 bg-white/[0.05] px-3.5 text-[12.5px] text-white placeholder:text-[#8b93a3] outline-none"
-                />
-                <button
-                  type="submit"
-                  className="flex shrink-0 items-center gap-1.5 bg-[#1d6fb8] px-4 text-[12px] font-bold tracking-wide text-white transition-colors duration-200 hover:bg-[#175a96]"
+              <>
+                <form
+                  onSubmit={handleSubscribe}
+                  className="footer-form mt-3 flex w-full max-w-xs items-stretch overflow-hidden rounded-lg border border-white/15"
                 >
-                  SUBSCRIBE
-                  <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-                </button>
-              </form>
+                  <input
+                    type="email"
+                    required
+                    placeholder="you@company.com"
+                    aria-label="Email address for newsletter"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    className="h-11 min-w-0 flex-1 bg-white/[0.05] px-3.5 text-[12.5px] text-white placeholder:text-[#8b93a3] outline-none"
+                  />
+                  <button
+                    type="submit"
+                    disabled={subscribeStatus === "loading"}
+                    className="flex shrink-0 items-center gap-1.5 bg-[#1d6fb8] px-4 text-[12px] font-bold tracking-wide text-white transition-colors duration-200 hover:bg-[#175a96] disabled:opacity-60"
+                  >
+                    {subscribeStatus === "loading" ? "SENDING..." : "SUBSCRIBE"}
+                    <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  </button>
+                </form>
+                {subscribeStatus === "error" && (
+                  <p className="mt-2 text-[12px] font-medium text-[#ffb15c]" role="alert">
+                    {subscribeError}
+                  </p>
+                )}
+              </>
             )}
           </div>
 
@@ -236,22 +258,20 @@ export default function Footer() {
           </div>
           <ul className="flex items-center gap-6 text-[12.5px] text-[#c9cfdb]">
             <li>
-              <button
-                type="button"
-                onClick={() => setOpenLegal("privacy")}
+              <Link
+                href="/privacy-policy"
                 className="transition-colors duration-200 hover:text-white"
               >
                 Privacy Policy
-              </button>
+              </Link>
             </li>
             <li>
-              <button
-                type="button"
-                onClick={() => setOpenLegal("terms")}
+              <Link
+                href="/terms-of-service"
                 className="transition-colors duration-200 hover:text-white"
               >
                 Terms &amp; Conditions
-              </button>
+              </Link>
             </li>
             <li>
               <Link
@@ -264,21 +284,6 @@ export default function Footer() {
           </ul>
         </div>
       </div>
-
-      <LegalModal
-        isOpen={openLegal === "privacy"}
-        onClose={() => setOpenLegal(null)}
-        title="Privacy & Cookie Policy"
-        lastUpdated={PRIVACY_LAST_UPDATED}
-        sections={PRIVACY_SECTIONS}
-      />
-      <LegalModal
-        isOpen={openLegal === "terms"}
-        onClose={() => setOpenLegal(null)}
-        title="Terms & Conditions"
-        lastUpdated={TERMS_LAST_UPDATED}
-        sections={TERMS_SECTIONS}
-      />
 
       <style>{`
         .footer-brand {

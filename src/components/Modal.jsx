@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
@@ -11,8 +11,16 @@ import { X } from "lucide-react";
 // descendant (same effect as an actual transform), so a modal rendered
 // in-place would end up pinned to that section's box instead of the real
 // viewport. Portaling out of the Reveal tree avoids that entirely.
-export default function Modal({ isOpen, onClose, children, maxWidthClassName = "max-w-2xl" }) {
+export default function Modal({
+  isOpen,
+  onClose,
+  children,
+  maxWidthClassName = "max-w-2xl",
+  label,
+  labelledBy,
+}) {
   const [mounted, setMounted] = useState(false);
+  const dialogRef = useRef(null);
 
   useEffect(() => {
     setMounted(true);
@@ -21,17 +29,48 @@ export default function Modal({ isOpen, onClose, children, maxWidthClassName = "
   useEffect(() => {
     if (!isOpen) return;
 
+    const previouslyFocused = document.activeElement;
+
     function handleKeyDown(event) {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const dialog = dialogRef.current;
+      if (!dialog) return;
+      const focusables = dialog.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusables.length === 0) {
+        event.preventDefault();
+        return;
+      }
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+      if (event.shiftKey) {
+        if (active === first || !dialog.contains(active)) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else if (active === last || !dialog.contains(active)) {
+        event.preventDefault();
+        first.focus();
+      }
     }
     document.addEventListener("keydown", handleKeyDown);
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
+    dialogRef.current?.focus();
+
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = previousOverflow;
+      if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus();
     };
   }, [isOpen, onClose]);
 
@@ -39,9 +78,13 @@ export default function Modal({ isOpen, onClose, children, maxWidthClassName = "
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto p-4 sm:p-6"
+      ref={dialogRef}
+      tabIndex={-1}
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto p-4 sm:p-6 outline-none"
       role="dialog"
       aria-modal="true"
+      aria-label={labelledBy ? undefined : label}
+      aria-labelledby={labelledBy}
     >
       <div
         aria-hidden="true"

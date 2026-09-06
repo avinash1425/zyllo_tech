@@ -1,8 +1,5 @@
 import { motion } from "framer-motion";
 import { ExternalLink, ArrowRight, Rocket, IndianRupee, Globe2, Brain } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import FloatingButtons from "@/components/FloatingButtons";
 import PageHero from "@/components/PageHero";
 import { Link } from "react-router-dom";
 import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
@@ -69,7 +66,6 @@ const StartupsPage = () => {
           },
         ]}
       />
-      <Navbar />
       <PageHero
         title="Our Startups"
         description="Beyond client delivery — Zyllo Tech builds its own ventures. Products born from real problems, engineered for massive impact."
@@ -148,15 +144,25 @@ const StartupsPage = () => {
 
                     <p className="text-xs text-muted-foreground/70 italic mb-5">{startup.stage}</p>
 
-                    <a
-                      href={startup.href}
-                      target={startup.isExternal ? "_blank" : undefined}
-                      rel={startup.isExternal ? "noopener noreferrer" : undefined}
-                      className={`inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-all shadow-md`}
-                    >
-                      Explore ArthaAI
-                      <ExternalLink size={14} />
-                    </a>
+                    {startup.isExternal ? (
+                      <a
+                        href={startup.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-all shadow-md"
+                      >
+                        Explore ArthaAI
+                        <ExternalLink size={14} />
+                      </a>
+                    ) : (
+                      <Link
+                        to={startup.href}
+                        className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-all shadow-md"
+                      >
+                        Explore ArthaAI
+                        <ArrowRight size={14} />
+                      </Link>
+                    )}
                   </div>
 
                   {/* Right: Highlights */}
@@ -207,9 +213,6 @@ const StartupsPage = () => {
           </motion.div>
         </div>
       </section>
-
-      <Footer />
-      <FloatingButtons />
     </div>
   );
 };

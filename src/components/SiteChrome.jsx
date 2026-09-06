@@ -1,5 +1,6 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { usePathname } from "@/components/NextCompat";
+import { initAnalytics } from "@/lib/analytics";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
@@ -12,6 +13,11 @@ const FloatingWhatsApp = lazy(() => import("@/components/FloatingWhatsApp"));
 
 export default function SiteChrome({ children, user = undefined }) {
   const pathname = usePathname();
+
+  // No-op unless consent was already granted in a previous visit.
+  useEffect(() => {
+    initAnalytics();
+  }, []);
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
   const isLogin = pathname === "/login";
 

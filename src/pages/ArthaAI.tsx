@@ -1,7 +1,4 @@
 import { Link } from "react-router-dom";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import FloatingButtons from "@/components/FloatingButtons";
 import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 
 const ArthaAI = () => {
@@ -16,9 +13,8 @@ const ArthaAI = () => {
           { name: "ArthaAI", url: `${SITE_URL}/arthaai` },
         ])}
       />
-      <Navbar />
 
-      <main className="pt-[108px]">
+      <main>
         <section className="px-4 pb-12">
           <div className="container mx-auto max-w-6xl">
             <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-[#10253a] via-[#16344f] to-[#1e4d71] p-8 md:p-12 text-white">
@@ -132,9 +128,6 @@ const ArthaAI = () => {
           </div>
         </section>
       </main>
-
-      <Footer />
-      <FloatingButtons />
     </div>
   );
 };

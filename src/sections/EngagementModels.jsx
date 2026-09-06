@@ -50,7 +50,7 @@ export default function EngagementModels() {
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#f96706]">
+          <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#c2410c]">
             <span aria-hidden="true" className="h-px w-8 bg-[#f96706]" />
             How We Engage
             <span aria-hidden="true" className="h-px w-8 bg-[#f96706]" />
@@ -99,7 +99,7 @@ export default function EngagementModels() {
                   aria-hidden="true"
                 />
                 <h3 className="mt-4 text-xl font-bold tracking-tight text-[#0f172a]">{name}</h3>
-                <p className="mt-1.5 text-sm font-medium text-[#f96706]">{tagline}</p>
+                <p className="mt-1.5 text-sm font-medium text-[#c2410c]">{tagline}</p>
 
                 <ul className="mt-6 flex flex-1 flex-col divide-y divide-[#eef0f2] border-t border-[#eef0f2]">
                   {features.map((feature) => (

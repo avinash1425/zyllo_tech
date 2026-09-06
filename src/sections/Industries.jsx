@@ -110,6 +110,10 @@ export default function Industries({
             <Link
               key={`${industry.title}-${index}`}
               href="/industries"
+              // Second half of the track only exists to make the loop
+              // seamless — hide the duplicates from assistive tech.
+              aria-hidden={index >= INDUSTRIES.length ? "true" : undefined}
+              tabIndex={index >= INDUSTRIES.length ? -1 : undefined}
               className="group relative h-56 w-72 shrink-0 overflow-hidden rounded-2xl shadow-sm transition-shadow duration-300 hover:shadow-lg sm:w-80"
             >
               <Image
@@ -117,9 +121,8 @@ export default function Industries({
                 alt={industry.title}
                 fill
                 sizes="320px"
-                // Same as OtherServices: marquee tiles never intersect the
-                // viewport until the track animates, so lazy-load leaves them blank.
-                loading="eager"
+                loading="lazy"
+                decoding="async"
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -161,6 +164,11 @@ export default function Industries({
           }
           to {
             transform: translateX(-50%);
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .marquee-track {
+            animation: none;
           }
         }
       `}</style>

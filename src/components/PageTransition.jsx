@@ -92,6 +92,10 @@ export default function PageTransition() {
   // Show the overlay as soon as a navigation click happens.
   useEffect(() => {
     function handleClick(e) {
+      // Modified clicks (new tab/window, download) never navigate this
+      // document — showing the overlay would leave it stuck forever.
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+
       const link = e.target.closest("a");
       if (!link) return;
 
@@ -137,6 +141,14 @@ export default function PageTransition() {
       if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
     };
   }, [pathname]);
+
+  // Safety net: if the overlay is visible but no route change ever lands
+  // (blocked navigation, preventDefault'ed click, etc.), force-hide it.
+  useEffect(() => {
+    if (!isVisible) return;
+    const safetyTimeout = setTimeout(() => setIsVisible(false), 8000);
+    return () => clearTimeout(safetyTimeout);
+  }, [isVisible, pathname]);
 
   if (!isVisible) return null;
 

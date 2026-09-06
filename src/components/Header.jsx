@@ -62,6 +62,20 @@ export default function Header() {
     closeTimeoutRef.current = setTimeout(() => setIsServicesOpen(false), 150);
   }
 
+  function toggleServicesMenu() {
+    if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+    setIsServicesOpen((open) => !open);
+  }
+
+  useEffect(() => {
+    if (!isServicesOpen) return;
+    function handleKeyDown(event) {
+      if (event.key === "Escape") setIsServicesOpen(false);
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isServicesOpen]);
+
   return (
     <header className="relative z-50">
       {/* Utility bar scrolls away with the page — only the nav row below stays pinned. */}
@@ -163,6 +177,7 @@ export default function Header() {
                 <button
                   type="button"
                   onFocus={openServicesMenu}
+                  onClick={toggleServicesMenu}
                   aria-expanded={isServicesOpen}
                   aria-haspopup="true"
                   className={`group relative inline-flex items-center gap-1 pb-1 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:text-[#c2410c] ${

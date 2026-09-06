@@ -18,4 +18,6 @@ export const LEGAL_NAME = "Zyllo Tech Software Solutions Private Limited";
 export const DEFAULT_DESCRIPTION =
   "Zyllo Tech is a Hyderabad-based software engineering company delivering web, mobile, AI/ML, cloud, cybersecurity, and QA solutions for businesses worldwide.";
 
-export const OG_IMAGE_PATH = "/zyllo-logo.png";
+// 1200×630 OG card — the wordmark banner (/zyllo-logo.png, 5:1) fails
+// Google's rich-result image aspect requirements, so don't point OG here.
+export const OG_IMAGE_PATH = "/og-default.png";

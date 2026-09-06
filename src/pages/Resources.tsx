@@ -1,10 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, BookOpen, Building2, ShoppingCart, Heart, GraduationCap, Truck, Factory, Gamepad2, Home, Plane, Radio, Tv, Leaf } from "lucide-react";
 import { Link } from "react-router-dom";
-import Navbar from "@/components/Navbar";
 import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
-import Footer from "@/components/Footer";
-import FloatingButtons from "@/components/FloatingButtons";
 import PageHero from "@/components/PageHero";
 
 const industryGuides = [
@@ -119,7 +116,6 @@ const Resources = () => {
           { name: "Resources", url: `${SITE_URL}/resources` },
         ])}
       />
-      <Navbar />
       <PageHero
         title="Resources Hub"
         description="Practical implementation guides, engineering playbooks, and industry blueprints — written by the engineers who build these systems."
@@ -205,9 +201,6 @@ const Resources = () => {
           </motion.div>
         </div>
       </section>
-
-      <Footer />
-      <FloatingButtons />
     </div>
   );
 };

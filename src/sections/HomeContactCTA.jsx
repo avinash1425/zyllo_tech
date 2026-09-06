@@ -64,7 +64,7 @@ export default function HomeContactCTA({
 
           <div className="flex flex-col gap-5 p-7 sm:flex-row sm:items-center sm:justify-between lg:p-9">
             <div className="max-w-xl">
-              <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#f96706]">
+              <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#c2410c]">
                 Get In Touch
               </span>
               <h2 className="mt-1.5 text-2xl font-extrabold tracking-tight text-[#0f172a] sm:text-[1.75rem]">

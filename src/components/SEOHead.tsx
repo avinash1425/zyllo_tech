@@ -21,8 +21,8 @@ export const organizationSchema = {
     // Real pixel dimensions of public/zyllo-logo.png. Declaring the wrong
     // size (previously 200×60) is a validation defect — Google checks these
     // against the fetched asset.
-    width: 1920,
-    height: 384,
+    width: 800,
+    height: 160,
   },
   image: SITE_OG_IMAGE,
   description:

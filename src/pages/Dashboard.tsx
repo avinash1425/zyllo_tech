@@ -25,6 +25,7 @@ const fmt = (n: number, d = 0) =>
     : (n < 0 ? "-₹" : "₹") + Math.abs(n).toLocaleString("en-IN", { minimumFractionDigits: d, maximumFractionDigits: d });
 
 const fmtShort = (n: number) => {
+  if (!isFinite(n) || isNaN(n)) return "₹0";
   const a = Math.abs(n);
   const s = a >= 1e7 ? (a / 1e7).toFixed(2).replace(/\.?0+$/, "") + " Cr"
     : a >= 1e5 ? (a / 1e5).toFixed(2).replace(/\.?0+$/, "") + " L"
@@ -47,7 +48,7 @@ const sipFutureValueWithStepUp = (monthly: number, annualStepUpPct: number, annu
    AI CHAT — ARTHAGURU
 ═══════════════════════════════════════════════════════════ */
 
-interface ChatMessage { role: "user" | "assistant"; content: string; }
+interface ChatMessage { role: "user" | "assistant"; content: string; fallback?: boolean; }
 
 /* Smart fallback responses when API key not yet configured */
 const FALLBACK: Record<string, string> = {
@@ -78,7 +79,7 @@ const renderMD = (text: string) => {
       return <p key={i} className="font-bold text-gray-800 mt-3 first:mt-0">{line.slice(2, -2)}</p>;
     }
     const parts: React.ReactNode[] = [];
-    let remaining = line.replace(/\*\*(.*?)\*\*/g, (_, m) => `§§${m}§§`);
+    const remaining = line.replace(/\*\*(.*?)\*\*/g, (_, m) => `§§${m}§§`);
     remaining.split("§§").forEach((seg, j) => {
       if (j % 2 === 1) parts.push(<strong key={j} className="font-semibold text-gray-900">{seg}</strong>);
       else if (seg) parts.push(<span key={j}>{seg}</span>);
@@ -143,7 +144,7 @@ const ArthaGuruChat = ({ calcContext }: { calcContext: string }) => {
       if (error || data?.error) throw new Error(data?.error || error?.message);
       setMessages(prev => [...prev, { role: "assistant", content: data.message }]);
     } catch {
-      setMessages(prev => [...prev, { role: "assistant", content: getFallbackResponse(q) }]);
+      setMessages(prev => [...prev, { role: "assistant", content: getFallbackResponse(q), fallback: true }]);
     } finally {
       setLoading(false);
     }
@@ -205,7 +206,15 @@ const ArthaGuruChat = ({ calcContext }: { calcContext: string }) => {
               style={m.role === "user" ? { background: DB } : {}}
             >
               {m.role === "assistant" ? (
-                <div className="space-y-1">{renderMD(m.content)}</div>
+                <div>
+                  {m.fallback && (
+                    <div className="mb-2 flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1 text-[10px] font-semibold text-amber-700">
+                      <AlertCircle size={11} className="shrink-0" />
+                      Assistant unavailable — this is general guidance, not generated for your question.
+                    </div>
+                  )}
+                  <div className="space-y-1">{renderMD(m.content)}</div>
+                </div>
               ) : (
                 <p className="text-sm">{m.content}</p>
               )}
@@ -392,6 +401,12 @@ const InsightBanner = ({ text }: { text: string }) => {
   const [aiAdvice, setAiAdvice] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+
+  // Advice was generated for a specific set of numbers — drop it when the inputs change.
+  useEffect(() => {
+    setAiAdvice(null);
+    setAiError(null);
+  }, [text]);
 
   const fetchAIAdvice = useCallback(async () => {
     setAiLoading(true);
@@ -1008,7 +1023,6 @@ const SavingsSchemeCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
   const [npsAnnuityPct, setNpsAnnuityPct] = useState(40);
 
   const annualAmount = mode === "yearly" ? amount : mode === "monthly" ? amount * 12 : amount;
-  const months = years * 12;
 
   const fdMaturity = mode === "lumpsum"
     ? amount * Math.pow(1 + fdRate / 400, years * 4)
@@ -1156,6 +1170,7 @@ const EmergencyFundCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
     corpus = corpus * (1 + monthlyReturn) + monthlyContribution;
     months += 1;
   }
+  const etaReachable = corpus >= target;
 
   const allocation = {
     savings: target * 0.4,
@@ -1165,11 +1180,11 @@ const EmergencyFundCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
 
   useEffect(() => {
     onContextUpdate(
-      `Emergency Fund: monthly expense ${fmtShort(monthlyExpense)}, target ${fmtShort(target)}, existing ${fmtShort(existingFund)}, gap ${fmtShort(gap)}, completion ${months} months.`
+      `Emergency Fund: monthly expense ${fmtShort(monthlyExpense)}, target ${fmtShort(target)}, existing ${fmtShort(existingFund)}, gap ${fmtShort(gap)}, completion ${etaReachable ? `${months} months` : "not reachable with current inputs"}.`
     );
   }, [monthlyExpense, target, existingFund, gap, months]);
 
-  const insight = `**Emergency buffer plan:**\n\n• Recommended corpus: **${fmtShort(target)}** (${monthsTarget} months adjusted for dependents)\n• Current corpus: **${fmtShort(existingFund)}** | Gap: **${fmtShort(gap)}**\n• At ${fmtShort(monthlyContribution)}/month, estimated completion time: **${months} months**\n• Suggested split: Savings ${fmtShort(allocation.savings)} | Liquid Fund ${fmtShort(allocation.liquid)} | FD ${fmtShort(allocation.fd)}\n\n**Rule**: Never invest emergency corpus in equities. Keep withdrawals possible within 24 hours.`;
+  const insight = `**Emergency buffer plan:**\n\n• Recommended corpus: **${fmtShort(target)}** (${monthsTarget} months adjusted for dependents)\n• Current corpus: **${fmtShort(existingFund)}** | Gap: **${fmtShort(gap)}**\n• At ${fmtShort(monthlyContribution)}/month, estimated completion time: **${etaReachable ? `${months} months` : "not reachable with current inputs"}**\n• Suggested split: Savings ${fmtShort(allocation.savings)} | Liquid Fund ${fmtShort(allocation.liquid)} | FD ${fmtShort(allocation.fd)}\n\n**Rule**: Never invest emergency corpus in equities. Keep withdrawals possible within 24 hours.`;
 
   return (
     <div className="grid lg:grid-cols-2 gap-6">
@@ -1207,7 +1222,7 @@ const EmergencyFundCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
             <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Current</p><p className="text-sm font-bold">{fmtShort(existingFund)}</p></div>
             <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Gap</p><p className="text-sm font-bold">{fmtShort(gap)}</p></div>
             <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Months Target</p><p className="text-sm font-bold">{monthsTarget}</p></div>
-            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Completion ETA</p><p className="text-sm font-bold">{months} mo</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.12)" }}><p className="text-[10px] text-white/60">Completion ETA</p><p className="text-sm font-bold">{etaReachable ? `${months} mo` : "—"}</p></div>
           </div>
         </div>
         <BarChart data={[
@@ -1846,34 +1861,52 @@ const TaxCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
   const [hra, setHra]   = useState(0);
 
   const dedns = Math.min(c80, 150000) + Math.min(d80, 25000) + Math.min(nps, 50000) + hra;
-  const stdDedn = 50000;
-  const taxable = Math.max(0, income - dedns - stdDedn);
 
-  const computeTax = (ti: number) => {
-    if (ti <= 250000) return 0;
-    if (ti <= 500000) return (ti - 250000) * 0.05;
-    if (ti <= 750000) return 12500 + (ti - 500000) * 0.10;
-    if (ti <= 1000000) return 37500 + (ti - 750000) * 0.15;
-    if (ti <= 1250000) return 75000 + (ti - 1000000) * 0.20;
-    if (ti <= 1500000) return 125000 + (ti - 1250000) * 0.25;
-    return 187500 + (ti - 1500000) * 0.30;
+  // Old regime: 80C/80D/NPS/HRA deductions + ₹50K standard deduction.
+  // Slabs: 0–2.5L nil, 2.5–5L 5%, 5–10L 20%, >10L 30%. §87A rebate → no tax up to ₹5L taxable.
+  const oldTaxable = Math.max(0, income - dedns - 50000);
+  const computeOldTax = (ti: number) => {
+    if (ti <= 500000) return 0; // §87A rebate
+    let tax = 250000 * 0.05;
+    tax += (Math.min(ti, 1000000) - 500000) * 0.20;
+    if (ti > 1000000) tax += (ti - 1000000) * 0.30;
+    return tax;
   };
 
-  const taxBefore = computeTax(income - stdDedn) * 1.04;
-  const taxAfter  = computeTax(taxable) * 1.04;
-  const saved     = taxBefore - taxAfter;
-  const effRate   = ((taxAfter / income) * 100).toFixed(1);
-  const savedPct = taxBefore > 0 ? (saved / taxBefore) * 100 : 0;
+  // New regime FY2025-26 (AY 2026-27): ₹75K standard deduction for salaried, no other deductions.
+  // Slabs: 0–4L nil, 4–8L 5%, 8–12L 10%, 12–16L 15%, 16–20L 20%, 20–24L 25%, >24L 30%.
+  // §87A rebate → no tax payable up to ₹12L taxable income.
+  const newTaxable = Math.max(0, income - 75000);
+  const computeNewTax = (ti: number) => {
+    if (ti <= 1200000) return 0; // §87A rebate
+    let tax = 0;
+    if (ti > 400000) tax += (Math.min(ti, 800000) - 400000) * 0.05;
+    if (ti > 800000) tax += (Math.min(ti, 1200000) - 800000) * 0.10;
+    if (ti > 1200000) tax += (Math.min(ti, 1600000) - 1200000) * 0.15;
+    if (ti > 1600000) tax += (Math.min(ti, 2000000) - 1600000) * 0.20;
+    if (ti > 2000000) tax += (Math.min(ti, 2400000) - 2000000) * 0.25;
+    if (ti > 2400000) tax += (ti - 2400000) * 0.30;
+    return tax;
+  };
+
+  const oldTax = computeOldTax(oldTaxable) * 1.04; // + 4% cess
+  const newTax = computeNewTax(newTaxable) * 1.04;
+  const betterRegime = oldTax < newTax ? "old" : "new";
+  const betterTax = Math.min(oldTax, newTax);
+  const saved     = Math.abs(oldTax - newTax);
+  const effRate   = ((betterTax / income) * 100).toFixed(1);
+  const worseTax  = Math.max(oldTax, newTax);
+  const savedPct = worseTax > 0 ? (saved / worseTax) * 100 : 0;
   const taxImpactData = [
-    { value: Math.max(0, taxAfter), color: OG, label: "Tax Payable" },
-    { value: Math.max(0, saved), color: GREEN, label: "Tax Saved" },
+    { value: Math.max(0, betterTax), color: OG, label: "Tax Payable" },
+    { value: Math.max(0, saved), color: GREEN, label: "Saved vs Other Regime" },
   ];
 
   useEffect(() => {
-    onContextUpdate(`Tax Calculator: Income ${fmtShort(income)}, deductions ${fmtShort(dedns+stdDedn)}, tax payable ${fmtShort(taxAfter)}, saved ${fmtShort(saved)}`);
+    onContextUpdate(`Tax Calculator (FY2025-26): Income ${fmtShort(income)}, old regime tax ${fmtShort(oldTax)} (deductions ${fmtShort(dedns + 50000)}), new regime tax ${fmtShort(newTax)}, ${betterRegime} regime wins by ${fmtShort(saved)}`);
   }, [income, c80, d80, nps, hra]);
 
-  const insight = `**You're saving ${fmt(saved)}/year in taxes** 🎉\n\n• Effective tax rate after deductions: **${effRate}%** of gross income\n• Still untapped: ${150000 - c80 > 0 ? `**${fmtShort(150000 - c80)} more in 80C** (PPF/ELSS) ` : ""}${50000 - nps > 0 ? `**${fmtShort(50000 - nps)} more in NPS** ` : ""}\n• Every ₹1L in additional 80C saves **₹10,000–₹30,000** depending on your tax slab\n\n**Quick win**: If you don't have health insurance, buying a ₹25K policy saves ₹7,500 in tax AND protects your family.`;
+  const insight = `**${betterRegime === "old" ? "Old" : "New"} regime wins — you save ${fmt(saved)}/year** 🎉\n\n• Old regime (80C/80D/NPS/HRA + ₹50K standard deduction): tax **${fmt(oldTax)}** on taxable income ${fmtShort(oldTaxable)}\n• New regime FY2025-26 (₹75K standard deduction only): tax **${fmt(newTax)}** on taxable income ${fmtShort(newTaxable)}\n• Effective tax rate (${betterRegime} regime): **${effRate}%** of gross income\n• New regime §87A rebate means zero tax up to ₹12L taxable income\n\n**Note**: 80C/80D/NPS/HRA deductions apply only under the old regime. ${betterRegime === "new" ? "Your deductions aren't enough to beat the new regime's lower slabs." : `Your ${fmtShort(dedns)} in deductions make the old regime the better pick.`}`;
 
   return (
     <div className="grid lg:grid-cols-2 gap-6">
@@ -1883,27 +1916,28 @@ const TaxCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
           <p className="text-xs text-right text-gray-400 mt-0.5">{fmtShort(income)}/year</p>
         </FieldRow>
         <div className="grid grid-cols-2 gap-3">
-          <FieldRow label="80C Investments (max ₹1.5L)"><NumField value={c80} onChange={setC80} min={0} max={150000} step={5000} prefix="₹" /></FieldRow>
-          <FieldRow label="80D Health Insurance (max ₹25K)"><NumField value={d80} onChange={setD80} min={0} max={25000} step={1000} prefix="₹" /></FieldRow>
-          <FieldRow label="NPS Contribution (max ₹50K)"><NumField value={nps} onChange={setNps} min={0} max={50000} step={5000} prefix="₹" /></FieldRow>
-          <FieldRow label="HRA Exemption"><NumField value={hra} onChange={setHra} min={0} max={600000} step={10000} prefix="₹" /></FieldRow>
+          <FieldRow label="80C Investments (old regime, max ₹1.5L)"><NumField value={c80} onChange={setC80} min={0} max={150000} step={5000} prefix="₹" /></FieldRow>
+          <FieldRow label="80D Health Insurance (old regime, max ₹25K)"><NumField value={d80} onChange={setD80} min={0} max={25000} step={1000} prefix="₹" /></FieldRow>
+          <FieldRow label="NPS Contribution (old regime, max ₹50K)"><NumField value={nps} onChange={setNps} min={0} max={50000} step={5000} prefix="₹" /></FieldRow>
+          <FieldRow label="HRA Exemption (old regime)"><NumField value={hra} onChange={setHra} min={0} max={600000} step={10000} prefix="₹" /></FieldRow>
         </div>
+        <p className="text-xs text-gray-400">Deductions above apply only under the old regime. The new regime (FY2025-26) allows just the ₹75,000 standard deduction for salaried income.</p>
       </div>
       <div className="space-y-3">
         <div className="rounded-2xl p-5 text-center" style={{ background: `linear-gradient(135deg, ${GREEN}, #047857)` }}>
-          <p className="text-xs font-semibold text-white/60 uppercase tracking-wide mb-1">Tax Saved This Year</p>
+          <p className="text-xs font-semibold text-white/60 uppercase tracking-wide mb-1">{betterRegime === "old" ? "Old" : "New"} Regime Wins — You Save</p>
           <p className="text-4xl font-extrabold text-white">{fmt(saved)}</p>
-          <p className="text-white/60 text-xs mt-1">Effective rate: {effRate}% of gross income</p>
+          <p className="text-white/60 text-xs mt-1">Tax payable ({betterRegime} regime): {fmt(betterTax)} · {effRate}% of gross income</p>
         </div>
         <BarChart data={[
-          { label: "Total Deductions", value: dedns + stdDedn, color: GREEN },
-          { label: "Taxable Income", value: taxable, color: MB },
-          { label: "Tax Payable", value: taxAfter, color: OG },
+          { label: "Old Regime Tax (with deductions)", value: oldTax, color: MB },
+          { label: "New Regime Tax (FY2025-26)", value: newTax, color: OG },
+          { label: "Saved with Better Regime", value: saved, color: GREEN },
         ]} />
         <div className="mt-4 flex items-center justify-center">
           <UIDonutChart
             data={taxImpactData}
-            totalValue={Math.max(taxBefore, 1)}
+            totalValue={Math.max(worseTax, 1)}
             size={130}
             strokeWidth={16}
             animationDuration={0.8}
@@ -1913,7 +1947,7 @@ const TaxCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) => void }) 
                 <p className="text-lg font-extrabold text-gray-800">
                   {Math.round(Math.max(0, Math.min(100, savedPct)))}%
                 </p>
-                <p className="text-[10px] text-gray-500">Tax Saved</p>
+                <p className="text-[10px] text-gray-500">Saved vs Other</p>
               </div>
             }
           />
@@ -2072,7 +2106,7 @@ const HomeGoalPlanner = ({ onContextUpdate }: { onContextUpdate: (s: string) => 
   return (
     <div className="grid lg:grid-cols-2 gap-6">
       <div className="space-y-4">
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <FieldRow label="City Category">
             <SelectField
               value={cityTier}
@@ -2110,7 +2144,7 @@ const HomeGoalPlanner = ({ onContextUpdate }: { onContextUpdate: (s: string) => 
         <FieldRow label="Current Property Cost">
           <NumField value={homeCostToday} onChange={setHomeCostToday} min={1500000} max={50000000} step={100000} prefix="₹" />
         </FieldRow>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <FieldRow label="Years to Buy"><NumField value={yearsToBuy} onChange={setYearsToBuy} min={1} max={20} step={1} suffix="yrs" /></FieldRow>
           <FieldRow label="Property Inflation"><NumField value={homeInflation} onChange={setHomeInflation} min={3} max={12} step={0.5} suffix="%" /></FieldRow>
           <FieldRow label="Down Payment"><NumField value={downPct} onChange={setDownPct} min={10} max={50} step={1} suffix="%" /></FieldRow>
@@ -2229,7 +2263,7 @@ const EducationGoalPlanner = ({ onContextUpdate }: { onContextUpdate: (s: string
             />
           </FieldRow>
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <FieldRow label="Child Age"><NumField value={childAge} onChange={setChildAge} min={0} max={18} step={1} suffix="yrs" /></FieldRow>
           <FieldRow label="Education Starts At"><NumField value={startAge} onChange={setStartAge} min={16} max={25} step={1} suffix="yrs" /></FieldRow>
           <FieldRow label="Course Duration"><NumField value={durationYears} onChange={setDurationYears} min={1} max={7} step={1} suffix="yrs" /></FieldRow>
@@ -2331,7 +2365,7 @@ const RetirementGoalPlanner = ({ onContextUpdate }: { onContextUpdate: (s: strin
             ]}
           />
         </FieldRow>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <FieldRow label="Current Age"><NumField value={currentAge} onChange={setCurrentAge} min={18} max={59} step={1} suffix="yrs" /></FieldRow>
           <FieldRow label="Retirement Age"><NumField value={retirementAge} onChange={setRetirementAge} min={45} max={75} step={1} suffix="yrs" /></FieldRow>
           <FieldRow label="Life Expectancy"><NumField value={lifeExpectancy} onChange={setLifeExpectancy} min={70} max={100} step={1} suffix="yrs" /></FieldRow>
@@ -2528,7 +2562,7 @@ const WeddingGoalPlanner = ({ onContextUpdate }: { onContextUpdate: (s: string) 
           <FieldRow label="Years to Wedding"><NumField value={yearsToWedding} onChange={setYears} min={1} max={15} step={1} suffix="yrs" /></FieldRow>
           <FieldRow label="Existing Wedding Corpus"><NumField value={existingCorpus} onChange={setExisting} min={0} max={50000000} step={10000} prefix="₹" /></FieldRow>
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <FieldRow label="Monthly SIP"><NumField value={monthlySIP} onChange={setSIP} min={1000} max={500000} step={1000} prefix="₹" /></FieldRow>
           <FieldRow label="Annual Step-up"><NumField value={stepUp} onChange={setStepUp} min={0} max={25} step={1} suffix="%" /></FieldRow>
           <FieldRow label="Expected Return"><NumField value={returnRate} onChange={setReturn} min={5} max={14} step={0.5} suffix="%" /></FieldRow>
@@ -2692,7 +2726,7 @@ const VehicleGoalPlanner = ({ onContextUpdate }: { onContextUpdate: (s: string) 
 
         {/* Savings plan */}
         <div className="h-px bg-gray-100" />
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <FieldRow label="Years to Buy"><NumField value={yearsToBuy} onChange={setYearsToBuy} min={1} max={10} step={1} suffix="yrs" /></FieldRow>
           <FieldRow label="Existing Corpus"><NumField value={existingCorpus} onChange={setExistingCorpus} min={0} max={20000000} step={10000} prefix="₹" /></FieldRow>
           <FieldRow label="Monthly SIP"><NumField value={monthlySIP} onChange={setMonthlySIP} min={500} max={300000} step={500} prefix="₹" /></FieldRow>
@@ -2778,7 +2812,7 @@ const EmergencyFundGoalPlanner = ({ onContextUpdate }: { onContextUpdate: (s: st
   const recommended      = RECOMMENDED[employmentType] ?? RECOMMENDED["salaried-stable"];
   const effectiveTarget  = totalMonthlyExpense * targetMonths;
   const gap              = Math.max(0, effectiveTarget - existingFund);
-  const monthsToComplete = monthlyCapacity > 0 ? Math.ceil(gap / monthlyCapacity) : 999;
+  const monthsToComplete = gap <= 0 ? 0 : monthlyCapacity > 0 ? Math.ceil(gap / monthlyCapacity) : null;
 
   /* Storage strategy returns */
   const STRATEGY_INFO: Record<string, { alloc: string; expectedReturn: string; access: string }> = {
@@ -2791,10 +2825,10 @@ const EmergencyFundGoalPlanner = ({ onContextUpdate }: { onContextUpdate: (s: st
   const stratInfo = STRATEGY_INFO[storageStrategy] ?? STRATEGY_INFO.split;
 
   useEffect(() => {
-    onContextUpdate(`Emergency Fund: ${employmentType}, total expenses ${fmtShort(totalMonthlyExpense)}/mo, target ${fmtShort(effectiveTarget)}, existing ${fmtShort(existingFund)}, gap ${fmtShort(gap)}, ${monthsToComplete} months to complete`);
+    onContextUpdate(`Emergency Fund: ${employmentType}, total expenses ${fmtShort(totalMonthlyExpense)}/mo, target ${fmtShort(effectiveTarget)}, existing ${fmtShort(existingFund)}, gap ${fmtShort(gap)}, ${monthsToComplete !== null ? `${monthsToComplete} months to complete` : "completion not reachable with current inputs"}`);
   }, [employmentType, totalMonthlyExpense, effectiveTarget, existingFund, gap, monthsToComplete]);
 
-  const insight = `**Emergency fund status:**\n\n• Monthly essential expenses: **${fmtShort(totalMonthlyExpense)}**\n• Target (${targetMonths} months): **${fmtShort(effectiveTarget)}**\n• Already saved: **${fmtShort(existingFund)}**\n• Gap: **${fmtShort(gap)}**\n• Time to complete (at ${fmtShort(monthlyCapacity)}/mo): **${monthsToComplete <= 0 ? "Already done!" : `${monthsToComplete} months`}**\n\n**Storage**: ${stratInfo.alloc} | Expected return: ${stratInfo.expectedReturn}\n\n**Rule**: ${recommended.reason}`;
+  const insight = `**Emergency fund status:**\n\n• Monthly essential expenses: **${fmtShort(totalMonthlyExpense)}**\n• Target (${targetMonths} months): **${fmtShort(effectiveTarget)}**\n• Already saved: **${fmtShort(existingFund)}**\n• Gap: **${fmtShort(gap)}**\n• Time to complete (at ${fmtShort(monthlyCapacity)}/mo): **${monthsToComplete === null ? "not reachable with current inputs" : monthsToComplete <= 0 ? "Already done!" : `${monthsToComplete} months`}**\n\n**Storage**: ${stratInfo.alloc} | Expected return: ${stratInfo.expectedReturn}\n\n**Rule**: ${recommended.reason}`;
 
   return (
     <div className="grid lg:grid-cols-2 gap-6">
@@ -2829,7 +2863,7 @@ const EmergencyFundGoalPlanner = ({ onContextUpdate }: { onContextUpdate: (s: st
 
         {/* Target + existing + capacity */}
         <div className="h-px bg-gray-100" />
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <FieldRow label="Target Coverage">
             <SelectField value={String(targetMonths)} onChange={(v) => setTargetMonths(Number(v))} options={[
               { value: "3",  label: "3 months" },
@@ -2881,7 +2915,7 @@ const EmergencyFundGoalPlanner = ({ onContextUpdate }: { onContextUpdate: (s: st
             <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.1)" }}><p className="text-[10px] text-white/60">Monthly Expenses</p><p className="text-sm font-bold">{fmtShort(totalMonthlyExpense)}</p></div>
             <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.1)" }}><p className="text-[10px] text-white/60">Already Saved</p><p className="text-sm font-bold">{fmtShort(existingFund)}</p></div>
             <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.1)" }}><p className="text-[10px] text-white/60">Gap Remaining</p><p className="text-sm font-bold">{fmtShort(gap)}</p></div>
-            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.1)" }}><p className="text-[10px] text-white/60">Months to Complete</p><p className="text-sm font-bold">{gap <= 0 ? "Done ✓" : monthsToComplete + " months"}</p></div>
+            <div className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.1)" }}><p className="text-[10px] text-white/60">Months to Complete</p><p className="text-sm font-bold">{gap <= 0 ? "Done ✓" : monthsToComplete === null ? "—" : monthsToComplete + " months"}</p></div>
           </div>
         </div>
 
@@ -2937,358 +2971,6 @@ const PLANNER_TABS = [
   { id: "emergency",  label: "Emergency Fund Builder",  comp: EmergencyFundGoalPlanner },
 ];
 
-type PlannerGoal = {
-  id: string;
-  type: string;
-  name: string;
-  targetAmount: number;
-  targetYear: number;
-  currentSavings: number;
-  priority: "high" | "medium" | "low";
-  notes: string;
-};
-
-type PlannerProfile = {
-  fullName: string;
-  email: string;
-  phone: string;
-  city: string;
-  familyMembers: number;
-  monthlyIncome: number;
-  monthlyExpenses: number;
-  existingCorpus: number;
-  riskProfile: "conservative" | "balanced" | "aggressive";
-  notes: string;
-};
-
-const plannerReturn = (risk: PlannerProfile["riskProfile"]) => {
-  if (risk === "conservative") return 8;
-  if (risk === "aggressive") return 13;
-  return 11;
-};
-
-const requiredMonthlyForGoal = (targetAmount: number, currentSavings: number, yearsLeft: number, annualReturn: number) => {
-  const y = Math.max(1, yearsLeft);
-  const futureCurrent = currentSavings * Math.pow(1 + annualReturn / 100, y);
-  const gap = Math.max(0, targetAmount - futureCurrent);
-  if (gap <= 0) return 0;
-  const r = annualReturn / 12 / 100;
-  const n = y * 12;
-  return r === 0 ? gap / n : gap * r / ((Math.pow(1 + r, n) - 1) * (1 + r));
-};
-
-const PlannerWorkspace = ({
-  userId,
-  initialName,
-  initialEmail,
-  onContextUpdate,
-}: {
-  userId?: string;
-  initialName?: string;
-  initialEmail?: string;
-  onContextUpdate: (s: string) => void;
-}) => {
-  const yearNow = new Date().getFullYear();
-  const [step, setStep] = useState("profile");
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [status, setStatus] = useState<string>("");
-  const [profile, setProfile] = useState<PlannerProfile>({
-    fullName: initialName ?? "",
-    email: initialEmail ?? "",
-    phone: "",
-    city: "",
-    familyMembers: 3,
-    monthlyIncome: 120000,
-    monthlyExpenses: 70000,
-    existingCorpus: 300000,
-    riskProfile: "balanced",
-    notes: "",
-  });
-  const [goals, setGoals] = useState<PlannerGoal[]>([
-    { id: "goal-home", type: "home", name: "Buy Home", targetAmount: 9000000, targetYear: yearNow + 8, currentSavings: 500000, priority: "high", notes: "" },
-    { id: "goal-edu", type: "education", name: "Child Education", targetAmount: 3500000, targetYear: yearNow + 12, currentSavings: 200000, priority: "high", notes: "" },
-    { id: "goal-ret", type: "retirement", name: "Retirement", targetAmount: 25000000, targetYear: yearNow + 25, currentSavings: 600000, priority: "high", notes: "" },
-  ]);
-  const [reportText, setReportText] = useState("");
-
-  const expectedReturn = plannerReturn(profile.riskProfile);
-  const goalRows = goals.map((g) => {
-    const yearsLeft = Math.max(1, g.targetYear - yearNow);
-    const requiredMonthly = requiredMonthlyForGoal(g.targetAmount, g.currentSavings, yearsLeft, expectedReturn);
-    const progressPct = Math.max(0, Math.min(100, (g.currentSavings / Math.max(1, g.targetAmount)) * 100));
-    return { ...g, yearsLeft, requiredMonthly, progressPct };
-  });
-
-  const totalRequiredMonthly = goalRows.reduce((sum, g) => sum + g.requiredMonthly, 0);
-  const monthlySurplus = Math.max(0, profile.monthlyIncome - profile.monthlyExpenses);
-  const coveragePct = monthlySurplus > 0 ? Math.min(100, (totalRequiredMonthly / monthlySurplus) * 100) : 0;
-  const topGapGoals = [...goalRows].sort((a, b) => b.requiredMonthly - a.requiredMonthly).slice(0, 5);
-
-  useEffect(() => {
-    onContextUpdate(
-      `Planner Workspace: ${goals.length} goals, risk ${profile.riskProfile}, required monthly ${fmtShort(totalRequiredMonthly)}, surplus ${fmtShort(monthlySurplus)}.`
-    );
-  }, [goals.length, profile.riskProfile, totalRequiredMonthly, monthlySurplus]);
-
-  const localKey = `arthaai_planner_${userId ?? "guest"}`;
-
-  useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      setLoading(true);
-      try {
-        const raw = localStorage.getItem(localKey);
-        if (!raw) return;
-        const data = JSON.parse(raw) as {
-          profile?: PlannerProfile;
-          goals?: PlannerGoal[];
-          reportText?: string;
-        };
-        if (!cancelled && data.profile) setProfile(data.profile);
-        if (!cancelled && Array.isArray(data.goals) && data.goals.length > 0) setGoals(data.goals);
-        if (!cancelled && data.reportText) setReportText(data.reportText);
-      } catch {
-        // Ignore invalid local data and continue with defaults.
-      }
-      if (!cancelled) setLoading(false);
-    };
-    load();
-    return () => { cancelled = true; };
-  }, [localKey]);
-
-  const savePlanner = async (withReport?: string) => {
-    setSaving(true);
-    setStatus("");
-    try {
-      localStorage.setItem(
-        localKey,
-        JSON.stringify({
-          profile,
-          goals,
-          reportText: withReport ?? reportText,
-          reportJson: {
-            totalRequiredMonthly,
-            monthlySurplus,
-            expectedReturn,
-            generated_at: new Date().toISOString(),
-          },
-        }),
-      );
-      setStatus("Planner data saved locally.");
-    } catch {
-      setStatus("Save failed in browser storage.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const generateReport = async () => {
-    const highPriority = goalRows.filter((g) => g.priority === "high");
-    const totalTarget = goalRows.reduce((sum, g) => sum + g.targetAmount, 0);
-    const text = [
-      `Financial Planning Report for ${profile.fullName || "User"}`,
-      `Risk profile: ${profile.riskProfile} | Expected return used: ${expectedReturn}%`,
-      `Monthly income: ${fmtShort(profile.monthlyIncome)} | Monthly expenses: ${fmtShort(profile.monthlyExpenses)} | Surplus: ${fmtShort(monthlySurplus)}`,
-      `Goals selected: ${goals.length} | Combined target: ${fmtShort(totalTarget)}`,
-      `Total monthly investment required to stay on track: ${fmtShort(totalRequiredMonthly)}`,
-      monthlySurplus >= totalRequiredMonthly
-        ? "Status: Current surplus can support the required plan."
-        : `Status: Shortfall of ${fmtShort(totalRequiredMonthly - monthlySurplus)} per month. Increase income, reduce expenses, or extend timelines.`,
-      highPriority.length > 0 ? `High-priority goals: ${highPriority.map((g) => g.name).join(", ")}` : "No goals marked high priority.",
-      "Action Plan:",
-      "1. Protect family with emergency fund + term and health insurance.",
-      "2. Automate monthly investments immediately after salary credit.",
-      "3. Review goal assumptions every quarter and adjust SIP step-up annually.",
-      "4. Keep tax planning (80C/80D/NPS/HRA) integrated with annual goal funding.",
-    ].join("\n");
-    setReportText(text);
-    await savePlanner(text);
-    setStep("report");
-  };
-
-  const addGoal = () => {
-    const id = `goal-${Date.now()}`;
-    setGoals((prev) => [
-      ...prev,
-      {
-        id,
-        type: "custom",
-        name: "New Goal",
-        targetAmount: 1000000,
-        targetYear: yearNow + 5,
-        currentSavings: 0,
-        priority: "medium",
-        notes: "",
-      },
-    ]);
-  };
-
-  const steps = [
-    { id: "profile", label: "Profile" },
-    { id: "cashflow", label: "Family & Cashflow" },
-    { id: "goals", label: "Goals Setup" },
-    { id: "dashboard", label: "Consolidated Dashboard" },
-    { id: "report", label: "Report" },
-  ];
-
-  return (
-    <div className="grid lg:grid-cols-[270px_minmax(0,1fr)] gap-5">
-      <aside className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 h-fit lg:sticky lg:top-24">
-        <p className="text-xs font-bold uppercase tracking-wide text-gray-500 mb-3">Planner Steps</p>
-        <div className="space-y-2">
-          {steps.map((s, idx) => (
-            <button
-              key={s.id}
-              onClick={() => setStep(s.id)}
-              className="w-full flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold text-left"
-              style={{ borderColor: step === s.id ? GREEN : "#e5e7eb", background: step === s.id ? "#ecfdf5" : "#fff", color: step === s.id ? GREEN : "#6b7280" }}
-            >
-              <span className="size-5 rounded-full bg-gray-100 text-[11px] font-bold flex items-center justify-center">{idx + 1}</span>
-              {s.label}
-            </button>
-          ))}
-        </div>
-        <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs">
-          <p className="font-semibold text-gray-600 mb-1">Plan Health</p>
-          <p className="text-gray-500">Surplus: {fmtShort(monthlySurplus)}</p>
-          <p className="text-gray-500">Needed: {fmtShort(totalRequiredMonthly)}</p>
-          <p className="text-gray-500">Coverage: {coveragePct.toFixed(0)}%</p>
-        </div>
-        <button
-          onClick={() => savePlanner()}
-          disabled={saving || loading}
-          className="w-full mt-3 rounded-xl px-3 py-2.5 text-sm font-bold text-white disabled:opacity-60"
-          style={{ background: `linear-gradient(135deg, ${DB}, #0f2540)` }}
-        >
-          {saving ? "Saving..." : "Save Planner Data"}
-        </button>
-        {status && <p className="text-[11px] text-gray-500 mt-2">{status}</p>}
-      </aside>
-
-      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-8">
-        {step === "profile" && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">Personal Profile</h3>
-            <div className="grid md:grid-cols-2 gap-3">
-              <FieldRow label="Full Name"><input className="w-full rounded-xl border-2 border-gray-200 px-3 py-2.5 text-sm font-semibold" value={profile.fullName} onChange={(e) => setProfile((p) => ({ ...p, fullName: e.target.value }))} /></FieldRow>
-              <FieldRow label="Email"><input className="w-full rounded-xl border-2 border-gray-200 px-3 py-2.5 text-sm font-semibold" value={profile.email} onChange={(e) => setProfile((p) => ({ ...p, email: e.target.value }))} /></FieldRow>
-              <FieldRow label="Phone"><input className="w-full rounded-xl border-2 border-gray-200 px-3 py-2.5 text-sm font-semibold" value={profile.phone} onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))} /></FieldRow>
-              <FieldRow label="City"><input className="w-full rounded-xl border-2 border-gray-200 px-3 py-2.5 text-sm font-semibold" value={profile.city} onChange={(e) => setProfile((p) => ({ ...p, city: e.target.value }))} /></FieldRow>
-              <FieldRow label="Risk Profile">
-                <SelectField
-                  value={profile.riskProfile}
-                  onChange={(v) => setProfile((p) => ({ ...p, riskProfile: v as PlannerProfile["riskProfile"] }))}
-                  options={[
-                    { value: "conservative", label: "Conservative" },
-                    { value: "balanced", label: "Balanced" },
-                    { value: "aggressive", label: "Aggressive" },
-                  ]}
-                />
-              </FieldRow>
-              <FieldRow label="Family Members"><NumField value={profile.familyMembers} onChange={(v) => setProfile((p) => ({ ...p, familyMembers: v }))} min={1} max={12} step={1} /></FieldRow>
-            </div>
-          </div>
-        )}
-
-        {step === "cashflow" && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">Family Cashflow</h3>
-            <div className="grid md:grid-cols-3 gap-3">
-              <FieldRow label="Monthly Income"><NumField value={profile.monthlyIncome} onChange={(v) => setProfile((p) => ({ ...p, monthlyIncome: v }))} min={10000} max={5000000} step={1000} prefix="₹" /></FieldRow>
-              <FieldRow label="Monthly Expenses"><NumField value={profile.monthlyExpenses} onChange={(v) => setProfile((p) => ({ ...p, monthlyExpenses: v }))} min={0} max={5000000} step={1000} prefix="₹" /></FieldRow>
-              <FieldRow label="Existing Investment Corpus"><NumField value={profile.existingCorpus} onChange={(v) => setProfile((p) => ({ ...p, existingCorpus: v }))} min={0} max={100000000} step={10000} prefix="₹" /></FieldRow>
-            </div>
-            <FieldRow label="Notes">
-              <textarea className="w-full rounded-xl border-2 border-gray-200 px-3 py-2.5 text-sm font-medium" rows={4} value={profile.notes} onChange={(e) => setProfile((p) => ({ ...p, notes: e.target.value }))} />
-            </FieldRow>
-            <div className="grid sm:grid-cols-3 gap-3">
-              <div className="rounded-xl border border-gray-200 p-3"><p className="text-xs text-gray-500">Income</p><p className="font-extrabold text-gray-900">{fmtShort(profile.monthlyIncome)}</p></div>
-              <div className="rounded-xl border border-gray-200 p-3"><p className="text-xs text-gray-500">Expenses</p><p className="font-extrabold text-gray-900">{fmtShort(profile.monthlyExpenses)}</p></div>
-              <div className="rounded-xl border border-gray-200 p-3"><p className="text-xs text-gray-500">Surplus</p><p className="font-extrabold" style={{ color: monthlySurplus > 0 ? GREEN : "#ef4444" }}>{fmtShort(monthlySurplus)}</p></div>
-            </div>
-          </div>
-        )}
-
-        {step === "goals" && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-900">Goals Setup</h3>
-              <button onClick={addGoal} className="rounded-xl border border-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50">+ Add Goal</button>
-            </div>
-            <div className="space-y-3">
-              {goals.map((goal) => (
-                <div key={goal.id} className="rounded-2xl border border-gray-200 p-4">
-                  <div className="grid md:grid-cols-6 gap-3">
-                    <FieldRow label="Goal Name"><input className="w-full rounded-xl border-2 border-gray-200 px-3 py-2 text-sm font-semibold" value={goal.name} onChange={(e) => setGoals((prev) => prev.map((g) => g.id === goal.id ? { ...g, name: e.target.value } : g))} /></FieldRow>
-                    <FieldRow label="Type">
-                      <SelectField value={goal.type} onChange={(v) => setGoals((prev) => prev.map((g) => g.id === goal.id ? { ...g, type: v } : g))}
-                        options={[{ value: "home", label: "Home" }, { value: "education", label: "Education" }, { value: "retirement", label: "Retirement" }, { value: "emergency", label: "Emergency" }, { value: "wedding", label: "Wedding" }, { value: "custom", label: "Custom" }]} />
-                    </FieldRow>
-                    <FieldRow label="Target Amount"><NumField value={goal.targetAmount} onChange={(v) => setGoals((prev) => prev.map((g) => g.id === goal.id ? { ...g, targetAmount: v } : g))} min={10000} max={1000000000} step={10000} prefix="₹" /></FieldRow>
-                    <FieldRow label="Target Year"><NumField value={goal.targetYear} onChange={(v) => setGoals((prev) => prev.map((g) => g.id === goal.id ? { ...g, targetYear: v } : g))} min={yearNow + 1} max={yearNow + 50} step={1} /></FieldRow>
-                    <FieldRow label="Current Savings"><NumField value={goal.currentSavings} onChange={(v) => setGoals((prev) => prev.map((g) => g.id === goal.id ? { ...g, currentSavings: v } : g))} min={0} max={1000000000} step={10000} prefix="₹" /></FieldRow>
-                    <FieldRow label="Priority">
-                      <SelectField value={goal.priority} onChange={(v) => setGoals((prev) => prev.map((g) => g.id === goal.id ? { ...g, priority: v as PlannerGoal["priority"] } : g))}
-                        options={[{ value: "high", label: "High" }, { value: "medium", label: "Medium" }, { value: "low", label: "Low" }]} />
-                    </FieldRow>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {step === "dashboard" && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">Consolidated Dashboard</h3>
-            <div className="grid sm:grid-cols-4 gap-3">
-              <div className="rounded-xl border border-gray-200 p-3"><p className="text-xs text-gray-500">Goals</p><p className="font-extrabold text-gray-900">{goals.length}</p></div>
-              <div className="rounded-xl border border-gray-200 p-3"><p className="text-xs text-gray-500">Required / month</p><p className="font-extrabold text-gray-900">{fmtShort(totalRequiredMonthly)}</p></div>
-              <div className="rounded-xl border border-gray-200 p-3"><p className="text-xs text-gray-500">Available surplus</p><p className="font-extrabold text-gray-900">{fmtShort(monthlySurplus)}</p></div>
-              <div className="rounded-xl border border-gray-200 p-3"><p className="text-xs text-gray-500">Coverage</p><p className="font-extrabold" style={{ color: coveragePct <= 100 ? GREEN : "#ef4444" }}>{coveragePct.toFixed(0)}%</p></div>
-            </div>
-            <BarChart data={topGapGoals.map((g) => ({ label: g.name, value: g.requiredMonthly, color: g.priority === "high" ? OG : g.priority === "medium" ? MB : GREEN }))} />
-            <BenchmarkBand
-              label="Monthly Plan Feasibility"
-              value={coveragePct}
-              min={0}
-              max={200}
-              goodMax={100}
-              format={(n) => `${n.toFixed(0)}%`}
-            />
-          </div>
-        )}
-
-        {step === "report" && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-900">Planning Report</h3>
-              <button onClick={generateReport} className="rounded-xl px-3 py-2 text-xs font-bold text-white" style={{ background: `linear-gradient(135deg, ${OG}, #c44d12)` }}>
-                Generate / Refresh Report
-              </button>
-            </div>
-            <textarea
-              className="w-full min-h-[320px] rounded-2xl border-2 border-gray-200 p-4 text-sm text-gray-700"
-              value={reportText}
-              onChange={(e) => setReportText(e.target.value)}
-              placeholder="Report will be generated here. Later this can be replaced with LLM/MCP generated advisory."
-            />
-            <div className="flex gap-2">
-              <button onClick={() => savePlanner(reportText)} className="rounded-xl border border-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50">
-                Save Report
-              </button>
-              <button onClick={() => setStep("dashboard")} className="rounded-xl border border-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50">
-                Back to Dashboard
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
 /* ═══════════════════════════════════════════════════════════
    GOLD INVESTMENT CALCULATOR
 ═══════════════════════════════════════════════════════════ */
@@ -3310,7 +2992,7 @@ const GoldInvestmentCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) 
     futureValue = lumpsumAmt * Math.pow(1 + r, years);
   } else {
     invested = monthlySIP * n;
-    futureValue = monthlySIP * ((Math.pow(1 + rM, n) - 1) / rM) * (1 + rM);
+    futureValue = rM === 0 ? monthlySIP * n : monthlySIP * ((Math.pow(1 + rM, n) - 1) / rM) * (1 + rM);
   }
   const gains = futureValue - invested;
   const gainPct = futureValue > 0 ? Math.round((gains / futureValue) * 100) : 0;
@@ -3542,7 +3224,6 @@ const SalaryBreakupCalc = ({ onContextUpdate }: { onContextUpdate: (s: string) =
   const [ctc, setCTC] = useState(1200000);
   const [basicPct, setBasicPct] = useState(40);
   const [hraPct, setHraPct] = useState(50); // % of basic
-  const [specialAllowancePct, setSpecialAllowancePct] = useState(100); // remainder flag
   const [pfContribPct, setPfContribPct] = useState(12);
   const [professionalTax, setProfessionalTax] = useState(2400);
   const [bonusPA, setBonusPA] = useState(0);

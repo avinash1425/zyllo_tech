@@ -2,7 +2,6 @@ import { Briefcase, Layers, Mail, Users } from "lucide-react";
 import SEOHead, { breadcrumbSchema, SITE_URL } from "@/components/SEOHead";
 import PageHero from "@/components/PageHero";
 import OurStory from "@/sections/OurStory";
-import Leadership from "@/sections/Leadership";
 import WhyChooseUs from "@/sections/WhyChooseUs";
 import Values from "@/sections/Values";
 import Technologies from "@/sections/Technologies";
@@ -37,9 +36,6 @@ export default function AboutPage() {
       />
       <Reveal>
         <OurStory />
-      </Reveal>
-      <Reveal>
-        <Leadership />
       </Reveal>
       <Reveal>
         <WhyChooseUs />

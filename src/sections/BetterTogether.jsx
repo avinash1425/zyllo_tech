@@ -47,7 +47,7 @@ export default function BetterTogether() {
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#f96706]">
+          <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#c2410c]">
             <span aria-hidden="true" className="h-px w-8 bg-[#f96706]" />
             Stronger As One
             <span aria-hidden="true" className="h-px w-8 bg-[#f96706]" />

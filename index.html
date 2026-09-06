@@ -9,7 +9,7 @@
          so Helmet's hydration takes over cleanly instead of leaving a stale
          duplicate (e.g. two conflicting <link rel="canonical"> tags). -->
     <title>Zyllo Tech | Software Development Company India | Web, Mobile, AI &amp; Cloud</title>
-    <meta name="description" content="Zyllo Tech is a software engineering company in  India delivering web &amp; mobile apps, AI/ML solutions, cloud DevOps, cybersecurity, and QA for enterprises across India, USA, UAE, UK, and globally." data-rh="true">
+    <meta name="description" content="Zyllo Tech is a software engineering company in India delivering web &amp; mobile apps, AI/ML solutions, cloud DevOps, cybersecurity, and QA for enterprises across India, USA, UAE, UK, and globally." data-rh="true">
     <meta name="keywords" content="software development company India, software company Hyderabad, web development company India, mobile app development India, AI ML solutions India, cloud DevOps India, software outsourcing India, IT company India USA, enterprise software India" data-rh="true" />
     <meta name="author" content="Zyllo Tech" data-rh="true" />
     <meta name="google-site-verification" content="_6xwMfBmkqmAt9Kzgu2CqZhANVGls8loK8h1da-FPec" />
@@ -30,7 +30,7 @@
 
 
     <meta property="og:url" content="https://zyllotech.com/" data-rh="true" />
-    <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/KCdCgzQqlrUlZx0GJf8ZTPlKH1p2/social-images/social-1772909865329-Zyllo_Tech_-_PNG_Logo_Icon.webp" data-rh="true">
+    <meta property="og:image" content="https://zyllotech.com/og-default.png" data-rh="true">
     <meta property="og:image:width" content="1200" data-rh="true" />
     <meta property="og:image:height" content="630" data-rh="true" />
     <meta property="og:locale" content="en_IN" data-rh="true" />
@@ -42,7 +42,7 @@
     <meta name="twitter:creator" content="@ZylloS85154" data-rh="true" />
 
 
-    <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/KCdCgzQqlrUlZx0GJf8ZTPlKH1p2/social-images/social-1772909865329-Zyllo_Tech_-_PNG_Logo_Icon.webp" data-rh="true">
+    <meta name="twitter:image" content="https://zyllotech.com/og-default.png" data-rh="true">
 
     <!-- Geo targeting — India-first, global reach (India + USA primary) -->
     <meta name="geo.region" content="IN-TG" data-rh="true" />
@@ -55,12 +55,11 @@
     <meta name="coverage" content="Worldwide" />
     <meta name="target" content="all" />
 
-    <!-- Performance: preconnect to key third-party origins -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- The LCP element (first hero slide) is otherwise undiscoverable until
-         React renders — the shell HTML contains no <img>. Preloading lets the
-         browser fetch it in parallel with the JS bundles. -->
+    <!-- The LCP candidates (nav logo on mobile, first hero slide on larger
+         viewports) are otherwise undiscoverable until React renders — the
+         shell HTML contains no <img>. Preloading lets the browser fetch them
+         in parallel with the JS bundles. -->
+    <link rel="preload" as="image" href="/zyllo-logo-nav.png" fetchpriority="high" />
     <link rel="preload" as="image" href="/hero-home1.webp" fetchpriority="high" />
 
     <!-- Favicon -->
@@ -71,8 +70,8 @@
   
   <meta property="og:title" content="Zyllo Tech | Software Development Company India | Web, Mobile, AI &amp; Cloud" data-rh="true">
   <meta name="twitter:title" content="Zyllo Tech | Software Development Company India | Web, Mobile, AI &amp; Cloud" data-rh="true">
-  <meta property="og:description" content="Zyllo Tech is a software engineering company in  India delivering web &amp; mobile apps, AI/ML solutions, cloud DevOps, cybersecurity, and QA for enterprises across India, USA, UAE, UK, and globally." data-rh="true">
-  <meta name="twitter:description" content="Zyllo Tech is a software engineering company in  India delivering web &amp; mobile apps, AI/ML solutions, cloud DevOps, cybersecurity, and QA for enterprises across India, USA, UAE, UK, and globally." data-rh="true">
+  <meta property="og:description" content="Zyllo Tech is a software engineering company in India delivering web &amp; mobile apps, AI/ML solutions, cloud DevOps, cybersecurity, and QA for enterprises across India, USA, UAE, UK, and globally." data-rh="true">
+  <meta name="twitter:description" content="Zyllo Tech is a software engineering company in India delivering web &amp; mobile apps, AI/ML solutions, cloud DevOps, cybersecurity, and QA for enterprises across India, USA, UAE, UK, and globally." data-rh="true">
 </head>
   <body>
     <div id="root"></div>

@@ -72,6 +72,11 @@ export default function Hero() {
   const [loadedSlides, setLoadedSlides] = useState(() => new Set([0, 1 % SLIDES.length]));
   const intervalRef = useRef(null);
   const touchStartRef = useRef(null);
+  // The 1s crossfade is for slide *changes*; running it on initial mount
+  // delays the hero's first paint (it is the page's LCP element) by a full
+  // second of opacity animation on top of JS boot. First slide paints
+  // instantly; the fade kicks in once the index first changes.
+  const hasChangedSlideRef = useRef(false);
 
   useEffect(() => {
     setLoadedSlides((prev) => {
@@ -84,6 +89,7 @@ export default function Hero() {
   }, [activeIndex]);
 
   function goTo(index) {
+    hasChangedSlideRef.current = true;
     setActiveIndex(((index % SLIDES.length) + SLIDES.length) % SLIDES.length);
   }
 
@@ -100,7 +106,11 @@ export default function Hero() {
   }
 
   function startAutoplay() {
+    // Guard against stacking intervals (mouseleave can fire while one is
+    // already running, which would double the slide speed).
+    if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
+      hasChangedSlideRef.current = true;
       setActiveIndex((i) => (i + 1) % SLIDES.length);
     }, AUTOPLAY_MS);
   }
@@ -149,9 +159,9 @@ export default function Hero() {
         return (
           <article
             key={slide.image}
-            className={`hero-slide absolute inset-0 transition-[opacity,visibility] duration-1000 ease-in-out ${
-              isActive ? "visible opacity-100" : "invisible opacity-0"
-            }`}
+            className={`hero-slide absolute inset-0 ${
+              hasChangedSlideRef.current ? "transition-[opacity,visibility] duration-1000 ease-in-out" : ""
+            } ${isActive ? "visible opacity-100" : "invisible opacity-0"}`}
             aria-hidden={!isActive}
           >
             {loadedSlides.has(index) && (
@@ -309,8 +319,8 @@ export default function Hero() {
         <ArrowRight className="h-6 w-6" aria-hidden="true" />
       </button>
 
-      {/* Dots */}
-      <div className="absolute inset-x-0 bottom-7 z-20 flex justify-center gap-2.5">
+      {/* Dots — button is a 24px+ touch target; the visible dot stays small */}
+      <div className="absolute inset-x-0 bottom-3 z-20 flex justify-center">
         {SLIDES.map((slide, index) => (
           <button
             key={slide.image}
@@ -320,10 +330,15 @@ export default function Hero() {
               restartAutoplay();
             }}
             aria-label={`Go to slide ${index + 1}`}
-            className={`h-[0.55rem] rounded-full shadow-[0_1px_4px_rgba(0,0,0,0.5)] ring-1 ring-black/20 transition-all duration-200 ${
-              index === activeIndex ? "w-[1.85rem] bg-white" : "w-[0.55rem] bg-white/70 hover:bg-white/90"
-            }`}
-          />
+            className="flex min-h-6 min-w-6 items-center justify-center p-2"
+          >
+            <span
+              aria-hidden="true"
+              className={`h-[0.55rem] rounded-full shadow-[0_1px_4px_rgba(0,0,0,0.5)] ring-1 ring-black/20 transition-all duration-200 ${
+                index === activeIndex ? "w-[1.85rem] bg-white" : "w-[0.55rem] bg-white/70 hover:bg-white/90"
+              }`}
+            />
+          </button>
         ))}
       </div>
 

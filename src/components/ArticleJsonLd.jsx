@@ -1,9 +1,11 @@
-import { SITE_URL, SITE_NAME, OG_IMAGE_PATH } from "@/lib/site-config";
+import { SITE_URL, SITE_NAME } from "@/lib/site-config";
 import { serializeJsonLd } from "@/lib/jsonld";
 
 // Article structured data for a single published blog post.
 export default function ArticleJsonLd({ post }) {
-  const rawImage = post.featured_image_url || OG_IMAGE_PATH;
+  // Fallback is the 1200×630 OG card, not the 5:1 wordmark in OG_IMAGE_PATH —
+  // Google's article rich results require 16:9 / 4:3 / 1:1 aspect ratios.
+  const rawImage = post.featured_image_url || "/og-default.png";
   // Schema.org wants an absolute image URL — post.featured_image_url can be
   // a site-relative path (real posts store free-typed URLs; fallback posts
   // use local /public paths like "/blog.png"), so resolve it against

@@ -1,9 +1,19 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Modal from "@/components/Modal";
 
 export default function LegalModal({ isOpen, onClose, title, lastUpdated, sections }) {
   const [reachedEnd, setReachedEnd] = useState(false);
   const scrollRef = useRef(null);
+
+  // Content short enough to fit without scrolling never fires a scroll
+  // event, so "read to the end" must be granted upfront in that case.
+  useEffect(() => {
+    if (!isOpen) return;
+    const el = scrollRef.current;
+    if (el && el.scrollHeight <= el.clientHeight + 24) {
+      setReachedEnd(true);
+    }
+  }, [isOpen, sections]);
 
   function handleScroll(event) {
     if (reachedEnd) return;
@@ -19,10 +29,15 @@ export default function LegalModal({ isOpen, onClose, title, lastUpdated, sectio
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} maxWidthClassName="max-w-2xl">
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      maxWidthClassName="max-w-2xl"
+      labelledBy="legal-modal-title"
+    >
       <div className="flex max-h-[85vh] flex-col">
         <div className="shrink-0 border-b border-[#d9dde2] bg-gradient-to-br from-[#fff2e2] via-white to-[#e6f1f4] px-6 py-6 sm:px-8">
-          <h2 className="text-xl font-bold text-[#1d2735] sm:text-2xl">{title}</h2>
+          <h2 id="legal-modal-title" className="text-xl font-bold text-[#1d2735] sm:text-2xl">{title}</h2>
           <p className="mt-1 text-sm text-[#6c7889]">Last updated: {lastUpdated}</p>
         </div>
 

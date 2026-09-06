@@ -155,7 +155,8 @@ export default function ChallengesSolutions() {
               fill
               sizes="(min-width: 1024px) 380px, 100vw"
               className="object-cover"
-              priority
+              loading="lazy"
+              decoding="async"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
           </div>

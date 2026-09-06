@@ -1,18 +1,11 @@
 # robots.txt — Zyllo Tech (https://zyllotech.com)
-
-User-agent: Googlebot
-Allow: /
-Crawl-delay: 1
-
-User-agent: Bingbot
-Allow: /
-Crawl-delay: 2
-
-User-agent: Slurp
-Allow: /
-
-User-agent: DuckDuckBot
-Allow: /
+#
+# Note on group semantics: a crawler obeys ONLY its most specific matching
+# group. Googlebot/Bingbot previously had their own Allow-only groups, which
+# silently cancelled the Disallow rules below for exactly the bots that
+# matter — so search engines now fall through to the * group on purpose.
+# The explicitly named groups that remain are social-preview and AI
+# answer-engine crawlers we deliberately allow everywhere.
 
 User-agent: Twitterbot
 Allow: /
@@ -26,8 +19,7 @@ Allow: /
 User-agent: WhatsApp
 Allow: /
 
-# AI answer-engine crawlers — explicitly named so intent is unambiguous
-# rather than relying on the catch-all rule below.
+# AI answer-engine crawlers — full access is intentional.
 User-agent: GPTBot
 Allow: /
 
@@ -63,6 +55,7 @@ Allow: /
 Disallow: /admin
 Disallow: /login
 Disallow: /signup
+Disallow: /dashboard
 Disallow: /api/
 Disallow: /*.json$
 Allow: /manifest.json

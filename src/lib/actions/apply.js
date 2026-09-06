@@ -3,10 +3,14 @@ import { notifyAdmin } from "@/lib/notify";
 
 const MAX_RESUME_BYTES = 5 * 1024 * 1024; // 5MB
 
+// job_postings.id is a uuid; anything else is a forged form value and must not
+// become a storage path segment.
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 // Ported from the Next.js server action. Resumes live in a private bucket,
 // so the row stores the storage path and admins read it through a signed URL.
 export async function submitApplication(prevState, formData) {
-  const jobId = formData.get("jobId");
+  const jobId = formData.get("jobId")?.toString().trim();
   const fullName = formData.get("fullName")?.toString().trim();
   const email = formData.get("email")?.toString().trim();
   const phone = formData.get("phone")?.toString().trim();
@@ -16,6 +20,9 @@ export async function submitApplication(prevState, formData) {
 
   if (!jobId || !fullName || !email) {
     return { status: "error", message: "Please fill in all required fields." };
+  }
+  if (!UUID_RE.test(jobId)) {
+    return { status: "error", message: "This job posting is invalid. Please reload the page and try again." };
   }
 
   const experienceYears =
@@ -39,18 +46,14 @@ export async function submitApplication(prevState, formData) {
     return { status: "error", message: "Resume must be under 5MB." };
   }
 
+  // Sanitized to [a-z0-9-] so the applicant's name can never smuggle path
+  // separators or traversal into the storage key.
   const safeName = fullName.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40);
-  const filePath = `${jobId}/${Date.now()}-${safeName || "resume"}.pdf`;
+  const filePath = `${jobId.toLowerCase()}/${Date.now()}-${safeName || "resume"}.pdf`;
 
-  const { error: uploadError } = await supabase.storage
-    .from("resumes")
-    .upload(filePath, resumeFile, { contentType: "application/pdf", upsert: false });
-
-  if (uploadError) {
-    console.error("Failed to upload resume:", uploadError.message);
-    return { status: "error", message: "Failed to upload your resume. Please try again." };
-  }
-
+  // Insert the application row FIRST: the job_id foreign key validates the id
+  // against a real job posting, and a failed insert leaves no orphaned resume
+  // PII sitting in storage.
   const { error } = await supabase.from("job_applications").insert({
     job_id: jobId,
     full_name: fullName,
@@ -66,6 +69,27 @@ export async function submitApplication(prevState, formData) {
     return {
       status: "error",
       message: "Something went wrong submitting your application. Please try again.",
+    };
+  }
+
+  const { error: uploadError } = await supabase.storage
+    .from("resumes")
+    .upload(filePath, resumeFile, { contentType: "application/pdf", upsert: false });
+
+  if (uploadError) {
+    console.error("Failed to upload resume:", uploadError.message);
+    notifyAdmin("career", {
+      full_name: fullName,
+      email,
+      phone,
+      experience_years: experienceYears,
+      resume_url: null,
+      cover_note: coverNote,
+    });
+    return {
+      status: "error",
+      message:
+        "Your application details were received, but the resume upload failed. Please don't re-submit — our team will reach out for your resume.",
     };
   }
 

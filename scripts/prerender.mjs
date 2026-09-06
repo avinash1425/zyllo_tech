@@ -80,12 +80,15 @@ async function main() {
         };
 
   // ── Head + body assembly ──────────────────────────────────────────────────
-  function renderPage({ title, description, canonicalPath, ogImage, schemas, body }) {
+  function renderPage({ title, description, canonicalPath, ogImage, schemas, body, noindex = false }) {
     let html = template;
     const canonical = `${SITE_URL}${canonicalPath}`;
     html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(title)}</title>`);
     html = html.replace(/(<meta name="description" content=")[^"]*(")/, `$1${esc(description)}$2`);
     html = html.replace(/(<link rel="canonical" href=")[^"]*(")/, `$1${esc(canonical)}$2`);
+    if (noindex) {
+      html = html.replace(/(<meta name="robots" content=")[^"]*(")/, `$1noindex,nofollow$2`);
+    }
     html = html.replace(/(<meta property="og:url" content=")[^"]*(")/, `$1${esc(canonical)}$2`);
     html = html.replace(/(<meta property="og:title" content=")[^"]*(")/g, `$1${esc(title)}$2`);
     html = html.replace(/(<meta name="twitter:title" content=")[^"]*(")/g, `$1${esc(title)}$2`);
@@ -127,7 +130,7 @@ async function main() {
 
   // Visible NAP text — mirrors the Organization JSON-LD so trust data exists
   // as crawlable body content, not only inside schema.
-  const napHtml = `<p>Zyllo Tech Software Solutions Pvt. Ltd. · Hyderabad, Telangana, India · <a href="tel:+917075773680">+91 70757 73680</a> · <a href="mailto:info@zyllotech.com">info@zyllotech.com</a></p>`;
+  const napHtml = `<p>Zyllo Tech Software Solutions Private Limited · Hyderabad, Telangana, India · <a href="tel:+917075773680">+91 70757 73680</a> · <a href="mailto:info@zyllotech.com">info@zyllotech.com</a></p>`;
 
   let written = 0;
 
@@ -250,7 +253,27 @@ async function main() {
   };
   for (const [from, to] of Object.entries(REDIRECTS)) {
     const target = `${SITE_URL}${to}`;
-    writeRoute(from, `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Redirecting…</title><link rel="canonical" href="${esc(target)}"><meta http-equiv="refresh" content="0;url=${esc(to)}"><meta name="robots" content="noindex"></head><body><p>This page has moved to <a href="${esc(target)}">${esc(target)}</a>.</p></body></html>`);
+    // No noindex here: Google treats an instant meta refresh as a redirect
+    // and the canonical names the target — adding noindex on top suppresses
+    // the signal consolidation those two provide.
+    writeRoute(from, `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Redirecting…</title><link rel="canonical" href="${esc(target)}"><meta http-equiv="refresh" content="0;url=${esc(to)}"></head><body><p>This page has moved to <a href="${esc(target)}">${esc(target)}</a>.</p></body></html>`);
+    written++;
+  }
+
+  // ── Auth-only routes ──────────────────────────────────────────────────────
+  // Without these stubs the SPA fallback serves /login etc. as a copy of the
+  // prerendered homepage — index,follow plus a homepage canonical — and thin
+  // auth pages leak into the index as homepage duplicates. The stubs keep the
+  // real app shell (the SPA still boots into #root) but tell crawlers to stay
+  // out. /admin is also robots.txt-disallowed; the meta is defense in depth.
+  const AUTH_ROUTES = [
+    { p: "/login", t: "Sign In | Zyllo Tech", d: "Sign in to your Zyllo Tech account." },
+    { p: "/signup", t: "Create Account | Zyllo Tech", d: "Create your Zyllo Tech account." },
+    { p: "/dashboard", t: "Dashboard | Zyllo Tech", d: "Your Zyllo Tech dashboard." },
+    { p: "/admin", t: "Admin | Zyllo Tech", d: "Zyllo Tech administration." },
+  ];
+  for (const r of AUTH_ROUTES) {
+    writeRoute(r.p, renderPage({ title: r.t, description: r.d, canonicalPath: r.p, noindex: true }));
     written++;
   }
 
@@ -329,9 +352,8 @@ async function main() {
     const routePath = `/blog/${post.slug}`;
     const title = `${post.title} | Zyllo Tech`;
     const description = post.excerpt || "";
-    const image = post.featured_image_url?.startsWith("/")
-      ? `${SITE_URL}${post.featured_image_url}`
-      : post.featured_image_url;
+    const rawImage = post.featured_image_url || "/og-default.png";
+    const image = rawImage.startsWith("/") ? `${SITE_URL}${rawImage}` : rawImage;
     const articleSchema = {
       "@context": "https://schema.org",
       "@type": "Article",
@@ -364,6 +386,77 @@ async function main() {
     }
     writeRoute(routePath, renderPage({ title, description, canonicalPath: routePath, ogImage: image, schemas, body }));
     written++;
+  }
+
+  // ── Job postings ──────────────────────────────────────────────────────────
+  // generate-sitemap.mjs advertises /careers/:id URLs, but without these
+  // prerenders those URLs serve the SPA fallback — a copy of the prerendered
+  // homepage whose canonical points at "/", which reads to Google as
+  // "duplicate of the homepage" and keeps every posting out of Google for
+  // Jobs. Fetches the same open postings the sitemap script does; fail-soft
+  // like everything else here.
+  try {
+    const { createClient } = await import("@supabase/supabase-js");
+    const supabase = createClient(
+      process.env.VITE_SUPABASE_URL || "https://zfjeflpvwizlteflypsx.supabase.co",
+      process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmamVmbHB2d2l6bHRlZmx5cHN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzI3NDQsImV4cCI6MjA4ODIwODc0NH0.ByQFv9bNnc1ibdeE1nWoHhqIKFw-mGxFbb2nsPc7F_s",
+    );
+    const { data: jobs, error } = await supabase
+      .from("job_postings")
+      .select("id, title, description, location, employment_type, created_at, updated_at")
+      .eq("status", "open");
+    if (error) throw error;
+    for (const job of jobs ?? []) {
+      const routePath = `/careers/${job.id}`;
+      const title = `${job.title} | Careers | Zyllo Tech`;
+      const description = (job.description || `${job.title} at Zyllo Tech, Hyderabad.`)
+        .replace(/\s+/g, " ")
+        .slice(0, 160);
+      // Mirrors src/components/JobPostingJsonLd.jsx: 90 days from posting but
+      // never sooner than 30 days out — the posting is verifiably still open
+      // at build time, and a past validThrough drops it from Google for Jobs.
+      const posted = job.created_at ? new Date(job.created_at) : new Date();
+      const ninety = new Date(posted);
+      ninety.setDate(ninety.getDate() + 90);
+      const floor = new Date();
+      floor.setDate(floor.getDate() + 30);
+      const jobSchema = {
+        "@context": "https://schema.org",
+        "@type": "JobPosting",
+        title: job.title,
+        description: job.description || `${job.title} at Zyllo Tech Software Solutions Private Limited.`,
+        datePosted: job.created_at || undefined,
+        validThrough: (ninety > floor ? ninety : floor).toISOString(),
+        employmentType: "FULL_TIME",
+        hiringOrganization: {
+          "@type": "Organization",
+          name: "Zyllo Tech Software Solutions Private Limited",
+          sameAs: SITE_URL,
+          logo: `${SITE_URL}/icon-512.png`,
+        },
+        jobLocation: {
+          "@type": "Place",
+          address: { "@type": "PostalAddress", addressLocality: job.location || "Hyderabad", addressCountry: "IN" },
+        },
+        directApply: true,
+      };
+      const schemas = [
+        crumbs([
+          { name: "Home", url: SITE_URL },
+          { name: "Careers", url: `${SITE_URL}/careers` },
+          { name: job.title, url: `${SITE_URL}${routePath}` },
+        ]),
+        jobSchema,
+      ];
+      let body = `<header>${navLinks}<p><a href="/careers">← Careers</a></p><h1>${esc(job.title)}</h1><p><small>${esc(job.location || "Hyderabad, India")}${job.employment_type ? " · " + esc(job.employment_type) : ""}</small></p></header>`;
+      body += `<article><p>${esc(job.description || "")}</p></article>`;
+      body += `<footer><p>Apply directly on this page — no account required. Questions: <a href="mailto:info@zyllotech.com">info@zyllotech.com</a></p></footer>`;
+      writeRoute(routePath, renderPage({ title, description, canonicalPath: routePath, schemas, body }));
+      written++;
+    }
+  } catch (err) {
+    console.warn(`[prerender] skipped job-posting prerenders: ${err?.message || err}`);
   }
 
   console.log(`[prerender] wrote ${written} routes into dist/`);

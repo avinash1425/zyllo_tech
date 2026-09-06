@@ -19,6 +19,7 @@ const Signup = () => {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmationPending, setConfirmationPending] = useState(false);
 
   useEffect(() => {
     if (isHydrated && isAuthenticated) {
@@ -51,11 +52,19 @@ const Signup = () => {
     setIsSubmitting(true);
     try {
       await signUp({ name, email, password });
-      toast({
-        title: "Account created",
-        description: "You're signed in. Welcome to Zyllo Tech.",
-      });
-      navigate("/dashboard", { replace: true });
+      // Supabase only returns a session when email confirmation is disabled.
+      // If confirmation is pending, don't claim the user is signed in.
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        toast({
+          title: "Account created",
+          description: "You're signed in. Welcome to Zyllo Tech.",
+        });
+        navigate("/dashboard", { replace: true });
+      } else {
+        setConfirmationPending(true);
+      }
     } catch (signupError) {
       setError(signupError instanceof Error ? signupError.message : "Unable to create account.");
     } finally {
@@ -76,6 +85,23 @@ const Signup = () => {
             <div className="rounded-2xl border border-border bg-card p-8 shadow-xl relative overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-primary" />
 
+              {confirmationPending ? (
+                <div className="text-center">
+                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 mb-4">
+                    <Mail size={28} className="text-primary" />
+                  </div>
+                  <h1 className="font-display text-2xl font-bold text-foreground mb-2">Check Your Email</h1>
+                  <p className="text-sm text-muted-foreground">
+                    We've sent a confirmation link to <span className="font-medium text-foreground">{email}</span>.
+                    Click the link to confirm your account, then sign in.
+                  </p>
+                  <Link to="/login" className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-all shadow-lg glow">
+                    Go to Sign In
+                    <ArrowRight size={16} />
+                  </Link>
+                </div>
+              ) : (
+                <>
               <div className="text-center mb-8">
                 <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 mb-4">
                   <UserPlus size={28} className="text-primary" />
@@ -150,6 +176,8 @@ const Signup = () => {
                 Already have an account?{" "}
                 <Link to="/login" className="text-primary font-medium hover:underline">Sign In</Link>
               </p>
+                </>
+              )}
             </div>
           </motion.div>
         </div>

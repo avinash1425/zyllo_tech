@@ -1,4 +1,4 @@
-import { SITE_URL, LEGAL_NAME, OG_IMAGE_PATH } from "@/lib/site-config";
+import { SITE_URL, LEGAL_NAME } from "@/lib/site-config";
 import { serializeJsonLd } from "@/lib/jsonld";
 
 // schema.org JobPosting requires employmentType from a fixed enum, but
@@ -28,15 +28,18 @@ function toSchemaEmploymentType(raw) {
 
 // Google for Jobs requires a validThrough date or treats the posting as
 // stale after ~30 days. job_postings has no explicit expiry column, so
-// this uses a rolling 90-day window from created_at as a reasonable
-// stand-in — long enough that an actively "open" posting won't be flagged
-// expired, short enough that a forgotten posting eventually ages out of
-// rich results instead of showing indefinitely.
+// this uses a 90-day window from created_at — but never earlier than 30
+// days from now: this component only renders for postings that are still
+// open, and a validThrough in the past makes Google drop the posting from
+// the jobs surface (and flag it in Search Console) while it is genuinely
+// still accepting applicants.
 function getValidThrough(createdAt) {
   const posted = createdAt ? new Date(createdAt) : new Date();
   const validThrough = new Date(posted);
   validThrough.setDate(validThrough.getDate() + 90);
-  return validThrough.toISOString();
+  const floor = new Date();
+  floor.setDate(floor.getDate() + 30);
+  return (validThrough > floor ? validThrough : floor).toISOString();
 }
 
 export default function JobPostingJsonLd({ job }) {
@@ -52,7 +55,9 @@ export default function JobPostingJsonLd({ job }) {
       "@type": "Organization",
       name: LEGAL_NAME,
       sameAs: SITE_URL,
-      logo: `${SITE_URL}${OG_IMAGE_PATH}`,
+      // Google wants a roughly square logo ≥112×112 here — not the 5:1
+      // wordmark banner used for OG images.
+      logo: `${SITE_URL}/icon-512.png`,
     },
     jobLocation: {
       "@type": "Place",

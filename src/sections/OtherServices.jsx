@@ -39,6 +39,10 @@ export default function OtherServices({ excludeSlug }) {
               <Link
                 key={`${service.slug}-${index}`}
                 href={`/services/${service.slug}`}
+                // Second half of the track only exists to make the loop
+                // seamless — hide the duplicates from assistive tech.
+                aria-hidden={index >= others.length ? "true" : undefined}
+                tabIndex={index >= others.length ? -1 : undefined}
                 className="group flex w-80 shrink-0 flex-col overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl"
               >
                 <div className="relative h-44 w-full overflow-hidden">
@@ -47,10 +51,8 @@ export default function OtherServices({ excludeSlug }) {
                     alt={service.title}
                     fill
                     sizes="320px"
-                    // Marquee tiles sit far outside the viewport in a wide flex
-                    // track — native lazy-loading never fires until the track
-                    // scrolls them in, leaving blank tiles for seconds.
-                    loading="eager"
+                    loading="lazy"
+                    decoding="async"
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-black/20" />
@@ -107,6 +109,11 @@ export default function OtherServices({ excludeSlug }) {
           }
           to {
             transform: translateX(-50%);
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .marquee-track {
+            animation: none;
           }
         }
       `}</style>
