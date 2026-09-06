@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useActionState } from "@/lib/useActionState";
-import { Check, ChevronDown, Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { Check, ChevronDown, Clock, Globe, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { submitContactForm } from "@/lib/actions/contact";
 
 const SERVICES = [
@@ -16,6 +16,14 @@ const SERVICES = [
   "Other",
 ];
 
+const BUDGET_RANGES = [
+  "Under $5,000",
+  "$5,000 – $15,000",
+  "$15,000 – $50,000",
+  "$50,000+",
+  "Not sure yet",
+];
+
 // Folded in from the old standalone ContactInfo section — one unified
 // card (dark rail + form) reads as a single, deliberate piece rather than
 // two disconnected sections stacked on the page.
@@ -23,7 +31,13 @@ const CONTACT_ITEMS = [
   { icon: Phone, label: "Call Us", value: "+91 70757 73680", href: "tel:+917075773680" },
   { icon: Mail, label: "Email Us", value: "info@zyllotech.com", href: "mailto:info@zyllotech.com" },
   { icon: MessageCircle, label: "WhatsApp", value: "Chat with us", href: "https://wa.me/917075773680" },
-  { icon: MapPin, label: "Location", value: "India", href: null },
+  { icon: MapPin, label: "Location", value: "Hyderabad, India — serving US, EU & worldwide", href: null },
+  {
+    icon: Globe,
+    label: "Timezone",
+    value: "4+ hrs daily overlap with US East Coast; full UK/EU business-hours overlap",
+    href: null,
+  },
   { icon: Clock, label: "Response Time", value: "Within one business day", href: null },
 ];
 
@@ -40,7 +54,7 @@ function RequiredMark() {
 // A fully custom listbox rather than a native <select> — native option
 // styling can't be themed, which was the actual complaint. The hidden
 // input keeps the value in the form's FormData for the server action.
-function ServiceDropdown({ value, onChange, error }) {
+function FormDropdown({ id, name, options, placeholder, value, onChange, error }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
 
@@ -56,10 +70,10 @@ function ServiceDropdown({ value, onChange, error }) {
 
   return (
     <div ref={wrapRef} className="relative">
-      <input type="hidden" name="service" value={value} />
+      <input type="hidden" name={name} value={value} />
       <button
         type="button"
-        id="service"
+        id={id}
         onClick={() => setOpen((prev) => !prev)}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -68,7 +82,7 @@ function ServiceDropdown({ value, onChange, error }) {
         } ${open ? "border-[#1c2f4a]/60 bg-white ring-4 ring-[#1c2f4a]/10" : ""}`}
       >
         <span className={value ? "text-[#1d2735]" : "text-[#6c7889]/60"}>
-          {value || "Select a service"}
+          {value || placeholder}
         </span>
         <ChevronDown
           className={`h-4 w-4 shrink-0 text-[#6c7889] transition-transform duration-200 ${open ? "rotate-180" : ""}`}
@@ -81,14 +95,14 @@ function ServiceDropdown({ value, onChange, error }) {
           role="listbox"
           className="absolute z-20 mt-2 max-h-64 w-full overflow-auto rounded-xl border border-[#e2e5ea] bg-white p-1.5 shadow-xl shadow-[#1c2f4a]/15"
         >
-          {SERVICES.map((service) => {
-            const selected = service === value;
+          {options.map((option) => {
+            const selected = option === value;
             return (
-              <li key={service} role="option" aria-selected={selected}>
+              <li key={option} role="option" aria-selected={selected}>
                 <button
                   type="button"
                   onClick={() => {
-                    onChange(service);
+                    onChange(option);
                     setOpen(false);
                   }}
                   className={`flex w-full items-center justify-between gap-2 rounded-lg px-3.5 py-2.5 text-left text-sm transition-colors duration-150 ${
@@ -97,7 +111,7 @@ function ServiceDropdown({ value, onChange, error }) {
                       : "text-[#1d2735] hover:bg-[#fafbfc]"
                   }`}
                 >
-                  {service}
+                  {option}
                   {selected && <Check className="h-4 w-4 shrink-0 text-[#f96706]" aria-hidden="true" />}
                 </button>
               </li>
@@ -115,6 +129,7 @@ export default function ContactForm() {
   const [state, formAction, isPending] = useActionState(submitContactForm, initialState);
   const [service, setService] = useState("");
   const [serviceError, setServiceError] = useState("");
+  const [budget, setBudget] = useState("");
 
   function handleSubmit(event) {
     if (!service) {
@@ -219,6 +234,19 @@ export default function ContactForm() {
                 <p className="mt-2 text-sm text-[#6c7889]">
                   Our team will reach out within one business day.
                 </p>
+                <div className="mt-6 max-w-md text-left">
+                  <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#1c2f4a]">
+                    What happens next
+                  </span>
+                  <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-[#6c7889]">
+                    <li>We reply within one business day.</li>
+                    <li>
+                      A short discovery call about your users, workflows, and
+                      constraints — scheduled in your timezone.
+                    </li>
+                    <li>You receive a written scope and phased estimate.</li>
+                  </ol>
+                </div>
               </div>
             ) : (
               <form onSubmit={(event) => { handleSubmit(event); if (!event.defaultPrevented) formAction(event); }} className="flex flex-col gap-7">
@@ -260,16 +288,14 @@ export default function ContactForm() {
 
                     <div>
                       <label htmlFor="phone" className="mb-1.5 block text-sm font-medium text-[#1d2735]">
-                        Phone Number
-                        <RequiredMark />
+                        Phone (optional)
                       </label>
                       <input
                         id="phone"
                         name="phone"
                         type="tel"
                         autoComplete="tel"
-                        required
-                        placeholder="+91 00000 00000"
+                        placeholder="Include country code, e.g. +1 555 000 0000"
                         className="w-full rounded-lg border border-[#d9dde2] bg-[#fafbfc] px-4 py-2.5 text-sm text-[#1d2735] placeholder:text-[#6c7889]/60 outline-none transition-all duration-200 focus:border-[#1c2f4a]/60 focus:bg-white focus:ring-4 focus:ring-[#1c2f4a]/10"
                       />
                     </div>
@@ -299,13 +325,32 @@ export default function ContactForm() {
                       Service Required
                       <RequiredMark />
                     </label>
-                    <ServiceDropdown
+                    <FormDropdown
+                      id="service"
+                      name="service"
+                      options={SERVICES}
+                      placeholder="Select a service"
                       value={service}
                       onChange={(next) => {
                         setService(next);
                         setServiceError("");
                       }}
                       error={serviceError}
+                    />
+                  </div>
+
+                  <div className="mt-5">
+                    <label htmlFor="budget" className="mb-1.5 block text-sm font-medium text-[#1d2735]">
+                      Project budget (optional)
+                    </label>
+                    <FormDropdown
+                      id="budget"
+                      name="budget"
+                      options={BUDGET_RANGES}
+                      placeholder="Select a budget range"
+                      value={budget}
+                      onChange={setBudget}
+                      error=""
                     />
                   </div>
 

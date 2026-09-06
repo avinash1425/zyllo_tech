@@ -216,7 +216,7 @@ export default function Footer() {
               </li>
               <li className="group flex items-start gap-2.5 transition-transform duration-200 hover:translate-x-1">
                 <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#f96706]" aria-hidden="true" />
-                <span className="transition-colors duration-200 group-hover:text-white">India</span>
+                <span className="transition-colors duration-200 group-hover:text-white">Hyderabad, India · Serving clients worldwide</span>
               </li>
             </ul>
 

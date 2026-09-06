@@ -11,7 +11,7 @@ const AUTOPLAY_MS = 6500;
 const TRUST_ITEMS = [
   "DPIIT-Recognized — Startup India",
   "Response Within 1 Business Day",
-  "India-Based, Globally Delivered",
+  "US & EU Timezone Overlap",
 ];
 
 const SLIDES = [

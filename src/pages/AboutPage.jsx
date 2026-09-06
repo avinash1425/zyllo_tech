@@ -23,9 +23,9 @@ export default function AboutPage() {
         breadcrumbLabel="About"
         eyebrow="About Zyllo Tech"
         title="Building Digital Solutions That Drive Growth"
-        description="We are a technology company dedicated to delivering innovative, scalable, and reliable software solutions for businesses worldwide."
+        description="Zyllo Tech builds custom web, mobile, AI, and cloud software for startups and SMBs in India, the US, and Europe. Founded in 2023, we're a deliberately small senior team with a simple process — discovery, written scope, weekly demos, launch, support — and we'd rather show you how we work than rent logos."
         image="/about.webp"
-        imageAlt="The Zyllo Tech team at work"
+        imageAlt="Software team collaborating at work"
         primaryCta={{ label: "Start Your Project", href: "/contact" }}
         quickLinks={[
           { icon: Layers, label: "Services", href: "/services" },

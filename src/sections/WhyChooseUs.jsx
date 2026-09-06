@@ -6,34 +6,34 @@ import { Users, Rocket, ShieldCheck, Target } from "lucide-react";
 // being identical.
 const REASONS = [
   {
-    icon: Users,
-    title: "Experienced Team",
+    icon: Rocket,
+    title: "Speed",
     description:
-      "Skilled professionals with expertise across modern technologies.",
+      "Working software demoed every week — a first production version typically ships in 8–16 weeks.",
     accent: "#f96706",
     accentSoft: "#fbbf62",
   },
   {
-    icon: Rocket,
-    title: "Quality Delivery",
+    icon: Target,
+    title: "Cost That Makes Sense",
     description:
-      "Reliable solutions delivered on time with industry best practices.",
+      "Senior engineering at India economics, with written phased estimates and no surprise invoices.",
     accent: "#f0650f",
     accentSoft: "#fb923c",
   },
   {
     icon: ShieldCheck,
-    title: "Secure Solutions",
+    title: "Zero Lock-In",
     description:
-      "Applications built with security, performance, and scalability in mind.",
+      "Your code in your repository from the first commit, IP assigned to you, written scope, and an easy exit.",
     accent: "#3089a6",
     accentSoft: "#6d94d6",
   },
   {
-    icon: Target,
-    title: "Customer Focused",
+    icon: Users,
+    title: "Communication That Works",
     description:
-      "Every solution is designed around your business goals and long-term success.",
+      "English-first written process, 4+ hours of daily overlap with the US East Coast plus full UK/EU hours, and a response within 1 business day.",
     accent: "#3089a6",
     accentSoft: "#4d6fb8",
   },

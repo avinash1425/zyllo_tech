@@ -81,7 +81,7 @@ export default function About() {
             <div className="relative aspect-[4/3.4] w-full overflow-hidden rounded-[1.45rem] bg-white">
               <Image
                 src="/protfolio.webp"
-                alt="The Zyllo Tech team collaborating in the studio"
+                alt="Software engineers collaborating on a project"
                 fill
                 sizes="(min-width: 1024px) 48vw, 100vw"
                 className="object-cover"

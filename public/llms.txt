@@ -15,6 +15,10 @@
 
 ## Company
 - [About](https://zyllotech.com/about)
+- [Hire Dedicated Developers](https://zyllotech.com/hire-dedicated-developers): dedicated development teams from India — weekly demos, your repo, your IP
+- [Engagement Models](https://zyllotech.com/engagement-models): fixed scope vs dedicated team vs staff augmentation, compared honestly
+- [Software Development for US Companies](https://zyllotech.com/software-development-company-usa): East Coast overlap, US-style contracts, weekly demos in your timezone
+- [Software Development for UK & EU Companies](https://zyllotech.com/software-development-company-europe): full business-hours overlap, GDPR-aware engineering with DPAs
 - [Software Development in Hyderabad](https://zyllotech.com/custom-software-development-hyderabad)
 - [Industries](https://zyllotech.com/industries)
 - [Portfolio](https://zyllotech.com/portfolio)

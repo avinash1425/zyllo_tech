@@ -1,0 +1,226 @@
+import { CompatLink as Link } from "@/components/NextCompat";
+import SEOHead, { breadcrumbSchema, faqSchema, serviceSchema, SITE_URL } from "@/components/SEOHead";
+import PageHero from "@/components/PageHero";
+import ContactCTA from "@/sections/ContactCTA";
+
+// Explains the three ways to engage Zyllo Tech. Content rules: honest
+// guidance only — no invented rates, discounts, or client counts.
+const FAQS = [
+  {
+    q: "Which model is cheapest?",
+    a: "It depends on how well-defined your work is. Fixed scope is most predictable for a clearly specified build; a dedicated team costs less per unit of work when requirements evolve, because you skip repeated re-scoping. Every engagement starts with a written estimate — ask and we'll give you numbers in the first call.",
+  },
+  {
+    q: "Can we switch models mid-engagement?",
+    a: "Yes. A common path is a fixed-scope first version followed by a dedicated team for ongoing product development. The written scope defines the transition so there are no surprises.",
+  },
+  {
+    q: "Who manages the developers in each model?",
+    a: "Fixed scope: we manage delivery end to end against the written scope. Dedicated team: shared — you set priorities, we run engineering practice. Staff augmentation: you manage the developers directly inside your own process.",
+  },
+  {
+    q: "Who owns the code in every model?",
+    a: "You do, in all three. Your code lives in your repository from the first commit and contracts assign all IP to you, regardless of engagement model.",
+  },
+  {
+    q: "Is there a minimum commitment?",
+    a: "Fixed scope has no minimum beyond the scoped build itself. Dedicated teams typically run 3 months minimum so the team can genuinely absorb your product. Staff augmentation is agreed per developer in the written scope, which always includes an easy exit.",
+  },
+  {
+    q: "How do engagements start?",
+    a: "The same way in every model: a discovery call, then a written phased scope and estimate before any commitment. We respond to first contact within one business day and sign an NDA on request.",
+  },
+];
+
+const MODELS = [
+  {
+    name: "Fixed Scope",
+    bestFor: "Well-defined builds with a clear endpoint",
+    pricing: "Fixed quote",
+    flexibility: "Changes go through written scope revisions",
+    cadence: "Weekly demos of working software",
+    timeline: "First production version typically 8–16 weeks",
+  },
+  {
+    name: "Dedicated Team",
+    bestFor: "Evolving products needing sustained development",
+    pricing: "Monthly team rate",
+    flexibility: "Reprioritise sprint to sprint — no re-scoping",
+    cadence: "Your standups, weekly demos, written updates",
+    timeline: "Ongoing; typically 3-month minimum",
+  },
+  {
+    name: "Staff Augmentation",
+    bestFor: "Existing teams needing specific skills",
+    pricing: "Monthly per-developer rate",
+    flexibility: "Scale individual roles up or down",
+    cadence: "Developers work inside your own process",
+    timeline: "Ongoing; agreed per role",
+  },
+];
+
+const ROWS = [
+  ["Best for", "bestFor"],
+  ["Pricing basis", "pricing"],
+  ["Flexibility", "flexibility"],
+  ["Communication cadence", "cadence"],
+  ["Typical timeline", "timeline"],
+];
+
+export default function EngagementModelsPage() {
+  return (
+    <>
+      <SEOHead
+        title="Software Development Engagement Models | Zyllo Tech"
+        description="Fixed scope, dedicated team, or staff augmentation — an honest comparison of software development engagement models, when each fits, and how Zyllo Tech runs all three."
+        canonical="/engagement-models"
+        structuredData={[
+          breadcrumbSchema([
+            { name: "Home", url: SITE_URL },
+            { name: "Engagement Models", url: `${SITE_URL}/engagement-models` },
+          ]),
+          serviceSchema({
+            name: "Software Development Engagement Models",
+            description:
+              "Fixed-scope projects, dedicated development teams, and staff augmentation from Zyllo Tech — written phased scopes, weekly demos, and your code in your repository in every model.",
+            url: `${SITE_URL}/engagement-models`,
+          }),
+          faqSchema(FAQS),
+        ]}
+      />
+      <PageHero
+        eyebrow="How We Work"
+        title="Engagement Models: Fixed Scope, Dedicated Team, or Staff Augmentation"
+        description="Three honest ways to work with us — and plain guidance on which fits your situation."
+      />
+
+      <section className="bg-white py-12 lg:py-16">
+        <div className="mx-auto max-w-3xl px-6 lg:px-8">
+          <h2 className="text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
+            Fixed scope
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-[#2b303b]">
+            You bring a well-defined build; we deliver it against a written, phased scope
+            for a fixed quote. Choose this when you know what you need — a customer portal,
+            a marketing site, a first product version with clear requirements — and want
+            budget certainty. You still see working software demoed weekly, and changes are
+            handled through written scope revisions rather than surprise invoices. The first
+            production version of a custom application typically lands in 8–16 weeks.
+          </p>
+
+          <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
+            Dedicated team
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-[#2b303b]">
+            A stable team of senior engineers working only on your product for a monthly
+            team rate. Choose this when the product keeps evolving and a fixed spec would be
+            out of date before it was signed. You direct priorities sprint to sprint; the
+            team joins your standups and tools, and knowledge compounds instead of
+            evaporating between projects. This model is covered in depth on{" "}
+            <Link href="/hire-dedicated-developers" className="font-medium text-[#1d2735] underline decoration-[#e7e9ee] underline-offset-4 transition-colors hover:text-[#f96706] hover:decoration-[#f96706]">
+              hire dedicated developers
+            </Link>.
+          </p>
+
+          <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
+            Staff augmentation
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-[#2b303b]">
+            Individual engineers — say a{" "}
+            <Link href="/services/web-development" className="font-medium text-[#1d2735] underline decoration-[#e7e9ee] underline-offset-4 transition-colors hover:text-[#f96706] hover:decoration-[#f96706]">
+              React developer
+            </Link>
+            , an{" "}
+            <Link href="/services/ai-solutions" className="font-medium text-[#1d2735] underline decoration-[#e7e9ee] underline-offset-4 transition-colors hover:text-[#f96706] hover:decoration-[#f96706]">
+              AI/LLM engineer
+            </Link>
+            , or a{" "}
+            <Link href="/services/quality-engineering-qa" className="font-medium text-[#1d2735] underline decoration-[#e7e9ee] underline-offset-4 transition-colors hover:text-[#f96706] hover:decoration-[#f96706]">
+              QA specialist
+            </Link>{" "}
+            — who report into your existing engineering process at a monthly per-developer
+            rate. Choose this when you already run delivery and just need specific skills
+            without a hiring cycle.
+          </p>
+
+          <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
+            Side-by-side comparison
+          </h2>
+          <div className="mt-6 overflow-x-auto">
+            <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+              <thead>
+                <tr>
+                  <th className="border-b-2 border-[#e7e9ee] p-3 font-semibold text-[#1d2735]"></th>
+                  {MODELS.map((m) => (
+                    <th key={m.name} className="border-b-2 border-[#e7e9ee] p-3 font-semibold text-[#1d2735]">
+                      {m.name}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {ROWS.map(([label, key]) => (
+                  <tr key={key}>
+                    <th className="border-b border-[#e7e9ee] p-3 align-top font-semibold text-[#1d2735]">
+                      {label}
+                    </th>
+                    {MODELS.map((m) => (
+                      <td key={m.name} className="border-b border-[#e7e9ee] p-3 align-top leading-relaxed text-[#2b303b]">
+                        {m[key]}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-4 text-base leading-relaxed text-[#54607a]">
+            Exact rates depend on team composition — every engagement starts with a written
+            estimate; ask and we'll give you numbers in the first call.
+          </p>
+
+          <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
+            The same in every model
+          </h2>
+          <ul className="mt-4 list-disc space-y-2 pl-5 text-base leading-relaxed text-[#2b303b]">
+            <li>Written phased scope before work starts — never an opaque single number.</li>
+            <li>Weekly demos of working software.</li>
+            <li>Your code in your repository from the first commit, IP assigned to you.</li>
+            <li>NDA on request; response to first contact within one business day.</li>
+            <li>4+ hours daily overlap with US East Coast and full UK/EU business-hours overlap.</li>
+          </ul>
+
+          <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
+            Common questions
+          </h2>
+          <div className="mt-6 flex flex-col gap-5">
+            {FAQS.map((faq) => (
+              <div key={faq.q} className="rounded-xl border border-[#e7e9ee] bg-white p-6">
+                <h3 className="text-base font-semibold text-[#1d2735]">{faq.q}</h3>
+                <p className="mt-2 text-base leading-relaxed text-[#54607a]">{faq.a}</p>
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-10 text-base leading-relaxed text-[#54607a]">
+            Working from the US or Europe? See how we partner with{" "}
+            <Link href="/software-development-company-usa" className="font-medium text-[#1d2735] underline underline-offset-4">
+              US companies
+            </Link>{" "}
+            and{" "}
+            <Link href="/software-development-company-europe" className="font-medium text-[#1d2735] underline underline-offset-4">
+              UK/EU companies
+            </Link>
+            , or{" "}
+            <Link href="/contact" className="font-medium text-[#1d2735] underline underline-offset-4">
+              start the conversation
+            </Link>
+            .
+          </p>
+        </div>
+      </section>
+
+      <ContactCTA />
+    </>
+  );
+}

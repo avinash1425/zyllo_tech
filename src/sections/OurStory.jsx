@@ -8,14 +8,14 @@ const CARDS = [
     icon: Target,
     title: "Our Mission",
     description:
-      "To deliver innovative, secure, and scalable software solutions that help businesses grow through technology.",
+      "To build custom web, mobile, AI, and cloud software for startups and SMBs in India, the US, and Europe — through a process you can see: discovery, written scope, weekly demos, launch, and support.",
     color: "#f96706",
   },
   {
     icon: Compass,
     title: "Our Vision",
     description:
-      "To become a trusted global technology partner known for delivering high-quality digital solutions and lasting client relationships.",
+      "To earn trust the honest way: founded in 2023, deliberately small and senior — we'd rather show you our process and our work than rent logos.",
     color: "#3089a6",
   },
 ];
@@ -61,7 +61,7 @@ export default function OurStory() {
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-white/60 shadow-xl">
               <Image
                 src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1000&q=70&auto=format"
-                alt="Zyllo Tech engineers planning a project"
+                alt="Software engineers collaborating on a project"
                 fill
                 sizes="(min-width: 1024px) 50vw, 100vw"
                 className="object-cover"

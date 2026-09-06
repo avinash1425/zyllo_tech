@@ -11,9 +11,9 @@
 
 export const SERVICE_DETAILS = {
   "product-strategy-consulting": {
-    seoTitle: "Custom Software Development Company India | Zyllo Tech",
+    seoTitle: "Custom Software Development Company | Strategy to Launch | Zyllo Tech",
     seoDescription:
-      "Custom software development from Hyderabad, India — discovery, roadmap, and delivery for enterprise apps and business platforms. Fixed-scope or dedicated teams.",
+      "Custom software development for startups and enterprises — discovery, roadmap, and delivery for apps and business platforms. Senior India-based engineering, fixed-scope or dedicated teams.",
     // Blog/guide slugs (see src/data/articles.ts) shown as "Further reading"
     // on the service page and in its prerendered HTML.
     relatedReading: ["software-rfp-guide", "proptech-crm-project-management", "telecom-customer-portal-billing-automation"],
@@ -41,9 +41,9 @@ export const SERVICE_DETAILS = {
   },
 
   "web-development": {
-    seoTitle: "Web Application Development Services India | Zyllo Tech",
+    seoTitle: "Web Application Development Services | React & Node.js | Zyllo Tech",
     seoDescription:
-      "Web development company in Hyderabad building fast, secure React and Node.js web applications, business websites, and e-commerce — performance and SEO built in.",
+      "Fast, secure React and Node.js web applications, business websites, and e-commerce — performance and SEO built in, delivered by our Hyderabad-based engineering team.",
     relatedReading: ["headless-commerce-architecture-retail", "headless-cms-migration-media-publishing", "api-design-principles"],
     process: [
       { title: "Requirements & wireframes", text: "We map the pages, user flows, and content model first, so the build starts from an agreed blueprint instead of guesswork." },
@@ -71,9 +71,9 @@ export const SERVICE_DETAILS = {
   },
 
   "mobile-app-development": {
-    seoTitle: "Mobile App Development Company India | iOS & Android | Zyllo Tech",
+    seoTitle: "Mobile App Development Company | iOS & Android | Zyllo Tech",
     seoDescription:
-      "Mobile app development in India — native iOS/Android and cross-platform React Native or Flutter apps, from wireframe to App Store and Play Store launch.",
+      "Native iOS/Android and cross-platform React Native or Flutter apps, from wireframe to App Store and Play Store launch — built by a senior India-based team.",
     relatedReading: ["lms-scaling-edtech-implementation", "fleet-tracking-iot-cloud-implementation", "iot-farm-monitoring-agritech-implementation"],
     process: [
       { title: "Platform strategy", text: "Native or cross-platform is a cost and UX decision, not an ideology. We recommend based on your audience, budget, and the features you actually need." },
@@ -99,9 +99,9 @@ export const SERVICE_DETAILS = {
   },
 
   "ui-ux-design": {
-    seoTitle: "UI/UX Design Services India | Product & App Design | Zyllo Tech",
+    seoTitle: "UI/UX Design Services | Product & App Design | Zyllo Tech",
     seoDescription:
-      "UI/UX design services from Hyderabad — research, wireframes, prototypes, and design systems for web and mobile products, validated with real usability testing.",
+      "UI/UX design services — research, wireframes, prototypes, and design systems for web and mobile products, validated with real usability testing.",
     relatedReading: ["design-systems-that-scale", "micro-interactions-ux", "hotel-booking-engine-travel-implementation"],
     process: [
       { title: "Research & user flows", text: "We interview stakeholders, map who the users are and what they came to do, and turn that into concrete user flows before drawing screens." },
@@ -127,9 +127,9 @@ export const SERVICE_DETAILS = {
   },
 
   "cloud-solutions": {
-    seoTitle: "Cloud & DevOps Services India | AWS, CI/CD, Migration | Zyllo Tech",
+    seoTitle: "Cloud & DevOps Services | AWS, CI/CD & Migration | Zyllo Tech",
     seoDescription:
-      "Cloud solutions from Hyderabad — AWS and GCP architecture, cloud migration, Kubernetes, CI/CD pipelines, and cost optimization with 24/7 monitoring.",
+      "AWS and GCP architecture, cloud migration, Kubernetes, CI/CD pipelines, and cost optimization with 24/7 monitoring — delivered by our India-based cloud team.",
     relatedReading: ["migrating-to-microservices-playbook", "kubernetes-cost-optimization", "fleet-tracking-iot-cloud-implementation"],
     process: [
       { title: "Infrastructure review", text: "We map what you run today — servers, costs, deployment steps, failure points — and identify what should change first and what shouldn't change at all." },
@@ -155,9 +155,9 @@ export const SERVICE_DETAILS = {
   },
 
   "ai-solutions": {
-    seoTitle: "AI Development Company India | LLM Apps & Automation | Zyllo Tech",
+    seoTitle: "AI Development Company | LLM Apps & Automation | Zyllo Tech",
     seoDescription:
-      "AI solutions from Hyderabad, India — LLM-powered copilots, RAG systems, chatbots, and workflow automation built on OpenAI, Claude, and open models.",
+      "LLM-powered copilots, RAG systems, chatbots, and workflow automation built on OpenAI, Claude, and open models — senior AI engineering at India economics.",
     relatedReading: ["ai-reshaping-enterprise-software-2025", "langchain-vs-llamaindex-rag", "predictive-maintenance-manufacturing-implementation"],
     process: [
       { title: "Use-case qualification", text: "We start by finding where AI genuinely saves time in your workflows — and we'll say so plainly if a use case doesn't justify the cost." },
@@ -183,9 +183,9 @@ export const SERVICE_DETAILS = {
   },
 
   "maintenance-support": {
-    seoTitle: "Application Maintenance & Support Services India | Zyllo Tech",
+    seoTitle: "Application Maintenance & Support Services | Zyllo Tech",
     seoDescription:
-      "Software maintenance and support from India — monitoring, security patching, bug fixes, and performance tuning under clear SLAs, for apps we built or inherited.",
+      "Software maintenance and support — monitoring, security patching, bug fixes, and performance tuning under clear SLAs, for apps we built or inherited.",
     relatedReading: ["kubernetes-cost-optimization", "predictive-maintenance-manufacturing-implementation"],
     process: [
       { title: "Onboarding & audit", text: "We review the codebase, infrastructure, and known issues, and document the system's current health so the baseline is explicit." },
@@ -211,9 +211,9 @@ export const SERVICE_DETAILS = {
   },
 
   "cybersecurity-engineering": {
-    seoTitle: "Application Security Services India | OWASP, Audits | Zyllo Tech",
+    seoTitle: "Application Security Services | OWASP Audits & Reviews | Zyllo Tech",
     seoDescription:
-      "Cybersecurity engineering from India — secure development, OWASP-aligned code review, security assessments, and data protection for web and mobile applications.",
+      "Secure development, OWASP-aligned code review, security assessments, and data protection for web and mobile applications — India-based engineering, global clients.",
     relatedReading: ["digital-banking-platform-implementation-guide", "fhir-patient-portal-implementation", "game-backend-architecture-scaling"],
     process: [
       { title: "Threat model first", text: "We map what you're protecting, from whom, and what an attacker would actually target — so effort goes where the risk is, not where the checklist says." },
@@ -241,9 +241,9 @@ export const SERVICE_DETAILS = {
   },
 
   "quality-engineering-qa": {
-    seoTitle: "QA & Test Automation Services India | Zyllo Tech",
+    seoTitle: "QA & Test Automation Services | Zyllo Tech",
     seoDescription:
-      "Quality engineering from India — automated test suites, regression testing, and performance testing for web and mobile apps, wired into your CI/CD pipeline.",
+      "Automated test suites, regression testing, and performance testing for web and mobile apps, wired into your CI/CD pipeline — India-based quality engineering.",
     relatedReading: ["api-design-principles", "scalable-react-typescript", "ai-reshaping-enterprise-software-2025"],
     process: [
       { title: "Risk-map the product", text: "We identify the flows where a bug costs real money or trust — payments, sign-up, data integrity — and weight testing effort accordingly." },

@@ -9,11 +9,16 @@ export async function submitContactForm(prevState, formData) {
   const phone = formData.get("phone")?.toString().trim();
   const company = formData.get("company")?.toString().trim();
   const service = formData.get("service")?.toString().trim();
+  const budget = formData.get("budget")?.toString().trim();
   const message = formData.get("description")?.toString().trim();
 
   if (!fullName || !email || !message) {
     return { status: "error", message: "Please fill in your name, email, and project details." };
   }
+
+  // contact_submissions has no budget column, so the range rides along in
+  // the message body rather than requiring a migration.
+  const fullMessage = budget ? `${message}\n\n[Budget range: ${budget}]` : message;
 
   const { error } = await supabase.from("contact_submissions").insert({
     full_name: fullName,
@@ -21,7 +26,7 @@ export async function submitContactForm(prevState, formData) {
     phone: phone || null,
     company: company || null,
     service: service || null,
-    message,
+    message: fullMessage,
   });
 
   if (error) {
@@ -32,7 +37,7 @@ export async function submitContactForm(prevState, formData) {
     };
   }
 
-  notifyAdmin("contact", { full_name: fullName, email, phone, company, service, message });
+  notifyAdmin("contact", { full_name: fullName, email, phone, company, service, message: fullMessage });
   import("@/lib/analytics").then(({ trackEvent }) =>
     trackEvent("generate_lead", { lead_type: "contact_form", service: service || "(none)" }),
   );

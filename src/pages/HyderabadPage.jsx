@@ -1,5 +1,5 @@
 import { CompatLink as Link } from "@/components/NextCompat";
-import SEOHead, { breadcrumbSchema, serviceSchema, SITE_URL } from "@/components/SEOHead";
+import SEOHead, { breadcrumbSchema, faqSchema, serviceSchema, SITE_URL } from "@/components/SEOHead";
 import PageHero from "@/components/PageHero";
 import ContactCTA from "@/sections/ContactCTA";
 import { SERVICES } from "@/data/services";
@@ -43,6 +43,7 @@ export default function HyderabadPage() {
               "Custom software development services delivered from Hyderabad, Telangana — web applications, mobile apps, AI solutions, cloud and DevOps.",
             url: `${SITE_URL}/custom-software-development-hyderabad`,
           }),
+          faqSchema(FAQS),
         ]}
       />
       <PageHero
@@ -102,7 +103,7 @@ export default function HyderabadPage() {
           </div>
 
           <p className="mt-10 text-base leading-relaxed text-[#54607a]">
-            Zyllo Tech Software Solutions Pvt. Ltd. · Hyderabad, Telangana, India ·{" "}
+            Zyllo Tech Software Solutions Private Limited · Hyderabad, Telangana, India ·{" "}
             <a className="font-medium text-[#1d2735] underline underline-offset-4" href="tel:+917075773680">
               +91 70757 73680
             </a>{" "}

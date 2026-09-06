@@ -28,6 +28,10 @@ const Resources = lazy(() => import("./pages/Resources"));
 const Startups = lazy(() => import("./pages/Startups"));
 const ArthaAI = lazy(() => import("./pages/ArthaAI"));
 const HyderabadPage = lazy(() => import("./pages/HyderabadPage"));
+const HireDedicatedDevelopersPage = lazy(() => import("./pages/HireDedicatedDevelopersPage"));
+const EngagementModelsPage = lazy(() => import("./pages/EngagementModelsPage"));
+const UsaPartnerPage = lazy(() => import("./pages/UsaPartnerPage"));
+const EuropePartnerPage = lazy(() => import("./pages/EuropePartnerPage"));
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -88,6 +92,10 @@ const App = () => (
                 <Route path="/startups" element={<Startups />} />
                 <Route path="/arthaai" element={<ArthaAI />} />
                 <Route path="/custom-software-development-hyderabad" element={<HyderabadPage />} />
+                <Route path="/hire-dedicated-developers" element={<HireDedicatedDevelopersPage />} />
+                <Route path="/engagement-models" element={<EngagementModelsPage />} />
+                <Route path="/software-development-company-usa" element={<UsaPartnerPage />} />
+                <Route path="/software-development-company-europe" element={<EuropePartnerPage />} />
                 {/* AuthProvider (and the Supabase SDK it lazy-loads) is scoped to
                     just these four routes instead of wrapping the whole app, so
                     marketing/blog/service pages never pay for it. */}

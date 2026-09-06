@@ -132,6 +132,21 @@ export function serviceSchema({
   };
 }
 
+// ─── FAQ helper ──────────────────────────────────────────────────────────────
+// Only pass questions whose text is actually visible on the page — Google
+// requires FAQPage markup to mirror rendered content.
+export function faqSchema(faqs: Array<{ q: string; a: string }>) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+}
+
 // ─── Breadcrumb helper ───────────────────────────────────────────────────────
 export function breadcrumbSchema(items: Array<{ name: string; url: string }>) {
   return {
@@ -182,12 +197,13 @@ const SEOHead = ({
   const fullTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
   const canonicalUrl = canonical ? `${SITE_URL}${canonical}` : undefined;
 
-  // Default hreflang: en-IN (primary), en-US (secondary), x-default
+  // Single-language site: multiple hreflang entries pointing at the SAME URL
+  // are a no-op (hreflang exists to link *alternate* URLs). Until real
+  // language/region alternates exist, emit only the honest en + x-default
+  // pair; pass `hreflang` explicitly when true alternates are added.
   const hreflangLinks = hreflang ?? (canonicalUrl
     ? [
-        { lang: "en-IN", href: canonicalUrl },
-        { lang: "en-US", href: canonicalUrl },
-        { lang: "en",    href: canonicalUrl },
+        { lang: "en", href: canonicalUrl },
         { lang: "x-default", href: canonicalUrl },
       ]
     : []);
