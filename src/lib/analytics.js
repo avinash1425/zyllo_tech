@@ -1,8 +1,7 @@
 const STORAGE_KEY = "zyllo-cookie-consent";
 
-// Placeholder — the site owner must replace this with the real GA4
-// measurement ID; analytics stays off until then.
-const GA_MEASUREMENT_ID = "G-XXXXXXXXXX";
+// GA4 property "Zyllotech" → web data stream "Zyllo Tech Website".
+const GA_MEASUREMENT_ID = "G-LQYNCZH7K1";
 
 let injected = false;
 
