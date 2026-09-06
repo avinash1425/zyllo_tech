@@ -33,6 +33,9 @@ export async function submitContactForm(prevState, formData) {
   }
 
   notifyAdmin("contact", { full_name: fullName, email, phone, company, service, message });
+  import("@/lib/analytics").then(({ trackEvent }) =>
+    trackEvent("generate_lead", { lead_type: "contact_form", service: service || "(none)" }),
+  );
 
   return { status: "success", message: "Thanks — we've got your message." };
 }

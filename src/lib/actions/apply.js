@@ -101,6 +101,9 @@ export async function submitApplication(prevState, formData) {
     resume_url: filePath,
     cover_note: coverNote,
   });
+  import("@/lib/analytics").then(({ trackEvent }) =>
+    trackEvent("generate_lead", { lead_type: "job_application" }),
+  );
 
   return { status: "success", message: "Application submitted." };
 }

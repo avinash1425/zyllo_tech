@@ -36,3 +36,10 @@ export function initAnalytics() {
   gtag("js", new Date());
   gtag("config", GA_MEASUREMENT_ID);
 }
+
+// Safe no-op unless the visitor consented and GA loaded — call freely from
+// conversion points (contact form, job application, newsletter).
+export function trackEvent(name, params) {
+  if (typeof window === "undefined" || typeof window.gtag !== "function") return;
+  window.gtag("event", name, params);
+}

@@ -17,4 +17,7 @@ export async function subscribeToNewsletter(email) {
     if (error.code === "23505") return;
     throw new Error("Something went wrong subscribing you. Please try again in a moment.");
   }
+
+  const { trackEvent } = await import("@/lib/analytics");
+  trackEvent("generate_lead", { lead_type: "newsletter" });
 }
