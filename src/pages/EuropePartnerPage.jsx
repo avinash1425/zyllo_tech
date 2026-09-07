@@ -52,7 +52,7 @@ export default function EuropePartnerPage() {
           </p>
 
           <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
-            How Zyllo makes it work
+            How we work with UK and EU teams
           </h2>
           <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
             {[
@@ -107,18 +107,36 @@ export default function EuropePartnerPage() {
             <p className="text-base leading-relaxed text-[#2b303b]">
               We build GDPR-conscious data flows — data minimisation by default, consent
               capture, export and deletion paths, and access controls — and we sign Data
-              Processing Agreements. We are not ISO-certified yet, and we say so plainly
-              rather than implying otherwise. If your procurement process requires a specific
-              certification, tell us early and we'll tell you honestly whether we're the
-              right fit today.
+              Processing Agreements. Where personal data of UK or EEA residents needs to
+              reach our team at all, the DPA covers the transfer with Standard Contractual
+              Clauses; in practice development and test environments run on masked or
+              synthetic data, so production personal data usually never leaves your
+              infrastructure in the first place. We are not ISO-certified yet, and we say
+              so plainly rather than implying otherwise. If your procurement process
+              requires a specific certification, tell us early and we'll tell you honestly
+              whether we're the right fit today.
             </p>
           </div>
+
+          <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
+            VAT and invoicing from India
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-[#2b303b]">
+            Invoices are raised from India as an export of services, so they arrive without
+            Indian tax added. For VAT-registered UK and EU businesses, cross-border B2B
+            services are typically self-accounted under the reverse-charge mechanism —
+            meaning no surprise gross-up on our side and standard treatment on yours (your
+            accountant will confirm how it applies to you). We invoice in your preferred
+            currency, work against purchase orders where your procurement requires them,
+            and every engagement starts from a written phased estimate rather than a single
+            opaque number.
+          </p>
 
           <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
             What we build for European clients
           </h2>
           <p className="mt-4 text-base leading-relaxed text-[#2b303b]">
-            Full-stack product engineering:{" "}
+            For UK and EU clients we deliver{" "}
             <Link href="/services/web-development" className="font-medium text-[#1d2735] underline decoration-[#e7e9ee] underline-offset-4 transition-colors hover:text-[#f96706] hover:decoration-[#f96706]">
               web applications
             </Link>

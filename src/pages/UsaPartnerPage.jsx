@@ -95,6 +95,32 @@ export default function UsaPartnerPage() {
           </div>
 
           <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
+            Contracting, the way US companies expect it
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-[#2b303b]">
+            Engagements are structured as a straightforward B2B vendor relationship: a master
+            services agreement with statements of work per phase, all work product and IP
+            assigned to you, and an NDA signed on request before any detailed discussion.
+            Because you are buying services from a company rather than hiring individuals,
+            there is no payroll, benefits, visa sponsorship, or co-employment overhead on
+            your side. We invoice in USD, accept international wire and standard payment
+            rails, and provide a W-8BEN-E for your accounts-payable records on request.
+          </p>
+
+          <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
+            Working across US time zones, concretely
+          </h2>
+          <p className="mt-4 text-base leading-relaxed text-[#2b303b]">
+            India Standard Time runs 9.5–10.5 hours ahead of Eastern time, which puts your
+            8 AM–12 PM ET squarely inside our working evening — that is where standups,
+            demos, and pairing sessions live. Central overlaps almost as well; for Pacific
+            teams the live window is shorter, so we anchor on one scheduled call in your
+            morning and lean harder on the written-first process. Either way, work you
+            hand off at your end of day is typically waiting for you the next morning —
+            the timezone gap becomes a follow-the-sun advantage rather than a delay.
+          </p>
+
+          <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
             The usual offshore concerns — and our answers
           </h2>
           <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -116,7 +142,7 @@ export default function UsaPartnerPage() {
             What we build for US clients
           </h2>
           <p className="mt-4 text-base leading-relaxed text-[#2b303b]">
-            Full-stack product engineering:{" "}
+            The typical US engagement is product engineering end to end — most often{" "}
             <Link href="/services/web-development" className="font-medium text-[#1d2735] underline decoration-[#e7e9ee] underline-offset-4 transition-colors hover:text-[#f96706] hover:decoration-[#f96706]">
               web applications
             </Link>
