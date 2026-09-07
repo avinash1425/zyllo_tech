@@ -1,15 +1,28 @@
 import { CompatImage as Image } from "@/components/NextCompat";
 import { CompatLink as Link } from "@/components/NextCompat";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { SERVICES } from "@/data/services";
 
-// Even grid of boxes, all 8 services equal — swapped out from an earlier
-// spotlight-plus-list layout per request. Dark background photo (kept
-// genuinely visible, not buried under a heavy wash) stays; each service is
-// now a glass card with icon, title, and tagline, gapped evenly.
+// Engineered tile grid: all 8 services live inside ONE bordered container
+// with shared 1px white/10 internal borders (no gaps), 21st.dev-style, over
+// the dark photo plus a subtle dot-grid overlay. Per-cell border-t/border-l
+// classes are computed per breakpoint instead of divide-x/divide-y so
+// wrapped rows never show stray divider lines.
 const TILES = SERVICES.slice(0, 8);
 
 const ACCENT = "from-[#f96706] via-[#ffb15c] to-[#3089a6]";
+
+// 2 cols on mobile, 4 cols from lg up.
+const TILE_BORDERS = [
+  "",
+  "border-l",
+  "border-t lg:border-l lg:border-t-0",
+  "border-l border-t lg:border-t-0",
+  "border-t",
+  "border-l border-t",
+  "border-t lg:border-l",
+  "border-l border-t",
+];
 
 export default function ServiceTiles() {
   return (
@@ -25,6 +38,7 @@ export default function ServiceTiles() {
         aria-hidden="true"
         className="absolute inset-0 -z-10 bg-gradient-to-br from-[#0b0e17]/35 via-[#0b0e17]/55 to-[#0b0e17]/80"
       />
+      <div aria-hidden="true" className="bg-dot-grid-dark absolute inset-0 -z-[5]" />
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
@@ -56,33 +70,29 @@ export default function ServiceTiles() {
           </Link>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid grid-cols-2 overflow-hidden rounded-2xl border border-white/10 bg-[#0b0e17]/60 backdrop-blur-md lg:grid-cols-4">
           {TILES.map(({ slug, title, tagline, icon: Icon }, index) => (
             <Link
               key={slug}
               href={`/services/${slug}`}
               style={{ animationDelay: `${index * 0.06}s` }}
-              className="tile-in group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] p-6 shadow-lg shadow-black/20 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-[#f96706]/40 hover:bg-white/[0.1] hover:shadow-xl hover:shadow-[#f96706]/10"
+              className={`tile-in group relative border-white/10 p-6 transition-colors duration-300 hover:bg-white/[0.04] lg:p-7 ${TILE_BORDERS[index]}`}
             >
-              <span
+              <ArrowUpRight
+                className="absolute right-5 top-5 h-4 w-4 text-[#ffb15c] opacity-0 transition-opacity duration-200 group-hover:opacity-100"
                 aria-hidden="true"
-                className={`absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-gradient-to-r transition-transform duration-300 group-hover:scale-x-100 ${ACCENT}`}
               />
               <span
-                className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-sm transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105 ${ACCENT}`}
+                className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-sm ${ACCENT}`}
               >
                 <Icon className="h-5.5 w-5.5" aria-hidden="true" />
               </span>
-              <h3 className="mt-5 text-base font-bold leading-snug text-white">
+              <h3 className="mt-5 text-base font-bold leading-snug text-white transition-colors duration-200 group-hover:text-[#f96706]">
                 {title}
               </h3>
               <p className="mt-1.5 text-sm leading-relaxed text-white/65">
                 {tagline}
               </p>
-              <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-[#ffb15c] opacity-0 transition-all duration-200 group-hover:opacity-100">
-                Learn More
-                <ArrowRight className="h-3 w-3" aria-hidden="true" />
-              </span>
             </Link>
           ))}
         </div>

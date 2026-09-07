@@ -405,3 +405,13 @@
     animation: loader-rotate 1.7s linear infinite;
   }
 }
+
+/* Dot-grid backdrops — engineered-tile design pass */
+.bg-dot-grid {
+  background-image: radial-gradient(circle, rgba(29, 39, 53, 0.08) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+.bg-dot-grid-dark {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 22px 22px;
+}

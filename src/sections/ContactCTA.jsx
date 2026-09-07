@@ -46,7 +46,10 @@ export default function ContactCTA({
       </div>
 
       <div className="relative mx-auto max-w-4xl px-6 text-center lg:px-8">
-        <div className="rounded-[28px] border border-white/60 bg-white/50 p-10 shadow-xl shadow-[#f7941e]/10 backdrop-blur-xl sm:p-14">
+        {/* 1px gradient border via the padding-box trick: gradient shell,
+            white inner panel with a matching inner radius. */}
+        <div className="rounded-2xl bg-gradient-to-r from-[#f96706]/60 via-[#e7e9ee] to-[#3089a6]/60 p-[1px] shadow-xl shadow-[#f7941e]/10">
+          <div className="rounded-[calc(1rem-1px)] bg-white p-10 sm:p-14">
           <h2 className="text-3xl font-bold tracking-tight text-[#2b303b] sm:text-4xl">
             {heading}
           </h2>
@@ -96,6 +99,7 @@ export default function ContactCTA({
                 <span className="text-sm font-semibold text-[#2b303b]">{value}</span>
               </a>
             ))}
+          </div>
           </div>
         </div>
       </div>
