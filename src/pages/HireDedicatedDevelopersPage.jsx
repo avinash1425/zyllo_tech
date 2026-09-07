@@ -1,45 +1,13 @@
 import { CompatLink as Link } from "@/components/NextCompat";
 import { Check } from "lucide-react";
 import SEOHead, { breadcrumbSchema, faqSchema, serviceSchema, SITE_URL } from "@/components/SEOHead";
+import { PAGE_FAQS } from "@/data/page-faqs";
 import PageHero from "@/components/PageHero";
 import ContactCTA from "@/sections/ContactCTA";
 
 // Landing page for "hire dedicated developers india" intent. Content rules:
 // honest process promises only — no invented clients, rates, or team counts.
-const FAQS = [
-  {
-    q: "How fast can developers start?",
-    a: "Typically within 1–2 weeks after scope agreement. We first run a discovery call, send a written team proposal, and once you approve it your developers integrate into your workflow.",
-  },
-  {
-    q: "Who owns the code and IP?",
-    a: "You do. Your code lives in your repository from the first commit, and our contracts assign all work product and intellectual property to you.",
-  },
-  {
-    q: "How do you handle timezones?",
-    a: "We overlap 4+ hours daily with US East Coast and cover full UK/EU business hours from India. Standups, demos, and calls are scheduled in your timezone, backed by a written-first async process.",
-  },
-  {
-    q: "What if a developer isn't a fit?",
-    a: "Tell us — we replace or adjust. The written scope includes an easy exit, so you're never locked into a person or a team composition that isn't working.",
-  },
-  {
-    q: "How is quality maintained?",
-    a: "Code review on every change, CI pipelines that run tests before merge, and weekly demos of working software so you see progress rather than status reports.",
-  },
-  {
-    q: "Do you sign contracts and NDAs?",
-    a: "Yes. Every engagement starts with a written phased scope, contracts assign IP to you, and we sign an NDA on request before any detailed discussion.",
-  },
-  {
-    q: "What communication tools do you use?",
-    a: "Yours. Dedicated developers join your Slack, Jira, Linear, GitHub, or whatever your team already runs — plus email and scheduled video calls. Everything important is written down.",
-  },
-  {
-    q: "Is there a minimum engagement?",
-    a: "Typically 3 months for dedicated teams — long enough for developers to genuinely absorb your product and codebase. Shorter, well-defined builds fit our fixed-scope model better.",
-  },
-];
+const FAQS = PAGE_FAQS["/hire-dedicated-developers"];
 
 // Presentation-only split of the "What's included" bullet copy into a bold
 // lead phrase + body text; lead + rest concatenated is the original wording.
@@ -72,7 +40,7 @@ export default function HireDedicatedDevelopersPage() {
     <>
       <SEOHead
         title="Hire Dedicated Developers in India | Zyllo Tech"
-        description="Hire dedicated developers from Zyllo Tech, India — senior React, Node, Python, Flutter, AI/LLM, QA, and DevOps engineers who join your workflow, demo weekly, and commit to your repository from day one."
+        description="Hire senior React, Node, Python, Flutter, AI/LLM, QA and DevOps engineers from India who join your workflow, demo weekly, and own no lock-in."
         canonical="/hire-dedicated-developers"
         structuredData={[
           breadcrumbSchema([

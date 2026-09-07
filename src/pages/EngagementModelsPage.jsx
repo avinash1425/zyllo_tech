@@ -1,37 +1,13 @@
 import { CompatLink as Link } from "@/components/NextCompat";
 import { Clock, Target, Users } from "lucide-react";
 import SEOHead, { breadcrumbSchema, faqSchema, serviceSchema, SITE_URL } from "@/components/SEOHead";
+import { PAGE_FAQS } from "@/data/page-faqs";
 import PageHero from "@/components/PageHero";
 import ContactCTA from "@/sections/ContactCTA";
 
 // Explains the three ways to engage Zyllo Tech. Content rules: honest
 // guidance only — no invented rates, discounts, or client counts.
-const FAQS = [
-  {
-    q: "Which model is cheapest?",
-    a: "It depends on how well-defined your work is. Fixed scope is most predictable for a clearly specified build; a dedicated team costs less per unit of work when requirements evolve, because you skip repeated re-scoping. Every engagement starts with a written estimate — ask and we'll give you numbers in the first call.",
-  },
-  {
-    q: "Can we switch models mid-engagement?",
-    a: "Yes. A common path is a fixed-scope first version followed by a dedicated team for ongoing product development. The written scope defines the transition so there are no surprises.",
-  },
-  {
-    q: "Who manages the developers in each model?",
-    a: "Fixed scope: we manage delivery end to end against the written scope. Dedicated team: shared — you set priorities, we run engineering practice. Staff augmentation: you manage the developers directly inside your own process.",
-  },
-  {
-    q: "Who owns the code in every model?",
-    a: "You do, in all three. Your code lives in your repository from the first commit and contracts assign all IP to you, regardless of engagement model.",
-  },
-  {
-    q: "Is there a minimum commitment?",
-    a: "Fixed scope has no minimum beyond the scoped build itself. Dedicated teams typically run 3 months minimum so the team can genuinely absorb your product. Staff augmentation is agreed per developer in the written scope, which always includes an easy exit.",
-  },
-  {
-    q: "How do engagements start?",
-    a: "The same way in every model: a discovery call, then a written phased scope and estimate before any commitment. We respond to first contact within one business day and sign an NDA on request.",
-  },
-];
+const FAQS = PAGE_FAQS["/engagement-models"];
 
 const MODELS = [
   {
@@ -73,7 +49,7 @@ export default function EngagementModelsPage() {
     <>
       <SEOHead
         title="Software Development Engagement Models | Zyllo Tech"
-        description="Fixed scope, dedicated team, or staff augmentation — an honest comparison of software development engagement models, when each fits, and how Zyllo Tech runs all three."
+        description="Fixed scope, dedicated team, or staff augmentation — an honest comparison of software development engagement models and when each one fits."
         canonical="/engagement-models"
         structuredData={[
           breadcrumbSchema([

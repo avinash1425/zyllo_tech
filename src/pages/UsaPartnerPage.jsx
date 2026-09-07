@@ -1,37 +1,13 @@
 import { CompatLink as Link } from "@/components/NextCompat";
 import { GitBranch, Globe, MessageSquare, Receipt, ShieldCheck } from "lucide-react";
 import SEOHead, { breadcrumbSchema, faqSchema, serviceSchema, SITE_URL } from "@/components/SEOHead";
+import { PAGE_FAQS } from "@/data/page-faqs";
 import PageHero from "@/components/PageHero";
 import ContactCTA from "@/sections/ContactCTA";
 
 // Landing page for US-startup offshore-development intent. Content rules:
 // honest process promises only — no invented clients, rates, or guarantees.
-const FAQS = [
-  {
-    q: "Do you work with US contracts and NDAs?",
-    a: "Yes. We sign US-style contracts with full IP assignment to you, and an NDA on request before any detailed discussion. The written phased scope forms part of the agreement, so what you're buying is on paper before work starts.",
-  },
-  {
-    q: "What US time coverage do you offer?",
-    a: "4+ hours of daily overlap with US East Coast. Morning-ET standups are possible, and demos and calls are scheduled in your timezone. Outside overlap, a written-first async process keeps decisions moving.",
-  },
-  {
-    q: "Who owns the code?",
-    a: "You do, from day one. Every commit lands in your repository, and contracts assign all work product and IP to you — there is no handover moment where you have to negotiate for your own codebase.",
-  },
-  {
-    q: "How do you keep quality high across the distance?",
-    a: "Weekly demos of working software, code review on every change, and CI pipelines that run tests before merge. You judge progress by what runs, not by status reports.",
-  },
-  {
-    q: "How fast can we start, and how long does a build take?",
-    a: "We respond within one business day, and after a discovery call you get a written phased scope. A first production version typically takes 8–16 weeks; dedicated-team developers typically start within 1–2 weeks of scope agreement.",
-  },
-  {
-    q: "How does pricing work?",
-    a: "Senior engineering at India economics — fixed quotes for defined builds, monthly rates for dedicated teams. We don't publish rate cards because they depend on team composition, but every engagement starts with a written estimate; ask and we'll give you numbers in the first call.",
-  },
-];
+const FAQS = PAGE_FAQS["/software-development-company-usa"];
 
 const CONCERNS = [
   {
@@ -65,7 +41,7 @@ export default function UsaPartnerPage() {
     <>
       <SEOHead
         title="Offshore Software Development for US Companies | Zyllo Tech"
-        description="Zyllo Tech is an India-based software development partner for US startups — 4+ hours of East Coast overlap, US-style contracts with IP assignment, weekly demos in your timezone, and senior engineering at India economics."
+        description="India-based software development partner for US companies: 4+ hours of East Coast overlap, US-style contracts with full IP assignment, weekly demos."
         canonical="/software-development-company-usa"
         structuredData={[
           breadcrumbSchema([

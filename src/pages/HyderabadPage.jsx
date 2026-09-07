@@ -1,29 +1,13 @@
 import { CompatLink as Link } from "@/components/NextCompat";
 import SEOHead, { breadcrumbSchema, faqSchema, serviceSchema, SITE_URL } from "@/components/SEOHead";
+import { PAGE_FAQS } from "@/data/page-faqs";
 import PageHero from "@/components/PageHero";
 import ContactCTA from "@/sections/ContactCTA";
 import { SERVICES } from "@/data/services";
 
 // Local landing page for Hyderabad-intent searches. Content rules: capability
 // and location facts only — no invented clients, review counts, or rankings.
-const FAQS = [
-  {
-    q: "Where in Hyderabad are you located?",
-    a: "We operate from Hyderabad, Telangana, and work with clients across the city, India, and internationally. Meetings happen at your office, ours, or over video — whatever suits the project stage.",
-  },
-  {
-    q: "Do you only work with Hyderabad companies?",
-    a: "No — Hyderabad is home base, but delivery is remote-first and we serve clients across India, the Middle East, and other international markets in overlapping working hours.",
-  },
-  {
-    q: "How do engagements start?",
-    a: "With a discovery conversation about your users, workflows, and constraints. You then get a written scope and a phased estimate — fixed-scope for well-defined builds, or a dedicated monthly team for evolving products.",
-  },
-  {
-    q: "How long does a typical project take?",
-    a: "A content or marketing website usually ships in 3–6 weeks; a custom web or mobile application's first production version typically lands in 8–16 weeks depending on complexity, with working software demoed weekly throughout.",
-  },
-];
+const FAQS = PAGE_FAQS["/custom-software-development-hyderabad"];
 
 export default function HyderabadPage() {
   return (

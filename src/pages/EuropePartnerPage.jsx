@@ -1,44 +1,20 @@
 import { CompatLink as Link } from "@/components/NextCompat";
 import { CalendarCheck, GitBranch, Globe, Lock, MessageSquare, ShieldCheck } from "lucide-react";
 import SEOHead, { breadcrumbSchema, faqSchema, serviceSchema, SITE_URL } from "@/components/SEOHead";
+import { PAGE_FAQS } from "@/data/page-faqs";
 import PageHero from "@/components/PageHero";
 import ContactCTA from "@/sections/ContactCTA";
 
 // Landing page for UK/EU offshore-development intent. Content rules: honest
 // process promises only — GDPR-conscious, plainly not ISO-certified.
-const FAQS = [
-  {
-    q: "What UK/EU time coverage do you offer?",
-    a: "Full business-hours overlap. India Standard Time is only 3.5–4.5 hours ahead of Central European Time, so your entire working day overlaps with ours — standups, demos, and calls all happen live in your timezone.",
-  },
-  {
-    q: "How do you handle GDPR?",
-    a: "We build GDPR-conscious data flows — data minimisation, consent handling, deletion paths — and sign Data Processing Agreements (DPAs). We are not ISO-certified yet and say so plainly; what you get is engineering that takes data protection seriously and contracts that put it in writing.",
-  },
-  {
-    q: "Do you sign contracts, NDAs, and DPAs?",
-    a: "Yes. Written phased scope as part of the agreement, full IP assignment to you, NDA on request, and a DPA where you handle personal data of EU/UK residents.",
-  },
-  {
-    q: "Who owns the code and where does it live?",
-    a: "You own it, and it lives in your repository from the first commit. There is no handover negotiation and no lock-in — the written scope includes an easy exit.",
-  },
-  {
-    q: "How is quality maintained remotely?",
-    a: "Weekly demos of working software in your business hours, code review on every change, and CI pipelines that run tests before merge. You evaluate running software, not status reports.",
-  },
-  {
-    q: "How fast can we start, and what does it cost?",
-    a: "We respond within one business day; a first production version typically takes 8–16 weeks. Pricing is senior engineering at India economics — exact rates depend on team composition, so every engagement starts with a written estimate. Ask and we'll give you numbers in the first call.",
-  },
-];
+const FAQS = PAGE_FAQS["/software-development-company-europe"];
 
 export default function EuropePartnerPage() {
   return (
     <>
       <SEOHead
-        title="Software Development for UK & European Companies | Zyllo Tech"
-        description="Zyllo Tech is an India-based software development partner for UK and EU companies — full business-hours overlap with CET, GDPR-aware engineering with DPAs, English-first written process, and weekly demos."
+        title="Software Development for UK & EU Companies | Zyllo Tech"
+        description="India-based software development partner for UK and EU companies: full CET business-hours overlap, GDPR-aware engineering with DPAs, weekly demos."
         canonical="/software-development-company-europe"
         structuredData={[
           breadcrumbSchema([
