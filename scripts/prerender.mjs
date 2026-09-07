@@ -150,6 +150,26 @@ async function main() {
   // as crawlable body content, not only inside schema.
   const napHtml = `<p>Zyllo Tech Software Solutions Private Limited · Hyderabad, Telangana, India · <a href="tel:+917075773680">+91 70757 73680</a> · <a href="mailto:info@zyllotech.com">info@zyllotech.com</a></p>`;
 
+  // Intrinsic dimensions of the images the prerendered bodies embed. The
+  // prerender was previously image-free, which left image search and non-JS
+  // crawlers with no image URLs or alt text at all — the <img> tags below are
+  // what give them any. Sizes are hardcoded because the prerender must not
+  // depend on an image library; update alongside the assets.
+  const IMAGE_DIMENSIONS = {
+    "/blogs/AI.webp": [1200, 654],
+    "/globe.webp": [798, 670],
+    "/home-service.jpg": [1200, 524],
+    "/woman-enjoying-vr-headset.jpg": [1200, 400],
+    "/about.webp": [1200, 655],
+    "/blog.webp": [1080, 672],
+    "/hero-home1.webp": [1408, 768],
+  };
+  const imgTag = (src, alt, extra = "") => {
+    const [w, h] = IMAGE_DIMENSIONS[src] || [];
+    const dims = w ? ` width="${w}" height="${h}"` : "";
+    return `<img src="${esc(src)}" alt="${esc(alt)}"${dims}${extra} style="max-width:100%;height:auto" />`;
+  };
+
   let written = 0;
 
   // ── Core pages ────────────────────────────────────────────────────────────
@@ -233,6 +253,11 @@ async function main() {
       ? []
       : [crumbs([{ name: "Home", url: SITE_URL }, { name: label, url: `${SITE_URL}${page.p}` }])];
     let body = `<header>${navLinks}<h1>${esc(page.h1)}</h1><p>${esc(page.d)}</p></header>`;
+    if (isHome) {
+      // The template already preloads this file; embedding it makes the hero
+      // paintable before hydration and discoverable by image crawlers.
+      body += `<figure>${imgTag("/hero-home1.webp", "Zyllo Tech — custom software, web, mobile, AI, and cloud engineering team at work")}</figure>`;
+    }
     if (isHome || page.p === "/services") {
       body += `<section><h2>Our Services</h2><ul>${serviceLinkList}</ul></section>`;
     }
@@ -391,7 +416,7 @@ async function main() {
     const routePath = `/blog/${post.slug}`;
     const title = `${post.title} | Zyllo Tech`;
     const description = post.excerpt || "";
-    const rawImage = post.featured_image_url || "/og-default.png";
+    const rawImage = post.featured_image_url || "/og-default.jpg";
     const image = rawImage.startsWith("/") ? `${SITE_URL}${rawImage}` : rawImage;
     const articleSchema = {
       "@context": "https://schema.org",
@@ -417,6 +442,9 @@ async function main() {
       .filter((p) => p.category === post.category && p.slug !== post.slug)
       .slice(0, 3);
     let body = `<header>${navLinks}<p><a href="/blog">← Blog</a></p><h1>${esc(post.title)}</h1><p>${esc(post.excerpt || "")}</p><p><small>${esc(post.author || "Zyllo Tech")} · ${esc((post.created_at || "").slice(0, 10))} · ${esc(post.category)}</small></p></header>`;
+    if (rawImage.startsWith("/") && IMAGE_DIMENSIONS[rawImage]) {
+      body += `<figure>${imgTag(rawImage, post.title, ' loading="lazy"')}</figure>`;
+    }
     body += `<article>${(post.blocks || []).map(blockHtml).join("")}</article>`;
     if (related.length) {
       body += `<section><h2>Related Reading</h2><ul>${related

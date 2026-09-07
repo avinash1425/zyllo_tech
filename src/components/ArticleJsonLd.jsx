@@ -5,7 +5,7 @@ import { serializeJsonLd } from "@/lib/jsonld";
 export default function ArticleJsonLd({ post }) {
   // Fallback is the 1200×630 OG card, not the 5:1 wordmark in OG_IMAGE_PATH —
   // Google's article rich results require 16:9 / 4:3 / 1:1 aspect ratios.
-  const rawImage = post.featured_image_url || "/og-default.png";
+  const rawImage = post.featured_image_url || "/og-default.jpg";
   // Schema.org wants an absolute image URL — post.featured_image_url can be
   // a site-relative path (real posts store free-typed URLs; fallback posts
   // use local /public paths like "/blog.png"), so resolve it against

@@ -4,7 +4,7 @@ import { serializeJsonLd } from "@/lib/jsonld";
 export const SITE_URL = "https://zyllotech.com";
 export const SITE_NAME = "Zyllo Tech";
 export const SITE_LOGO = `${SITE_URL}/zyllo-logo.png`;
-export const SITE_OG_IMAGE = `${SITE_URL}/og-default.png`;
+export const SITE_OG_IMAGE = `${SITE_URL}/og-default.jpg`;
 export const SITE_TWITTER = "@ZylloS85154";
 
 // ─── Global Organisation JSON-LD ────────────────────────────────────────────

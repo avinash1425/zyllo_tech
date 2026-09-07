@@ -20,4 +20,4 @@ export const DEFAULT_DESCRIPTION =
 
 // 1200×630 OG card — the wordmark banner (/zyllo-logo.png, 5:1) fails
 // Google's rich-result image aspect requirements, so don't point OG here.
-export const OG_IMAGE_PATH = "/og-default.png";
+export const OG_IMAGE_PATH = "/og-default.jpg";
