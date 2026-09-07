@@ -176,7 +176,7 @@ function ArticleBody({ blocks }) {
                     <li key={j} className="relative pb-3 pl-7 text-sm last:pb-0">
                       <span
                         aria-hidden="true"
-                        className="absolute left-0 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#f96706] font-mono text-[10px] font-bold text-white"
+                        className="absolute left-0 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#c2410c] font-mono text-[10px] font-bold text-white"
                       >
                         {j + 1}
                       </span>

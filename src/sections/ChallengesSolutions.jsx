@@ -135,7 +135,7 @@ export default function ChallengesSolutions() {
               onClick={() => setActiveIndex(index)}
               className={`rounded-full border px-4 py-2 text-sm font-semibold transition-all duration-300 ${
                 index === activeIndex
-                  ? "border-transparent bg-gradient-to-r from-[#f7941e] to-[#db7d17] text-white shadow-md shadow-[#f7941e]/25"
+                  ? "border-transparent bg-[#c2410c] text-white shadow-md shadow-[#c2410c]/25"
                   : "border-[#e7e9ee] bg-white text-[#676b7a] hover:-translate-y-0.5 hover:border-[#f7941e]/40 hover:text-[#f7941e] hover:shadow-sm"
               }`}
             >

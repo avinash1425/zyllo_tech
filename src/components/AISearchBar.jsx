@@ -181,7 +181,7 @@ export default function AISearchBar() {
                 <button
                   type="submit"
                   disabled={results.length === 0}
-                  className="inline-flex items-center justify-center rounded-lg bg-[#f96706] px-3 py-1.5 text-xs font-semibold text-white transition-colors duration-200 hover:bg-[#c9580d] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex items-center justify-center rounded-lg bg-[#c2410c] px-3 py-1.5 text-xs font-semibold text-white transition-colors duration-200 hover:bg-[#9a3412] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Search
                 </button>

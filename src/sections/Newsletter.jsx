@@ -71,7 +71,7 @@ export default function Newsletter() {
                 <button
                   type="submit"
                   disabled={status === "loading"}
-                  className="shrink-0 rounded-full bg-[#f7941e] px-6 py-3 text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(247,148,30,0.35),0_8px_10px_-6px_rgba(247,148,30,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-[#db7d17] disabled:pointer-events-none disabled:opacity-60"
+                  className="shrink-0 rounded-full bg-[#c2410c] px-6 py-3 text-sm font-semibold text-white shadow-[0_18px_28px_-10px_rgba(194,65,12,0.55)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-[#9a3412] disabled:pointer-events-none disabled:opacity-60"
                 >
                   {status === "loading" ? "Subscribing..." : "Subscribe"}
                 </button>

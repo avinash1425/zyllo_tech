@@ -82,7 +82,7 @@ export default function LegalModal({ isOpen, onClose, title, lastUpdated, sectio
               type="button"
               disabled={!reachedEnd}
               onClick={handleClose}
-              className="flex-1 rounded-lg bg-[#f96706] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 enabled:hover:-translate-y-0.5 enabled:hover:bg-[#c9580d] disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex-1 rounded-lg bg-[#c2410c] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 enabled:hover:-translate-y-0.5 enabled:hover:bg-[#9a3412] disabled:cursor-not-allowed disabled:opacity-50"
             >
               I Agree
             </button>
