@@ -3,6 +3,7 @@ import { Check } from "lucide-react";
 import { CompatLink as Link } from "@/components/NextCompat";
 import { getArticleBySlug } from "@/data/articles";
 import SEOHead, { breadcrumbSchema, serviceSchema, SITE_URL } from "@/components/SEOHead";
+import FaqSection from "@/components/FaqSection";
 import PageHero from "@/components/PageHero";
 import OtherServices from "@/sections/OtherServices";
 import NotFound from "@/pages/NotFound";
@@ -155,14 +156,7 @@ export default function ServiceDetailPage() {
               <h2 className="text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
                 {service.title} — Common Questions
               </h2>
-              <div className="mt-8 flex flex-col gap-6">
-                {details.faqs.map((faq) => (
-                  <div key={faq.q} className="rounded-xl border border-[#e7e9ee] bg-white p-6">
-                    <h3 className="text-base font-semibold text-[#1d2735]">{faq.q}</h3>
-                    <p className="mt-2 text-base leading-relaxed text-[#54607a]">{faq.a}</p>
-                  </div>
-                ))}
-              </div>
+              <FaqSection faqs={details.faqs} />
             </div>
           </section>
 

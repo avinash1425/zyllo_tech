@@ -2,6 +2,7 @@ import { CompatLink as Link } from "@/components/NextCompat";
 import SEOHead, { breadcrumbSchema, faqSchema, serviceSchema, SITE_URL } from "@/components/SEOHead";
 import { PAGE_FAQS } from "@/data/page-faqs";
 import PageHero from "@/components/PageHero";
+import FaqSection from "@/components/FaqSection";
 import ContactCTA from "@/sections/ContactCTA";
 import { SERVICES } from "@/data/services";
 
@@ -79,14 +80,7 @@ export default function HyderabadPage() {
           <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
             Common questions
           </h2>
-          <div className="mt-6 flex flex-col gap-5">
-            {FAQS.map((faq) => (
-              <div key={faq.q} className="rounded-xl border border-[#e7e9ee] bg-white p-6">
-                <h3 className="text-base font-semibold text-[#1d2735]">{faq.q}</h3>
-                <p className="mt-2 text-base leading-relaxed text-[#54607a]">{faq.a}</p>
-              </div>
-            ))}
-          </div>
+          <FaqSection faqs={FAQS} />
 
           <p className="mt-10 text-base leading-relaxed text-[#54607a]">
             Zyllo Tech Software Solutions Private Limited · Hyderabad, Telangana, India ·{" "}
