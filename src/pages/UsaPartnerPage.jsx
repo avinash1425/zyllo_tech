@@ -1,4 +1,5 @@
 import { CompatLink as Link } from "@/components/NextCompat";
+import { GitBranch, Globe, MessageSquare, Receipt, ShieldCheck } from "lucide-react";
 import SEOHead, { breadcrumbSchema, faqSchema, serviceSchema, SITE_URL } from "@/components/SEOHead";
 import PageHero from "@/components/PageHero";
 import ContactCTA from "@/sections/ContactCTA";
@@ -34,21 +35,25 @@ const FAQS = [
 
 const CONCERNS = [
   {
+    icon: MessageSquare,
     concern: "Communication gaps",
     answer:
       "English-first, written-first process: scopes, decisions, and updates in writing, plus 4+ hours of live East Coast overlap every day for standups and calls.",
   },
   {
+    icon: ShieldCheck,
     concern: "Quality you can't see",
     answer:
       "Weekly demos of working software and code review plus CI on every change — you watch the product take shape instead of trusting a report.",
   },
   {
+    icon: GitBranch,
     concern: "Vendor lock-in",
     answer:
       "Your repository from the first commit, IP assigned to you, and a written scope that includes an easy exit. Walking away is always technically and contractually simple.",
   },
   {
+    icon: Receipt,
     concern: "Hidden costs",
     answer:
       "Written phased estimates before work starts — never a single opaque number, and changes go through written scope revisions, not surprise invoices.",
@@ -80,6 +85,8 @@ export default function UsaPartnerPage() {
         eyebrow="For US Companies"
         title="Software Development Partner for US Companies"
         description="Senior engineering from India with real East Coast overlap, US-style contracts, and weekly demos in your timezone."
+        primaryCta={{ label: "Get a Free Estimate", href: "/contact" }}
+        secondaryCta={{ label: "Explore Services", href: "/services" }}
       />
 
       <section className="bg-white py-12 lg:py-16">
@@ -98,22 +105,33 @@ export default function UsaPartnerPage() {
           <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
             How Zyllo makes it work
           </h2>
-          <ul className="mt-4 list-disc space-y-2 pl-5 text-base leading-relaxed text-[#2b303b]">
-            <li>4+ hours of daily overlap with US East Coast — morning-ET standups are possible.</li>
-            <li>Written-first async process, so work continues cleanly outside overlap hours.</li>
-            <li>US-style contracts with full IP assignment and NDA on request.</li>
-            <li>Weekly demos of working software, scheduled in your timezone.</li>
-            <li>Your code in your repository from the first commit.</li>
-          </ul>
+          <div className="mt-6 flex flex-col gap-4 rounded-xl border border-[#fed7aa] bg-[#fff7ed] p-6 sm:flex-row sm:gap-5">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm ring-1 ring-[#fed7aa]">
+              <Globe className="h-6 w-6 text-[#f96706]" aria-hidden="true" />
+            </span>
+            <ul className="list-disc space-y-2 pl-5 text-base leading-relaxed text-[#2b303b] marker:text-[#f96706]">
+              <li>4+ hours of daily overlap with US East Coast — morning-ET standups are possible.</li>
+              <li>Written-first async process, so work continues cleanly outside overlap hours.</li>
+              <li>US-style contracts with full IP assignment and NDA on request.</li>
+              <li>Weekly demos of working software, scheduled in your timezone.</li>
+              <li>Your code in your repository from the first commit.</li>
+            </ul>
+          </div>
 
           <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
             The usual offshore concerns — and our answers
           </h2>
-          <div className="mt-6 flex flex-col gap-5">
-            {CONCERNS.map((c) => (
-              <div key={c.concern} className="rounded-xl border border-[#e7e9ee] bg-white p-6">
-                <h3 className="text-base font-semibold text-[#1d2735]">{c.concern}</h3>
-                <p className="mt-2 text-base leading-relaxed text-[#54607a]">{c.answer}</p>
+          <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
+            {CONCERNS.map(({ icon: Icon, concern, answer }) => (
+              <div
+                key={concern}
+                className="rounded-xl border border-[#e7e9ee] bg-white p-6 transition-all duration-300 hover:border-[#f96706]/30 hover:shadow-lg hover:shadow-[#1c2f4a]/5"
+              >
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#fff7ed]">
+                  <Icon className="h-5 w-5 text-[#f96706]" aria-hidden="true" />
+                </span>
+                <h3 className="mt-4 text-base font-semibold text-[#1d2735]">{concern}</h3>
+                <p className="mt-2 text-base leading-relaxed text-[#54607a]">{answer}</p>
               </div>
             ))}
           </div>

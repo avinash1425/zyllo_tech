@@ -50,6 +50,8 @@ export default function HyderabadPage() {
         eyebrow="Hyderabad, Telangana"
         title="Custom Software Development Company in Hyderabad"
         description="A local engineering team for web applications, mobile apps, AI, and cloud — discovery to launch and beyond."
+        primaryCta={{ label: "Get a Free Estimate", href: "/contact" }}
+        secondaryCta={{ label: "Explore Services", href: "/services" }}
       />
 
       <section className="bg-white py-12 lg:py-16">

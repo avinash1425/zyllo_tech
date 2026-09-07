@@ -246,7 +246,7 @@ export default function Footer() {
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row">
           <div className="flex flex-wrap items-center justify-center gap-3">
             <p className="text-[12.5px] text-[#c9cfdb]">
-              © {year} Zyllo Tech Software Solutions Pvt. Ltd. All rights
+              © {year} Zyllo Tech Software Solutions Private Limited. All rights
               reserved.
             </p>
             <span className="footer-cert group inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1">

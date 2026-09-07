@@ -33,7 +33,10 @@ export default function Reveal({ children, delay = 0, className = "" }) {
           setState(exitedAbove ? "hidden-up" : "hidden-down");
         }
       },
-      { threshold: 0.12, rootMargin: "0px 0px -10% 0px" }
+      // Trigger as soon as any part of the section approaches the viewport —
+      // a late trigger plus a slow transition reads as blank white sections
+      // to anyone scrolling at normal speed.
+      { threshold: 0.01, rootMargin: "0px 0px 5% 0px" }
     );
 
     const handleScroll = () => {
@@ -59,25 +62,23 @@ export default function Reveal({ children, delay = 0, className = "" }) {
       <style>{`
         .reveal-wrap {
           overflow: clip;
-          transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
-            transform 1s cubic-bezier(0.16, 1, 0.3, 1),
-            filter 1s cubic-bezier(0.16, 1, 0.3, 1);
-          will-change: opacity, transform, filter;
+          /* Short and blur-free: the old 1s blurred reveal left sections
+             invisible for over a second of normal-speed scrolling. */
+          transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+            transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+          will-change: opacity, transform;
         }
         .reveal-hidden-down {
           opacity: 0;
-          filter: blur(5px);
-          transform: scale(0.97) translateY(48px);
+          transform: translateY(24px);
         }
         .reveal-hidden-up {
           opacity: 0;
-          filter: blur(5px);
-          transform: scale(0.97) translateY(-48px);
+          transform: translateY(-24px);
         }
         .reveal-visible {
           opacity: 1;
-          filter: blur(0px);
-          transform: scale(1) translateY(0);
+          transform: translateY(0);
         }
         @media (prefers-reduced-motion: reduce) {
           .reveal-wrap {
@@ -86,7 +87,6 @@ export default function Reveal({ children, delay = 0, className = "" }) {
           .reveal-hidden-down,
           .reveal-hidden-up {
             opacity: 1;
-            filter: blur(0px);
             transform: none;
           }
         }

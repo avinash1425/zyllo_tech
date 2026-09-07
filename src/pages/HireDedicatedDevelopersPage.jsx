@@ -1,4 +1,5 @@
 import { CompatLink as Link } from "@/components/NextCompat";
+import { Check } from "lucide-react";
 import SEOHead, { breadcrumbSchema, faqSchema, serviceSchema, SITE_URL } from "@/components/SEOHead";
 import PageHero from "@/components/PageHero";
 import ContactCTA from "@/sections/ContactCTA";
@@ -40,6 +41,23 @@ const FAQS = [
   },
 ];
 
+// Presentation-only split of the "What's included" bullet copy into a bold
+// lead phrase + body text; lead + rest concatenated is the original wording.
+const INCLUDED = [
+  { lead: "Senior engineers", rest: " — experienced developers at India economics, not a bench of juniors." },
+  { lead: "English-first written process", rest: ": scopes, decisions, and estimates in writing before work starts." },
+  { lead: "Weekly demos", rest: " of working software, not status decks." },
+  { lead: "Your repository, your IP", rest: " — every commit lands in your repo from day one, with IP assigned to you." },
+  { lead: "Code review and CI", rest: " on every change, with QA and DevOps support available in the same team." },
+];
+
+// Accent pairs reused from src/sections/Process.jsx step badges.
+const STEP_ACCENTS = [
+  { accent: "#f96706", accentSoft: "#fbbf62" },
+  { accent: "#3089a6", accentSoft: "#6d94d6" },
+  { accent: "#f0650f", accentSoft: "#fb923c" },
+];
+
 const ROLES = [
   { label: "Frontend engineers", detail: "React, Next.js, TypeScript", href: "/services/web-development" },
   { label: "Backend engineers", detail: "Node.js, Python, API and data layers", href: "/services/product-strategy-consulting" },
@@ -74,14 +92,16 @@ export default function HireDedicatedDevelopersPage() {
         eyebrow="Dedicated Teams"
         title="Hire Dedicated Developers Who Ship Weekly"
         description="Senior engineers from India who join your standups, work in your repository, and demo working software every week."
+        primaryCta={{ label: "Get a Free Estimate", href: "/contact" }}
+        secondaryCta={{ label: "See Engagement Models", href: "/engagement-models" }}
       />
 
       <section className="bg-white py-12 lg:py-16">
-        <div className="mx-auto max-w-3xl px-6 lg:px-8">
+        <div className="mx-auto max-w-5xl px-6 lg:px-8">
           <h2 className="text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
             What the dedicated-team model is
           </h2>
-          <p className="mt-4 text-base leading-relaxed text-[#2b303b]">
+          <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#2b303b]">
             A dedicated team means developers who work only on your product, month after
             month — not a project handed over a wall. You direct the roadmap; we supply
             senior engineers who build it. This beats project outsourcing when your product
@@ -97,40 +117,83 @@ export default function HireDedicatedDevelopersPage() {
           <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
             What's included
           </h2>
-          <ul className="mt-4 list-disc space-y-2 pl-5 text-base leading-relaxed text-[#2b303b]">
-            <li>Senior engineers — experienced developers at India economics, not a bench of juniors.</li>
-            <li>English-first written process: scopes, decisions, and estimates in writing before work starts.</li>
-            <li>Weekly demos of working software, not status decks.</li>
-            <li>Your repository, your IP — every commit lands in your repo from day one, with IP assigned to you.</li>
-            <li>Code review and CI on every change, with QA and DevOps support available in the same team.</li>
+          <ul className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
+            {INCLUDED.map(({ lead, rest }) => (
+              <li
+                key={lead}
+                className="flex items-start gap-3 rounded-xl border border-[#e7e9ee] bg-white p-5 transition-all duration-300 hover:border-[#f96706]/30 hover:shadow-lg hover:shadow-[#1c2f4a]/5"
+              >
+                <Check className="mt-0.5 h-5 w-5 shrink-0 text-[#f96706]" aria-hidden="true" />
+                <p className="text-base leading-relaxed">
+                  <span className="font-semibold text-[#1d2735]">{lead}</span>
+                  <span className="text-[#54607a]">{rest}</span>
+                </p>
+              </li>
+            ))}
           </ul>
 
           <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
             How onboarding works
           </h2>
-          <ol className="mt-4 list-decimal space-y-2 pl-5 text-base leading-relaxed text-[#2b303b]">
-            <li>
-              <strong>Discovery call</strong> — we map your product, stack, and the roles you
-              actually need. Response within one business day of your{" "}
-              <Link href="/contact" className="font-medium text-[#1d2735] underline decoration-[#e7e9ee] underline-offset-4 transition-colors hover:text-[#f96706] hover:decoration-[#f96706]">
-                first message
-              </Link>.
-            </li>
-            <li>
-              <strong>Written team proposal</strong> — proposed team composition, working model,
-              and phased scope in writing before anything is signed.
-            </li>
-            <li>
-              <strong>Integration into your workflow</strong> — developers join your standups,
-              your Slack, your Jira or Linear if you want them there. You run the process; we
-              plug into it. Developers typically start within 1–2 weeks of scope agreement.
-            </li>
+          <ol className="mt-10 grid grid-cols-1 gap-x-4 gap-y-10 sm:grid-cols-3">
+            {[
+              {
+                title: "Discovery call",
+                body: (
+                  <>
+                    we map your product, stack, and the roles you actually need. Response
+                    within one business day of your{" "}
+                    <Link href="/contact" className="font-medium text-[#1d2735] underline decoration-[#e7e9ee] underline-offset-4 transition-colors hover:text-[#f96706] hover:decoration-[#f96706]">
+                      first message
+                    </Link>.
+                  </>
+                ),
+              },
+              {
+                title: "Written team proposal",
+                body: (
+                  <>
+                    proposed team composition, working model, and phased scope in writing
+                    before anything is signed.
+                  </>
+                ),
+              },
+              {
+                title: "Integration into your workflow",
+                body: (
+                  <>
+                    developers join your standups, your Slack, your Jira or Linear if you want
+                    them there. You run the process; we plug into it. Developers typically
+                    start within 1–2 weeks of scope agreement.
+                  </>
+                ),
+              },
+            ].map(({ title, body }, index) => {
+              const { accent, accentSoft } = STEP_ACCENTS[index];
+              return (
+                <li key={title} className="group relative flex h-full flex-col items-center">
+                  <div
+                    className="relative z-[1] -mb-7 flex h-14 w-14 items-center justify-center rounded-full text-lg font-extrabold text-white shadow-lg ring-4 ring-white transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105"
+                    style={{
+                      background: `linear-gradient(135deg, ${accent}, ${accentSoft})`,
+                      boxShadow: `0 10px 22px -6px ${accent}70`,
+                    }}
+                  >
+                    {index + 1}
+                  </div>
+                  <div className="flex h-full w-full flex-col items-center rounded-2xl border border-[#e7e9ee] bg-white px-5 pb-5 pt-10 text-center shadow-sm transition-all duration-300 group-hover:border-[#f96706]/30 group-hover:shadow-lg group-hover:shadow-[#1c2f4a]/5">
+                    <h3 className="text-base font-bold text-[#1d2735]">{title}</h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-[#54607a]">{body}</p>
+                  </div>
+                </li>
+              );
+            })}
           </ol>
 
           <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
             Timezone collaboration
           </h2>
-          <p className="mt-4 text-base leading-relaxed text-[#2b303b]">
+          <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#2b303b]">
             Working from India, we keep 4+ hours of daily overlap with US East Coast — enough
             for morning-ET standups and afternoon pairing — and full business-hours overlap
             with the UK and EU, where IST is only 3.5–4.5 hours ahead of CET. Everything
@@ -148,16 +211,19 @@ export default function HireDedicatedDevelopersPage() {
           <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
             Roles you can hire
           </h2>
-          <ul className="mt-5 flex flex-col gap-3">
+          <ul className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {ROLES.map((r) => (
-              <li key={r.href}>
+              <li
+                key={r.href}
+                className="rounded-xl border border-[#e7e9ee] bg-white p-5 transition-all duration-300 hover:border-[#f96706]/30 hover:shadow-lg hover:shadow-[#1c2f4a]/5"
+              >
                 <Link
                   href={r.href}
-                  className="font-medium text-[#1d2735] underline decoration-[#e7e9ee] underline-offset-4 transition-colors hover:text-[#f96706] hover:decoration-[#f96706]"
+                  className="font-semibold text-[#1d2735] transition-colors hover:text-[#f96706]"
                 >
                   {r.label}
                 </Link>
-                <span className="text-[#54607a]"> — {r.detail}</span>
+                <p className="mt-1.5 text-sm leading-relaxed text-[#54607a]">{r.detail}</p>
               </li>
             ))}
           </ul>
@@ -165,7 +231,7 @@ export default function HireDedicatedDevelopersPage() {
           <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
             Common questions
           </h2>
-          <div className="mt-6 flex flex-col gap-5">
+          <div className="mt-6 flex max-w-3xl flex-col gap-5">
             {FAQS.map((faq) => (
               <div key={faq.q} className="rounded-xl border border-[#e7e9ee] bg-white p-6">
                 <h3 className="text-base font-semibold text-[#1d2735]">{faq.q}</h3>
@@ -174,7 +240,7 @@ export default function HireDedicatedDevelopersPage() {
             ))}
           </div>
 
-          <p className="mt-10 text-base leading-relaxed text-[#54607a]">
+          <p className="mt-10 max-w-3xl text-base leading-relaxed text-[#54607a]">
             Not sure a dedicated team is the right shape? Compare all three{" "}
             <Link href="/engagement-models" className="font-medium text-[#1d2735] underline underline-offset-4">
               engagement models

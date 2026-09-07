@@ -1,4 +1,5 @@
 import { CompatLink as Link } from "@/components/NextCompat";
+import { CalendarCheck, GitBranch, Globe, Lock, MessageSquare, ShieldCheck } from "lucide-react";
 import SEOHead, { breadcrumbSchema, faqSchema, serviceSchema, SITE_URL } from "@/components/SEOHead";
 import PageHero from "@/components/PageHero";
 import ContactCTA from "@/sections/ContactCTA";
@@ -57,6 +58,8 @@ export default function EuropePartnerPage() {
         eyebrow="For UK & EU Companies"
         title="Software Development Partner for European Companies"
         description="Senior engineering from India with full UK/EU business-hours overlap, GDPR-aware delivery, and weekly demos."
+        primaryCta={{ label: "Get a Free Estimate", href: "/contact" }}
+        secondaryCta={{ label: "Explore Services", href: "/services" }}
       />
 
       <section className="bg-white py-12 lg:py-16">
@@ -75,25 +78,65 @@ export default function EuropePartnerPage() {
           <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
             How Zyllo makes it work
           </h2>
-          <ul className="mt-4 list-disc space-y-2 pl-5 text-base leading-relaxed text-[#2b303b]">
-            <li>Full UK/EU business-hours overlap — live standups, pairing, and calls all day.</li>
-            <li>English-first written process: scopes, decisions, and estimates in writing before work starts.</li>
-            <li>GDPR-aware engineering — see below for exactly what we do and don't claim.</li>
-            <li>Weekly demos of working software in your business hours.</li>
-            <li>Your code in your repository from the first commit, with IP assigned to you.</li>
-          </ul>
+          <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
+            {[
+              {
+                icon: Globe,
+                lead: "Full UK/EU business-hours overlap",
+                rest: " — live standups, pairing, and calls all day.",
+              },
+              {
+                icon: MessageSquare,
+                lead: "English-first written process",
+                rest: ": scopes, decisions, and estimates in writing before work starts.",
+              },
+              {
+                icon: Lock,
+                lead: "GDPR-aware engineering",
+                rest: " — see below for exactly what we do and don't claim.",
+              },
+              {
+                icon: CalendarCheck,
+                lead: "Weekly demos",
+                rest: " of working software in your business hours.",
+              },
+              {
+                icon: GitBranch,
+                lead: "Your code in your repository",
+                rest: " from the first commit, with IP assigned to you.",
+              },
+            ].map(({ icon: Icon, lead, rest }) => (
+              <div
+                key={lead}
+                className="rounded-xl border border-[#e7e9ee] bg-white p-6 transition-all duration-300 hover:border-[#f96706]/30 hover:shadow-lg hover:shadow-[#1c2f4a]/5"
+              >
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#fff7ed]">
+                  <Icon className="h-5 w-5 text-[#f96706]" aria-hidden="true" />
+                </span>
+                <p className="mt-4 text-base leading-relaxed">
+                  <span className="font-semibold text-[#1d2735]">{lead}</span>
+                  <span className="text-[#54607a]">{rest}</span>
+                </p>
+              </div>
+            ))}
+          </div>
 
           <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
             GDPR-aware engineering, stated honestly
           </h2>
-          <p className="mt-4 text-base leading-relaxed text-[#2b303b]">
-            We build GDPR-conscious data flows — data minimisation by default, consent
-            capture, export and deletion paths, and access controls — and we sign Data
-            Processing Agreements. We are not ISO-certified yet, and we say so plainly
-            rather than implying otherwise. If your procurement process requires a specific
-            certification, tell us early and we'll tell you honestly whether we're the
-            right fit today.
-          </p>
+          <div className="mt-6 flex flex-col gap-4 rounded-xl border border-[#fed7aa] bg-[#fff7ed] p-6 sm:flex-row sm:gap-5">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm ring-1 ring-[#fed7aa]">
+              <ShieldCheck className="h-6 w-6 text-[#f96706]" aria-hidden="true" />
+            </span>
+            <p className="text-base leading-relaxed text-[#2b303b]">
+              We build GDPR-conscious data flows — data minimisation by default, consent
+              capture, export and deletion paths, and access controls — and we sign Data
+              Processing Agreements. We are not ISO-certified yet, and we say so plainly
+              rather than implying otherwise. If your procurement process requires a specific
+              certification, tell us early and we'll tell you honestly whether we're the
+              right fit today.
+            </p>
+          </div>
 
           <h2 className="mt-10 text-2xl font-bold tracking-tight text-[#1d2735] sm:text-3xl">
             What we build for European clients
