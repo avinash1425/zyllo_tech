@@ -15,6 +15,13 @@ const COMPANY_LINKS = [
   { href: "/contact", label: "Contact" },
 ];
 
+const WORK_WITH_US_LINKS = [
+  { href: "/hire-dedicated-developers", label: "Hire Dedicated Developers" },
+  { href: "/engagement-models", label: "Engagement Models" },
+  { href: "/software-development-company-usa", label: "For US Companies" },
+  { href: "/software-development-company-europe", label: "For UK/EU Companies" },
+];
+
 const SERVICE_LINKS = [
   { href: "/services/web-development", label: "Web Development" },
   { href: "/services/mobile-app-development", label: "Mobile App Development" },
@@ -112,7 +119,7 @@ export default function Footer() {
   return (
     <footer className="relative bg-[#131c2a] text-neutral-100">
       <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8 lg:py-16">
-        <div className="grid grid-cols-1 gap-y-10 gap-x-8 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
+        <div className="grid grid-cols-1 gap-y-10 gap-x-8 sm:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_1fr_1fr]">
           <div className="sm:col-span-2 lg:col-span-1">
             {/* White card behind the logo guarantees full contrast no
                 matter what the footer's own background is. */}
@@ -182,6 +189,17 @@ export default function Footer() {
             </ul>
           </nav>
 
+          <nav aria-label="Work with us">
+            <FooterHeading>Work With Us</FooterHeading>
+            <ul className="mt-4 space-y-2.5 text-[13.5px]">
+              {WORK_WITH_US_LINKS.map((link) => (
+                <li key={link.href}>
+                  <FooterLink href={link.href}>{link.label}</FooterLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
           <nav aria-label="Services">
             <FooterHeading>Services</FooterHeading>
             <ul className="mt-4 space-y-2.5 text-[13.5px]">
@@ -243,6 +261,19 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Decorative giant wordmark close — outlined ghost text clipped by its
+            own overflow-hidden block; the negative bottom margin lets the legal
+            bar's border sit flush against the clipped glyphs so the block adds
+            no extra vertical gap and can never cause horizontal scroll. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none -mb-10 mt-8 select-none overflow-hidden text-center"
+        >
+          <span className="footer-watermark block translate-y-[22%] whitespace-nowrap font-black uppercase leading-none tracking-tight">
+            Zyllo Tech
+          </span>
+        </div>
+
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row">
           <div className="flex flex-wrap items-center justify-center gap-3">
             <p className="text-[12.5px] text-[#c9cfdb]">
@@ -286,6 +317,16 @@ export default function Footer() {
       </div>
 
       <style>{`
+        .footer-watermark {
+          font-size: clamp(4rem, 14vw, 11rem);
+          color: rgba(255, 255, 255, 0.04);
+        }
+        @supports (-webkit-text-stroke: 1px transparent) {
+          .footer-watermark {
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.07);
+          }
+        }
         .footer-brand {
           transition: transform 0.3s ease;
         }

@@ -77,10 +77,14 @@ export default function Header() {
   }, [isServicesOpen]);
 
   return (
-    <header className="relative z-50">
+    // Sticky sits on the header itself with a negative top offset equal to
+    // the utility bar's fixed height (h-11 on lg): the utility bar scrolls
+    // away and the nav row pins at the viewport top for the whole page —
+    // sticky on the nav row alone was capped by the header's own height.
+    <header className="sticky top-0 z-50 lg:-top-11">
       {/* Utility bar scrolls away with the page — only the nav row below stays pinned. */}
-      <div className="hidden w-full border-b border-[#e2e5ea] bg-[#f3f4f6] text-[#57606f] backdrop-blur-xl transition-all duration-300 lg:flex">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-end gap-5 px-6 py-2.5 text-[12.5px] font-semibold lg:px-8">
+      <div className="hidden h-11 w-full border-b border-[#e2e5ea] bg-[#f3f4f6] text-[#57606f] backdrop-blur-xl transition-all duration-300 lg:flex">
+        <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-end gap-5 px-6 text-[12.5px] font-semibold lg:px-8">
           <Link
             href="/careers"
             className={`group relative inline-block pb-0.5 transition-colors duration-200 ease-out hover:text-[#c2410c] ${
@@ -121,8 +125,10 @@ export default function Header() {
       </div>
 
       <div
-        className={`sticky top-0 z-50 w-full border-b border-[#e2e5ea] bg-white backdrop-blur-xl transition-all duration-300 h-16 ${
-          isScrolled ? "shadow-lg shadow-[#f96706]/10" : "shadow-sm"
+        className={`relative z-50 h-16 w-full transition-all duration-300 ${
+          isScrolled
+            ? "border-b border-[#e7e9ee] bg-white/85 shadow-sm backdrop-blur-md"
+            : "border-b border-[#e2e5ea] bg-white shadow-sm"
         }`}
       >
         {isHome && (
@@ -161,8 +167,10 @@ export default function Header() {
                     {link.label}
                     <span
                       aria-hidden="true"
-                      className={`absolute bottom-0 left-0 h-0.5 rounded-full bg-gradient-to-r from-[#f96706] to-[#3089a6] transition-all duration-300 ease-out ${
-                        isActive(link.href) ? "w-full" : "w-0 group-hover:w-full"
+                      className={`absolute bottom-0 left-0 h-0.5 w-full origin-left rounded-full bg-gradient-to-r from-[#f96706] to-[#c2410c] transition-transform duration-300 ease-out ${
+                        isActive(link.href)
+                          ? "scale-x-100 opacity-100"
+                          : "scale-x-0 opacity-60 group-hover:scale-x-100"
                       }`}
                     />
                   </Link>
@@ -191,8 +199,10 @@ export default function Header() {
                   />
                   <span
                     aria-hidden="true"
-                    className={`absolute bottom-0 left-0 h-0.5 rounded-full bg-gradient-to-r from-[#f96706] to-[#3089a6] transition-all duration-300 ease-out ${
-                      isServicesActive || isServicesOpen ? "w-full" : "w-0 group-hover:w-full"
+                    className={`absolute bottom-0 left-0 h-0.5 w-full origin-left rounded-full bg-gradient-to-r from-[#f96706] to-[#c2410c] transition-transform duration-300 ease-out ${
+                      isServicesActive || isServicesOpen
+                        ? "scale-x-100 opacity-100"
+                        : "scale-x-0 opacity-60 group-hover:scale-x-100"
                     }`}
                   />
                 </button>
@@ -250,13 +260,24 @@ export default function Header() {
                     {link.label}
                     <span
                       aria-hidden="true"
-                      className={`absolute bottom-0 left-0 h-0.5 rounded-full bg-gradient-to-r from-[#f96706] to-[#3089a6] transition-all duration-300 ease-out ${
-                        isActive(link.href) ? "w-full" : "w-0 group-hover:w-full"
+                      className={`absolute bottom-0 left-0 h-0.5 w-full origin-left rounded-full bg-gradient-to-r from-[#f96706] to-[#c2410c] transition-transform duration-300 ease-out ${
+                        isActive(link.href)
+                          ? "scale-x-100 opacity-100"
+                          : "scale-x-0 opacity-60 group-hover:scale-x-100"
                       }`}
                     />
                   </Link>
                 </li>
               ))}
+
+              <li>
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center rounded-full bg-[#c2410c] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors duration-200 hover:bg-[#9a3412]"
+                >
+                  Get a Free Estimate
+                </Link>
+              </li>
 
               <li className="relative flex items-center">
                 <AISearchBar />
@@ -299,7 +320,7 @@ export default function Header() {
         <nav
           id="mobile-menu"
           aria-label="Mobile"
-          className="mobile-menu-in border-t border-neutral-200 bg-white px-6 py-4 lg:hidden"
+          className="mobile-menu-in max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-neutral-200 bg-white px-6 py-4 lg:hidden"
         >
           <div className="mb-2 flex items-center gap-6 border-b border-neutral-200 pb-3 text-sm font-semibold text-[#6c7889]">
             {UTILITY_LINKS.map((link) => (
@@ -397,6 +418,16 @@ export default function Header() {
                 </Link>
               </li>
             ))}
+
+            <li className="mt-2">
+              <Link
+                href="/contact"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex items-center justify-center rounded-full bg-[#c2410c] px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#9a3412]"
+              >
+                Get a Free Estimate
+              </Link>
+            </li>
           </ul>
         </nav>
       )}
