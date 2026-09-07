@@ -352,6 +352,8 @@ async function main() {
       case "ol": return `<ol>${b.items.map((i) => `<li>${inline(i)}</li>`).join("")}</ol>`;
       case "callout": return `<aside><p>${inline(b.text)}</p></aside>`;
       case "metrics": return `<ul>${b.items.map((i) => `<li>${esc(i.label)}: ${esc(i.value)}</li>`).join("")}</ul>`;
+      case "code": return `<figure>${b.label ? `<figcaption>${esc(b.label)}</figcaption>` : ""}<pre><code>${esc(b.code)}</code></pre></figure>`;
+      case "flow": return `<figure>${b.title ? `<figcaption>${esc(b.title)}</figcaption>` : ""}<ol>${b.steps.map((s) => `<li>${inline(s)}</li>`).join("")}</ol></figure>`;
       default: return `<p>${inline(b.text)}</p>`;
     }
   };

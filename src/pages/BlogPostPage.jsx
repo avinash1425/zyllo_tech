@@ -152,6 +152,43 @@ function ArticleBody({ blocks }) {
                 {renderInline(block.text)}
               </aside>
             );
+          case "code":
+            return (
+              <figure key={i} className="mt-6">
+                {block.label ? (
+                  <figcaption className="mb-1.5 font-mono text-xs font-medium uppercase tracking-wide text-[#6b7280]">
+                    {block.label}
+                  </figcaption>
+                ) : null}
+                <pre className="overflow-x-auto rounded-lg bg-[#151a22] p-4 text-[13px] leading-relaxed text-[#e7e9ee]">
+                  <code>{block.code}</code>
+                </pre>
+              </figure>
+            );
+          case "flow":
+            return (
+              <figure key={i} className="mt-6 rounded-lg border border-[#e7e9ee] bg-[#fafbfc] p-4">
+                {block.title ? (
+                  <figcaption className="mb-3 text-sm font-semibold text-[#151a22]">{block.title}</figcaption>
+                ) : null}
+                <ol className="space-y-0">
+                  {block.steps.map((step, j) => (
+                    <li key={j} className="relative pb-3 pl-7 text-sm last:pb-0">
+                      <span
+                        aria-hidden="true"
+                        className="absolute left-0 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#f96706] font-mono text-[10px] font-bold text-white"
+                      >
+                        {j + 1}
+                      </span>
+                      {j < block.steps.length - 1 && (
+                        <span aria-hidden="true" className="absolute bottom-0 left-[7px] top-5 w-px bg-[#e7e9ee]" />
+                      )}
+                      {renderInline(step)}
+                    </li>
+                  ))}
+                </ol>
+              </figure>
+            );
           case "metrics":
             // Deliberately rendered as plain label/value lines — visually no
             // louder than the flattened-text rendering it replaces.

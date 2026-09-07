@@ -5,7 +5,12 @@ export type ContentBlock =
   | { type: "ul"; items: string[] }
   | { type: "ol"; items: string[] }
   | { type: "callout"; text: string }
-  | { type: "metrics"; items: Array<{ label: string; value: string }> };
+  | { type: "metrics"; items: Array<{ label: string; value: string }> }
+  // Fenced code sample. `label` is an optional caption ("deployment.yaml",
+  // "FHIR Patient resource"); `lang` is informational only — no highlighter.
+  | { type: "code"; lang?: string; label?: string; code: string }
+  // Architecture/data-flow diagram rendered as a connected step chain.
+  | { type: "flow"; title?: string; steps: string[] };
 
 export interface Article {
   slug: string;
@@ -221,7 +226,7 @@ export const articles: Article[] = [
     author: "Priya Reddy",
     role: "Cloud Architect",
     date: "Jan 8, 2025",
-    updated: "Sep 1, 2026",
+    updated: "Sep 7, 2026",
     readTime: "9 min read",
     featured: false,
     initials: "PR",
@@ -235,10 +240,12 @@ export const articles: Article[] = [
       { type: "p", text: "Kubernetes makes it easy to request capacity and very quiet about waste. A developer copies a deployment manifest with 2 CPU / 4Gi requests from another service, the scheduler dutifully reserves that capacity on a node, and the pod actually uses 200 millicores. Multiply by a few hundred pods and the cluster runs at 15–25% real utilisation while the cloud bill reflects 100% of the reserved nodes. Three structural facts drive this: requests (not usage) determine node count; nobody owns the gap between the two; and dev/staging environments replicate production sizing without production traffic." },
       { type: "h2", text: "The Big 3 (Tackle These First)" },
       { type: "ol", items: ["Right-size your requests and limits — 70% of clusters we see are over-provisioned by 2x or more. Use [Goldilocks](https://github.com/FairwindsOps/goldilocks) or the Vertical Pod Autoscaler in recommendation mode to compare each workload's requests against its actual P95 usage over a couple of representative weeks, then cut requests to P95 plus sensible headroom. This is pure waste removal: no architecture change, no user-visible risk if you move in steps.", "Enable cluster autoscaling — match node capacity to actual load instead of running for peak 24/7. Most teams we audit keep 30–40% idle nodes around the clock for traffic that arrives two hours a day. Autoscaling only works when step 1 is done: over-stated requests make the autoscaler think the cluster is full when it isn't.", "Move stateless workloads to Spot/Preemptible instances — 60–80% cheaper for interruption-tolerant work (API replicas behind a load balancer, queue consumers, CI runners, batch jobs). Handle the interruptions properly: PodDisruptionBudgets, more than one instance type in the node pool, and graceful shutdown hooks so a reclaimed node drains instead of dropping requests."] },
+      { type: "code", lang: "yaml", label: "deployment.yaml — what right-sizing actually looks like", code: "# Before: copied from another service two years ago, never revisited\nresources:\n  requests: { cpu: \"2\", memory: 4Gi }\n  limits:   { cpu: \"2\", memory: 4Gi }\n\n# After: P95 usage over two weeks was 210m CPU / 900Mi memory\nresources:\n  requests: { cpu: 300m, memory: 1200Mi }\n  limits:   { memory: 1200Mi }   # memory limit only — no CPU limit, no throttling" },
       { type: "h2", text: "The Next 7" },
       { type: "ol", items: ["Namespace-level resource quotas — cap dev/staging so an experiment can't quietly triple the cluster. Quotas turn cost conversations from archaeology into a pull request.", "Delete idle environments — preview and dev namespaces nobody has touched for 7+ days. A TTL controller or a scheduled job that flags (then removes) stale namespaces routinely claws back 10–15% of the bill.", "Use [Karpenter](https://karpenter.sh) instead of the classic Cluster Autoscaler on AWS — it provisions right-sized nodes directly from pending pods in seconds, picks cheaper instance types automatically, and consolidates underused nodes without manual node-group tuning.", "Adopt ARM nodes (Graviton and equivalents) — typically ~20% cheaper for comparable performance. Most mainstream runtimes and base images ship multi-arch today; start with stateless services whose images already publish arm64 variants.", "Optimise image size — multi-stage builds and slim base images cut pull times (faster scale-up, which lets autoscaling run tighter), registry storage, and cross-zone egress. Going from a 1.2GB image to 150MB is common and free.", "Buy reserved capacity or savings plans for the baseline — after right-sizing, a steady floor of usage remains; committing to it for 1 year typically saves 30–40% versus on-demand. Do this last, not first: committing to today's inflated baseline locks the waste in.", "Cost allocation tagging and showback — label workloads by team/product and put a weekly cost report in front of the owners. You can't optimise what you can't attribute, and in practice visibility alone changes engineer behaviour within a sprint or two."] },
       { type: "h2", text: "Measure Before and After" },
       { type: "p", text: "Pick your metrics before touching anything, or you won't be able to prove the savings. The two that matter: cost per namespace/team (from [OpenCost](https://opencost.io) or Kubecost, both of which map cloud billing onto Kubernetes objects) and cluster utilisation — actual CPU/memory usage divided by allocatable capacity. A healthy production cluster after optimisation typically runs 50–65% utilisation; below 30% means you're paying for air. Snapshot both for two weeks before the first change." },
+      { type: "code", lang: "bash", label: "First look at the request-vs-usage gap, no tooling required", code: "# Actual usage right now, biggest consumers last\nkubectl top pods -n payments --no-headers | sort -k2 -h | tail\n\n# What those same pods reserved from the scheduler\nkubectl get pods -n payments -o custom-columns=\\\n'NAME:.metadata.name,\\\nCPU_REQ:.spec.containers[*].resources.requests.cpu,\\\nMEM_REQ:.spec.containers[*].resources.requests.memory'\n\n# Cluster-level: allocatable vs requested per node\nkubectl describe nodes | grep -A5 'Allocated resources'" },
       { type: "h2", text: "A Realistic 30-Day Plan" },
       { type: "ol", items: ["Week 1 — visibility: deploy OpenCost/Kubecost, label workloads by owner, snapshot utilisation and per-team cost. No changes yet.", "Week 2 — right-size the top 20 workloads by reserved capacity, using two weeks of usage data. This alone usually cuts 20–30%.", "Week 3 — turn on autoscaling (or migrate to Karpenter), add PodDisruptionBudgets, and move the first batch of stateless workloads to Spot.", "Week 4 — quotas on non-production, idle-environment cleanup, and only now price reserved capacity for the remaining steady baseline."] },
       { type: "h2", text: "Mistakes That Undo the Savings" },
@@ -311,7 +318,7 @@ export const articles: Article[] = [
     author: "Arun Sharma",
     role: "AI Lead",
     date: "Mar 1, 2025",
-    updated: "Aug 31, 2026",
+    updated: "Sep 7, 2026",
     readTime: "14 min read",
     featured: false,
     initials: "AS",
@@ -409,6 +416,23 @@ export const articles: Article[] = [
           "Idempotency keys on all financial transactions — critical for preventing double-charges if network timeouts cause retries.",
           "[Saga pattern](/blog/migrating-to-microservices-playbook) for distributed transactions across services (fund transfers, loan disbursements, bill payments).",
           "Compensation logic for failed transaction rollbacks with full audit trails.",
+        ],
+      },
+      {
+        type: "code",
+        lang: "sql",
+        label: "The idempotency pattern, in full — insert first, act second",
+        code: "-- Client sends the same UUID on every retry of one logical transfer:\n--   POST /v1/transfers\n--   Idempotency-Key: 7f9c2b4e-0d31-4c8a-9f6e-2c5a8e1b6d40\n\nCREATE TABLE transfer_requests (\n  idempotency_key uuid PRIMARY KEY,\n  request_hash    text NOT NULL,          -- reject key reuse with a different body\n  status          text NOT NULL DEFAULT 'processing',\n  response_body   jsonb,\n  created_at      timestamptz NOT NULL DEFAULT now()\n);\n\n-- 1. INSERT the key BEFORE touching any money. A duplicate key violation\n--    means a retry: return the stored response, execute nothing.\n-- 2. Only after the insert succeeds, run the debit/credit inside the same\n--    database transaction and store the response body on the row.\n-- A timeout between client and server can no longer double-charge:\n-- the retry hits the primary key, not the ledger.",
+      },
+      {
+        type: "flow",
+        title: "Saga for a fund transfer across services — every step has a compensation",
+        steps: [
+          "Reserve the debit on the source account (funds held, not yet moved) and emit a TransferInitiated event.",
+          "Credit service applies the credit to the destination account; on success it emits CreditApplied.",
+          "Core banking adapter confirms settlement; the orchestrator finalises the reservation and marks the saga complete.",
+          "On failure at any step, compensations run in reverse: release the hold, reverse an applied credit — each compensation writes its own audit-trail entry.",
+          "A stuck saga (no event within its timeout) pages the on-call runbook rather than silently retrying forever.",
         ],
       },
       {
@@ -635,7 +659,7 @@ export const articles: Article[] = [
     author: "Priya Reddy",
     role: "Cloud Architect",
     date: "Mar 3, 2025",
-    updated: "Aug 31, 2026",
+    updated: "Sep 7, 2026",
     readTime: "13 min read",
     featured: false,
     initials: "PR",
@@ -685,6 +709,23 @@ export const articles: Article[] = [
         ],
       },
       {
+        type: "flow",
+        title: "SMART on FHIR patient-facing launch, end to end",
+        steps: [
+          "Portal redirects the patient to the EHR's authorization endpoint with requested scopes (launch/patient, patient/*.read, offline_access).",
+          "Patient authenticates against the EHR's own identity provider and approves the scopes — the portal never sees EHR credentials.",
+          "EHR redirects back to the portal's registered redirect URI with a short-lived authorization code.",
+          "Portal exchanges the code for an access token; the token response carries the patient context (the FHIR Patient id) alongside it.",
+          "All subsequent FHIR API calls send the Bearer token and are server-side scoped to that one patient — the EHR enforces the boundary, not portal application code.",
+        ],
+      },
+      {
+        type: "code",
+        lang: "http",
+        label: "Fetching free slots for booking — a typical scoped FHIR call",
+        code: "GET /fhir/R4/Slot?schedule.actor=Practitioner/prac-204\n    &status=free&start=ge2026-09-08&_count=20 HTTP/1.1\nHost: ehr.example.org\nAuthorization: Bearer eyJhbGciOi...\nAccept: application/fhir+json",
+      },
+      {
         type: "h2",
         text: "Patient Portal Feature Architecture",
       },
@@ -727,6 +768,12 @@ export const articles: Article[] = [
           "Medication list with interaction checking against an external drug database API.",
           "Document upload (insurance cards, external records) with OCR and structured data extraction.",
         ],
+      },
+      {
+        type: "code",
+        lang: "json",
+        label: "Why reference-range context matters — the raw FHIR Observation a patient would otherwise see",
+        code: "{\n  \"resourceType\": \"Observation\",\n  \"status\": \"final\",\n  \"code\": {\n    \"coding\": [{ \"system\": \"http://loinc.org\", \"code\": \"718-7\",\n                 \"display\": \"Hemoglobin [Mass/volume] in Blood\" }]\n  },\n  \"subject\": { \"reference\": \"Patient/pat-1207\" },\n  \"valueQuantity\": { \"value\": 10.8, \"unit\": \"g/dL\" },\n  \"referenceRange\": [{\n    \"low\":  { \"value\": 12.0, \"unit\": \"g/dL\" },\n    \"high\": { \"value\": 15.5, \"unit\": \"g/dL\" }\n  }]\n}\n// The portal's job: render this as \"Hemoglobin: 10.8 g/dL — below the\n// typical range (12.0–15.5)\" with a plain-language explainer, not as JSON.",
       },
       {
         type: "h2",

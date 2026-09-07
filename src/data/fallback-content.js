@@ -21,6 +21,12 @@ function blockToText(block) {
       return block.items.map((item, index) => `${index + 1}. ${stripLinks(item)}`).join("\n");
     case "metrics":
       return block.items.map((item) => `${item.label}: ${item.value}`).join("\n");
+    case "code":
+      return [block.label, block.code].filter(Boolean).join("\n");
+    case "flow":
+      return [block.title, ...block.steps.map((step, index) => `${index + 1}. ${stripLinks(step)}`)]
+        .filter(Boolean)
+        .join("\n");
     default:
       return "";
   }
