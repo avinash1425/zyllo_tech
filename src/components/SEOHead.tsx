@@ -147,6 +147,24 @@ export function faqSchema(faqs: Array<{ q: string; a: string }>) {
   };
 }
 
+// ─── WebPage freshness helper ────────────────────────────────────────────────
+// The commercial pages carry no Article schema, so nothing on the page itself
+// stated when they were last revised — a crawler reading only the page had no
+// machine-readable freshness signal, even though sitemap.xml had a lastmod.
+// Keep the date in step with the sitemap entry for the same URL.
+export function webPageSchema({ url, name, dateModified }: { url: string; name: string; dateModified: string }) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": url,
+    url,
+    name,
+    dateModified,
+    isPartOf: { "@id": `${SITE_URL}/#website` },
+    publisher: { "@id": `${SITE_URL}/#organization` },
+  };
+}
+
 // ─── Breadcrumb helper ───────────────────────────────────────────────────────
 export function breadcrumbSchema(items: Array<{ name: string; url: string }>) {
   return {

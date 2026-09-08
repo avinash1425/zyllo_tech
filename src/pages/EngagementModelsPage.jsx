@@ -1,6 +1,6 @@
 import { CompatLink as Link } from "@/components/NextCompat";
 import { Clock, Target, Users } from "lucide-react";
-import SEOHead, { breadcrumbSchema, faqSchema, serviceSchema, SITE_URL } from "@/components/SEOHead";
+import SEOHead, { webPageSchema, breadcrumbSchema, faqSchema, serviceSchema, SITE_URL } from "@/components/SEOHead";
 import { PAGE_FAQS } from "@/data/page-faqs";
 import PageHero from "@/components/PageHero";
 import FaqSection from "@/components/FaqSection";
@@ -64,6 +64,7 @@ export default function EngagementModelsPage() {
             url: `${SITE_URL}/engagement-models`,
           }),
           faqSchema(FAQS),
+          webPageSchema({ url: `${SITE_URL}/engagement-models`, name: "Software Development Engagement Models", dateModified: "2026-09-06" }),
         ]}
       />
       <PageHero

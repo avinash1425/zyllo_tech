@@ -1,6 +1,6 @@
 import { CompatLink as Link } from "@/components/NextCompat";
 import { GitBranch, Globe, MessageSquare, Receipt, ShieldCheck } from "lucide-react";
-import SEOHead, { breadcrumbSchema, faqSchema, serviceSchema, SITE_URL } from "@/components/SEOHead";
+import SEOHead, { webPageSchema, breadcrumbSchema, faqSchema, serviceSchema, SITE_URL } from "@/components/SEOHead";
 import { PAGE_FAQS } from "@/data/page-faqs";
 import PageHero from "@/components/PageHero";
 import FaqSection from "@/components/FaqSection";
@@ -56,6 +56,7 @@ export default function UsaPartnerPage() {
             url: `${SITE_URL}/software-development-company-usa`,
           }),
           faqSchema(FAQS),
+          webPageSchema({ url: `${SITE_URL}/software-development-company-usa`, name: "Software Development for US Companies", dateModified: "2026-09-07" }),
         ]}
       />
       <PageHero

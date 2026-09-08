@@ -60,13 +60,13 @@ async function main() {
 
   let SERVICES = [], SERVICE_DETAILS = {}, fallbackPosts = [], fallbackProjects = [];
   let organizationSchema = null, webSiteSchema = null, serviceSchema = null, breadcrumbSchema = null;
-  let PAGE_FAQS = {}, faqSchema = null;
+  let PAGE_FAQS = {}, faqSchema = null, webPageSchema = null;
   try {
     ({ SERVICES } = await vite.ssrLoadModule("/src/data/services.js"));
     ({ SERVICE_DETAILS } = await vite.ssrLoadModule("/src/data/service-details.js"));
     ({ fallbackPosts, fallbackProjects } = await vite.ssrLoadModule("/src/data/fallback-content.js"));
     ({ PAGE_FAQS } = await vite.ssrLoadModule("/src/data/page-faqs.js"));
-    ({ organizationSchema, webSiteSchema, serviceSchema, breadcrumbSchema, faqSchema } =
+    ({ organizationSchema, webSiteSchema, serviceSchema, breadcrumbSchema, faqSchema, webPageSchema } =
       await vite.ssrLoadModule("/src/components/SEOHead.tsx"));
   } finally {
     await vite.close();
@@ -89,10 +89,15 @@ async function main() {
   let fontPreload = "";
   try {
     const assets = readdirSync(path.join(DIST, "assets"));
-    const inter400 = assets.find((f) => /^inter-latin-400-normal-.*\.woff2$/.test(f));
-    if (inter400) {
-      fontPreload = `<link rel="preload" as="font" type="font/woff2" href="/assets/${inter400}" crossorigin="anonymous" />\n`;
-    }
+    // Inter 400 carries body copy; Space Grotesk 700 carries every heading,
+    // and on text-led pages the H1 is the LCP element — so both are needed
+    // for first paint. The remaining weights can swap in unnoticed.
+    const wanted = [/^inter-latin-400-normal-.*\.woff2$/, /^space-grotesk-latin-700-normal-.*\.woff2$/];
+    fontPreload = wanted
+      .map((re) => assets.find((f) => re.test(f)))
+      .filter(Boolean)
+      .map((f) => `<link rel="preload" as="font" type="font/woff2" href="/assets/${f}" crossorigin="anonymous" />\n`)
+      .join("");
   } catch {
     // Non-fatal: a missing preload is a performance nit, not a broken build.
   }
@@ -171,6 +176,19 @@ async function main() {
     "/blog.webp": [1080, 672],
     "/hero-home1.webp": [1408, 768],
   };
+  // path -> lastmod, parsed from the sitemap that ships with the site, so a
+  // page's on-page freshness signal is by construction the same date the
+  // sitemap advertises rather than a second copy someone has to remember.
+  const SITEMAP_LASTMOD = {};
+  try {
+    const xml = readFileSync(path.join(ROOT, "public", "sitemap.xml"), "utf8");
+    for (const m of xml.matchAll(/<loc>https:\/\/zyllotech\.com([^<]*)<\/loc>\s*<lastmod>([0-9-]+)<\/lastmod>/g)) {
+      SITEMAP_LASTMOD[m[1] || "/"] = m[2];
+    }
+  } catch {
+    // Non-fatal: without this, pages simply carry no dateModified.
+  }
+
   const imgTag = (src, alt, extra = "") => {
     const [w, h] = IMAGE_DIMENSIONS[src] || [];
     const dims = w ? ` width="${w}" height="${h}"` : "";
@@ -273,6 +291,11 @@ async function main() {
     // schema are generated from one array (src/data/page-faqs.js) rather than
     // hand-kept in both places — they previously drifted, with the schema
     // claiming more questions than the crawler HTML actually showed.
+    // Freshness signal, read from the sitemap so the two can never disagree.
+    const lastmod = SITEMAP_LASTMOD[page.p];
+    if (webPageSchema && lastmod && PAGE_FAQS[page.p]) {
+      schemas.push(webPageSchema({ url: `${SITE_URL}${page.p}`, name: label, dateModified: lastmod }));
+    }
     const faqs = PAGE_FAQS[page.p];
     if (faqs?.length) {
       body += `<section><h2>Common questions</h2>${faqs
