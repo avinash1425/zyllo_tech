@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Calendar, Clock, ArrowLeft } from "lucide-react";
 import { CompatLink as Link } from "@/components/NextCompat";
@@ -7,8 +8,6 @@ import Reveal from "@/components/Reveal";
 import ContactCTA from "@/sections/ContactCTA";
 import ArticleJsonLd from "@/components/ArticleJsonLd";
 import NotFound from "@/pages/NotFound";
-import { supabase } from "@/integrations/supabase/client";
-import { useAsyncData } from "@/lib/useAsyncData";
 import { safeImageUrl } from "@/lib/safe-image-url";
 import { findFallbackPost, fallbackPosts } from "@/data/fallback-content";
 
@@ -217,29 +216,55 @@ function ArticleBody({ blocks }) {
 export default function BlogPostPage() {
   const { slug } = useParams();
 
-  const result = useAsyncData(async () => {
-    const { data, error } = await supabase
-      .from("blog_posts")
-      .select("title, slug, category, author, excerpt, content, featured_image_url, status, created_at, updated_at")
-      .eq("slug", slug)
-      .eq("status", "published")
-      .maybeSingle();
+  // Editorial content is a local import, so a post renders on the first paint.
+  // This page used to await a Supabase query before rendering anything, which
+  // put the ~218KB client on the route's critical path and held the page blank
+  // for roughly a second — for a query that returns nothing while blog_posts is
+  // empty and every live post comes from src/data/articles.ts.
+  const fallback = findFallbackPost(slug);
+  const [post, setPost] = useState(fallback);
+  // Only matters for a slug with no local article: we cannot call it a 404
+  // until the backend has actually answered.
+  const [backendChecked, setBackendChecked] = useState(false);
 
-    if (error) console.error("Failed to load post:", error.message);
+  useEffect(() => {
+    setPost(findFallbackPost(slug));
+    setBackendChecked(false);
+    let cancelled = false;
 
-    if (data) {
-      supabase.rpc("increment_blog_post_views", { post_slug: slug }).then(({ error: rpcError }) => {
-        if (rpcError) console.error("Failed to record blog view:", rpcError.message);
-      });
-    }
+    (async () => {
+      try {
+        // Dynamic import keeps the Supabase client out of this route's initial
+        // chunk; a backend post still wins, it just no longer blocks paint.
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { data, error } = await supabase
+          .from("blog_posts")
+          .select("title, slug, category, author, excerpt, content, featured_image_url, status, created_at, updated_at")
+          .eq("slug", slug)
+          .eq("status", "published")
+          .maybeSingle();
 
-    return { loaded: true, post: data ?? findFallbackPost(slug) };
-  }, { loaded: false, post: null });
+        if (error) console.error("Failed to load post:", error.message);
+        if (cancelled) return;
+        if (data) {
+          setPost(data);
+          supabase.rpc("increment_blog_post_views", { post_slug: slug }).then(({ error: rpcError }) => {
+            if (rpcError) console.error("Failed to record blog view:", rpcError.message);
+          });
+        }
+      } catch (err) {
+        console.error("Failed to load post:", err);
+      } finally {
+        if (!cancelled) setBackendChecked(true);
+      }
+    })();
 
-  if (!result.loaded) return <div className="min-h-screen" />;
-  if (!result.post) return <NotFound />;
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
 
-  const post = result.post;
+  if (!post) return backendChecked ? <NotFound /> : <div className="min-h-screen" />;
 
   return (
     <>
