@@ -249,7 +249,7 @@ export const articles: Article[] = [
     author: "Priya Reddy",
     role: "Cloud Architect",
     date: "Jan 8, 2025",
-    updated: "Sep 7, 2026",
+    updated: "Sep 8, 2026",
     readTime: "9 min read",
     featured: false,
     initials: "PR",
@@ -259,19 +259,19 @@ export const articles: Article[] = [
       "10 proven Kubernetes cost optimization tactics — from right-sizing and spot instances to autoscaling and namespace-level cost allocation.",
     content: [
       { type: "p", text: "[Kubernetes](https://kubernetes.io) infrastructure costs spiral because teams provision for peak load and never revisit their allocations. After running cost optimization engagements for 20+ clients, here are the 10 tactics with the highest ROI — plus how to measure savings, a 30-day plan for working through them, and the mistakes that quietly undo the wins." },
-      { type: "h2", text: "Why Kubernetes Bills Balloon" },
+      { type: "h2", text: "Why does my Kubernetes bill keep growing?" },
       { type: "p", text: "Kubernetes makes it easy to request capacity and very quiet about waste. A developer copies a deployment manifest with 2 CPU / 4Gi requests from another service, the scheduler dutifully reserves that capacity on a node, and the pod actually uses 200 millicores. Multiply by a few hundred pods and the cluster runs at 15–25% real utilisation while the cloud bill reflects 100% of the reserved nodes. Three structural facts drive this: requests (not usage) determine node count; nobody owns the gap between the two; and dev/staging environments replicate production sizing without production traffic." },
       { type: "h2", text: "The Big 3 (Tackle These First)" },
       { type: "ol", items: ["Right-size your requests and limits — 70% of clusters we see are over-provisioned by 2x or more. Use [Goldilocks](https://github.com/FairwindsOps/goldilocks) or the Vertical Pod Autoscaler in recommendation mode to compare each workload's requests against its actual P95 usage over a couple of representative weeks, then cut requests to P95 plus sensible headroom. This is pure waste removal: no architecture change, no user-visible risk if you move in steps.", "Enable cluster autoscaling — match node capacity to actual load instead of running for peak 24/7. Most teams we audit keep 30–40% idle nodes around the clock for traffic that arrives two hours a day. Autoscaling only works when step 1 is done: over-stated requests make the autoscaler think the cluster is full when it isn't.", "Move stateless workloads to Spot/Preemptible instances — 60–80% cheaper for interruption-tolerant work (API replicas behind a load balancer, queue consumers, CI runners, batch jobs). Handle the interruptions properly: PodDisruptionBudgets, more than one instance type in the node pool, and graceful shutdown hooks so a reclaimed node drains instead of dropping requests."] },
       { type: "code", lang: "yaml", label: "deployment.yaml — what right-sizing actually looks like", code: "# Before: copied from another service two years ago, never revisited\nresources:\n  requests: { cpu: \"2\", memory: 4Gi }\n  limits:   { cpu: \"2\", memory: 4Gi }\n\n# After: P95 usage over two weeks was 210m CPU / 900Mi memory\nresources:\n  requests: { cpu: 300m, memory: 1200Mi }\n  limits:   { memory: 1200Mi }   # memory limit only — no CPU limit, no throttling" },
       { type: "h2", text: "The Next 7" },
       { type: "ol", items: ["Namespace-level resource quotas — cap dev/staging so an experiment can't quietly triple the cluster. Quotas turn cost conversations from archaeology into a pull request.", "Delete idle environments — preview and dev namespaces nobody has touched for 7+ days. A TTL controller or a scheduled job that flags (then removes) stale namespaces routinely claws back 10–15% of the bill.", "Use [Karpenter](https://karpenter.sh) instead of the classic Cluster Autoscaler on AWS — it provisions right-sized nodes directly from pending pods in seconds, picks cheaper instance types automatically, and consolidates underused nodes without manual node-group tuning.", "Adopt ARM nodes (Graviton and equivalents) — typically ~20% cheaper for comparable performance. Most mainstream runtimes and base images ship multi-arch today; start with stateless services whose images already publish arm64 variants.", "Optimise image size — multi-stage builds and slim base images cut pull times (faster scale-up, which lets autoscaling run tighter), registry storage, and cross-zone egress. Going from a 1.2GB image to 150MB is common and free.", "Buy reserved capacity or savings plans for the baseline — after right-sizing, a steady floor of usage remains; committing to it for 1 year typically saves 30–40% versus on-demand. Do this last, not first: committing to today's inflated baseline locks the waste in.", "Cost allocation tagging and showback — label workloads by team/product and put a weekly cost report in front of the owners. You can't optimise what you can't attribute, and in practice visibility alone changes engineer behaviour within a sprint or two."] },
-      { type: "h2", text: "Measure Before and After" },
+      { type: "h2", text: "How do you measure Kubernetes cost savings?" },
       { type: "p", text: "Pick your metrics before touching anything, or you won't be able to prove the savings. The two that matter: cost per namespace/team (from [OpenCost](https://opencost.io) or Kubecost, both of which map cloud billing onto Kubernetes objects) and cluster utilisation — actual CPU/memory usage divided by allocatable capacity. A healthy production cluster after optimisation typically runs 50–65% utilisation; below 30% means you're paying for air. Snapshot both for two weeks before the first change." },
       { type: "code", lang: "bash", label: "First look at the request-vs-usage gap, no tooling required", code: "# Actual usage right now, biggest consumers last\nkubectl top pods -n payments --no-headers | sort -k2 -h | tail\n\n# What those same pods reserved from the scheduler\nkubectl get pods -n payments -o custom-columns=\\\n'NAME:.metadata.name,\\\nCPU_REQ:.spec.containers[*].resources.requests.cpu,\\\nMEM_REQ:.spec.containers[*].resources.requests.memory'\n\n# Cluster-level: allocatable vs requested per node\nkubectl describe nodes | grep -A5 'Allocated resources'" },
       { type: "h2", text: "A Realistic 30-Day Plan" },
       { type: "ol", items: ["Week 1 — visibility: deploy OpenCost/Kubecost, label workloads by owner, snapshot utilisation and per-team cost. No changes yet.", "Week 2 — right-size the top 20 workloads by reserved capacity, using two weeks of usage data. This alone usually cuts 20–30%.", "Week 3 — turn on autoscaling (or migrate to Karpenter), add PodDisruptionBudgets, and move the first batch of stateless workloads to Spot.", "Week 4 — quotas on non-production, idle-environment cleanup, and only now price reserved capacity for the remaining steady baseline."] },
-      { type: "h2", text: "Mistakes That Undo the Savings" },
+      { type: "h2", text: "What undoes Kubernetes cost savings?" },
       { type: "ul", items: ["Buying reserved instances before right-sizing — the single most common way to lock waste in for a year.", "Setting CPU limits far below requests 'for safety' — causes throttling incidents that get answered by re-inflating requests everywhere.", "Running Spot without disruption handling — one bad reclaim event and the team swears off Spot forever, forfeiting the biggest single discount available.", "Treating optimisation as a one-off project — costs drift back within a quarter without quotas, showback, and someone owning the utilisation number."] },
       { type: "callout", text: "The pattern behind every tactic here: make reserved capacity track real usage, and make someone accountable for the gap. Tools help, but ownership plus visibility is what keeps the bill down after the engagement ends." },
     ],
@@ -1500,7 +1500,7 @@ export const articles: Article[] = [
     author: "Meera Joshi",
     role: "Head of Design",
     date: "Mar 9, 2025",
-    updated: "Aug 31, 2026",
+    updated: "Sep 8, 2026",
     readTime: "11 min read",
     featured: false,
     initials: "MJ",
@@ -1515,7 +1515,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "The Booking Engine Architecture",
+        text: "How is a hotel booking engine structured?",
       },
       {
         type: "p",
@@ -1529,6 +1529,12 @@ export const articles: Article[] = [
           "Reservation plane: booking creation, modification, cancellation. Write-heavy; must be transactionally safe.",
           "Distribution plane: channel manager integration (OTAs, GDS, direct). Event-driven to push inventory and rate changes to all channels.",
         ],
+      },
+      {
+        type: "code",
+        lang: "http",
+        label: "The availability search call — the endpoint everything else hangs off",
+        code: "GET /v1/availability?propertyId=htl_912&checkIn=2026-11-14&checkOut=2026-11-17\n    &adults=2&children=1&currency=INR\n\n200 OK\n{\n  \"propertyId\": \"htl_912\",\n  \"nights\": 3,\n  \"roomTypes\": [{\n    \"code\": \"DLX-KING\",\n    \"name\": \"Deluxe King\",\n    \"available\": 4,\n    \"ratePlans\": [\n      { \"code\": \"BAR\",\n        \"total\": 2145000, \"currency\": \"INR\",   // minor units\n        \"perNight\": [715000, 715000, 715000],\n        \"restrictions\": { \"minLOS\": 2, \"closedToArrival\": false },\n        \"cancelBy\": \"2026-11-12T18:00:00+05:30\" },\n      { \"code\": \"EARLYBIRD\",\n        \"total\": 1823250, \"derivedFrom\": \"BAR\", \"formula\": \"BAR * 0.85\" }\n    ]\n  }]\n}\n\n// `available` is the MINIMUM across every night of the stay, never a sum\n// or an average. A room free on two nights of three is not bookable, and\n// getting this wrong doesn't fail at search — it fails at payment, after\n// the guest has entered card details.\n// Returning perNight alongside the total is what lets the UI explain a\n// price that moved, instead of a total the guest has to take on trust.",
       },
       {
         type: "h2",
@@ -1545,8 +1551,19 @@ export const articles: Article[] = [
         ],
       },
       {
+        type: "flow",
+        title: "Turning a search result into a confirmed reservation without overbooking",
+        steps: [
+          "Search reads the date grid and returns the minimum availability across the stay. Nothing is held yet — search runs orders of magnitude more often than booking, so it has to stay cheap and cacheable.",
+          "The guest picks a rate and the engine re-prices server-side rather than trusting the amount the client sends back. A rate that moved between search and checkout is a repricing prompt, never a silent charge.",
+          "The hold decrements every night of the stay in one atomic operation. Partial holds are the overbooking bug: three nights written separately can succeed on two and fail on the third, leaving inventory quietly wrong until someone arrives to a room that was sold twice.",
+          "Payment authorises against held inventory, and the hold carries a short TTL — long enough to finish a 3-D Secure challenge, short enough that abandoned checkouts return rooms on a date that is selling.",
+          "Confirmation writes the reservation and emits an inventory-changed event. The channel manager pushes new availability to every OTA within seconds; a slow push here is exactly how the same room sells on two channels at once.",
+        ],
+      },
+      {
         type: "h2",
-        text: "Channel Manager Integration",
+        text: "How do you connect a booking engine to OTAs and a channel manager?",
       },
       {
         type: "p",
@@ -1564,7 +1581,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Booking Flow Conversion Optimisation",
+        text: "How do you win more direct bookings instead of OTA bookings?",
       },
       {
         type: "ul",
