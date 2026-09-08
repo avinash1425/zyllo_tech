@@ -24,7 +24,26 @@ describe("article inline links", () => {
   const serviceSlugs = new Set(SERVICES.map((s: { slug: string }) => s.slug));
   const articleSlugs = new Set(articles.map((a) => a.slug));
   // Static routes that article bodies are allowed to point at.
-  const staticPaths = new Set(["/contact", "/resources", "/about", "/portfolio", "/industries", "/careers", "/blog", "/services"]);
+  // Keep in sync with the routes in src/App.tsx — the commercial pages were
+  // added after this list and were silently unlinkable from articles until
+  // one of them was linked and this test caught it.
+  const staticPaths = new Set([
+    "/contact",
+    "/resources",
+    "/about",
+    "/portfolio",
+    "/industries",
+    "/careers",
+    "/blog",
+    "/services",
+    "/startups",
+    "/arthaai",
+    "/hire-dedicated-developers",
+    "/engagement-models",
+    "/software-development-company-usa",
+    "/software-development-company-europe",
+    "/custom-software-development-hyderabad",
+  ]);
 
   const allLinks = articles.flatMap((a) =>
     blockTexts(a.content).flatMap((text) =>

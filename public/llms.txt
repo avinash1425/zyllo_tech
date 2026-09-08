@@ -42,3 +42,18 @@
 - [Telecom Customer Portal & Billing](https://zyllotech.com/blog/telecom-customer-portal-billing-automation): BSS/OSS integration, billing automation, support automation
 - [Headless CMS Migration for Publishers](https://zyllotech.com/blog/headless-cms-migration-media-publishing): content modelling, paywalls, multi-channel delivery
 - [IoT Farm Monitoring & Traceability](https://zyllotech.com/blog/iot-farm-monitoring-agritech-implementation): sensor networks, precision agriculture, supply-chain traceability
+
+## Engineering Guides
+- [Kubernetes Cost Optimization](https://zyllotech.com/blog/kubernetes-cost-optimization): right-sizing requests, autoscaling, spot instances, measuring the request-vs-usage gap
+- [Migrating to Microservices](https://zyllotech.com/blog/migrating-to-microservices-playbook): strangler-fig extraction, data decomposition, API gateway and service mesh
+- [Scalable React with TypeScript](https://zyllotech.com/blog/scalable-react-typescript): feature-based structure, discriminated-union state, server-state patterns
+- [LangChain vs LlamaIndex for RAG](https://zyllotech.com/blog/langchain-vs-llamaindex-rag): the same task in both frameworks, and where retrieval quality is won
+- [API Design Principles](https://zyllotech.com/blog/api-design-principles): resource naming, error envelopes, cursor pagination, versioning and deprecation
+- [Design Systems That Scale](https://zyllotech.com/blog/design-systems-that-scale): three-tier token architecture, component governance, Figma-to-code sync
+- [AI in Enterprise Software](https://zyllotech.com/blog/ai-reshaping-enterprise-software-2025): the five AI patterns in enterprise builds, and the agentic shift through 2026
+- [Micro-Interactions in UX](https://zyllotech.com/blog/micro-interactions-ux): feedback, state transitions, and motion that aids rather than decorates
+- [Writing a Software RFP](https://zyllotech.com/blog/software-rfp-guide): what to include so vendors can quote accurately, and what to leave out
+
+## Products
+- [ArthaAI](https://zyllotech.com/arthaai): AI-assisted financial insight product built by Zyllo Tech
+- [For Startups](https://zyllotech.com/startups): MVP and early-stage product engineering

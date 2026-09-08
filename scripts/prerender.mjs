@@ -98,7 +98,7 @@ async function main() {
   }
 
   // ── Head + body assembly ──────────────────────────────────────────────────
-  function renderPage({ title, description, canonicalPath, ogImage, schemas, body, noindex = false }) {
+  function renderPage({ title, description, canonicalPath, ogImage, schemas, body, noindex = false, preloadImage = null }) {
     let html = template;
     const canonical = `${SITE_URL}${canonicalPath}`;
     html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(title)}</title>`);
@@ -126,7 +126,14 @@ async function main() {
     const ld = allSchemas
       .map((s) => `<script type="application/ld+json" data-rh="true">${ldjson(s)}</script>`)
       .join("\n");
-    html = html.replace("</head>", `${fontPreload}${ld}\n</head>`);
+    // Per-route LCP image hint. The template only preloads the homepage hero;
+    // without this, a blog cover is discovered late (the prerendered <img> is
+    // inside #root, which React replaces, and the preload scanner skips it),
+    // so it was landing ~2s in at Low priority and dominating LCP.
+    const imgPreload = preloadImage
+      ? `<link rel="preload" as="image" href="${esc(preloadImage)}" fetchpriority="high" />\n`
+      : "";
+    html = html.replace("</head>", `${fontPreload}${imgPreload}${ld}\n</head>`);
     if (body) {
       html = html.replace(
         /<div id="root"><\/div>/,
@@ -443,7 +450,10 @@ async function main() {
       .slice(0, 3);
     let body = `<header>${navLinks}<p><a href="/blog">← Blog</a></p><h1>${esc(post.title)}</h1><p>${esc(post.excerpt || "")}</p><p><small>${esc(post.author || "Zyllo Tech")} · ${esc((post.created_at || "").slice(0, 10))} · ${esc(post.category)}</small></p></header>`;
     if (rawImage.startsWith("/") && IMAGE_DIMENSIONS[rawImage]) {
-      body += `<figure>${imgTag(rawImage, post.title, ' loading="lazy"')}</figure>`;
+      // Eager + fetchpriority: this is the post's LCP candidate, not a
+      // below-fold image. `loading="lazy"` here hid it from the preload
+      // scanner and pushed the fetch behind the client-side data call.
+      body += `<figure>${imgTag(rawImage, post.title, ' fetchpriority="high"')}</figure>`;
     }
     body += `<article>${(post.blocks || []).map(blockHtml).join("")}</article>`;
     if (related.length) {
@@ -451,7 +461,18 @@ async function main() {
         .map((p) => `<li><a href="/blog/${esc(p.slug)}">${esc(p.title)}</a></li>`)
         .join("")}</ul></section>`;
     }
-    writeRoute(routePath, renderPage({ title, description, canonicalPath: routePath, ogImage: image, schemas, body }));
+    writeRoute(
+      routePath,
+      renderPage({
+        title,
+        description,
+        canonicalPath: routePath,
+        ogImage: image,
+        schemas,
+        body,
+        preloadImage: rawImage.startsWith("/") && IMAGE_DIMENSIONS[rawImage] ? rawImage : null,
+      }),
+    );
     written++;
   }
 
