@@ -252,8 +252,13 @@ export default function Hero() {
                   className={`mt-6 flex flex-wrap items-center justify-center gap-2.5 ${isActive ? "hero-rise" : ""}`}
                   style={isActive ? { animationDelay: "0.4s" } : undefined}
                 >
+                  {/* Inactive slides are aria-hidden but still in the DOM, so
+                      their links stay tabbable unless removed explicitly —
+                      keyboard focus would otherwise land on an invisible CTA
+                      and appear to vanish. */}
                   <Link
                     href={slide.primaryCta.href}
+                    tabIndex={isActive ? undefined : -1}
                     className="inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold text-white shadow-[0_14px_34px_rgba(0,0,0,0.4)] transition-transform duration-200 hover:-translate-y-0.5"
                     style={{ background: `linear-gradient(135deg, ${slide.accent}, ${slide.accentSoft})` }}
                   >
@@ -261,6 +266,7 @@ export default function Hero() {
                   </Link>
                   <Link
                     href={slide.secondaryCta.href}
+                    tabIndex={isActive ? undefined : -1}
                     className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/50 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-white/20"
                   >
                     {slide.secondaryCta.label}
