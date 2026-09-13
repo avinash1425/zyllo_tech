@@ -218,7 +218,7 @@ export default function Hero() {
                   {slide.eyebrow}
                 </span>
 
-                <h2
+                <HeadingTag
                   className={`mt-4 text-[30px] font-extrabold leading-[1.04] tracking-[-0.028em] text-white [text-shadow:0_2px_22px_rgba(0,0,0,0.65)] sm:text-[44px] lg:text-[52px] ${
                     isActive ? "hero-rise" : ""
                   }`}
@@ -233,7 +233,7 @@ export default function Hero() {
                   >
                     {slide.titleAccent}
                   </span>
-                </h2>
+                </HeadingTag>
 
                 <span
                   className="mx-auto mt-4 block h-1 w-20 rounded-full"
