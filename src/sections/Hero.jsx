@@ -150,12 +150,13 @@ export default function Hero() {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      <h1 className="sr-only">
-        Zyllo Tech Software Solutions — Web, Mobile, AI &amp; Cloud Engineering
-      </h1>
-
       {SLIDES.map((slide, index) => {
         const isActive = index === activeIndex;
+        // The visible slide headline is the page's main heading: render it as
+        // h1 on the active slide (exactly one is visible at a time) and h2
+        // on the aria-hidden inactive slides, so the page topic is visible
+        // to all users instead of living in an sr-only element.
+        const HeadingTag = isActive ? "h1" : "h2";
         return (
           <article
             key={slide.image}
@@ -217,7 +218,7 @@ export default function Hero() {
                   {slide.eyebrow}
                 </span>
 
-                <h2
+                <HeadingTag
                   className={`mt-4 text-[30px] font-extrabold leading-[1.04] tracking-[-0.028em] text-white [text-shadow:0_2px_22px_rgba(0,0,0,0.65)] sm:text-[44px] lg:text-[52px] ${
                     isActive ? "hero-rise" : ""
                   }`}
@@ -232,7 +233,7 @@ export default function Hero() {
                   >
                     {slide.titleAccent}
                   </span>
-                </h2>
+                </HeadingTag>
 
                 <span
                   className="mx-auto mt-4 block h-1 w-20 rounded-full"

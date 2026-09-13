@@ -90,6 +90,78 @@ const ArthaAI = () => {
           </div>
         </section>
 
+        <section className="px-4 py-14">
+          <div className="container mx-auto max-w-6xl">
+            <div className="mb-10 text-center">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-[#E05C1A]">Core Modules</p>
+              <h2 className="text-3xl font-bold text-foreground md:text-4xl">
+                Everything You Need for Financial Clarity
+              </h2>
+              <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
+                ArthaAI is built around three modules that cover the real money questions of Indian
+                households — from calculating a home-loan EMI to understanding which investment
+                actually suits your goals.
+              </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <p className="mb-2 text-xs font-bold uppercase tracking-wider text-[#E05C1A]">ArthaCalc</p>
+                <h3 className="mb-3 text-xl font-bold text-foreground">Smart Calculator Suite</h3>
+                <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+                  Instant, accurate financial projections for every life decision — from home loans
+                  to retirement. Instead of guessing, you see the exact monthly outgo, maturity
+                  value, or tax saving before you commit.
+                </p>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>EMI calculators for home, car, personal, and education loans</li>
+                  <li>SIP and lumpsum projections with inflation-adjusted returns</li>
+                  <li>Tax savings across 80C, 80D, HRA, NPS, and ELSS</li>
+                  <li>FD, RD, PPF, NPS, and EPF maturity calculators</li>
+                  <li>Insurance premium vs. coverage analyser</li>
+                  <li>Rent vs. buy decision engine</li>
+                </ul>
+              </div>
+
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <p className="mb-2 text-xs font-bold uppercase tracking-wider text-[#E05C1A]">ArthaPlanner</p>
+                <h3 className="mb-3 text-xl font-bold text-foreground">Financial Life Planner</h3>
+                <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+                  Personalised life-stage planning from your 20s to retirement, mapped to your actual
+                  goals — so a salary, a family, and a dream home fit into one realistic plan instead
+                  of competing priorities.
+                </p>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>Goal-based planning for education, home, marriage, and retirement</li>
+                  <li>Monthly budget builder with expense categorisation</li>
+                  <li>Debt repayment strategies — avalanche vs. snowball</li>
+                  <li>Emergency fund calculator with target-setting</li>
+                  <li>Life-stage milestones for your 20s, 30s, 40s, and beyond</li>
+                  <li>Net worth tracker updated monthly</li>
+                </ul>
+              </div>
+
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <p className="mb-2 text-xs font-bold uppercase tracking-wider text-[#E05C1A]">ArthaGuru</p>
+                <h3 className="mb-3 text-xl font-bold text-foreground">Investment Education Engine</h3>
+                <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+                  Unbiased financial education in clear language — from stock market basics to
+                  retirement planning. ArthaGuru sells nothing, so every explanation is written to
+                  make you confident, not to push a product.
+                </p>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>Mutual fund explainers — large cap, ELSS, debt, and hybrid</li>
+                  <li>Risk profiling with portfolio suggestions</li>
+                  <li>Unbiased comparisons like ULIP vs. term plan + mutual fund</li>
+                  <li>Stock market basics and long-term investing principles</li>
+                  <li>When and why to choose gold, real estate, PPF, or NPS</li>
+                  <li>AI-powered &ldquo;what should I do next?&rdquo; guidance</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section id="how-it-works" className="px-4 py-14">
           <div className="container mx-auto max-w-4xl">
             <div className="mb-8 text-center">
