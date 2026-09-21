@@ -55,11 +55,11 @@ export const articles: Article[] = [
       "How artificial intelligence is transforming enterprise software in 2026 — agentic AI in production, LLM-powered copilots, intelligent automation.",
     content: [
       { type: "p", text: "The enterprise software landscape in 2026 looks fundamentally different from just three years ago. Artificial intelligence has moved from an experimental feature to a core infrastructure requirement — and engineering teams that haven't adapted are already falling behind. This article was originally published in early 2025 and updated in September 2026 to reflect how quickly the ground has shifted." },
-      { type: "h2", text: "The Shift from Rule-Based to Model-Driven Systems" },
+      { type: "h2", text: "What changed when enterprise software went model-driven?" },
       { type: "p", text: "Traditional enterprise software operated on explicit, hand-crafted rules. Approval workflows, fraud detection, content moderation — everything was coded as logic trees. The problem: rules don't generalize, and maintaining them at scale is an enormous operational burden. AI flips this model. Instead of engineers writing rules, models learn patterns from data and generalize to new inputs. This has unlocked capabilities that were simply impossible before." },
-      { type: "h2", text: "The Five AI Patterns We See Most in Enterprise Builds" },
+      { type: "h2", text: "Which AI patterns show up most in enterprise builds?" },
       { type: "ol", items: ["Intelligent Document Processing — Replacing manual data entry with OCR + LLM extraction pipelines that achieve >96% field accuracy on unstructured documents.", "Conversational AI & Copilots — AI assistants embedded in enterprise workflows (HR, finance, IT support) that handle 60–80% of tier-1 queries without human intervention.", "Predictive Analytics Engines — ML models that forecast demand, detect anomalies, and surface recommendations inside BI dashboards.", "Automated QA and Code Review — AI agents that review PRs, flag security issues, and write regression test cases — reducing QA cycles by 30–40%.", "Generative Content Pipelines — Product descriptions, marketing copy, and report generation at scale, with human review gates for quality control."] },
-      { type: "h2", text: "The Implementation Reality" },
+      { type: "h2", text: "Why do most enterprise AI projects fail?" },
       { type: "p", text: "Most enterprise AI projects fail not because the models are bad, but because the data infrastructure isn't ready. Clean, labeled, governed data is the prerequisite. Before any AI feature goes live, we run a [data readiness audit](/services/ai-solutions) — assessing data quality, volume, bias risk, and lineage tracking. This step alone saves months of rework." },
       { type: "callout", text: "The teams shipping AI features fastest today are those who invested in data infrastructure 18 months ago. If you haven't started, start now — not with models, but with pipelines." },
       { type: "flow", title: "What a data readiness audit actually checks, before any model is chosen", steps: [
@@ -103,9 +103,9 @@ export const articles: Article[] = [
       "A practical step-by-step playbook for migrating monolithic applications to microservices architecture — covering strangler fig pattern, data decomposition.",
     content: [
       { type: "p", text: "[Microservices migration](/services/cloud-solutions) is one of the most requested — and most mishandled — engineering initiatives we see. Teams underestimate the organizational complexity, overestimate the immediate performance benefits, and often end up with a distributed monolith that's worse than what they started with. This guide shares what actually works." },
-      { type: "h2", text: "Step 1: Don't Start with Decomposition" },
+      { type: "h2", text: "Step 1 — Why shouldn't you start with decomposition?" },
       { type: "p", text: "The first instinct is to split the monolith into services. Resist it. Start by improving observability inside the monolith — structured logging, distributed tracing, dependency graphs. You can't decompose what you don't understand. Spend 4–6 weeks mapping the actual call graph, not the org chart." },
-      { type: "h2", text: "Step 2: Apply the Strangler Fig Pattern" },
+      { type: "h2", text: "Step 2 — What is the strangler fig pattern?" },
       { type: "p", text: "The [strangler fig](https://martinfowler.com/bliki/StranglerFigApplication.html) is the safest migration pattern: build new capabilities as services, redirect traffic to them, and gradually \"strangle\" the monolith. Never do a big-bang rewrite — the risk of total failure is too high, and you'll be maintaining two codebases in a broken state for months." },
       { type: "flow", title: "Extracting one capability, without a migration branch that lives for six months", steps: [
         "Put a routing layer in front of the monolith and change nothing else. Every later step depends on this seam existing, and adding it while traffic still goes one place is the only time it is risk-free.",
@@ -115,9 +115,9 @@ export const articles: Article[] = [
         "Move writes last, then delete the monolith's copy of the code. An extraction that leaves the old path in place is not finished — it is two implementations to keep in sync, which is strictly worse than the monolith you started with.",
       ] },
       { type: "code", lang: "nginx", label: "The routing config is the migration's honest progress bar", code: "# Each migrated capability is one line; everything unmatched still\n# falls through to the monolith. Nothing here is a big-bang cutover.\nlocation /api/notifications/ { proxy_pass http://notifications-svc; }  # extracted\nlocation /api/search/        { proxy_pass http://search-svc; }         # extracted\nlocation /api/billing/       { proxy_pass http://monolith; }           # still coupled\nlocation /                   { proxy_pass http://monolith; }\n\n# If this file has not changed in two months, the migration has\n# stalled — regardless of how many services exist in the repo." },
-      { type: "h2", text: "Step 3: Data Decomposition is the Hard Part" },
+      { type: "h2", text: "Step 3 — Why is database decomposition the hard part?" },
       { type: "p", text: "Service decomposition is easy. Database decomposition is where projects stall. You cannot have two services sharing a database — that creates invisible coupling. Use the Database-per-Service pattern, and accept the eventual consistency trade-off for non-critical data. For critical financial or inventory data, use the [Saga pattern](https://microservices.io/patterns/data/saga.html) with compensating transactions." },
-      { type: "h2", text: "Step 4: API Gateway & Service Mesh" },
+      { type: "h2", text: "Step 4 — Do you need an API gateway or a service mesh?" },
       { type: "ul", items: ["API Gateway handles cross-cutting concerns: auth, rate limiting, request routing, SSL termination.", "Service Mesh (Istio or Linkerd) handles service-to-service security, circuit breaking, and observability.", "Don't implement both on day 1 — start with an API gateway, add service mesh when you have 10+ services."] },
       { type: "h2", text: "Common Mistakes to Avoid" },
       { type: "ul", items: ["Decomposing by technical layer instead of business capability.", "Not investing in a shared auth/identity service early.", "Ignoring local development complexity — invest in docker-compose or Tilt from week 1.", "Creating too many tiny services (nanoservice anti-pattern)."] },
@@ -142,13 +142,13 @@ export const articles: Article[] = [
       "Learn best practices for building scalable React + TypeScript applications — covering folder structure, state management, performance optimization.",
     content: [
       { type: "p", text: "Most [React TypeScript projects](/services/web-development) start clean and degrade fast. After working on 40+ production React applications, we've identified the patterns that separate codebases that age well from those that become unmaintainable within 18 months." },
-      { type: "h2", text: "Folder Structure That Scales" },
+      { type: "h2", text: "How should you structure a large React project?" },
       { type: "p", text: "Feature-based folder structure beats layer-based. Group by domain (auth, payments, dashboard) not by type (components, hooks, utils). Each feature owns its components, hooks, types, and services. When you need to delete or refactor a feature, everything is co-located." },
       { type: "code", lang: "text", label: "The same app, organised two ways", code: "src/                          src/\n  components/                   features/\n    CheckoutForm.tsx              checkout/\n    OrderSummary.tsx                components/CheckoutForm.tsx\n    UserAvatar.tsx                  components/OrderSummary.tsx\n  hooks/                            hooks/useCheckout.ts\n    useCheckout.ts                  api/checkout.ts\n    useProfile.ts                   types.ts\n  api/                              index.ts   <- the public surface\n    checkout.ts                 profile/\n    profile.ts                    ...\n  types/                        shared/        <- genuinely cross-feature only\n    index.ts                      ui/ hooks/ lib/\n\n# Left: deleting checkout means hunting through four folders and\n# hoping nothing else imported those files.\n# Right: delete one directory. The index.ts barrel is what other\n# features may import — anything else is private by convention." },
-      { type: "h2", text: "TypeScript Discipline" },
+      { type: "h2", text: "What TypeScript rules keep a large codebase maintainable?" },
       { type: "ul", items: ["Strict mode from day 1. No `any` escape hatches.", "Define domain types in a central `types/` folder, never in component files.", "Use [Zod](https://zod.dev) for runtime validation at API boundaries — parse, don't trust.", "Discriminated unions for state machines (loading/error/success/idle)."] },
       { type: "code", lang: "typescript", label: "Discriminated unions make the impossible states unrepresentable", code: "// Four booleans allow 16 combinations, most of them nonsense —\n// isLoading && error && data is a state your UI must still handle.\ntype Bad<T> = { isIdle: boolean; isLoading: boolean; error?: Error; data?: T };\n\n// One union allows exactly four, and TypeScript narrows each branch:\ntype RequestState<T> =\n  | { status: \"idle\" }\n  | { status: \"loading\" }\n  | { status: \"error\"; error: Error }\n  | { status: \"success\"; data: T };\n\nfunction OrderView({ state }: { state: RequestState<Order> }) {\n  switch (state.status) {\n    case \"idle\":\n    case \"loading\": return <Spinner />;\n    case \"error\":   return <ErrorPanel error={state.error} />;   // .data doesn't exist here\n    case \"success\": return <OrderDetail order={state.data} />;   // .data is Order, not Order | undefined\n  }\n}\n// Add a fifth state later and every switch that forgot it fails\n// to compile — which is the whole point." },
-      { type: "h2", text: "State Management" },
+      { type: "h2", text: "Do you actually need Redux or Zustand?" },
       { type: "p", text: "Don't reach for Redux or Zustand immediately. Server state ([TanStack Query](https://tanstack.com/query/latest)) + URL state (React Router) handles 80% of real-world needs. Local state for UI, context for theme/auth, and a store (Zustand) only for genuinely global client state." },
       { type: "h2", text: "Performance" },
       { type: "ol", items: ["Code splitting at route level — lazy load every page.", "Virtualize lists over 100 items (TanStack Virtual).", "Memoize expensive computations (useMemo), not renders (React.memo) — get the dependency arrays right.", "Bundle analyze quarterly — find unused imports before they accumulate."] },
@@ -173,9 +173,9 @@ export const articles: Article[] = [
       "Comprehensive comparison of LangChain vs LlamaIndex for building RAG applications — covering architecture, retrieval strategies, production readiness.",
     content: [
       { type: "p", text: "Both [LangChain](https://www.langchain.com) and [LlamaIndex](https://www.llamaindex.ai) have matured significantly in 2024–2025. The question is no longer 'which is more capable' but 'which fits your use case, team, and production requirements better'. Here's what we've learned after building 15+ RAG systems in production." },
-      { type: "h2", text: "LangChain: Best for Agentic Workflows" },
+      { type: "h2", text: "When should you use LangChain?" },
       { type: "p", text: "LangChain shines when you need complex orchestration — multi-step reasoning chains, tool use, agent loops, and multi-model pipelines. Its expression language (LCEL) makes chain composition composable and observable. If you're building an AI agent that uses tools, searches the web, and writes code, LangChain is the right foundation." },
-      { type: "h2", text: "LlamaIndex: Best for Document-Centric RAG" },
+      { type: "h2", text: "When should you use LlamaIndex?" },
       { type: "p", text: "LlamaIndex's data framework is purpose-built for document ingestion, indexing, and retrieval. Its query engine abstractions, node parser ecosystem, and multi-index strategies (vector + knowledge graph + SQL) give you more control over retrieval quality. For enterprise knowledge bases, internal document Q&A, and high-precision RAG, LlamaIndex wins." },
       { type: "code", lang: "python", label: "The same task — index a folder of documents, answer one question — in each framework", code: "# ── LlamaIndex: the retrieval pipeline is the abstraction ──────────\nfrom llama_index.core import VectorStoreIndex, SimpleDirectoryReader\n\ndocs  = SimpleDirectoryReader(\"./policies\").load_data()\nindex = VectorStoreIndex.from_documents(docs)        # chunk + embed + store\nanswer = index.as_query_engine(similarity_top_k=4).query(\n    \"What is the refund window for annual plans?\"\n)\n\n# ── LangChain: the composition is the abstraction ──────────────────\nfrom langchain_core.prompts import ChatPromptTemplate\nfrom langchain_core.output_parsers import StrOutputParser\nfrom langchain_core.runnables import RunnablePassthrough\n\nprompt = ChatPromptTemplate.from_template(\n    \"Answer using only this context:\\n{context}\\n\\nQuestion: {question}\"\n)\nchain = (\n    {\"context\": retriever, \"question\": RunnablePassthrough()}\n    | prompt | llm | StrOutputParser()\n)\nanswer = chain.invoke(\"What is the refund window for annual plans?\")\n\n# The trade-off in eight lines: LlamaIndex hands you a working\n# retriever and asks you to configure it; LangChain hands you the\n# wiring and asks you to assemble it. Neither is wrong — but the\n# second one is where you bolt on tools, routing and agent loops.\n# (Both APIs move quickly; check the current docs before copying.)" },
       { type: "flow", title: "Where RAG quality is actually won or lost — the same five stages in both frameworks", steps: [
@@ -185,7 +185,7 @@ export const articles: Article[] = [
         "Reranking — reorder candidates with a cross-encoder before they reach the model. This is usually the cheapest single quality win available, and the stage teams skip most often.",
         "Generation — the model answers from the retrieved context. Measure this stage separately from retrieval: if you cannot tell whether a bad answer came from bad chunks or bad generation, you cannot fix either.",
       ] },
-      { type: "h2", text: "Production Considerations" },
+      { type: "h2", text: "What matters when you take RAG to production?" },
       { type: "ul", items: ["Observability: Both integrate with LangSmith (LangChain) and LlamaCloud — use one from day 1.", "Latency: LlamaIndex's query pipeline is generally faster for retrieval-only workloads.", "Cost control: Both support prompt caching and streaming — implement both.", "Evaluation: Use the [RAGAS](https://docs.ragas.io/) framework to benchmark retrieval quality before shipping."] },
       { type: "h2", text: "Our Recommendation" },
       { type: "p", text: "Start with LlamaIndex if your use case is document Q&A or knowledge retrieval. Start with LangChain if you're building an agent that needs to use tools and execute multi-step tasks. Many production systems use both — LlamaIndex for retrieval, LangChain for orchestration." },
@@ -210,12 +210,12 @@ export const articles: Article[] = [
       "A practical guide to building scalable design systems for large teams — covering token architecture, component governance, versioning, documentation.",
     content: [
       { type: "p", text: "A [design system](/services/ui-ux-design) is a product that serves other products. The biggest mistake teams make is treating it as a one-time deliverable rather than an evolving platform with its own roadmap, governance, and team." },
-      { type: "h2", text: "Token Architecture First" },
+      { type: "h2", text: "Why do design tokens come before components?" },
       { type: "p", text: "Design tokens are the foundation — not components. Start with a three-tier token structure: Primitive tokens (raw values: colors, spacing, radii), Semantic tokens (purpose-mapped: --color-surface-primary, --spacing-layout-gap), and Component tokens (scoped: --button-padding-horizontal). This separation lets you retheme without touching component code." },
       { type: "code", lang: "css", label: "The three tiers, and the one rule that makes them worth the indirection", code: "/* 1. Primitive — raw values, no meaning attached. */\n--blue-600:  #2563eb;\n--grey-900:  #111827;\n--space-4:   1rem;\n--radius-md: 0.5rem;\n\n/* 2. Semantic — purpose, not appearance. The ONLY tier product code\n      is allowed to reference. */\n--color-action-primary: var(--blue-600);\n--color-text-strong:    var(--grey-900);\n--surface-gap:          var(--space-4);\n\n/* 3. Component — scoped, and only where a component genuinely deviates. */\n--button-padding-inline: var(--space-4);\n--button-radius:         var(--radius-md);\n\n/* A theme redefines tier 2 only — never tier 1, never component code: */\n[data-theme=\"dark\"] {\n  --color-action-primary: var(--blue-400);\n  --color-text-strong:    var(--grey-50);\n}\n\n/* The rule that does the work: the moment a component references\n   --blue-600 directly, the theme can no longer move without editing\n   that component. One shortcut is all it takes; enforce it in review\n   or with a lint rule, because it will not enforce itself. */" },
-      { type: "h2", text: "Component Governance" },
+      { type: "h2", text: "Who owns a component in a design system?" },
       { type: "ul", items: ["Every component needs a champion — one designer and one developer own it.", "Contribution guidelines: proposal → design review → code review → documentation → release.", "A component without documentation doesn't exist. Make [Storybook](https://storybook.js.org) the source of truth.", "Semver for design systems: major = breaking, minor = new, patch = fix."] },
-      { type: "h2", text: "Figma ↔ Code Synchronization" },
+      { type: "h2", text: "How do you keep Figma and code in sync?" },
       { type: "p", text: "Use Token Studio or [Style Dictionary](https://styledictionary.com) to automate token syncing between Figma and code. Manual synchronization drifts within weeks. The toolchain investment (typically 2–3 weeks) pays for itself in the first quarter." },
     ],
   },
@@ -238,9 +238,9 @@ export const articles: Article[] = [
       "Learn how to write a software RFP that attracts high-quality vendor responses — covering scope definition, evaluation criteria, and common mistakes to avoid.",
     content: [
       { type: "p", text: "We receive 3–5 RFPs per week at Zyllo Tech. The ones that generate thoughtful, differentiated responses share common characteristics — none of which require more pages or more detail. In fact, the best RFPs are often the shortest." },
-      { type: "h2", text: "What Every Great RFP Contains" },
+      { type: "h2", text: "What should a software RFP contain?" },
       { type: "ol", items: ["Business context — what problem you're solving and why it matters to the company.", "Outcome definition — how success will be measured, not just what features are needed.", "Technical constraints — existing systems, integration points, security requirements.", "Timeline and budget range — vague on budget means vendors pad heavily for risk.", "Evaluation criteria — what matters most: speed to market, cost, team experience, specific tech?"] },
-      { type: "h2", text: "The Most Common Mistakes" },
+      { type: "h2", text: "What are the most common RFP mistakes?" },
       { type: "ul", items: ["Describing the solution instead of the problem — let vendors propose architecture.", "Hiding the budget — it creates adversarial dynamics from day 1.", "Too many mandatory requirements — vendors will say yes to everything and deliver nothing.", "No named contact — anonymous RFPs signal that there's no real champion for the project."] },
       { type: "callout", text: "The best RFPs we've seen are 4–6 pages. They explain the business problem, the constraints, the success metrics, and the budget range. Everything else is noise." },
       { type: "h2", text: "A 4–6 page RFP template you can copy" },
@@ -271,15 +271,15 @@ export const articles: Article[] = [
       { type: "p", text: "[Kubernetes](https://kubernetes.io) infrastructure costs spiral because teams provision for peak load and never revisit their allocations. After running cost optimization engagements for 20+ clients, here are the 10 tactics with the highest ROI — plus how to measure savings, a 30-day plan for working through them, and the mistakes that quietly undo the wins." },
       { type: "h2", text: "Why does my Kubernetes bill keep growing?" },
       { type: "p", text: "Kubernetes makes it easy to request capacity and very quiet about waste. A developer copies a deployment manifest with 2 CPU / 4Gi requests from another service, the scheduler dutifully reserves that capacity on a node, and the pod actually uses 200 millicores. Multiply by a few hundred pods and the cluster runs at 15–25% real utilisation while the cloud bill reflects 100% of the reserved nodes. Three structural facts drive this: requests (not usage) determine node count; nobody owns the gap between the two; and dev/staging environments replicate production sizing without production traffic." },
-      { type: "h2", text: "The Big 3 (Tackle These First)" },
+      { type: "h2", text: "The Big 3 — which Kubernetes cost fixes come first?" },
       { type: "ol", items: ["Right-size your requests and limits — 70% of clusters we see are over-provisioned by 2x or more. Use [Goldilocks](https://github.com/FairwindsOps/goldilocks) or the Vertical Pod Autoscaler in recommendation mode to compare each workload's requests against its actual P95 usage over a couple of representative weeks, then cut requests to P95 plus sensible headroom. This is pure waste removal: no architecture change, no user-visible risk if you move in steps.", "Enable cluster autoscaling — match node capacity to actual load instead of running for peak 24/7. Most teams we audit keep 30–40% idle nodes around the clock for traffic that arrives two hours a day. Autoscaling only works when step 1 is done: over-stated requests make the autoscaler think the cluster is full when it isn't.", "Move stateless workloads to Spot/Preemptible instances — 60–80% cheaper for interruption-tolerant work (API replicas behind a load balancer, queue consumers, CI runners, batch jobs). Handle the interruptions properly: PodDisruptionBudgets, more than one instance type in the node pool, and graceful shutdown hooks so a reclaimed node drains instead of dropping requests."] },
       { type: "code", lang: "yaml", label: "deployment.yaml — what right-sizing actually looks like", code: "# Before: copied from another service two years ago, never revisited\nresources:\n  requests: { cpu: \"2\", memory: 4Gi }\n  limits:   { cpu: \"2\", memory: 4Gi }\n\n# After: P95 usage over two weeks was 210m CPU / 900Mi memory\nresources:\n  requests: { cpu: 300m, memory: 1200Mi }\n  limits:   { memory: 1200Mi }   # memory limit only — no CPU limit, no throttling" },
-      { type: "h2", text: "The Next 7" },
+      { type: "h2", text: "The Next 7 — what else cuts a Kubernetes bill?" },
       { type: "ol", items: ["Namespace-level resource quotas — cap dev/staging so an experiment can't quietly triple the cluster. Quotas turn cost conversations from archaeology into a pull request.", "Delete idle environments — preview and dev namespaces nobody has touched for 7+ days. A TTL controller or a scheduled job that flags (then removes) stale namespaces routinely claws back 10–15% of the bill.", "Use [Karpenter](https://karpenter.sh) instead of the classic Cluster Autoscaler on AWS — it provisions right-sized nodes directly from pending pods in seconds, picks cheaper instance types automatically, and consolidates underused nodes without manual node-group tuning.", "Adopt ARM nodes (Graviton and equivalents) — typically ~20% cheaper for comparable performance. Most mainstream runtimes and base images ship multi-arch today; start with stateless services whose images already publish arm64 variants.", "Optimise image size — multi-stage builds and slim base images cut pull times (faster scale-up, which lets autoscaling run tighter), registry storage, and cross-zone egress. Going from a 1.2GB image to 150MB is common and free.", "Buy reserved capacity or savings plans for the baseline — after right-sizing, a steady floor of usage remains; committing to it for 1 year typically saves 30–40% versus on-demand. Do this last, not first: committing to today's inflated baseline locks the waste in.", "Cost allocation tagging and showback — label workloads by team/product and put a weekly cost report in front of the owners. You can't optimise what you can't attribute, and in practice visibility alone changes engineer behaviour within a sprint or two."] },
       { type: "h2", text: "How do you measure Kubernetes cost savings?" },
       { type: "p", text: "Pick your metrics before touching anything, or you won't be able to prove the savings. The two that matter: cost per namespace/team (from [OpenCost](https://opencost.io) or Kubecost, both of which map cloud billing onto Kubernetes objects) and cluster utilisation — actual CPU/memory usage divided by allocatable capacity. A healthy production cluster after optimisation typically runs 50–65% utilisation; below 30% means you're paying for air. Snapshot both for two weeks before the first change." },
       { type: "code", lang: "bash", label: "First look at the request-vs-usage gap, no tooling required", code: "# Actual usage right now, biggest consumers last\nkubectl top pods -n payments --no-headers | sort -k2 -h | tail\n\n# What those same pods reserved from the scheduler\nkubectl get pods -n payments -o custom-columns=\\\n'NAME:.metadata.name,\\\nCPU_REQ:.spec.containers[*].resources.requests.cpu,\\\nMEM_REQ:.spec.containers[*].resources.requests.memory'\n\n# Cluster-level: allocatable vs requested per node\nkubectl describe nodes | grep -A5 'Allocated resources'" },
-      { type: "h2", text: "A Realistic 30-Day Plan" },
+      { type: "h2", text: "What does a realistic 30-day plan look like?" },
       { type: "ol", items: ["Week 1 — visibility: deploy OpenCost/Kubecost, label workloads by owner, snapshot utilisation and per-team cost. No changes yet.", "Week 2 — right-size the top 20 workloads by reserved capacity, using two weeks of usage data. This alone usually cuts 20–30%.", "Week 3 — turn on autoscaling (or migrate to Karpenter), add PodDisruptionBudgets, and move the first batch of stateless workloads to Spot.", "Week 4 — quotas on non-production, idle-environment cleanup, and only now price reserved capacity for the remaining steady baseline."] },
       { type: "h2", text: "What undoes Kubernetes cost savings?" },
       { type: "ul", items: ["Buying reserved instances before right-sizing — the single most common way to lock waste in for a year.", "Setting CPU limits far below requests 'for safety' — causes throttling incidents that get answered by re-inflating requests everywhere.", "Running Spot without disruption handling — one bad reclaim event and the team swears off Spot forever, forfeiting the biggest single discount available.", "Treating optimisation as a one-off project — costs drift back within a quarter without quotas, showback, and someone owning the utilisation number."] },
@@ -305,18 +305,18 @@ export const articles: Article[] = [
       "API design principles for exceptional developer experience — covering REST conventions, error handling, versioning, pagination.",
     content: [
       { type: "p", text: "A great API is one that developers don't have to read docs for — it's discoverable, predictable, and forgiving. [Building APIs](/services/web-development) that developers enjoy is a craft, and it separates platforms that get adopted from those that don't." },
-      { type: "h2", text: "Naming & Resource Design" },
+      { type: "h2", text: "How should you name REST API resources?" },
       { type: "ul", items: ["Plural nouns for resources: /orders, /products, not /order, /getProduct.", "Nested resources for clear ownership: /users/{id}/orders.", "Consistent casing: kebab-case for URLs, camelCase for JSON properties.", "No verbs in URLs — use HTTP methods for actions."] },
-      { type: "h2", text: "Error Handling" },
+      { type: "h2", text: "What should an API error response look like?" },
       { type: "p", text: "Errors should tell developers what went wrong AND what to do about it. Use structured error responses: { code, message, details, helpUrl }. Map errors to semantic HTTP status codes. Never return 200 with an error body — it breaks every HTTP client in existence." },
       { type: "code", lang: "json", label: "422 Unprocessable Entity — an error a developer can act on without opening a ticket", code: "{\n  \"code\": \"validation_failed\",\n  \"message\": \"The order could not be created.\",\n  \"details\": [\n    { \"field\": \"items[0].quantity\", \"issue\": \"must be greater than 0\", \"received\": 0 },\n    { \"field\": \"shippingAddress.postalCode\", \"issue\": \"required for country US\" }\n  ],\n  \"helpUrl\": \"https://api.example.com/docs/errors/validation_failed\",\n  \"requestId\": \"req_01HQ8Z3K2\"\n}\n// requestId is the difference between \"it's broken\" and a support\n// conversation that resolves in one message — always include it." },
-      { type: "h2", text: "Pagination" },
+      { type: "h2", text: "Should you use offset or cursor pagination?" },
       { type: "p", text: "Offset pagination (?page=3&limit=50) is fine for small, static datasets and quietly wrong for everything else: rows inserted while a client is paging shift the offsets, so records get skipped or returned twice. Cursor pagination encodes a stable position instead, and it stays correct under concurrent writes. Return the cursor as an opaque string — the moment integrators start decoding it, its format becomes your public API." },
       { type: "code", lang: "http", label: "Cursor pagination — request and response shape", code: "GET /v1/orders?limit=50&cursor=eyJpZCI6Im9yZF8xOTIzIn0\n\n200 OK\n{\n  \"data\": [ /* 50 orders, newest first */ ],\n  \"pagination\": {\n    \"nextCursor\": \"eyJpZCI6Im9yZF8xODcxIn0\",   // null on the last page\n    \"hasMore\": true\n  }\n}\n// No total count: computing it costs a full table scan on large\n// datasets. Expose it as a separate endpoint if clients genuinely\n// need it, rather than taxing every page request." },
-      { type: "h2", text: "Documentation That Stays True" },
+      { type: "h2", text: "How do you stop API docs from going stale?" },
       { type: "p", text: "Hand-written API docs drift from the implementation within a release or two — and stale docs are worse than none, because integrators trust them. Generate the reference from the same source the server validates against." },
       { type: "ul", items: ["Keep an [OpenAPI](https://www.openapis.org/) description as the source of truth and generate the reference docs from it, so a shipped endpoint change cannot leave the docs behind.", "Validate real requests against that schema in CI — a contract test catches the mismatch before integrators do.", "Give every endpoint a copy-pasteable example with a real (sandbox) payload, not just a field table.", "Document the error codes as thoroughly as the success paths; that is what developers actually search for at 2am."] },
-      { type: "h2", text: "Versioning & Lifecycle" },
+      { type: "h2", text: "How should you version a REST API?" },
       { type: "p", text: "URL versioning (/v1/, /v2/) is still the most practical approach for REST APIs. Deprecation notices via Deprecation and [Sunset headers](https://datatracker.ietf.org/doc/html/rfc8594) give integrators time to migrate. Document your API lifecycle policy upfront — 12 months minimum support after deprecation announcement." },
     ],
   },
@@ -341,12 +341,12 @@ export const articles: Article[] = [
       { type: "p", text: "[Micro-interactions](/services/ui-ux-design) are the small moments of feedback that make users feel the product is alive and responsive. A button that resists then bounces on press, a success checkmark that draws itself, a form field that gently shakes when validation fails — these moments are remembered even when users can't articulate why they liked the experience." },
       { type: "h2", text: "The 4-Part Framework: Trigger → Rules → Feedback → Loops" },
       { type: "p", text: "Every micro-interaction has four parts. The trigger initiates it (a click, a scroll position, a state change). The rules define what happens. The feedback makes it visible. The loop or mode determines whether it repeats or what happens when conditions change." },
-      { type: "h2", text: "Implementing with Framer Motion" },
+      { type: "h2", text: "How do you build micro-interactions with Framer Motion?" },
       { type: "ul", items: ["Use spring physics (type: 'spring') for natural, organic movement.", "Stagger children animations to guide attention sequentially.", "layoutId for shared layout animations between route transitions.", "whileHover and whileTap for immediate, synchronous micro-feedback.", "AnimatePresence for mount/unmount animations — never abrupt element removal."] },
       { type: "h2", text: "Do micro-interactions need a JavaScript animation library?" },
       { type: "p", text: "Often not. A library earns its bundle cost for orchestration — shared layout transitions, staggered sequences, presence animations on unmount. For a single element responding to a single event, CSS does it on the compositor with no JavaScript at all, and it keeps working while the page is still hydrating." },
       { type: "code", lang: "css", label: "A complete micro-interaction in CSS, including the part most implementations skip", code: "/* Compositor-only properties: no layout, no repaint. */\n.btn {\n  transition: transform 150ms ease-out, box-shadow 150ms ease-out;\n}\n.btn:hover  { transform: translateY(-1px); }\n.btn:active { transform: translateY(0) scale(0.98); }  /* the press \"gives\" */\n\n@keyframes shake {\n  0%, 100% { transform: translateX(0); }\n  25%      { transform: translateX(-4px); }\n  75%      { transform: translateX(4px); }\n}\n.field--invalid { animation: shake 180ms ease-in-out; }\n\n/* The part that is skipped far too often. For a user with vestibular\n   sensitivity, decorative motion can cause real nausea — and the OS has\n   already told you their preference, so there is no excuse for guessing. */\n@media (prefers-reduced-motion: reduce) {\n  *, *::before, *::after {\n    animation-duration: 0.01ms !important;\n    animation-iteration-count: 1 !important;\n    transition-duration: 0.01ms !important;\n    scroll-behavior: auto !important;\n  }\n}\n\n/* Note the invalid state still needs a non-motion signal — colour, an\n   icon, and a message — because with reduced motion the shake is gone\n   and motion was never sufficient on its own anyway. */" },
-      { type: "h2", text: "Performance Rules" },
+      { type: "h2", text: "Which CSS properties are safe to animate?" },
       { type: "p", text: "Only animate CSS properties that don't trigger layout: transform and opacity. Animating width, height, top, left causes layout thrash and janky 15fps animations. Use [will-change](https://developer.mozilla.org/en-US/docs/Web/CSS/will-change) sparingly — it consumes GPU memory. Test on a mid-range Android device, not your M3 MacBook." },
     ],
   },
@@ -376,7 +376,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "The Core Architecture Challenge",
+        text: "Why is digital banking architecture so difficult?",
       },
       {
         type: "p",
@@ -384,7 +384,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 1 — Discovery & Architecture Design (Weeks 1–4)",
+        text: "Phase 1 — Which architecture decisions come first? (Weeks 1–4)",
       },
       {
         type: "p",
@@ -401,7 +401,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 2 — Identity, KYC & Digital Onboarding",
+        text: "Phase 2 — How do you automate KYC and digital onboarding?",
       },
       {
         type: "p",
@@ -409,7 +409,7 @@ export const articles: Article[] = [
       },
       {
         type: "h3",
-        text: "KYC Automation Pipeline",
+        text: "What does a KYC automation pipeline include?",
       },
       {
         type: "ul",
@@ -423,7 +423,7 @@ export const articles: Article[] = [
       },
       {
         type: "h3",
-        text: "Authentication Infrastructure",
+        text: "What authentication infrastructure does a banking app need?",
       },
       {
         type: "ul",
@@ -445,7 +445,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 3 — Core Banking Integration Layer",
+        text: "Phase 3 — How do you integrate with a legacy core banking system?",
       },
       {
         type: "p",
@@ -484,7 +484,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 4 — Payment Gateway & Real-Time Processing",
+        text: "Phase 4 — How do you process payments at 10,000+ TPS?",
       },
       {
         type: "p",
@@ -502,7 +502,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 5 — Security Hardening & Compliance Controls",
+        text: "Phase 5 — How do you harden a banking platform for compliance?",
       },
       {
         type: "ul",
@@ -517,7 +517,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Technology Stack",
+        text: "What technology stack suits a digital banking platform?",
       },
       {
         type: "ul",
@@ -573,7 +573,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "What 'Headless Commerce' Actually Means (and Doesn't)",
+        text: "What does 'headless commerce' actually mean?",
       },
       {
         type: "p",
@@ -596,7 +596,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 1 — Catalogue Architecture",
+        text: "Phase 1 — How should you model a product catalogue?",
       },
       {
         type: "p",
@@ -620,7 +620,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 2 — Real-Time Inventory Sync",
+        text: "Phase 2 — How do you keep inventory accurate in real time?",
       },
       {
         type: "p",
@@ -637,7 +637,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 3 — High-Performance Frontend",
+        text: "Phase 3 — How do you make product pages fast?",
       },
       {
         type: "p",
@@ -655,7 +655,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 4 — Flash Sale Engineering",
+        text: "Phase 4 — How do you engineer a store for flash sales?",
       },
       {
         type: "p",
@@ -684,7 +684,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 5 — Personalisation & Recommendation Engine",
+        text: "Phase 5 — How do you build a product recommendation engine?",
       },
       {
         type: "ul",
@@ -734,7 +734,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Compliance Foundation: Before a Single Line of Code",
+        text: "Which healthcare regulations apply before you write code?",
       },
       {
         type: "p",
@@ -752,7 +752,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "FHIR Integration Architecture",
+        text: "Why build a patient portal on FHIR instead of proprietary APIs?",
       },
       {
         type: "p",
@@ -791,7 +791,7 @@ export const articles: Article[] = [
       },
       {
         type: "h3",
-        text: "Appointment Scheduling & Reminders",
+        text: "How do you stop appointments being double-booked?",
       },
       {
         type: "ul",
@@ -804,7 +804,7 @@ export const articles: Article[] = [
       },
       {
         type: "h3",
-        text: "Telehealth Infrastructure",
+        text: "What does HIPAA-friendly telehealth video require?",
       },
       {
         type: "ul",
@@ -818,7 +818,7 @@ export const articles: Article[] = [
       },
       {
         type: "h3",
-        text: "Health Records Access",
+        text: "How do patients access their own health records?",
       },
       {
         type: "ul",
@@ -837,7 +837,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Security Controls for Healthcare",
+        text: "What security controls does HIPAA require?",
       },
       {
         type: "ul",
@@ -888,7 +888,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 1 — Video Infrastructure (The Non-Negotiable Foundation)",
+        text: "Phase 1 — How do you keep LMS video costs under control?",
       },
       {
         type: "p",
@@ -924,7 +924,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 2 — Course & Content Architecture",
+        text: "Phase 2 — How should you structure courses and content?",
       },
       {
         type: "ul",
@@ -938,7 +938,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 3 — Assessment & Adaptive Learning",
+        text: "Phase 3 — How does adaptive assessment work?",
       },
       {
         type: "ul",
@@ -953,7 +953,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 4 — Live Virtual Classroom",
+        text: "Phase 4 — What infrastructure does a live virtual classroom need?",
       },
       {
         type: "p",
@@ -971,7 +971,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 5 — Learning Analytics & Engagement",
+        text: "Phase 5 — How do you measure learner engagement?",
       },
       {
         type: "ul",
@@ -1031,7 +1031,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "IoT Device Integration Layer",
+        text: "How do fleet IoT devices send data to the cloud?",
       },
       {
         type: "p",
@@ -1055,7 +1055,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Real-Time Processing Pipeline",
+        text: "How does a GPS ping become a live dot on the map?",
       },
       {
         type: "flow",
@@ -1080,7 +1080,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Route Optimisation Engine",
+        text: "How does fleet route optimisation actually work?",
       },
       {
         type: "p",
@@ -1158,7 +1158,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 1 — Sensor Infrastructure & Data Collection",
+        text: "Phase 1 — Which sensors does predictive maintenance need?",
       },
       {
         type: "p",
@@ -1177,7 +1177,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 2 — Edge & Cloud Data Pipeline",
+        text: "Phase 2 — Why can't all sensor data go to the cloud?",
       },
       {
         type: "p",
@@ -1205,7 +1205,7 @@ export const articles: Article[] = [
       },
       {
         type: "h3",
-        text: "Anomaly Detection (Unsupervised)",
+        text: "How do you detect anomalies without labelled failure data?",
       },
       {
         type: "p",
@@ -1221,7 +1221,7 @@ export const articles: Article[] = [
       },
       {
         type: "h3",
-        text: "Remaining Useful Life (RUL) Prediction (Supervised)",
+        text: "How do you predict a machine's remaining useful life?",
       },
       {
         type: "p",
@@ -1237,7 +1237,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 4 — MES & ERP Integration",
+        text: "Phase 4 — How do predictions become maintenance work orders?",
       },
       {
         type: "ul",
@@ -1250,7 +1250,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 5 — Operator & Technician Experience",
+        text: "Phase 5 — How do you prevent alert fatigue for technicians?",
       },
       {
         type: "ul",
@@ -1296,7 +1296,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Networking Architecture: The Latency Foundation",
+        text: "How much latency can a multiplayer game tolerate?",
       },
       {
         type: "p",
@@ -1314,7 +1314,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Matchmaking Engine",
+        text: "How does skill-based matchmaking work?",
       },
       {
         type: "p",
@@ -1332,7 +1332,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Real-Time Game State Synchronisation",
+        text: "How do you keep game state in sync across clients?",
       },
       {
         type: "ul",
@@ -1377,7 +1377,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Anti-Cheat & Fraud Prevention",
+        text: "How do you stop cheating in a multiplayer game?",
       },
       {
         type: "ul",
@@ -1424,7 +1424,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Property CRM: Beyond Contact Management",
+        text: "How is a property CRM different from a generic CRM?",
       },
       {
         type: "p",
@@ -1448,7 +1448,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Construction Project Management",
+        text: "How do you tie construction milestones to payments?",
       },
       {
         type: "ul",
@@ -1463,7 +1463,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Document Management System",
+        text: "How do you manage real estate document volumes?",
       },
       {
         type: "p",
@@ -1551,7 +1551,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Real-Time Availability & Rate Management",
+        text: "How do you manage room availability and rates in real time?",
       },
       {
         type: "ul",
@@ -1656,7 +1656,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "BSS/OSS Integration Architecture",
+        text: "How does a customer portal integrate with BSS and OSS?",
       },
       {
         type: "p",
@@ -1700,7 +1700,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Billing Automation Engine",
+        text: "How does telecom billing automation work?",
       },
       {
         type: "ul",
@@ -1721,7 +1721,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Support Automation",
+        text: "How much support volume can automation deflect?",
       },
       {
         type: "ul",
@@ -1794,7 +1794,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 1 — Content Modelling (The Foundation)",
+        text: "Phase 1 — How should you model content for a headless CMS?",
       },
       {
         type: "p",
@@ -1818,7 +1818,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 2 — Content Delivery Architecture",
+        text: "Phase 2 — How do you deliver articles fast at scale?",
       },
       {
         type: "ul",
@@ -1832,7 +1832,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 3 — Paywall & Subscription Management",
+        text: "Phase 3 — How does a metered paywall work?",
       },
       {
         type: "ul",
@@ -1860,7 +1860,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Phase 5 — Ad Tech Integration",
+        text: "Phase 5 — How do you run ads without wrecking Core Web Vitals?",
       },
       {
         type: "ul",
@@ -1906,7 +1906,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "IoT Sensor Network Architecture",
+        text: "What makes farm IoT different from industrial IoT?",
       },
       {
         type: "p",
@@ -1939,7 +1939,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Precision Agriculture Analytics",
+        text: "How do you automate irrigation from soil data?",
       },
       {
         type: "ul",
@@ -1954,7 +1954,7 @@ export const articles: Article[] = [
       },
       {
         type: "h2",
-        text: "Supply Chain Traceability System",
+        text: "Why is food traceability becoming a legal requirement?",
       },
       {
         type: "p",
