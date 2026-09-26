@@ -41,7 +41,7 @@ export const articles: Article[] = [
     category: "AI & ML",
     title: "How AI is Reshaping Enterprise Software in 2026",
     excerpt:
-      "From intelligent automation to agentic AI in production, explore how artificial intelligence is fundamentally changing the way enterprise software is built and used — updated for 2026.",
+      "What is actually working in enterprise AI in 2026 — grounded LLM patterns that stop hallucinating, and agentic workflows already in production.",
     author: "Arun Sharma",
     role: "AI Lead",
     date: "Feb 20, 2025",
@@ -52,7 +52,7 @@ export const articles: Article[] = [
     color: "bg-blue-500",
     tags: ["AI", "Enterprise", "Automation"],
     metaDescription:
-      "How artificial intelligence is transforming enterprise software in 2026 — agentic AI in production, LLM-powered copilots, intelligent automation.",
+      "What is actually working in enterprise AI in 2026 — grounded LLM patterns that stop hallucinating, agentic workflows in production, and where projects stall.",
     content: [
       { type: "p", text: "The enterprise software landscape in 2026 looks fundamentally different from just three years ago. Artificial intelligence has moved from an experimental feature to a core infrastructure requirement — and engineering teams that haven't adapted are already falling behind. This article was originally published in early 2025 and updated in September 2026 to reflect how quickly the ground has shifted." },
       { type: "h2", text: "What changed when enterprise software went model-driven?" },
@@ -1762,18 +1762,18 @@ export const articles: Article[] = [
     category: "Industry Solutions",
     title: "Headless CMS Migration for Media Publishers: A Technical Roadmap",
     excerpt:
-      "How to migrate legacy media publishing platforms to headless architecture — covering content modelling, personalisation, subscription management, and multi-channel content delivery.",
+      "How to migrate media publishers to headless CMS with a zero-downtime cutover — content modelling, CDN strategy, paywall, and personalisation.",
     author: "Meera Joshi",
     role: "Head of Design",
     date: "Mar 11, 2025",
-    updated: "Sep 7, 2026",
+    updated: "Sep 26, 2026",
     readTime: "11 min read",
     featured: false,
     initials: "MJ",
     color: "bg-purple-600",
     tags: ["Media", "Publishing", "Headless CMS", "Content Delivery", "Subscription"],
     metaDescription:
-      "Technical roadmap for migrating media publishers to headless CMS — covering content modelling, CDN strategy, paywall implementation, personalisation.",
+      "How to migrate media publishers to headless CMS with a zero-downtime cutover — content modelling, CDN strategy, paywall, and personalisation.",
     content: [
       {
         type: "p",
@@ -1790,6 +1790,25 @@ export const articles: Article[] = [
           "Frontend freedom: [React/Next.js frontends](/services/web-development) perform 3–5x better than server-rendered monolithic CMS templates on Core Web Vitals.",
           "Editorial workflow decoupled from frontend deployment — content team publishes without a developer deploy.",
           "Content as a product: treat editorial content as structured data, not HTML blobs — enables personalisation, machine translation, and AI content generation workflows.",
+        ],
+      },
+      {
+        type: "h2",
+        text: "How do you migrate to a headless CMS with minimal downtime?",
+      },
+      {
+        type: "p",
+        text: "A live media property can't take a maintenance window — traffic and ad revenue don't pause for a migration. The risk is never the new stack; it's the cutover. Run both systems in parallel and move traffic in slices, never in one flip.",
+      },
+      {
+        type: "flow",
+        title: "Zero-downtime cutover, one section at a time",
+        steps: [
+          "Stand up the new headless stack alongside the legacy CMS, both resolving the same canonical URLs through an edge router (Cloudflare Workers or a reverse proxy) — nothing changes for readers yet.",
+          "Backfill the content archive into the new content API, then dual-write: editors publish to both systems for the whole transition window so neither ever falls behind.",
+          "Cut over one section first — the lowest-traffic vertical — by routing only that URL prefix to the new frontend at the edge. Watch Core Web Vitals and error rates before touching anything else.",
+          "Expand section by section behind the same routing rule, keeping the legacy CMS live and dual-written throughout — a broken section reverts with one routing change, not a redeploy.",
+          "Decommission the legacy CMS only after a full traffic cycle (a week, minimum) running entirely on the new stack with dual-write turned off.",
         ],
       },
       {
