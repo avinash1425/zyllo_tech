@@ -1,5 +1,6 @@
 "use client";
 
+import { motion, useReducedMotion } from "framer-motion";
 import { Compass, Heart, Lightbulb, Rocket, ShieldCheck, Sparkles, Users } from "lucide-react";
 
 const REASONS = [
@@ -57,6 +58,7 @@ const VALUES = [
 ];
 
 export default function WhyJoinZyllo() {
+  const reduce = useReducedMotion();
   return (
     <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-white py-12 lg:py-16">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
@@ -80,48 +82,79 @@ export default function WhyJoinZyllo() {
           </p>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {REASONS.map(({ icon: Icon, title, description, accent, accentSoft }) => (
-            <div
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {REASONS.map(({ icon: Icon, title, description, accent, accentSoft }, i) => (
+            <motion.div
               key={title}
-              className="group relative overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white p-7 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl motion-reduce:transition-none motion-reduce:hover:translate-y-0"
-              style={{ "--accent": accent }}
+              initial={reduce ? false : { opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.5, delay: (i % 3) * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              className="group relative overflow-hidden rounded-3xl border border-white bg-gradient-to-br from-white via-white to-[#f4f6fb] p-7 shadow-[0_1px_2px_rgba(16,26,58,0.05),0_12px_32px_-16px_rgba(16,26,58,0.18)] ring-1 ring-[#e7e9ee] transition-all duration-300 hover:-translate-y-2 hover:ring-transparent motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+              style={{ "--glow": accent }}
             >
               <span
                 aria-hidden="true"
-                className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-25"
-                style={{ background: accent }}
+                className="pointer-events-none absolute inset-0 rounded-3xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                style={{ boxShadow: `0 28px 50px -18px ${accent}66, inset 0 0 0 1.5px ${accent}55` }}
               />
-              <div
-                className="relative flex h-12 w-12 items-center justify-center rounded-xl text-white transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3"
-                style={{
-                  background: `linear-gradient(135deg, ${accent}, ${accentSoft})`,
-                  boxShadow: `0 10px 20px -8px ${accent}90`,
-                }}
-              >
-                <Icon className="h-6 w-6" aria-hidden="true" />
-              </div>
-
-              <h3 className="relative mt-5 text-lg font-semibold text-[#2b303b]">{title}</h3>
-              <p className="relative mt-2 text-sm leading-relaxed text-[#676b7a]">{description}</p>
-
               <span
                 aria-hidden="true"
-                className="absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100"
-                style={{ background: `linear-gradient(90deg, ${accent}, ${accentSoft})` }}
+                className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full opacity-10 blur-2xl transition-opacity duration-300 group-hover:opacity-30"
+                style={{ background: accent }}
               />
-            </div>
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute right-5 top-3 select-none text-6xl font-black leading-none text-[#1f4693]/[0.06]"
+              >
+                {String(i + 1).padStart(2, "0")}
+              </span>
+
+              <div
+                className="relative flex h-16 w-16 items-center justify-center rounded-2xl text-white ring-4 ring-white transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3"
+                style={{
+                  background: `linear-gradient(135deg, ${accent}, ${accentSoft})`,
+                  boxShadow: `0 14px 28px -10px ${accent}a0`,
+                }}
+              >
+                <Icon className="h-8 w-8" aria-hidden="true" />
+              </div>
+
+              <span aria-hidden="true" className="relative mt-6 block h-1 w-8 rounded-full transition-all duration-300 group-hover:w-14" style={{ background: accent }} />
+              <h3 className="relative mt-3 text-lg font-bold tracking-tight text-[#1b2030]">{title}</h3>
+              <p className="relative mt-2 text-sm leading-relaxed text-[#676b7a]">{description}</p>
+            </motion.div>
           ))}
         </div>
 
         {/* Culture / values band */}
-        <div className="relative mt-12 overflow-hidden rounded-3xl bg-gradient-to-br from-[#101a3a] via-[#173a52] to-[#1f4693] px-6 py-10 text-white sm:px-10 lg:px-14">
-          <span aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-[#f96706]/25 blur-[90px]" />
-          <div className="relative grid gap-8 lg:grid-cols-12 lg:items-center">
+        <div className="relative mt-14 overflow-hidden rounded-[2rem] bg-[#101a3a] px-6 py-12 text-white shadow-[0_30px_60px_-24px_rgba(16,26,58,0.6)] sm:px-10 lg:px-14">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0"
+            style={{
+              backgroundImage:
+                "radial-gradient(60% 80% at 100% 0%, rgba(249,103,6,0.40) 0%, transparent 60%), radial-gradient(55% 70% at 0% 100%, rgba(48,137,166,0.45) 0%, transparent 60%), radial-gradient(50% 60% at 50% 50%, rgba(31,70,147,0.55) 0%, transparent 70%)",
+            }}
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 opacity-[0.14]"
+            style={{
+              backgroundImage: "radial-gradient(rgba(255,255,255,0.9) 1px, transparent 1px)",
+              backgroundSize: "22px 22px",
+              maskImage: "linear-gradient(to bottom, black, transparent 85%)",
+              WebkitMaskImage: "linear-gradient(to bottom, black, transparent 85%)",
+            }}
+          />
+          <div className="relative grid gap-10 lg:grid-cols-12 lg:items-center">
             <div className="lg:col-span-4">
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#ffb15c]">Our culture</span>
-              <h3 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">What we value</h3>
-              <p className="mt-3 text-sm leading-relaxed text-white/80">
+              <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#ffb15c] backdrop-blur-sm">
+                Our culture
+              </span>
+              <h3 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">What we value</h3>
+              <span aria-hidden="true" className="mt-4 block h-1 w-14 rounded-full bg-gradient-to-r from-[#f96706] to-[#ffb15c]" />
+              <p className="mt-4 text-sm leading-relaxed text-white/80">
                 The principles that shape how we work with each other and with our clients.
               </p>
             </div>
@@ -129,14 +162,14 @@ export default function WhyJoinZyllo() {
               {VALUES.map(({ icon: Icon, title, text }) => (
                 <li
                   key={title}
-                  className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm"
+                  className="group/v relative flex items-start gap-4 overflow-hidden rounded-2xl border border-white/15 bg-white/[0.07] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-[#ffb15c]/50 hover:bg-white/[0.12] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                 >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#f96706] to-[#ffb15c] text-white">
-                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#f96706] to-[#ffb15c] text-white shadow-lg shadow-[#f96706]/30 transition-transform duration-300 group-hover/v:scale-110">
+                    <Icon className="h-6 w-6" aria-hidden="true" />
                   </span>
                   <div>
-                    <p className="font-semibold">{title}</p>
-                    <p className="mt-0.5 text-sm text-white/75">{text}</p>
+                    <p className="text-base font-bold">{title}</p>
+                    <p className="mt-1 text-sm leading-relaxed text-white/75">{text}</p>
                   </div>
                 </li>
               ))}

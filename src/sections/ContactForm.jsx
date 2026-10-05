@@ -1,8 +1,12 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import { Check, ChevronDown, Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { Check, ChevronDown, Clock, ExternalLink, Mail, MapPin, MessageCircle, Navigation, Phone } from "lucide-react";
 import { submitContactForm } from "@/lib/api/contact";
+
+const OFFICE_QUERY = encodeURIComponent(
+  "R V Plaza, Gayathri Nagar Phase-2, Mahatma Gandhi Inner Ring Road, Guntur 522034, Andhra Pradesh",
+);
 
 const SERVICES = [
   "Web Development",
@@ -24,7 +28,6 @@ const CONTACT_ITEMS = [
   { icon: Phone, label: "Call Us", value: "+91 70757 73680", href: "tel:+917075773680" },
   { icon: Mail, label: "Email Us", value: "info@zyllotech.com", href: "mailto:info@zyllotech.com" },
   { icon: MessageCircle, label: "WhatsApp", value: "Chat with us", href: "https://wa.me/917075773680" },
-  { icon: MapPin, label: "Location", value: "India", href: null },
   { icon: Clock, label: "Response Time", value: "Within one business day", href: null },
 ];
 
@@ -206,6 +209,48 @@ export default function ContactForm() {
                     </div>
                   );
                 })}
+              </div>
+
+              <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur-sm">
+                <div className="flex items-start gap-3.5">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#f96706] to-[#f7941e] text-white shadow-lg shadow-[#f96706]/30">
+                    <MapPin className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <div>
+                    <span className="block text-[13px] font-bold">Office address</span>
+                    <address className="mt-1 text-[12.5px] not-italic leading-relaxed text-white/70">
+                      Zyllo Tech Software Solutions Private Limited
+                      <br />
+                      R V Plaza, Door No. 134-77/1, 3rd Floor,
+                      <br />
+                      Gayathri Nagar, Phase-2,
+                      <br />
+                      Mahatma Gandhi Inner Ring Road,
+                      <br />
+                      Guntur - 522034, Andhra Pradesh, India.
+                    </address>
+                  </div>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2.5">
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${OFFICE_QUERY}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[#f96706] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#c9580d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  >
+                    <Navigation className="h-3.5 w-3.5" aria-hidden="true" />
+                    Get directions
+                  </a>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${OFFICE_QUERY}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-white/25 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+                    Open in Google Maps
+                  </a>
+                </div>
               </div>
             </div>
           </div>

@@ -2,17 +2,14 @@
 
 import { useMemo, useState } from "react";
 import Link from "@/lib/nx/link";
-import { ArrowRight, Briefcase, Clock, FileText, MapPin, Search, SearchX, Users } from "lucide-react";
+import { ArrowRight, Briefcase, Clock, FileText, MapPin, Search, SearchX } from "lucide-react";
 import Modal from "@/components/Modal";
 import ApplyForm from "@/components/ApplyForm";
 import ModalHeader from "@/components/careers/ModalHeader";
-import JobCard, { JobCardSkeleton } from "@/sections/careers/JobCard";
+import DescriptionBody from "@/components/careers/DescriptionBody";
+import JobCard, { JobCardSkeleton, OpeningsPill } from "@/sections/careers/JobCard";
 
 const TITLE_ID = "careers-modal-title";
-
-function openingsLabel(n) {
-  return `${n} opening${n === 1 ? "" : "s"} left`;
-}
 
 function jobChips(job) {
   return [
@@ -195,9 +192,9 @@ export default function OpenPositionsGrid({ positions, loading = false }) {
           </button>
         </div>
       ) : (
-        <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((position) => (
-            <JobCard key={position.id} position={position} onDetails={openDetails} onApply={openApply} />
+        <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((position, i) => (
+            <JobCard key={position.id} index={i} position={position} onDetails={openDetails} onApply={openApply} />
           ))}
         </div>
       )}
@@ -217,41 +214,43 @@ export default function OpenPositionsGrid({ positions, loading = false }) {
             <ModalHeader
               titleId={TITLE_ID}
               eyebrow="Role details"
+              step={1}
+              department={activeJob.department}
               title={activeJob.title}
               chips={jobChips(activeJob)}
               onClose={closeModal}
             />
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-6 sm:px-8">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f7941e]/10 px-3 py-1 text-xs font-semibold text-[#a64b06]">
-                <Users className="h-3.5 w-3.5" aria-hidden="true" />
-                {openingsLabel(activeJob.remaining)}
-              </span>
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[#fafbfc] px-5 py-6 sm:px-8">
+              <OpeningsPill remaining={activeJob.remaining} />
               {activeJob.description ? (
-                <div className="mt-5">
-                  <h3 className="text-sm font-bold uppercase tracking-wide text-[#2b303b]">About this role</h3>
-                  <p className="mt-2 whitespace-pre-line leading-relaxed text-[#676b7a]">{activeJob.description}</p>
+                <div className="mt-5 rounded-3xl border border-[#e7e9ee] bg-white p-5 shadow-sm sm:p-6">
+                  <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.16em] text-[#1b2030]">
+                    <span aria-hidden="true" className="h-1.5 w-5 rounded-full bg-gradient-to-r from-[#f96706] to-[#ffb15c]" />
+                    About this role
+                  </h3>
+                  <DescriptionBody text={activeJob.description} className="mt-4" />
                 </div>
               ) : (
-                <p className="mt-5 text-[#676b7a]">
+                <p className="mt-5 rounded-3xl border border-dashed border-[#d5d9e2] bg-white p-5 text-[#676b7a]">
                   Full details for this role are shared during the process. Apply to get started.
                 </p>
               )}
             </div>
-            <div className="flex shrink-0 items-center gap-3 border-t border-[#e7e9ee] bg-white px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:justify-end sm:px-8">
+            <div className="flex shrink-0 items-center gap-3 border-t border-[#e7e9ee] bg-white/95 px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-12px_24px_-16px_rgba(16,26,58,0.18)] backdrop-blur sm:justify-end sm:px-8">
               <button
                 type="button"
                 onClick={closeModal}
-                className="inline-flex items-center justify-center rounded-full border border-[#e7e9ee] bg-white px-5 py-3 text-sm font-semibold text-[#2b303b] transition-colors hover:border-[#1f4693]/40 hover:text-[#1f4693] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#1f4693]/20"
+                className="inline-flex items-center justify-center rounded-full border border-[#e7e9ee] bg-white px-6 py-3.5 text-sm font-semibold text-[#2b303b] transition-colors hover:border-[#1f4693]/40 hover:text-[#1f4693] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#1f4693]/20"
               >
                 Close
               </button>
               <button
                 type="button"
                 onClick={() => setModalView("apply")}
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#f7941e] px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-[#f7941e]/30 transition-colors hover:bg-[#db7d17] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/40 sm:flex-none"
+                className="group/next inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#f96706] via-[#f7941e] to-[#ffb15c] px-8 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#f7941e]/30 transition-all hover:brightness-105 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/40 sm:flex-none"
               >
-                Apply now
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                Continue to apply
+                <ArrowRight className="h-4 w-4 transition-transform group-hover/next:translate-x-1" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -262,6 +261,9 @@ export default function OpenPositionsGrid({ positions, loading = false }) {
             <ModalHeader
               titleId={TITLE_ID}
               eyebrow="Apply for this role"
+              step={2}
+              onStepChange={() => setModalView("details")}
+              department={activeJob.department}
               title={activeJob.title}
               chips={jobChips(activeJob)}
               onClose={closeModal}

@@ -106,7 +106,8 @@ export default function Modal({
 
   if (!mounted) return null;
 
-  const t = reduce ? { duration: 0 } : { duration: 0.28, ease: [0.16, 1, 0.3, 1] };
+  const t = reduce ? { duration: 0 } : { type: "spring", stiffness: 340, damping: 32, mass: 0.9 };
+  const tExit = reduce ? { duration: 0 } : { duration: 0.2, ease: [0.4, 0, 1, 1] };
 
   return createPortal(
     <AnimatePresence>
@@ -120,7 +121,7 @@ export default function Modal({
         >
           <motion.div
             aria-hidden="true"
-            className="absolute inset-0 bg-[#0b1226]/60 backdrop-blur-md"
+            className="absolute inset-0 bg-gradient-to-b from-[#0b1226]/60 to-[#101a3a]/75 backdrop-blur-md"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -135,11 +136,10 @@ export default function Modal({
             aria-labelledby={labelledBy}
             aria-label={labelledBy ? undefined : ariaLabel || "Dialog"}
             tabIndex={-1}
-            initial={reduce ? false : { opacity: 0, y: 56, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={reduce ? { opacity: 0 } : { opacity: 0, y: 40, scale: 0.98 }}
-            transition={t}
-            className={`relative flex max-h-[92dvh] w-full ${maxWidthClassName} flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl outline-none sm:max-h-[88vh] sm:rounded-2xl`}
+            initial={reduce ? false : { opacity: 0, y: 72, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: t }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, y: 48, scale: 0.98, transition: tExit }}
+            className={`relative flex max-h-[92dvh] w-full ${maxWidthClassName} flex-col overflow-hidden rounded-t-[2rem] bg-white shadow-[0_-8px_40px_-8px_rgba(16,26,58,0.4)] ring-1 ring-black/5 outline-none sm:max-h-[88vh] sm:rounded-[2rem] sm:shadow-[0_40px_80px_-20px_rgba(16,26,58,0.55)]`}
           >
             {showClose && (
               <button

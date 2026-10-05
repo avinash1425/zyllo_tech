@@ -7,9 +7,12 @@ import {
   AlertCircle,
   ArrowRight,
   Briefcase,
+  FileSearch,
+  Handshake,
   Loader2,
   Mail,
   MessageSquare,
+  MessagesSquare,
   Phone,
   Send,
   User,
@@ -47,33 +50,38 @@ function validateFile(file) {
 }
 
 const inputBase =
-  "w-full rounded-xl border bg-white py-2.5 pl-10 pr-4 text-sm text-[#2b303b] placeholder:text-[#676b7a]/70 outline-none transition-all duration-200 focus:border-[#f7941e] focus:ring-4 focus:ring-[#f7941e]/15";
+  "peer min-h-14 w-full rounded-2xl border bg-white pb-2 pl-11 pr-4 pt-6 text-[15px] text-[#1b2030] placeholder-transparent shadow-sm outline-none transition-all duration-200 hover:border-[#1f4693]/30 focus:border-[#f7941e] focus:ring-4 focus:ring-[#f7941e]/15";
 
+// Floating-label field: the <input>/<textarea> child must use `inputBase`
+// (it is the `peer`) and carry placeholder=" " so the label can float.
 function Field({ id, label, required, icon: Icon, error, hint, children }) {
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block text-sm font-semibold text-[#2b303b]">
-        {label}
-        {required ? (
-          <span className="ml-0.5 text-[#c2410c]" aria-hidden="true">
-            *
-          </span>
-        ) : (
-          <span className="ml-1.5 text-xs font-normal text-[#676b7a]">(optional)</span>
-        )}
-      </label>
       <div className="relative">
+        {children}
         {Icon && (
           <Icon
-            className="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-[#676b7a]"
+            className="pointer-events-none absolute left-4 top-[1.0625rem] h-[1.125rem] w-[1.125rem] text-[#3089a6] transition-colors peer-focus:text-[#f96706]"
             aria-hidden="true"
           />
         )}
-        {children}
+        <label
+          htmlFor={id}
+          className="pointer-events-none absolute left-11 top-[1.0625rem] origin-left text-sm text-[#676b7a] transition-all duration-200 peer-focus:top-2 peer-focus:text-[11px] peer-focus:font-semibold peer-focus:text-[#f96706] peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:text-[11px] peer-not-placeholder-shown:font-semibold"
+        >
+          {label}
+          {required ? (
+            <span className="ml-0.5 text-[#c2410c]" aria-hidden="true">
+              *
+            </span>
+          ) : (
+            <span className="ml-1 font-normal opacity-70">(optional)</span>
+          )}
+        </label>
       </div>
       {hint && !error && <p className="mt-1 text-xs text-[#676b7a]">{hint}</p>}
       {error && (
-        <p id={`${id}-error`} role="alert" className="mt-1 text-xs font-medium text-red-600">
+        <p id={`${id}-error`} role="alert" className="mt-1.5 text-xs font-medium text-red-600">
           {error}
         </p>
       )}
@@ -81,54 +89,73 @@ function Field({ id, label, required, icon: Icon, error, hint, children }) {
   );
 }
 
+const NEXT_STEPS = [
+  { icon: FileSearch, title: "Review", text: "Our team reviews your application and resume." },
+  { icon: MessagesSquare, title: "Interview", text: "If your profile is a good fit, we will get in touch to talk further." },
+  { icon: Handshake, title: "Offer", text: "Shortlisted candidates move on to a final decision." },
+];
+
 function SuccessState({ jobTitle, variant, onClose, onViewOthers }) {
   const reduce = useReducedMotion();
   const isModal = variant === "modal";
 
   const body = (
-    <div className="flex flex-col items-center px-5 py-10 text-center sm:px-8">
+    <div className="relative flex flex-col items-center px-5 py-10 text-center sm:px-8">
+      <span aria-hidden="true" className="pointer-events-none absolute left-1/2 top-4 h-40 w-40 -translate-x-1/2 rounded-full bg-[#3089a6]/15 blur-3xl" />
       <motion.span
-        initial={reduce ? false : { scale: 0.6, opacity: 0 }}
+        initial={reduce ? false : { scale: 0.5, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", stiffness: 260, damping: 18 }}
-        className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#16a34a] to-[#3089a6] shadow-lg shadow-[#16a34a]/30"
+        className="relative flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-[#16a34a] to-[#3089a6] shadow-xl shadow-[#16a34a]/25 ring-8 ring-[#3089a6]/10"
       >
-        <svg viewBox="0 0 24 24" className="h-10 w-10" fill="none" aria-hidden="true">
+        <svg viewBox="0 0 24 24" className="h-12 w-12" fill="none" aria-hidden="true">
           <motion.path
             d="M5 12.5l4.5 4.5L19 7.5"
             stroke="#fff"
-            strokeWidth="2.6"
+            strokeWidth="2.4"
             strokeLinecap="round"
             strokeLinejoin="round"
             initial={reduce ? false : { pathLength: 0 }}
             animate={{ pathLength: 1 }}
-            transition={{ delay: 0.15, duration: 0.45, ease: "easeOut" }}
+            transition={{ delay: 0.2, duration: 0.5, ease: "easeOut" }}
           />
         </svg>
       </motion.span>
 
-      <h3 className="mt-6 text-xl font-bold text-[#2b303b] sm:text-2xl">
+      <h3 className="relative mt-7 text-2xl font-bold tracking-tight text-[#1b2030]">
         We have received your application
       </h3>
-      <p className="mt-2 max-w-md text-sm leading-relaxed text-[#676b7a]">
-        Thank you for applying for the <span className="font-semibold text-[#2b303b]">{jobTitle}</span>{" "}
-        role.
+      <p className="relative mt-2 max-w-md text-sm leading-relaxed text-[#676b7a]">
+        Thank you for applying for the <span className="font-semibold text-[#1b2030]">{jobTitle}</span> role.
+        Here is what happens next.
       </p>
 
-      <ol className="mt-6 w-full max-w-md space-y-3 text-left text-sm text-[#676b7a]">
-        {[
-          "Our team reviews every application and your resume.",
-          "If your profile is a good fit, we will reach out by email or phone.",
-          "Keep an eye on your inbox, including the spam folder.",
-        ].map((step, i) => (
-          <li key={step} className="flex items-start gap-3">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1f4693]/10 text-xs font-bold text-[#1f4693]">
-              {i + 1}
+      <ol className="relative mt-8 w-full max-w-md text-left">
+        {NEXT_STEPS.map(({ icon: Icon, title, text }, i) => (
+          <motion.li
+            key={title}
+            initial={reduce ? false : { opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.35 + i * 0.12, duration: 0.4 }}
+            className="relative flex gap-4 pb-6 last:pb-0"
+          >
+            {i < NEXT_STEPS.length - 1 && (
+              <span aria-hidden="true" className="absolute left-[1.3125rem] top-11 h-[calc(100%-2.5rem)] w-0.5 bg-gradient-to-b from-[#3089a6]/50 to-[#f7941e]/30" />
+            )}
+            <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-[#1f4693] shadow-md ring-1 ring-[#e7e9ee]">
+              <Icon className="h-5 w-5" aria-hidden="true" />
             </span>
-            <span className="pt-0.5">{step}</span>
-          </li>
+            <div className="pt-0.5">
+              <p className="text-sm font-bold text-[#1b2030]">
+                <span className="mr-1.5 text-[#f96706]">{i + 1}.</span>
+                {title}
+              </p>
+              <p className="mt-0.5 text-sm leading-relaxed text-[#676b7a]">{text}</p>
+            </div>
+          </motion.li>
         ))}
       </ol>
+      <p className="relative mt-6 text-xs text-[#676b7a]">Keep an eye on your inbox, including the spam folder.</p>
     </div>
   );
 
@@ -138,7 +165,7 @@ function SuccessState({ jobTitle, variant, onClose, onViewOthers }) {
         <button
           type="button"
           onClick={onClose}
-          className="inline-flex flex-1 items-center justify-center rounded-full border border-[#e7e9ee] bg-white px-6 py-3 text-sm font-semibold text-[#2b303b] transition-colors hover:border-[#1f4693]/40 hover:text-[#1f4693] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#1f4693]/20 sm:flex-none"
+          className="inline-flex flex-1 items-center justify-center rounded-full border border-[#e7e9ee] bg-white px-6 py-3.5 text-sm font-semibold text-[#2b303b] transition-colors hover:border-[#1f4693]/40 hover:text-[#1f4693] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#1f4693]/20 sm:flex-none"
         >
           Close
         </button>
@@ -147,7 +174,7 @@ function SuccessState({ jobTitle, variant, onClose, onViewOthers }) {
         <button
           type="button"
           onClick={onViewOthers}
-          className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#f7941e] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#f7941e]/30 transition-colors hover:bg-[#db7d17] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/40 sm:flex-none"
+          className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#f96706] to-[#f7941e] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#f7941e]/30 transition-all hover:brightness-105 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/40 sm:flex-none"
         >
           View other roles
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -155,7 +182,7 @@ function SuccessState({ jobTitle, variant, onClose, onViewOthers }) {
       ) : (
         <Link
           href="/careers"
-          className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#f7941e] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#f7941e]/30 transition-colors hover:bg-[#db7d17] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/40 sm:flex-none"
+          className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#f96706] to-[#f7941e] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#f7941e]/30 transition-all hover:brightness-105 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/40 sm:flex-none"
         >
           View other roles
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -168,7 +195,7 @@ function SuccessState({ jobTitle, variant, onClose, onViewOthers }) {
     return (
       <div role="status" className="flex min-h-0 flex-1 flex-col">
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{body}</div>
-        <div className="flex shrink-0 gap-3 border-t border-[#e7e9ee] bg-white px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:justify-end sm:px-8">
+        <div className="flex shrink-0 gap-3 border-t border-[#e7e9ee] bg-white/95 px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur sm:justify-end sm:px-8">
           {buttons}
         </div>
       </div>
@@ -178,12 +205,9 @@ function SuccessState({ jobTitle, variant, onClose, onViewOthers }) {
   return (
     <div
       role="status"
-      className="relative overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-lg shadow-[#1f4693]/5"
+      className="relative overflow-hidden rounded-3xl border border-[#e7e9ee] bg-white shadow-xl shadow-[#1f4693]/10"
     >
-      <span
-        aria-hidden="true"
-        className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#f96706] via-[#ffb15c] to-[#3089a6]"
-      />
+      <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#f96706] via-[#ffb15c] to-[#3089a6]" />
       {body}
       <div className="flex gap-3 border-t border-[#e7e9ee] px-5 py-4 sm:justify-center sm:px-8">{buttons}</div>
     </div>
@@ -246,8 +270,10 @@ export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, 
     }
   }
 
+  const border = (name) => (errors[name] ? "border-red-400" : "border-[#d5d9e2]");
+
   const fields = (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <Field id="fullName" label="Full name" required icon={User} error={errors.fullName}>
         <input
           id="fullName"
@@ -255,12 +281,12 @@ export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, 
           type="text"
           autoComplete="name"
           required
-          placeholder="Your full name"
+          placeholder=" "
           aria-invalid={errors.fullName ? true : undefined}
           aria-describedby={errors.fullName ? "fullName-error" : undefined}
           onBlur={handleBlur}
           onInput={handleInput}
-          className={`${inputBase} ${errors.fullName ? "border-red-400" : "border-[#d5d9e2]"}`}
+          className={`${inputBase} ${border("fullName")}`}
         />
       </Field>
 
@@ -271,12 +297,12 @@ export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, 
           type="email"
           autoComplete="email"
           required
-          placeholder="you@example.com"
+          placeholder=" "
           aria-invalid={errors.email ? true : undefined}
           aria-describedby={errors.email ? "email-error" : undefined}
           onBlur={handleBlur}
           onInput={handleInput}
-          className={`${inputBase} ${errors.email ? "border-red-400" : "border-[#d5d9e2]"}`}
+          className={`${inputBase} ${border("email")}`}
         />
       </Field>
 
@@ -286,7 +312,7 @@ export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, 
           name="phone"
           type="tel"
           autoComplete="tel"
-          placeholder="+91 00000 00000"
+          placeholder=" "
           className={`${inputBase} border-[#d5d9e2]`}
         />
       </Field>
@@ -301,17 +327,17 @@ export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, 
           max="60"
           step="1"
           required
-          placeholder="e.g. 4"
+          placeholder=" "
           aria-invalid={errors.experienceYears ? true : undefined}
           aria-describedby={errors.experienceYears ? "experienceYears-error" : undefined}
           onBlur={handleBlur}
           onInput={handleInput}
-          className={`${inputBase} ${errors.experienceYears ? "border-red-400" : "border-[#d5d9e2]"}`}
+          className={`${inputBase} ${border("experienceYears")}`}
         />
       </Field>
 
       <div className="sm:col-span-2">
-        <span className="mb-1.5 block text-sm font-semibold text-[#2b303b]">
+        <span className="mb-2 block text-sm font-semibold text-[#1b2030]">
           Resume (PDF)
           <span className="ml-0.5 text-[#c2410c]" aria-hidden="true">
             *
@@ -332,7 +358,7 @@ export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, 
             id="coverNote"
             name="coverNote"
             rows={4}
-            placeholder="Tell us a bit about your experience and why this role interests you..."
+            placeholder=" "
             className={`${inputBase} resize-none border-[#d5d9e2]`}
           />
         </Field>
@@ -343,7 +369,7 @@ export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, 
   const errorBanner = state.status === "error" && (
     <div
       role="alert"
-      className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700"
+      className="flex items-start gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700"
     >
       <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
       {state.message}
@@ -355,7 +381,7 @@ export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, 
       type="submit"
       disabled={isPending}
       aria-busy={isPending}
-      className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#f7941e] px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#f7941e]/30 transition-all duration-200 hover:bg-[#db7d17] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/40 disabled:cursor-not-allowed disabled:opacity-70 sm:flex-none"
+      className="group/submit inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#f96706] via-[#f7941e] to-[#ffb15c] px-8 py-4 text-sm font-bold text-white shadow-lg shadow-[#f7941e]/30 transition-all duration-200 hover:shadow-xl hover:brightness-105 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/40 disabled:cursor-not-allowed disabled:opacity-70 sm:flex-none"
     >
       {isPending ? (
         <>
@@ -364,7 +390,7 @@ export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, 
         </>
       ) : (
         <>
-          <Send className="h-4 w-4" aria-hidden="true" />
+          <Send className="h-4 w-4 transition-transform duration-200 group-hover/submit:translate-x-0.5 group-hover/submit:-translate-y-0.5" aria-hidden="true" />
           Submit Application
         </>
       )}
@@ -381,19 +407,19 @@ export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, 
         className="flex min-h-0 flex-1 flex-col"
       >
         <input type="hidden" name="jobId" value={jobId} />
-        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-5 py-6 sm:px-8">
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain bg-[#fafbfc] px-5 py-6 sm:px-8">
           <p className="text-xs text-[#676b7a]">
             Fields marked <span className="text-[#c2410c]">*</span> are required.
           </p>
           {fields}
           {errorBanner}
         </div>
-        <div className="flex shrink-0 items-center gap-3 border-t border-[#e7e9ee] bg-white px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:justify-end sm:px-8">
+        <div className="flex shrink-0 items-center gap-3 border-t border-[#e7e9ee] bg-white/95 px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-12px_24px_-16px_rgba(16,26,58,0.18)] backdrop-blur sm:justify-end sm:px-8">
           {onClose && (
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex items-center justify-center rounded-full border border-[#e7e9ee] bg-white px-5 py-3 text-sm font-semibold text-[#2b303b] transition-colors hover:border-[#1f4693]/40 hover:text-[#1f4693] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#1f4693]/20"
+              className="inline-flex items-center justify-center rounded-full border border-[#e7e9ee] bg-white px-6 py-3.5 text-sm font-semibold text-[#2b303b] transition-colors hover:border-[#1f4693]/40 hover:text-[#1f4693] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#1f4693]/20"
             >
               Cancel
             </button>
@@ -405,12 +431,9 @@ export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, 
   }
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white p-6 shadow-lg shadow-[#1f4693]/5 sm:p-8">
-      <span
-        aria-hidden="true"
-        className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#f96706] via-[#ffb15c] to-[#3089a6]"
-      />
-      <h2 className="text-xl font-bold tracking-tight text-[#2b303b]">Apply for this role</h2>
+    <div className="relative overflow-hidden rounded-3xl border border-[#e7e9ee] bg-white p-6 shadow-[0_24px_48px_-20px_rgba(31,70,147,0.22)] sm:p-8">
+      <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#f96706] via-[#ffb15c] to-[#3089a6]" />
+      <h2 className="text-2xl font-bold tracking-tight text-[#1b2030]">Apply for this role</h2>
       <p className="mt-1 text-xs text-[#676b7a]">
         Fields marked <span className="text-[#c2410c]">*</span> are required.
       </p>

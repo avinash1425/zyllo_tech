@@ -1,6 +1,7 @@
 import Seo from "@/components/Seo";
 import PageHero from "@/components/PageHero";
 import ContactForm from "@/sections/ContactForm";
+import OfficeLocation from "@/sections/OfficeLocation";
 import WhyWorkWithUs from "@/sections/WhyWorkWithUs";
 import Reveal from "@/components/Reveal";
 
@@ -22,6 +23,9 @@ export default function ContactPage() {
       />
       <Reveal>
         <ContactForm />
+      </Reveal>
+      <Reveal>
+        <OfficeLocation />
       </Reveal>
       <Reveal>
         <WhyWorkWithUs />

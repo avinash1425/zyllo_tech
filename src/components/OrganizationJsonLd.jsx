@@ -1,10 +1,9 @@
 import { Helmet } from "react-helmet-async";
 import { SITE_URL, SITE_NAME, LEGAL_NAME, OG_IMAGE_PATH } from "@/lib/site-config";
 
-// Minimal, honest Organization schema — no fabricated address or social
-// profile links. Add "sameAs" (real LinkedIn/X/etc. URLs) and "address"
-// (registered office) once those are confirmed; guessing either would be
-// actively wrong structured data, worse than omitting them.
+// Organization schema with the office address from the company signboard.
+// Add "sameAs" (real LinkedIn/X/etc. URLs) once confirmed; guessing would be
+// worse than omitting it.
 export default function OrganizationJsonLd() {
   const data = {
     "@context": "https://schema.org",
@@ -13,6 +12,16 @@ export default function OrganizationJsonLd() {
     legalName: LEGAL_NAME,
     url: SITE_URL,
     logo: `${SITE_URL}${OG_IMAGE_PATH}`,
+    email: "info@zyllotech.com",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress:
+        "R V Plaza, Door No. 134-77/1, 3rd Floor, Gayathri Nagar, Phase-2, Mahatma Gandhi Inner Ring Road",
+      addressLocality: "Guntur",
+      addressRegion: "Andhra Pradesh",
+      postalCode: "522034",
+      addressCountry: "IN",
+    },
   };
 
   return (

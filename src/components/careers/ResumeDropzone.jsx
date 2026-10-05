@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FileText, UploadCloud, X } from "lucide-react";
+import { CheckCircle2, FileText, UploadCloud, X } from "lucide-react";
 
 export function formatBytes(bytes) {
   if (bytes < 1024) return `${bytes} B`;
@@ -44,19 +44,20 @@ export default function ResumeDropzone({ inputRef, file, error, onChange, onRemo
       />
 
       {file ? (
-        <div className="flex items-center gap-3 rounded-xl border border-[#e7e9ee] bg-[#fafbfc] p-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#f7941e]/10 text-[#b3560a]">
-            <FileText className="h-5 w-5" aria-hidden="true" />
+        <div className="flex items-center gap-3 rounded-2xl border border-[#3089a6]/30 bg-gradient-to-r from-[#3089a6]/[0.07] to-[#f7941e]/[0.05] p-3.5">
+          <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-[#f96706] shadow-sm ring-1 ring-[#e7e9ee]">
+            <FileText className="h-6 w-6" aria-hidden="true" />
+            <CheckCircle2 className="absolute -bottom-1.5 -right-1.5 h-5 w-5 rounded-full bg-white text-[#16a34a]" aria-hidden="true" />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-[#2b303b]">{file.name}</p>
-            <p className="text-xs text-[#676b7a]">{formatBytes(file.size)}</p>
+            <p className="truncate text-sm font-semibold text-[#1b2030]">{file.name}</p>
+            <p className="text-xs text-[#676b7a]">{formatBytes(file.size)} &middot; ready to upload</p>
           </div>
           <button
             type="button"
             onClick={onRemove}
             aria-label={`Remove ${file.name}`}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#676b7a] transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/30"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[#676b7a] transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/30"
           >
             <X className="h-4 w-4" aria-hidden="true" />
           </button>
@@ -70,25 +71,29 @@ export default function ResumeDropzone({ inputRef, file, error, onChange, onRemo
           }}
           onDragLeave={() => setDragging(false)}
           onDrop={handleDrop}
-          className={`flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed px-4 py-7 text-center transition-colors peer-focus-visible:ring-4 peer-focus-visible:ring-[#f7941e]/30 ${
+          className={`group/drop flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 text-center transition-all duration-200 peer-focus-visible:ring-4 peer-focus-visible:ring-[#f7941e]/30 ${
             error
               ? "border-red-300 bg-red-50/40"
               : dragging
-                ? "border-[#f7941e] bg-[#f7941e]/10"
-                : "border-[#d5d9e2] bg-[#fafbfc] hover:border-[#f7941e]/60 hover:bg-[#f7941e]/5"
+                ? "scale-[1.01] border-[#f96706] bg-[#f7941e]/10"
+                : "border-[#f7941e]/40 bg-gradient-to-b from-[#fffaf3] to-white hover:border-[#f96706] hover:bg-[#f7941e]/5"
           }`}
         >
-          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#1f4693] shadow-sm ring-1 ring-[#e7e9ee]">
-            <UploadCloud className="h-5 w-5" aria-hidden="true" />
+          <span
+            className={`flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg shadow-[#f7941e]/30 transition-transform duration-200 group-hover/drop:-translate-y-0.5 group-hover/drop:scale-105 ${
+              dragging ? "-translate-y-1 scale-110" : ""
+            } bg-gradient-to-br from-[#f96706] to-[#f7941e]`}
+          >
+            <UploadCloud className="h-7 w-7" aria-hidden="true" />
           </span>
-          <span className="text-sm font-semibold text-[#2b303b]">
-            Drag &amp; drop your resume, or{" "}
-            <span className="text-[#1f4693] underline">browse</span>
+          <span className="text-sm font-semibold text-[#1b2030]">
+            {dragging ? "Drop your resume here" : "Drag & drop your resume, or "}
+            {!dragging && <span className="text-[#1f4693] underline underline-offset-2">browse</span>}
           </span>
         </label>
       )}
 
-      <p id="resume-hint" className="mt-1.5 text-xs text-[#676b7a]">
+      <p id="resume-hint" className="mt-2 text-xs text-[#676b7a]">
         PDF only, max 5 MB.
       </p>
       {error && (

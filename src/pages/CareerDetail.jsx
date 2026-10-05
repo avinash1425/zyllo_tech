@@ -4,6 +4,7 @@ import PageHero from "@/components/PageHero";
 import { supabase } from "@/lib/supabase/client";
 import { useAsync } from "@/lib/use-async";
 import ApplyForm from "@/components/ApplyForm";
+import DescriptionBody from "@/components/careers/DescriptionBody";
 import Seo from "@/components/Seo";
 import JobPostingJsonLd from "@/components/JobPostingJsonLd";
 import NotFoundView from "@/components/NotFoundView";
@@ -62,13 +63,13 @@ export default function CareerDetail() {
       <section className="bg-[#fafbfc] py-10 lg:py-14">
         <div className="mx-auto max-w-3xl px-6 lg:px-8">
           {job.description && (
-            <div className="mb-10 rounded-2xl border border-[#e7e9ee] bg-white p-6 shadow-sm sm:p-8">
-              <h2 className="text-xl font-bold tracking-tight text-[#2b303b]">
+            <div className="relative mb-10 overflow-hidden rounded-3xl border border-[#e7e9ee] bg-white p-6 shadow-[0_24px_48px_-24px_rgba(31,70,147,0.2)] sm:p-8">
+              <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#f96706] via-[#ffb15c] to-[#3089a6]" />
+              <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.16em] text-[#1b2030]">
+                <span aria-hidden="true" className="h-1.5 w-5 rounded-full bg-gradient-to-r from-[#f96706] to-[#ffb15c]" />
                 About this role
               </h2>
-              <p className="mt-3 whitespace-pre-line leading-relaxed text-[#676b7a]">
-                {job.description}
-              </p>
+              <DescriptionBody text={job.description} className="mt-4" />
             </div>
           )}
 
