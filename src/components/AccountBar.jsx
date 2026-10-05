@@ -50,7 +50,7 @@ export default function AccountBar({ mobile = false, onNavigate }) {
     return (
       <Link
         href="/login"
-        className="inline-flex items-center gap-1.5 rounded-full border border-[#f96706]/30 bg-white px-3.5 py-1 text-[#f96706] shadow-[0_1px_2px_rgba(0,0,0,0.06)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-transparent hover:bg-gradient-to-r hover:from-[#f96706] hover:to-[#3089a6] hover:text-white hover:shadow-md hover:shadow-[#f96706]/20"
+        className="inline-flex items-center rounded-full bg-gradient-to-r from-[#f96706] to-[#f7941e] px-3 py-[3px] text-[12px] font-semibold leading-5 text-white shadow-[0_1px_4px_rgba(249,103,6,0.3)] transition-all duration-200 ease-out hover:to-[#3089a6] hover:shadow-md hover:shadow-[#f96706]/25"
       >
         Login
       </Link>
@@ -63,7 +63,7 @@ export default function AccountBar({ mobile = false, onNavigate }) {
   }
 
   return (
-    <div className={mobile ? "flex flex-wrap items-center gap-x-5 gap-y-1 [&>*]:min-h-11" : "flex items-center gap-5"}>
+    <div className={mobile ? "flex flex-wrap items-center gap-x-5 gap-y-1 [&>*]:min-h-11" : "flex items-center gap-4"}>
       {isAdmin && (
         <Link href="/admin" className={itemClass} onClick={onNavigate}>
           <ShieldCheck className="h-4 w-4" aria-hidden="true" />

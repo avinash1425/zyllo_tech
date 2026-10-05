@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { ArrowRight, Mail, MapPin, MessageCircle, Phone, ShieldCheck } from "lucide-react";
 import { CONTACT_INFO } from "@/data/contact-info";
 
 const METHODS = [
@@ -53,6 +53,15 @@ export default function ContactMethods() {
           );
         })}
       </ul>
+      <p className="mx-auto mt-4 flex max-w-6xl items-center justify-center gap-2 text-center text-sm text-[#4a5668]">
+        <ShieldCheck className="h-4 w-4 shrink-0 text-[#1f7f4d]" aria-hidden="true" />
+        <span>
+          GST registered &middot;{" "}
+          <a href="#company-details" className="font-mono font-semibold tracking-wider text-[#173a52] underline-offset-4 hover:text-[#c9580d] hover:underline">
+            GSTIN {CONTACT_INFO.gstin}
+          </a>
+        </span>
+      </p>
     </section>
   );
 }

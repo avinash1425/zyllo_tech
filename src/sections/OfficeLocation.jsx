@@ -1,5 +1,49 @@
-import { ExternalLink, Globe, MapPin, Navigation } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Check, Copy, ExternalLink, Globe, MapPin, Navigation, ShieldCheck } from "lucide-react";
 import { CONTACT_INFO, DIRECTIONS_URL, MAP_EMBED_URL, MAP_OPEN_URL } from "@/data/contact-info";
+
+function CopyGstin({ value }) {
+  const [copied, setCopied] = useState(false);
+  const timer = useRef(null);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  async function copy() {
+    let ok = false;
+    try {
+      await navigator.clipboard.writeText(value);
+      ok = true;
+    } catch {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = value;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+      } catch {
+        ok = false;
+      }
+    }
+    if (ok) {
+      setCopied(true);
+      clearTimeout(timer.current);
+      timer.current = setTimeout(() => setCopied(false), 2000);
+    }
+  }
+  return (
+    <button
+      type="button"
+      onClick={copy}
+      className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-[#1f4693]/30 bg-white px-4 text-sm font-semibold text-[#1f4693] transition-colors hover:border-[#1f4693] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f4693]"
+    >
+      {copied ? <Check className="h-4 w-4 text-[#1f7f4d]" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
+      {copied ? "Copied" : "Copy"}
+      <span className="sr-only" role="status" aria-live="polite">{copied ? "GSTIN copied to clipboard" : ""}</span>
+    </button>
+  );
+}
 
 // The one place on /contact where the full postal address is printed.
 export default function OfficeLocation() {
@@ -35,7 +79,7 @@ export default function OfficeLocation() {
             <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#f96706] to-[#f7941e] text-white shadow-lg shadow-[#f96706]/25">
               <MapPin className="h-6 w-6" aria-hidden="true" />
             </span>
-            <h3 className="mt-5 break-words text-xl font-extrabold leading-snug text-[#173a52]">{CONTACT_INFO.legalName}</h3>
+            <h3 className="mt-5 text-xl font-extrabold leading-snug text-[#173a52]">Head office</h3>
             <address className="mt-3 text-base not-italic leading-[1.7] text-[#2b303b]">
               {CONTACT_INFO.addressLines.map((line) => (
                 <span key={line} className="block">
@@ -44,11 +88,27 @@ export default function OfficeLocation() {
               ))}
             </address>
 
-            <dl className="mt-5 space-y-2 border-t border-[#e2e5ea] pt-5 text-[15px] leading-relaxed">
-              <div className="flex flex-wrap gap-x-2">
-                <dt className="font-semibold text-[#173a52]">GSTIN:</dt>
-                <dd className="break-all text-[#2b303b]">{CONTACT_INFO.gstin}</dd>
+            <div
+              id="company-details"
+              className="mt-5 scroll-mt-28 rounded-xl border border-[#f96706]/25 bg-gradient-to-br from-[#fff7f0] to-white p-4 sm:p-5"
+            >
+              <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[#c9580d]">
+                <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+                Company details
+              </p>
+              <p className="mt-3 text-sm font-semibold uppercase tracking-wide text-[#4a5668]">Legal name</p>
+              <p className="break-words text-base font-bold leading-snug text-[#173a52]">{CONTACT_INFO.legalName}</p>
+              <p className="mt-4 text-sm font-semibold uppercase tracking-wide text-[#4a5668]">GSTIN (GST number)</p>
+              <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-2">
+                <p className="select-all break-all font-mono text-xl font-bold tracking-[0.12em] text-[#1d2735] sm:text-2xl">
+                  {CONTACT_INFO.gstin}
+                </p>
+                <CopyGstin value={CONTACT_INFO.gstin} />
               </div>
+              <p className="mt-3 text-sm text-[#4a5668]">Registered office: Guntur, Andhra Pradesh</p>
+            </div>
+
+            <dl className="mt-4 space-y-2 text-[15px] leading-relaxed">
               <div className="flex flex-wrap items-center gap-x-2">
                 <dt className="inline-flex items-center gap-1.5 font-semibold text-[#173a52]">
                   <Globe className="h-4 w-4 text-[#3089a6]" aria-hidden="true" />
