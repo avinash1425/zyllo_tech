@@ -1,0 +1,17 @@
+# Per-function JWT settings. Public functions must NOT require a JWT
+# (the browser calls them with the anon key only); admin functions keep
+# verify_jwt = true AND re-check public.is_admin() in code.
+[functions.ai-search]
+verify_jwt = false
+
+[functions.search]
+verify_jwt = false
+
+[functions.sitemap]
+verify_jwt = false
+
+[functions.seo-audit]
+verify_jwt = true
+
+[functions.search-console]
+verify_jwt = true

@@ -3,7 +3,7 @@
 // import from here instead of hardcoding these values in multiple places.
 //
 // SITE_URL is a PLACEHOLDER (see .env.local) until the real production
-// domain is confirmed. Update NEXT_PUBLIC_SITE_URL there and every SEO
+// domain is confirmed. Update VITE_SITE_URL there and every SEO
 // artifact (sitemap, robots.txt, canonical tags, OG links) picks it up
 // automatically — nothing else needs to change.
 export const SITE_URL = (

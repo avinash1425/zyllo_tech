@@ -1,5 +1,5 @@
-<!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
+# Zyllo Tech website — Vite + React (Lovable-compatible)
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
-<!-- END:nextjs-agent-rules -->
+This project was ported from Next.js. It is a browser-only React app (Vite, react-router, Tailwind v4).
+There is no server code: data access is supabase-js under Row Level Security, and server logic lives in
+Supabase Edge Functions (supabase/functions). Read CONVENTIONS_PORT.md and supabase/DEPLOY.md before editing.
