@@ -73,7 +73,36 @@ create table if not exists public.job_applications (
   created_at        timestamptz not null default now()
 );
 
+-- Bring a pre-existing (older) table up to the final shape. "create table if
+-- not exists" above is a no-op when the table already exists, so every column
+-- added by later migrations is added explicitly here (no-op if present).
+alter table public.job_postings     add column if not exists total_openings integer not null default 1;
+alter table public.job_postings     add column if not exists updated_at timestamptz not null default now();
+alter table public.job_applications add column if not exists experience_years integer;
+alter table public.job_applications add column if not exists prospect_rating integer;
+alter table public.job_applications add column if not exists status text not null default 'new';
+alter table public.job_applications add column if not exists cover_note text;
+
+-- Old pipeline values (migration 007): applied -> new, selected -> hired.
+-- Must run BEFORE the new check constraint or existing rows would violate it.
 alter table public.job_applications drop constraint if exists job_applications_status_check;
+update public.job_applications set status = 'new'   where status = 'applied';
+update public.job_applications set status = 'hired' where status = 'selected';
+alter table public.job_applications alter column status set default 'new';
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+     where conrelid = 'public.job_applications'::regclass
+       and conname = 'job_applications_prospect_rating_check'
+  ) then
+    alter table public.job_applications
+      add constraint job_applications_prospect_rating_check
+      check (prospect_rating between 1 and 5);
+  end if;
+end $$;
+
 alter table public.job_applications
   add constraint job_applications_status_check
   check (status in ('new', 'reviewed', 'shortlisted', 'interview', 'offer', 'hired', 'rejected'));

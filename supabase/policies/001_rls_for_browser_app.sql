@@ -8,8 +8,9 @@
 -- (anon) key, so RLS is now the ONLY access control. Everything here is
 -- deny-by-default; each policy below opens exactly one door.
 --
--- PRE-REQUISITE: migrations/001..011 already applied (tables exist) and
--- supabase-blog-posts-migration.sql + supabase-blog-views-migration.sql.
+-- PRE-REQUISITE: supabase/schema/000_full_schema.sql has been run FIRST
+-- (it creates/upgrades every table, including job_application_views, which
+-- older databases may be missing; this file fails without it).
 -- This file only ADDS policies/functions; it is idempotent (safe to
 -- re-run). It creates NO data except an empty public.admin_users table.
 --
