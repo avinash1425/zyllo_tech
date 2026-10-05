@@ -23,14 +23,14 @@ import { updateSubmissionStatus, deleteSubmission } from "@/lib/api/admin/contac
 
 const STATUS_LABELS = {
   new: "New",
-  contacted: "Contacted",
+  contacted: "bg-[#3089a6]/10 text-[#216478]",
   closed: "Closed",
 };
 
 const STATUS_STYLES = {
-  new: "bg-[#f7941e]/10 text-[#f7941e]",
-  contacted: "bg-[#1f4693]/10 text-[#1f4693]",
-  closed: "bg-[#3b6d11]/10 text-[#3b6d11]",
+  new: "bg-[#1f4693]/10 text-[#1f4693]",
+  contacted: "bg-[#3089a6]/10 text-[#216478]",
+  closed: "bg-[#3089a6]/10 text-[#216478]",
 };
 
 // Forward-only workflow: New -> Contacted -> Closed. Each status's dropdown
@@ -100,7 +100,7 @@ export default function ContactsManager({ initialSubmissions }) {
     { key: "total", icon: Inbox, label: "Total Submissions", value: totalCount, accent: "#1f4693" },
     { key: "new", icon: CircleDot, label: "New", value: newCount, accent: "#f7941e" },
     { key: "contacted", icon: MessageCircle, label: "Contacted", value: contactedCount, accent: "#1f4693" },
-    { key: "closed", icon: CheckCircle2, label: "Closed", value: closedCount, accent: "#3b6d11" },
+    { key: "closed", icon: CheckCircle2, label: "Closed", value: closedCount, accent: "#3089a6" },
   ];
 
   async function handleExportExcel() {
@@ -314,7 +314,7 @@ export default function ContactsManager({ initialSubmissions }) {
             type="button"
             onClick={handleExportExcel}
             disabled={isExporting}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#e7e9ee] bg-white px-3.5 py-2 text-sm font-medium text-[#2b303b] transition-colors hover:border-[#3b6d11]/40 hover:text-[#3b6d11] disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#e7e9ee] bg-white px-3.5 py-2 text-sm font-medium text-[#2b303b] transition-colors hover:border-[#3089a6]/40 hover:text-[#3089a6] disabled:opacity-50"
           >
             <FileSpreadsheet className="h-4 w-4" aria-hidden="true" />
             {isExporting ? "Exporting…" : "Export Excel"}

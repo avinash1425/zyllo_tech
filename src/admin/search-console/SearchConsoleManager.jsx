@@ -48,7 +48,7 @@ const STAT_CARDS = [
     key: "impressions",
     label: "Total impressions",
     icon: Eye,
-    accent: "#7c3aed",
+    accent: "#173a52",
     delta: "-2.1%",
     deltaGood: false,
     format: (v) => v.toLocaleString(),
@@ -66,7 +66,7 @@ const STAT_CARDS = [
     key: "avgPosition",
     label: "Average position",
     icon: ListOrdered,
-    accent: "#3b6d11",
+    accent: "#3089a6",
     delta: "+1.8",
     deltaGood: true,
     format: (v) => v.toFixed(1),
@@ -86,7 +86,7 @@ const INSIGHT_TAGS = [
   },
   {
     label: "Position",
-    color: "#3b6d11",
+    color: "#3089a6",
     text: "Average position sits outside page 1 for most tracked queries — internal linking from high-authority pages (homepage, services) can help.",
   },
 ];
@@ -301,7 +301,7 @@ export default function SearchConsoleManager({ performance, range, onReload }) {
       />
 
       {performance.isSampleData && (
-        <p className="-mt-2 rounded-lg border border-[#f7941e]/25 bg-[#fff7ed] px-3.5 py-2 text-xs leading-relaxed text-[#8a5a12]">
+        <p className="-mt-2 rounded-lg border border-[#f7941e]/25 bg-[#fff7ed] px-3.5 py-2 text-xs leading-relaxed text-[#a85a00]">
           Sample data — connect Google Search Console to show real search performance here. See the
           setup note in <code className="rounded bg-[#f7941e]/15 px-1 py-0.5">src/lib/api/admin/searchConsole.js</code>.
         </p>

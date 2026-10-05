@@ -55,10 +55,10 @@ export default function AdminOverviewPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <KpiCard icon={MessageSquare} label="Contact submissions" value={totals.contactsTotal} hint="All time" accent="#f7941e" href="/admin/contacts" />
         <KpiCard icon={Users} label="Job applicants" value={totals.applicantsTotal} hint="All time" accent="#1f4693" href="/admin/job-applications" />
-        <KpiCard icon={Briefcase} label="Open positions" value={totals.openPositions} hint={`${totals.totalPositions} total · ${plural(totals.totalOpenings, "opening", "openings")}`} accent="#3b6d11" href="/admin/careers" />
+        <KpiCard icon={Briefcase} label="Open positions" value={totals.openPositions} hint={`${totals.totalPositions} total · ${plural(totals.totalOpenings, "opening", "openings")}`} accent="#3089a6" href="/admin/careers" />
         <KpiCard icon={CalendarDays} label="Contacts this week" value={contactsThisWeek} hint="Last 7 days" series={contactSeries} accent="#d9650a" href="/admin/contacts" />
         <KpiCard icon={UserPlus} label="Applicants this week" value={applicantsThisWeek} hint="Last 7 days" series={applicantSeries} accent="#1f4693" href="/admin/job-applications" />
-        <KpiCard icon={UserCheck} label="Hired candidates" value={totals.selectedTotal} hint="Status: hired" accent="#0f8a84" href="/admin/job-applications" />
+        <KpiCard icon={UserCheck} label="Hired candidates" value={totals.selectedTotal} hint="Status: hired" accent="#3089a6" href="/admin/job-applications" />
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">

@@ -49,7 +49,7 @@ function FeatureChecklist({ features }) {
               {group.items.map((item) => (
                 <li key={item.label} className="flex items-start gap-2.5 text-sm">
                   <CheckCircle2
-                    className="mt-0.5 h-4 w-4 shrink-0 text-[#3b6d11]"
+                    className="mt-0.5 h-4 w-4 shrink-0 text-[#3089a6]"
                     aria-hidden="true"
                   />
                   <span>
@@ -100,10 +100,10 @@ export default function SeoAuditManager({ audit, features }) {
           </div>
         </div>
       ) : (
-        <div className="flex items-start gap-3 rounded-2xl border border-[#3b6d11]/25 bg-[#3b6d11]/5 p-4">
-          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#3b6d11]" aria-hidden="true" />
+        <div className="flex items-start gap-3 rounded-2xl border border-[#3089a6]/25 bg-[#3089a6]/5 p-4">
+          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#3089a6]" aria-hidden="true" />
           <div className="text-sm">
-            <p className="font-semibold text-[#2b6b11]">Real domain configured</p>
+            <p className="font-semibold text-[#216478]">Real domain configured</p>
             <p className="mt-1 text-[#2b303b]">
               <code className="rounded bg-white px-1.5 py-0.5 text-[13px]">VITE_SITE_URL</code> is
               set to <code className="rounded bg-white px-1.5 py-0.5 text-[13px]">{audit.siteUrl}</code>.
@@ -115,8 +115,8 @@ export default function SeoAuditManager({ audit, features }) {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatPill icon={Map} label="URLs in sitemap.xml" value={audit.sitemapUrlCount} accent="#1f4693" />
         <StatPill icon={ShieldCheck} label="Paths disallowed" value={audit.robotsDisallow.length} accent="#f7941e" />
-        <StatPill icon={Newspaper} label="Published blog posts" value={audit.publishedBlogPosts} accent="#7c3aed" />
-        <StatPill icon={Briefcase} label="Open job postings" value={audit.openJobPostings} accent="#3b6d11" />
+        <StatPill icon={Newspaper} label="Published blog posts" value={audit.publishedBlogPosts} accent="#173a52" />
+        <StatPill icon={Briefcase} label="Open job postings" value={audit.openJobPostings} accent="#3089a6" />
       </div>
 
       <div className="rounded-2xl border border-[#e7e9ee] bg-white p-5 shadow-sm">
@@ -125,7 +125,7 @@ export default function SeoAuditManager({ audit, features }) {
 
         <div className="mt-4 flex flex-col gap-2 text-sm">
           <div className="flex items-center gap-2">
-            <Globe className="h-4 w-4 text-[#3b6d11]" aria-hidden="true" />
+            <Globe className="h-4 w-4 text-[#3089a6]" aria-hidden="true" />
             <span className="text-[#2b303b]">Allow:</span>
             <code className="rounded bg-[#fafbfc] px-2 py-0.5 text-[#676b7a]">{audit.robotsAllow}</code>
           </div>

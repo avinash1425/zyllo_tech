@@ -102,7 +102,7 @@ export default function PortfolioManager({ initialProjects, onReload }) {
         <button
           type="button"
           onClick={openCreate}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#f7941e] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#db7d17]"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#f7941e] to-[#f96706] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:brightness-95"
         >
           <Plus className="h-4 w-4" aria-hidden="true" />
           New Featured Project
@@ -313,7 +313,7 @@ export default function PortfolioManager({ initialProjects, onReload }) {
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="rounded-lg bg-[#f7941e] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#db7d17] disabled:opacity-60"
+                  className="rounded-lg bg-gradient-to-r from-[#f7941e] to-[#f96706] px-4 py-2 text-sm font-semibold text-white transition-colors hover:brightness-95 disabled:opacity-60"
                 >
                   {isPending ? "Saving..." : editingProject ? "Save Changes" : "Create Project"}
                 </button>

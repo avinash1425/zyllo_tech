@@ -20,9 +20,9 @@ export default function SampleAnalytics({ traffic }) {
       </p>
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <GradientStatCard icon={Users} label="Total Visitors" value={traffic.visitors} accent="#1f4693" badgeLabel="Last 30 days" delta="+0.3%" note="vs prior period" sample />
-        <GradientStatCard icon={Eye} label="Page Views" value={traffic.pageViews} accent="#7c3aed" badgeLabel="Last 30 days" delta="-3.5%" deltaDirection="down" deltaGood={false} note={`vs prior period · ${traffic.pagesPerVisit} pages/visit`} sample />
+        <GradientStatCard icon={Eye} label="Page Views" value={traffic.pageViews} accent="#173a52" badgeLabel="Last 30 days" delta="-3.5%" deltaDirection="down" deltaGood={false} note={`vs prior period · ${traffic.pagesPerVisit} pages/visit`} sample />
         <GradientStatCard icon={MousePointerClick} label="Bounce Rate" value={traffic.bounceRate} accent="#f7941e" badgeLabel="Avg Rate" delta="+3.0%" deltaGood={false} note="vs prior period" sample />
-        <GradientStatCard icon={TrendingUp} label="Conversion Rate" value={traffic.conversionRate} accent="#3b6d11" badgeLabel="All Time" delta="+101.1%" note={`vs prior period · ${traffic.leadsTotal} leads`} sample />
+        <GradientStatCard icon={TrendingUp} label="Conversion Rate" value={traffic.conversionRate} accent="#3089a6" badgeLabel="All Time" delta="+101.1%" note={`vs prior period · ${traffic.leadsTotal} leads`} sample />
       </div>
       <div className="mt-4 min-w-0 rounded-2xl border border-[#e7e9ee] bg-white p-5">
         <h3 className="text-sm font-semibold text-[#2b303b]">Website traffic (sample)</h3>

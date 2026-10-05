@@ -80,8 +80,8 @@ export default function TrafficChart({ days = 30 }) {
                 <stop offset="100%" stopColor="#1f4693" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="pageViewsGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#7c3aed" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#7c3aed" stopOpacity={0} />
+                <stop offset="0%" stopColor="#f7941e" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#f7941e" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#e7e9ee" vertical={false} />
@@ -104,7 +104,7 @@ export default function TrafficChart({ days = 30 }) {
               type="monotone"
               dataKey="pageViews"
               name="Page Views"
-              stroke="#7c3aed"
+              stroke="#f7941e"
               strokeWidth={2.5}
               fill="url(#pageViewsGradient)"
             />
@@ -126,7 +126,7 @@ export default function TrafficChart({ days = 30 }) {
           Visitors
         </span>
         <span className="inline-flex items-center gap-1.5 text-xs text-[#676b7a]">
-          <span className="inline-block h-2 w-2 rounded-full bg-[#7c3aed]" aria-hidden="true" />
+          <span className="inline-block h-2 w-2 rounded-full bg-[#f7941e]" aria-hidden="true" />
           Page Views
         </span>
       </div>

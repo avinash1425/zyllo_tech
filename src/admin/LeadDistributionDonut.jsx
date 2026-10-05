@@ -3,7 +3,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 const COLORS = {
   "Contact Forms": "#1f4693",
-  "Job Applications": "#3b6d11",
+  "Job Applications": "#3089a6",
 };
 
 function renderOuterLabel({ cx, cy, midAngle, outerRadius, percent, name }) {

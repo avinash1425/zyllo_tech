@@ -13,7 +13,7 @@ const TOP_PAGES = [
   { title: "About Us", path: "/about", views: 2370 },
 ];
 
-const COLORS = ["#f7941e", "#1f4693", "#5b7fd4", "#db7d17", "#a4b3d6"];
+const COLORS = ["#1f4693", "#f7941e", "#3089a6", "#ffb15c", "#173a52"];
 
 function CustomTooltip({ active, payload }) {
   if (!active || !payload || payload.length === 0) return null;

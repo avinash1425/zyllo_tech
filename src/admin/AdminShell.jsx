@@ -171,13 +171,32 @@ export default function AdminShell({ children }) {
           <div className="absolute -bottom-20 -right-16 h-56 w-56 rounded-full bg-[#3089a6]/15 blur-[80px]" />
         </div>
 
-        <div className="relative flex items-center gap-3 px-4 pb-3 pt-4">
+        <div className="relative flex items-center gap-3 px-5 pb-5 pt-6">
           <Link
             href="/admin"
-            className="flex flex-1 items-center justify-center rounded-xl bg-white px-3 py-2 shadow-lg shadow-black/20 ring-1 ring-white/20"
+            className="flex flex-1 items-center gap-2.5"
             aria-label="Zyllo Tech admin home"
           >
-            <Image src="/zyllo-logo.png" alt="Zyllo Tech" width={140} height={28} className="h-9 w-auto" />
+            <Image
+              src="/zyllo-icon.png"
+              alt=""
+              width={500}
+              height={273}
+              className="h-9 w-auto drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]"
+            />
+            <span className="flex flex-col leading-none">
+              <span className="text-[1.35rem] font-extrabold uppercase tracking-tight">
+                <span className="bg-gradient-to-b from-[#ffd9a0] via-[#f96706] to-[#c24f05] bg-clip-text text-transparent">
+                  Zyllo
+                </span>{" "}
+                <span className="bg-gradient-to-b from-[#bfe6f2] via-[#3089a6] to-[#2b6f8a] bg-clip-text text-transparent">
+                  Tech
+                </span>
+              </span>
+              <span className="mt-1 text-[8.5px] font-semibold uppercase tracking-[0.12em] text-white/55">
+                Software Solutions Pvt Ltd
+              </span>
+            </span>
           </Link>
           <button
             type="button"
@@ -230,18 +249,7 @@ export default function AdminShell({ children }) {
         </nav>
 
         <div className="relative border-t border-white/10 p-3">
-          <Link
-            href="/"
-            className="flex items-center justify-between gap-2 rounded-xl border border-white/15 bg-white/[0.06] px-3 py-2 text-[13.5px] font-medium text-white/90 transition-colors duration-200 hover:border-[#f7941e]/60 hover:bg-white/10 hover:text-white"
-          >
-            <span className="flex items-center gap-3">
-              <Home className="h-[18px] w-[18px] shrink-0 text-[#ffb15c]" aria-hidden="true" />
-              Back to Website
-            </span>
-            <ExternalLink className="h-3.5 w-3.5 text-white/40" aria-hidden="true" />
-          </Link>
-
-          <div className="mt-2 flex items-center gap-2.5 rounded-xl px-2 py-1.5">
+          <div className="flex items-center gap-2.5 rounded-xl px-2 py-1.5">
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f7941e] to-[#3089a6] text-sm font-semibold text-white">
               {(user?.email?.[0] ?? "A").toUpperCase()}
             </span>

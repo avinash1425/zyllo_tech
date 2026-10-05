@@ -3,7 +3,7 @@ import { Activity, Briefcase, FileText } from "lucide-react";
 import { BarChart, Bar, XAxis, ResponsiveContainer, Tooltip } from "recharts";
 
 const TYPE_META = {
-  applicant: { label: "Job", icon: Briefcase, bg: "bg-[#3b6d11]", pill: "border-[#e7e9ee] text-[#2b303b]" },
+  applicant: { label: "Job", icon: Briefcase, bg: "bg-[#3089a6]", pill: "border-[#e7e9ee] text-[#2b303b]" },
   contact: { label: "Contact", icon: FileText, bg: "bg-[#1f4693]", pill: "border-[#e7e9ee] text-[#2b303b]" },
 };
 

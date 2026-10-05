@@ -91,7 +91,7 @@ export default function ApplicantsManager({ job, initialApplicants }) {
               <span
                 className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${
                   job.status === "open"
-                    ? "bg-[#3b6d11]/10 text-[#3b6d11]"
+                    ? "bg-[#3089a6]/10 text-[#216478]"
                     : "bg-[#676b7a]/10 text-[#676b7a]"
                 }`}
               >
@@ -255,7 +255,7 @@ export default function ApplicantsManager({ job, initialApplicants }) {
                       <a
                         href={viewing.resume_url}
                         download={resumeFileName(viewing)}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-[#f7941e] px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#db7d17]"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#f7941e] to-[#f96706] px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:brightness-95"
                       >
                         <Download className="h-4 w-4" aria-hidden="true" />
                         Download Resume

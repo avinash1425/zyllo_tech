@@ -142,7 +142,7 @@ function PositionForm({ position, onClose }) {
             <button
               type="submit"
               disabled={isPending}
-              className="rounded-lg bg-[#f7941e] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#db7d17] disabled:opacity-60"
+              className="rounded-lg bg-gradient-to-r from-[#f7941e] to-[#f96706] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:brightness-95 disabled:opacity-60"
             >
               {isPending ? "Saving..." : isEditing ? "Save Changes" : "Create Position"}
             </button>
@@ -252,7 +252,7 @@ export default function CareersManager({ initialPositions, onReload }) {
         <button
           type="button"
           onClick={openCreateForm}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#f7941e] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#db7d17]"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#f7941e] to-[#f96706] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:brightness-95"
         >
           <Plus className="h-4 w-4" aria-hidden="true" />
           New Position
@@ -262,10 +262,10 @@ export default function CareersManager({ initialPositions, onReload }) {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <StatCard icon={Briefcase} label="Total Positions" value={totalPositions} accent="#1f4693" />
-        <StatCard icon={CheckCircle2} label="Open" value={openCount} accent="#3b6d11" />
+        <StatCard icon={CheckCircle2} label="Open" value={openCount} accent="#3089a6" />
         <StatCard icon={XCircle} label="Closed" value={closedCount} accent="#676b7a" />
         <StatCard icon={Users} label="Total Openings" value={totalOpenings} accent="#f7941e" />
-        <StatCard icon={CheckCircle2} label="Filled" value={totalFilled} accent="#5b7fd4" />
+        <StatCard icon={CheckCircle2} label="Filled" value={totalFilled} accent="#173a52" />
       </div>
 
       {positions.length === 0 ? (
@@ -278,7 +278,7 @@ export default function CareersManager({ initialPositions, onReload }) {
             <button
               type="button"
               onClick={openCreateForm}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#f7941e] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#db7d17]"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#f7941e] to-[#f96706] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:brightness-95"
             >
               <Plus className="h-4 w-4" aria-hidden="true" />
               New Position

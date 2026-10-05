@@ -26,12 +26,12 @@ import PageHeader from "../PageHeader";
 import EmptyState from "../EmptyState";
 
 const STATUS_STYLES = {
-  new: "bg-[#5b7fd4]/10 text-[#1f4693]",
-  reviewed: "bg-[#676b7a]/10 text-[#676b7a]",
-  shortlisted: "bg-[#f7941e]/10 text-[#db7d17]",
-  interview: "bg-purple-100 text-purple-700",
-  offer: "bg-[#1f4693]/10 text-[#1f4693]",
-  hired: "bg-[#3b6d11]/10 text-[#3b6d11]",
+  new: "bg-[#1f4693]/10 text-[#1f4693]",
+  reviewed: "bg-[#3089a6]/10 text-[#216478]",
+  shortlisted: "bg-[#f7941e]/10 text-[#d9650a]",
+  interview: "bg-[#f96706]/10 text-[#a84300]",
+  offer: "bg-[#173a52]/10 text-[#173a52]",
+  hired: "bg-[#3089a6]/10 text-[#216478]",
   rejected: "bg-red-50 text-red-600",
 };
 
@@ -421,7 +421,7 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
             type="button"
             onClick={handleExportExcel}
             disabled={isExporting}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#e7e9ee] bg-white px-3.5 py-2 text-sm font-medium text-[#2b303b] transition-colors hover:border-[#3b6d11]/40 hover:text-[#3b6d11] disabled:opacity-50"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#e7e9ee] bg-white px-3.5 py-2 text-sm font-medium text-[#2b303b] transition-colors hover:border-[#3089a6]/40 hover:text-[#3089a6] disabled:opacity-50"
           >
             <FileSpreadsheet className="h-4 w-4" aria-hidden="true" />
             {isExporting ? "Exporting…" : `Export Excel (${filtered.length})`}
@@ -595,7 +595,7 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
               <p className="mt-1 text-xs text-[#676b7a]">
                 Filter resumes by designation/month and download individually or as a ZIP.
                 {orphanedCount > 0 && (
-                  <span className="ml-1 font-medium text-[#db7d17]">
+                  <span className="ml-1 font-medium text-[#d9650a]">
                     {orphanedCount} unlinked file{orphanedCount === 1 ? "" : "s"}.
                   </span>
                 )}
@@ -618,7 +618,7 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
                 type="button"
                 onClick={handleDownloadZip}
                 disabled={isZipping || selectedFiles.size === 0}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[#f7941e] px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#db7d17] disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#f7941e] to-[#f96706] px-3.5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <PackageCheck className="h-4 w-4" aria-hidden="true" />
                 {isZipping ? "Zipping…" : `Download ZIP (${selectedFiles.size})`}
@@ -711,7 +711,7 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
                           <p className="mt-0.5 text-xs text-[#676b7a]">{file.applicant.jobTitle}</p>
                         </>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 text-sm font-medium text-[#db7d17]">
+                        <span className="inline-flex items-center gap-1.5 text-sm font-medium text-[#d9650a]">
                           <Link2Off className="h-3.5 w-3.5" aria-hidden="true" />
                           Unlinked file
                         </span>
@@ -734,7 +734,7 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
                           download={file.fileName}
                           onClick={(e) => e.stopPropagation()}
                           aria-label={`Download ${file.fileName}`}
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-[#3b6d11]/10 hover:text-[#3b6d11]"
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-[#3089a6]/10 hover:text-[#3089a6]"
                         >
                           <Download className="h-3.5 w-3.5" aria-hidden="true" />
                         </a>
@@ -863,7 +863,7 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
                       <a
                         href={viewing.resume_url}
                         download={resumeFileName(viewing)}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-[#f7941e] px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#db7d17]"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#f7941e] to-[#f96706] px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:brightness-95"
                       >
                         <Download className="h-4 w-4" aria-hidden="true" />
                         Download Resume
@@ -932,7 +932,7 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
                     </p>
                   </>
                 ) : (
-                  <h2 className="inline-flex items-center gap-1.5 text-lg font-bold text-[#db7d17]">
+                  <h2 className="inline-flex items-center gap-1.5 text-lg font-bold text-[#d9650a]">
                     <Link2Off className="h-4 w-4" aria-hidden="true" />
                     Unlinked file
                   </h2>
@@ -958,7 +958,7 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
                 <a
                   href={libraryPreview.publicUrl}
                   download={libraryPreview.fileName}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#f7941e] px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#db7d17]"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#f7941e] to-[#f96706] px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:brightness-95"
                 >
                   <Download className="h-4 w-4" aria-hidden="true" />
                   Download

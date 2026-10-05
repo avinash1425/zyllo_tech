@@ -10,7 +10,7 @@ export default function PageHeader({ title, subtitle, icon: Icon, actions, class
       <div className="min-w-0">
         <div className="flex items-center gap-2.5">
           {Icon && (
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#f7941e]/12 text-[#db7d17]">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#f7941e]/12 text-[#d9650a]">
               <Icon className="h-5 w-5" aria-hidden="true" />
             </span>
           )}
