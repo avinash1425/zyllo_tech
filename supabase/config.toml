@@ -4,9 +4,6 @@
 [functions.ai-search]
 verify_jwt = false
 
-[functions.search]
-verify_jwt = false
-
 [functions.sitemap]
 verify_jwt = false
 
