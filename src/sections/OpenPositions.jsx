@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useAsync } from "@/lib/use-async";
 import OpenPositionsGrid from "./OpenPositionsGrid";
+import ApplySection from "./careers/ApplySection";
+import DontSeeCta from "./careers/DontSeeCta";
 
 async function getOpenPositions() {
   const { data: jobs, error } = await supabase
@@ -34,38 +37,46 @@ async function getOpenPositions() {
   }));
 }
 
+function scrollToId(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+}
+
 export default function OpenPositions() {
   const { data, loading } = useAsync(getOpenPositions, []);
   const positions = data ?? [];
+  const [selectedJobId, setSelectedJobId] = useState("");
+
+  function applyTo(job) {
+    setSelectedJobId(job.id);
+    scrollToId("apply");
+  }
 
   return (
-    <section
-      id="open-positions"
-      className="relative overflow-hidden border-t border-[#e7e9ee] bg-[#fafbfc] py-12 lg:py-16 scroll-mt-24"
-    >
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 right-1/3 h-72 w-72 rounded-full bg-[#1f4693]/8 blur-[110px]" />
-        <div className="absolute -bottom-24 left-1/3 h-72 w-72 rounded-full bg-[#f7941e]/8 blur-[110px]" />
-      </div>
-
-      <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full bg-[#1f4693]/10 px-4 py-1.5 text-xs font-bold tracking-[0.2em] text-[#1f4693] uppercase">
-            Open Positions
-          </span>
-
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-[#2b303b] sm:text-4xl">
-            Roles we're currently hiring for
-          </h2>
-
-          <p className="mt-4 text-lg leading-relaxed text-[#676b7a]">
-            Don&apos;t see the right fit? We&apos;re always open to hearing
-            from strong candidates.
-          </p>
+    <>
+      <section id="open-positions" className="scroll-mt-24 border-t border-[#e7e9ee] bg-[#f6f8fc] py-14 lg:py-20">
+        <div className="mx-auto max-w-6xl px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-[#173a52] sm:text-4xl">Current Job Openings</h2>
+            <p className="mt-3 text-base leading-relaxed text-[#4a5668] sm:text-lg">
+              Explore career opportunities across our teams.
+            </p>
+          </div>
+          <OpenPositionsGrid positions={positions} loading={loading} onApply={applyTo} />
         </div>
+      </section>
 
-        <OpenPositionsGrid positions={positions} loading={loading} />
-      </div>
-    </section>
+      {positions.length > 0 && (
+        <ApplySection
+          jobs={positions}
+          selectedJobId={selectedJobId}
+          onSelectJob={setSelectedJobId}
+          onViewOthers={() => scrollToId("open-positions")}
+        />
+      )}
+      <DontSeeCta />
+    </>
   );
 }

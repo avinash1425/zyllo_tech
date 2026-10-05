@@ -1,29 +1,14 @@
-import { BookOpen, Globe2, Handshake, Lightbulb } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 import Seo from "@/components/Seo";
-import PageHero from "@/components/PageHero";
 import WhyJoinZyllo from "@/sections/WhyJoinZyllo";
 import OpenPositions from "@/sections/OpenPositions";
-import HowWeHire from "@/sections/careers/HowWeHire";
-import Reveal from "@/components/Reveal";
 
-const PERKS = [
-  { icon: Globe2, label: "Remote-friendly", text: "Flexible ways of working" },
-  { icon: BookOpen, label: "Learning budget", text: "Grow your skills with us" },
-  { icon: Lightbulb, label: "Real ownership", text: "Your work makes an impact" },
-  { icon: Handshake, label: "Supportive team", text: "Collaborative, inclusive culture" },
-];
-
-// Smoothly scroll to #open-positions (instant when the user prefers reduced motion).
-function handleHeroClick(event) {
-  const link = event.target.closest?.('a[href="#open-positions"]');
-  if (!link) return;
+function scrollToOpenings(event) {
   const target = document.getElementById("open-positions");
   if (!target) return;
   event.preventDefault();
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-  target.setAttribute("tabindex", "-1");
-  target.focus({ preventScroll: true });
 }
 
 export default function CareersPage() {
@@ -31,47 +16,36 @@ export default function CareersPage() {
     <>
       <Seo
         title="Careers"
-        description="Join the team building software at Zyllo Tech. Explore open roles, life at the company, and the benefits of working with us."
+        description="Join the team building software at Zyllo Tech. Explore open roles and the benefits of working with us."
         path="/careers"
       />
-      <div onClick={handleHeroClick}>
-        <PageHero
-          breadcrumbLabel="Careers"
-          eyebrow="Careers"
-          title="Grow Your Career with Zyllo Tech"
-          description="Join a team that values innovation, collaboration, and continuous learning while building technology that makes an impact."
-          image="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1920&q=80"
-          imageAlt="Team collaborating in a workshop session"
-          primaryCta={{ label: "View Open Roles", href: "#open-positions" }}
-          secondaryCta={{ label: "Send your resume", href: "/contact" }}
-        />
-      </div>
 
-      <section aria-label="Perks at Zyllo Tech" className="relative z-[1] -mt-8 px-6 lg:px-8">
-        <ul className="mx-auto grid max-w-7xl grid-cols-1 gap-px overflow-hidden rounded-2xl border border-[#e7e9ee] bg-[#e7e9ee] shadow-xl shadow-[#101a3a]/10 sm:grid-cols-2 lg:grid-cols-4">
-          {PERKS.map(({ icon: Icon, label, text }) => (
-            <li key={label} className="flex items-center gap-3.5 bg-white px-5 py-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#f96706] to-[#ffb15c] text-white shadow-md shadow-[#f7941e]/30">
-                <Icon className="h-5 w-5" aria-hidden="true" />
-              </span>
-              <div className="min-w-0">
-                <p className="text-sm font-bold text-[#2b303b]">{label}</p>
-                <p className="text-xs text-[#676b7a]">{text}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#fff4e8] via-[#f6f8fc] to-white px-6 pb-14 pt-16 text-center sm:pt-20 lg:pb-16 lg:pt-24">
+        <div aria-hidden="true" className="pointer-events-none absolute -top-24 left-1/2 h-64 w-[36rem] max-w-full -translate-x-1/2 rounded-full bg-[#f7941e]/15 blur-[100px]" />
+        <div className="relative mx-auto max-w-3xl">
+          <span className="inline-flex items-center rounded-full bg-[#1f4693] px-4 py-1.5 text-sm font-semibold text-white">
+            Join Our Team
+          </span>
+          <h1 className="mt-5 text-4xl font-bold tracking-tight text-[#173a52] sm:text-5xl lg:text-6xl">
+            Build Your Career With Zyllo Tech
+          </h1>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[#4a5668] sm:text-lg">
+            Join a team that values innovation, collaboration, and continuous learning while building technology
+            that makes an impact.
+          </p>
+          <a
+            href="#open-positions"
+            onClick={scrollToOpenings}
+            className="mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#f96706] to-[#f7941e] px-8 py-3 text-base font-bold text-white shadow-lg shadow-[#f7941e]/30 transition-all hover:brightness-105 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/40"
+          >
+            View Open Roles
+            <ArrowDown className="h-4 w-4" aria-hidden="true" />
+          </a>
+        </div>
       </section>
 
-      <Reveal>
-        <WhyJoinZyllo />
-      </Reveal>
-      <Reveal>
-        <HowWeHire />
-      </Reveal>
-      <Reveal>
-        <OpenPositions />
-      </Reveal>
+      <WhyJoinZyllo />
+      <OpenPositions />
     </>
   );
 }

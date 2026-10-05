@@ -49,12 +49,38 @@ function validateFile(file) {
   return "";
 }
 
+const inlineInput =
+  "min-h-12 w-full rounded-xl border bg-white px-4 py-3 text-base text-[#1b2030] placeholder:text-[#6b7280] outline-none transition-all duration-200 hover:border-[#1f4693]/40 focus:border-[#f7941e] focus:ring-4 focus:ring-[#f7941e]/15";
+
 const inputBase =
   "peer min-h-14 w-full rounded-2xl border bg-white pb-2 pl-11 pr-4 pt-6 text-base text-[#1b2030] sm:text-[15px] placeholder-transparent shadow-[0_1px_2px_rgba(16,26,58,0.08)] outline-none transition-all duration-200 hover:border-[#1f4693]/30 focus:border-[#f7941e] focus:ring-4 focus:ring-[#f7941e]/15";
 
 // Floating-label field: the <input>/<textarea> child must use `inputBase`
 // (it is the `peer`) and carry placeholder=" " so the label can float.
-function Field({ id, label, required, icon: Icon, error, hint, children }) {
+function Field({ id, label, required, icon: Icon, error, hint, children, inline }) {
+  if (inline) {
+    return (
+      <div>
+        <label htmlFor={id} className="mb-1.5 block text-sm font-semibold text-[#1b2030]">
+          {label}
+          {required ? (
+            <span className="ml-0.5 text-[#c2410c]" aria-hidden="true">
+              *
+            </span>
+          ) : (
+            <span className="ml-1 font-normal text-[#4a5668]">(optional)</span>
+          )}
+        </label>
+        {children}
+        {hint && !error && <p className="mt-1 text-sm text-[#4a5668]">{hint}</p>}
+        {error && (
+          <p id={`${id}-error`} role="alert" className="mt-1.5 text-sm font-medium text-red-700">
+            {error}
+          </p>
+        )}
+      </div>
+    );
+  }
   return (
     <div>
       <div className="relative">
@@ -216,15 +242,29 @@ function SuccessState({ jobTitle, variant, onClose, onViewOthers }) {
 
 // variant="card"  : standalone card (used on /careers/:id)
 // variant="modal" : fills a popup - scrolling body + pinned footer actions
-export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, onViewOthers }) {
+// variant="inline": section form with a "Position Applied For" select
+//   (jobs: [{id,title}], controlled selectedJobId / onSelectJob)
+export default function ApplyForm({
+  jobId,
+  jobTitle,
+  variant = "card",
+  onClose,
+  onViewOthers,
+  jobs = [],
+  selectedJobId = "",
+  onSelectJob,
+}) {
   const [state, formAction, isPending] = useActionState(submitApplication, initialState);
   const [errors, setErrors] = useState({});
   const [file, setFile] = useState(null);
   const fileRef = useRef(null);
   const isModal = variant === "modal";
+  const isInline = variant === "inline";
+  const effectiveJobId = isInline ? selectedJobId : jobId;
+  const effectiveTitle = isInline ? jobs.find((j) => j.id === selectedJobId)?.title ?? "" : jobTitle;
 
   if (state.status === "success") {
-    return <SuccessState jobTitle={jobTitle} variant={variant} onClose={onClose} onViewOthers={onViewOthers} />;
+    return <SuccessState jobTitle={effectiveTitle} variant={variant} onClose={onClose} onViewOthers={onViewOthers} />;
   }
 
   function setError(name, message) {
@@ -262,19 +302,21 @@ export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, 
       experienceYears: validateField("experienceYears", String(data.get("experienceYears") ?? "")),
       resume: validateFile(data.get("resume")),
     };
+    if (isInline && !selectedJobId) next.position = "Please select the position you are applying for.";
     setErrors(next);
-    const firstBad = ["fullName", "email", "experienceYears", "resume"].find((k) => next[k]);
+    const firstBad = ["fullName", "email", "position", "experienceYears", "resume"].find((k) => next[k]);
     if (firstBad) {
       event.preventDefault();
       event.currentTarget.querySelector(`#${firstBad}`)?.focus();
     }
   }
 
+  const ib = isInline ? inlineInput : inputBase;
   const border = (name) => (errors[name] ? "border-red-400" : "border-[#d5d9e2]");
 
   const fields = (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      <Field id="fullName" label="Full name" required icon={User} error={errors.fullName}>
+      <Field inline={isInline} id="fullName" label="Full name" required icon={User} error={errors.fullName}>
         <input
           id="fullName"
           name="fullName"
@@ -286,11 +328,11 @@ export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, 
           aria-describedby={errors.fullName ? "fullName-error" : undefined}
           onBlur={handleBlur}
           onInput={handleInput}
-          className={`${inputBase} ${border("fullName")}`}
+          className={`${ib} ${border("fullName")}`}
         />
       </Field>
 
-      <Field id="email" label="Email" required icon={Mail} error={errors.email}>
+      <Field inline={isInline} id="email" label="Email" required icon={Mail} error={errors.email}>
         <input
           id="email"
           name="email"
@@ -302,22 +344,46 @@ export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, 
           aria-describedby={errors.email ? "email-error" : undefined}
           onBlur={handleBlur}
           onInput={handleInput}
-          className={`${inputBase} ${border("email")}`}
+          className={`${ib} ${border("email")}`}
         />
       </Field>
 
-      <Field id="phone" label="Phone number" icon={Phone}>
+      <Field inline={isInline} id="phone" label="Phone number" icon={Phone}>
         <input
           id="phone"
           name="phone"
           type="tel"
           autoComplete="tel"
           placeholder=" "
-          className={`${inputBase} border-[#d5d9e2]`}
+          className={`${ib} border-[#d5d9e2]`}
         />
       </Field>
 
-      <Field id="experienceYears" label="Years of experience" required icon={Briefcase} error={errors.experienceYears}>
+      {isInline && (
+        <Field inline id="position" label="Position Applied For" required error={errors.position}>
+          <select
+            id="position"
+            value={selectedJobId}
+            onChange={(e) => {
+              onSelectJob?.(e.target.value);
+              if (e.target.value) setError("position", "");
+            }}
+            aria-invalid={errors.position ? true : undefined}
+            aria-describedby={errors.position ? "position-error" : undefined}
+            className={`${ib} ${border("position")}`}
+          >
+            <option value="">Select a position</option>
+            {jobs.map((j) => (
+              <option key={j.id} value={j.id}>
+                {j.title}
+              </option>
+            ))}
+          </select>
+        </Field>
+      )}
+
+      <div className={isInline ? "sm:col-span-2" : undefined}>
+      <Field inline={isInline} id="experienceYears" label="Years of experience" required icon={Briefcase} error={errors.experienceYears}>
         <input
           id="experienceYears"
           name="experienceYears"
@@ -332,10 +398,40 @@ export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, 
           aria-describedby={errors.experienceYears ? "experienceYears-error" : undefined}
           onBlur={handleBlur}
           onInput={handleInput}
-          className={`${inputBase} ${border("experienceYears")}`}
+          className={`${ib} ${border("experienceYears")}`}
         />
       </Field>
+      </div>
 
+      {isInline ? <>
+      <div className="sm:col-span-2">
+        <Field inline={isInline} id="coverNote" label="Why you're a good fit" icon={MessageSquare}>
+          <textarea
+            id="coverNote"
+            name="coverNote"
+            rows={4}
+            placeholder=" "
+            className={`${ib} resize-none border-[#d5d9e2]`}
+          />
+        </Field>
+      </div>
+      <div className="sm:col-span-2">
+        <span className="mb-2 block text-sm font-semibold text-[#1b2030]">
+          {isInline ? "Upload Resume/CV" : "Resume (PDF)"}
+          <span className="ml-0.5 text-[#c2410c]" aria-hidden="true">
+            *
+          </span>
+        </span>
+        <ResumeDropzone
+          inputRef={fileRef}
+          file={file}
+          error={errors.resume}
+          onChange={handleFile}
+          onRemove={removeFile}
+        />
+      </div>
+
+      </> : <>
       <div className="sm:col-span-2">
         <span className="mb-2 block text-sm font-semibold text-[#1b2030]">
           Resume (PDF)
@@ -353,16 +449,17 @@ export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, 
       </div>
 
       <div className="sm:col-span-2">
-        <Field id="coverNote" label="Why you're a good fit" icon={MessageSquare}>
+        <Field inline={isInline} id="coverNote" label="Why you're a good fit" icon={MessageSquare}>
           <textarea
             id="coverNote"
             name="coverNote"
             rows={4}
             placeholder=" "
-            className={`${inputBase} resize-none border-[#d5d9e2]`}
+            className={`${ib} resize-none border-[#d5d9e2]`}
           />
         </Field>
       </div>
+      </>}
     </div>
   );
 
@@ -425,6 +522,28 @@ export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, 
             </button>
           )}
           {submitButton}
+        </div>
+      </form>
+    );
+  }
+
+  if (isInline) {
+    return (
+      <form
+        action={formAction}
+        noValidate
+        onSubmit={handleSubmit}
+        onReset={() => setFile(null)}
+        className="rounded-2xl border border-[#e7e9ee] bg-white p-6 shadow-[0_16px_40px_-24px_rgba(16,26,58,0.3)] sm:p-8"
+      >
+        <input type="hidden" name="jobId" value={effectiveJobId} />
+        <p className="mb-5 text-sm text-[#4a5668]">
+          Fields marked <span className="text-[#c2410c]">*</span> are required.
+        </p>
+        {fields}
+        {errorBanner && <div className="mt-5">{errorBanner}</div>}
+        <div className="mt-6 flex">
+          <div className="flex w-full [&>button]:w-full [&>button]:min-h-12">{submitButton}</div>
         </div>
       </form>
     );
