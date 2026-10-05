@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { ArrowRight, Briefcase, Clock, FileText, MapPin, Search, SearchX } from "lucide-react";
 import Link from "@/lib/nx/link";
+import PageLoader from "@/components/PageLoader";
 import Modal from "@/components/Modal";
 import ModalHeader from "@/components/careers/ModalHeader";
 import DescriptionBody from "@/components/careers/DescriptionBody";
@@ -57,13 +58,8 @@ export default function OpenPositionsGrid({ positions, loading = false, onApply 
 
   if (loading) {
     return (
-      <div className="mt-10" aria-busy="true" aria-live="polite">
-        <span className="sr-only">Loading open positions</span>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {[0, 1].map((i) => (
-            <JobCardSkeleton key={i} />
-          ))}
-        </div>
+      <div className="mt-10" aria-busy="true">
+        <PageLoader inline label="Loading open positions..." />
       </div>
     );
   }

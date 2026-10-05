@@ -4,8 +4,22 @@ import Card from "./Card";
 import EmptyState from "../EmptyState";
 
 const META = {
-  contact: { label: "Contact", icon: MessageSquare, color: "#d9650a", bg: "#f7941e1f", href: "/admin/contacts", verb: "contacted us about" },
-  applicant: { label: "Applicant", icon: Briefcase, color: "#1f4693", bg: "#1f46931a", href: "/admin/job-applications", verb: "applied for" },
+  contact: {
+    label: "Contact",
+    icon: MessageSquare,
+    gradient: "linear-gradient(135deg, #ffb15c, #f96706)",
+    badge: "bg-[#f7941e]/15 text-[#a84a00] ring-[#f7941e]/30",
+    href: "/admin/contacts",
+    verb: "contacted us about",
+  },
+  applicant: {
+    label: "Applicant",
+    icon: Briefcase,
+    gradient: "linear-gradient(135deg, #3089a6, #1f4693)",
+    badge: "bg-[#1f4693]/10 text-[#1f4693] ring-[#1f4693]/25",
+    href: "/admin/job-applications",
+    verb: "applied for",
+  },
 };
 
 function timeAgo(iso) {
@@ -27,43 +41,40 @@ function initials(name = "") {
 
 export default function ActivityTimeline({ items }) {
   return (
-    <Card icon={Clock} title="Recent activity" subtitle="Latest events across contacts and applications">
+    <Card icon={Clock} title="Recent activity" subtitle="Latest events across contacts and applications" className="h-full">
       {items.length === 0 ? (
         <EmptyState icon={Clock} title="Nothing yet" message="New contact submissions and applicants will show up here." className="py-12" />
       ) : (
-        <ol className="mt-4 flex flex-col">
+        <ol className="mt-5 flex flex-col">
           {items.map((item, i) => {
             const m = META[item.type] ?? META.contact;
             const Icon = m.icon;
             return (
-              <li key={`${item.type}-${item.id}`} className="relative flex gap-3 pb-4 last:pb-0">
-                {i !== items.length - 1 && (
-                  <span aria-hidden="true" className="absolute bottom-0 left-[17px] top-9 w-px bg-[#e7e9ee]" />
-                )}
+              <li key={`${item.type}-${item.id}`} className="relative flex gap-3 pb-5 last:pb-0">
+                {i !== items.length - 1 && <span aria-hidden="true" className="absolute bottom-0 left-[19px] top-10 w-px bg-gradient-to-b from-[#d9dce3] to-[#eef0f4]" />}
                 <span
-                  className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold"
-                  style={{ backgroundColor: m.bg, color: m.color }}
+                  className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white shadow-[0_4px_10px_-3px_rgba(16,26,58,0.35)]"
+                  style={{ backgroundImage: m.gradient }}
                   aria-hidden="true"
                 >
                   {initials(item.name)}
-                  <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-white ring-1 ring-[#e7e9ee]">
+                  <span className="absolute -bottom-1 -right-1 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-white text-[#2b303b] ring-1 ring-[#e7e9ee]">
                     <Icon className="h-2.5 w-2.5" />
                   </span>
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm text-[#2b303b]">
-                    <Link
-                      href={m.href}
-                      className="font-semibold hover:text-[#d9650a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#f96706]"
-                    >
+                  <div className="flex items-start justify-between gap-2">
+                    <Link href={m.href} className="min-w-0 truncate text-sm font-semibold text-[#2b303b] hover:text-[#d9650a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#f96706]">
                       {item.name}
-                    </Link>{" "}
-                    <span className="text-[#676b7a]">{m.verb}</span>{" "}
-                    <span className="break-words font-medium">{item.subtitle}</span>
+                    </Link>
+                    <time dateTime={item.createdAt} className="shrink-0 text-xs tabular-nums text-[#676b7a]">
+                      {timeAgo(item.createdAt)}
+                    </time>
+                  </div>
+                  <p className="mt-0.5 text-sm text-[#676b7a]">
+                    {m.verb} <span className="break-words font-medium text-[#2b303b]">{item.subtitle}</span>
                   </p>
-                  <p className="mt-0.5 text-xs text-[#676b7a]">
-                    {m.label} · <time dateTime={item.createdAt}>{timeAgo(item.createdAt)}</time>
-                  </p>
+                  <span className={`mt-1.5 inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ring-1 ring-inset ${m.badge}`}>{m.label}</span>
                 </div>
               </li>
             );

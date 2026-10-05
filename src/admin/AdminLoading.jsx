@@ -5,7 +5,35 @@ function Block({ className = "" }) {
   return <div className={`rounded-lg bg-[#e7e9ee] motion-safe:animate-pulse ${className}`} />;
 }
 
-export default function AdminLoading({ label = "Loading…" }) {
+function DashboardSkeleton({ label }) {
+  return (
+    <div className="flex min-w-0 flex-col gap-6" role="status" aria-live="polite" aria-busy="true">
+      <span className="sr-only">{label}</span>
+      <Block className="h-[150px] rounded-3xl sm:h-[130px]" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="rounded-2xl border border-[#e7e9ee] bg-white p-5 shadow-sm">
+            <Block className="h-11 w-11 rounded-2xl" />
+            <Block className="mt-4 h-8 w-24" />
+            <Block className="mt-3 h-4 w-36" />
+            <Block className="mt-2 h-3 w-24" />
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+        <Block className="h-[360px] rounded-2xl xl:col-span-2" />
+        <Block className="h-[360px] rounded-2xl" />
+      </div>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <Block className="h-[360px] rounded-2xl" />
+        <Block className="h-[360px] rounded-2xl" />
+      </div>
+    </div>
+  );
+}
+
+export default function AdminLoading({ label = "Loading…", variant }) {
+  if (variant === "dashboard") return <DashboardSkeleton label={label} />;
   return (
     <div className="flex flex-col gap-6" role="status" aria-live="polite" aria-busy="true">
       <span className="sr-only">{label}</span>

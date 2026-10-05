@@ -1,49 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { Check, Copy, ExternalLink, Globe, MapPin, Navigation, ShieldCheck } from "lucide-react";
+import { ExternalLink, Globe, MapPin, Navigation } from "lucide-react";
 import { CONTACT_INFO, DIRECTIONS_URL, MAP_EMBED_URL, MAP_OPEN_URL } from "@/data/contact-info";
-
-function CopyGstin({ value }) {
-  const [copied, setCopied] = useState(false);
-  const timer = useRef(null);
-  useEffect(() => () => clearTimeout(timer.current), []);
-  async function copy() {
-    let ok = false;
-    try {
-      await navigator.clipboard.writeText(value);
-      ok = true;
-    } catch {
-      try {
-        const ta = document.createElement("textarea");
-        ta.value = value;
-        ta.setAttribute("readonly", "");
-        ta.style.position = "fixed";
-        ta.style.opacity = "0";
-        document.body.appendChild(ta);
-        ta.select();
-        ok = document.execCommand("copy");
-        document.body.removeChild(ta);
-      } catch {
-        ok = false;
-      }
-    }
-    if (ok) {
-      setCopied(true);
-      clearTimeout(timer.current);
-      timer.current = setTimeout(() => setCopied(false), 2000);
-    }
-  }
-  return (
-    <button
-      type="button"
-      onClick={copy}
-      className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-[#1f4693]/30 bg-white px-4 text-sm font-semibold text-[#1f4693] transition-colors hover:border-[#1f4693] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f4693]"
-    >
-      {copied ? <Check className="h-4 w-4 text-[#1f7f4d]" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
-      {copied ? "Copied" : "Copy"}
-      <span className="sr-only" role="status" aria-live="polite">{copied ? "GSTIN copied to clipboard" : ""}</span>
-    </button>
-  );
-}
 
 // The one place on /contact where the full postal address is printed.
 export default function OfficeLocation() {
@@ -87,26 +43,6 @@ export default function OfficeLocation() {
                 </span>
               ))}
             </address>
-
-            <div
-              id="company-details"
-              className="mt-5 scroll-mt-28 rounded-xl border border-[#f96706]/25 bg-gradient-to-br from-[#fff7f0] to-white p-4 sm:p-5"
-            >
-              <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[#c9580d]">
-                <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-                Company details
-              </p>
-              <p className="mt-3 text-sm font-semibold uppercase tracking-wide text-[#4a5668]">Legal name</p>
-              <p className="break-words text-base font-bold leading-snug text-[#173a52]">{CONTACT_INFO.legalName}</p>
-              <p className="mt-4 text-sm font-semibold uppercase tracking-wide text-[#4a5668]">GSTIN (GST number)</p>
-              <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-2">
-                <p className="select-all break-all font-mono text-xl font-bold tracking-[0.12em] text-[#1d2735] sm:text-2xl">
-                  {CONTACT_INFO.gstin}
-                </p>
-                <CopyGstin value={CONTACT_INFO.gstin} />
-              </div>
-              <p className="mt-3 text-sm text-[#4a5668]">Registered office: Guntur, Andhra Pradesh</p>
-            </div>
 
             <dl className="mt-4 space-y-2 text-[15px] leading-relaxed">
               <div className="flex flex-wrap items-center gap-x-2">

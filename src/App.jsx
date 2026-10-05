@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import SiteChrome from "@/components/SiteChrome";
 import OrganizationJsonLd from "@/components/OrganizationJsonLd";
 import ScrollToTopOnRoute from "@/components/ScrollToTopOnRoute";
+import PageLoader from "@/components/PageLoader";
 
 const Home = lazy(() => import("./pages/Home.jsx"));
 const About = lazy(() => import("./pages/About.jsx"));
@@ -27,7 +28,7 @@ export default function App() {
     <>
       <OrganizationJsonLd />
       <ScrollToTopOnRoute />
-      <Suspense fallback={null}>
+      <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Admin has its own shell + auth guard (src/admin/AdminRoutes.jsx) */}
           <Route path="/admin/*" element={<AdminRoutes />} />

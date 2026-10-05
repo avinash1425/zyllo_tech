@@ -1,8 +1,20 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useState } from "react";
 import Link from "@/lib/nx/link";
-import { ArrowRight, Check, ChevronDown, Clock } from "lucide-react";
+import {
+  ArrowRight,
+  Building2,
+  Check,
+  CheckCircle2,
+  Clock,
+  Loader2,
+  Lock,
+  Mail,
+  Phone,
+  Send,
+  User,
+} from "lucide-react";
 import { SERVICES as SERVICES_LIST } from "@/data/services";
 import { submitContactForm } from "@/lib/api/contact";
 
@@ -22,96 +34,80 @@ const SERVICES = [
 const NEXT_STEPS = [
   { title: "We read your message", text: "Your inquiry goes straight to our team." },
   { title: "We get back to you", text: "You receive a reply with suggested next steps." },
-  { title: "We talk it through", text: "A straightforward, no-pressure conversation about your needs." },
+  { title: "We talk it through", text: "A straightforward, no-pressure conversation." },
 ];
 
 const INCLUDE = [
   "What you want to achieve (your goals)",
   "Your preferred timeline, if you have one",
   "A budget range, if known",
-  "Any existing systems or tools we should know about",
+  "Existing systems or tools we should know about",
 ];
 
 const initialState = { status: "idle", message: "" };
 
+const inputBase =
+  "min-h-12 w-full rounded-xl border border-[#d9dde2] bg-white py-3 pl-11 pr-4 text-base text-[#1d2735] placeholder:text-[#667085] outline-none transition-all duration-200 hover:border-[#b9c0cb] focus:border-[#f96706] focus:ring-4 focus:ring-[#f96706]/20";
+
 function RequiredMark() {
   return (
-    <span className="ml-0.5 text-[#f96706]" aria-hidden="true">
+    <span className="ml-0.5 text-[#c9580d]" aria-hidden="true">
       *
     </span>
   );
 }
 
-// A fully custom listbox rather than a native <select> — native option
-// styling can't be themed, which was the actual complaint. The hidden
-// input keeps the value in the form's FormData for the server action.
-function ServiceDropdown({ value, onChange, error }) {
-  const [open, setOpen] = useState(false);
-  const wrapRef = useRef(null);
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (wrapRef.current && !wrapRef.current.contains(event.target)) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
+function Field({ id, label, required, icon: Icon, children }) {
   return (
-    <div ref={wrapRef} className="relative">
-      <input type="hidden" name="service" value={value} />
-      <button
-        type="button"
-        id="service"
-        onClick={() => setOpen((prev) => !prev)}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        className={`flex w-full items-center justify-between gap-2 rounded-lg border bg-[#fafbfc] px-4 py-3 text-left text-base outline-none sm:py-2.5 sm:text-sm transition-all duration-200 ${
-          error ? "border-red-400" : "border-[#d9dde2]"
-        } ${open ? "border-[#1c2f4a]/60 bg-white ring-4 ring-[#1c2f4a]/10" : ""}`}
-      >
-        <span className={value ? "text-[#1d2735]" : "text-[#4a5668]/70"}>
-          {value || "Select a service"}
-        </span>
-        <ChevronDown
-          className={`h-4 w-4 shrink-0 text-[#4a5668] transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+    <div>
+      <label htmlFor={id} className="mb-1.5 block text-[15px] font-semibold text-[#1d2735]">
+        {label}
+        {required && <RequiredMark />}
+      </label>
+      <div className="relative">
+        <Icon
+          className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#667085]"
           aria-hidden="true"
         />
-      </button>
+        {children}
+      </div>
+    </div>
+  );
+}
 
-      {open && (
-        <ul
-          role="listbox"
-          className="absolute z-20 mt-2 max-h-64 w-full overflow-auto rounded-xl border border-[#e2e5ea] bg-white p-1.5 shadow-xl shadow-[#1c2f4a]/15"
-        >
-          {SERVICES.map((service) => {
-            const selected = service === value;
-            return (
-              <li key={service} role="option" aria-selected={selected}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onChange(service);
-                    setOpen(false);
-                  }}
-                  className={`flex w-full items-center justify-between gap-2 rounded-lg px-3.5 py-3 text-left text-sm transition-colors duration-150 ${
-                    selected
-                      ? "bg-[#fff2e2] font-semibold text-[#c9580d]"
-                      : "text-[#1d2735] hover:bg-[#fafbfc]"
-                  }`}
-                >
-                  {service}
-                  {selected && <Check className="h-4 w-4 shrink-0 text-[#f96706]" aria-hidden="true" />}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+// Selectable chips. The hidden input keeps name="service" + the same option
+// strings, so FormData (and submitContactForm) is unchanged.
+function ServiceChips({ value, onChange, error }) {
+  return (
+    <div>
+      <input type="hidden" name="service" value={value} />
+      <div role="radiogroup" aria-labelledby="service-label" className="flex flex-wrap gap-2">
+        {SERVICES.map((service) => {
+          const selected = service === value;
+          return (
+            <button
+              key={service}
+              type="button"
+              role="radio"
+              aria-checked={selected}
+              onClick={() => onChange(service)}
+              className={`inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 py-2 text-[15px] font-medium transition-all duration-150 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f96706]/30 ${
+                selected
+                  ? "border-[#f96706] bg-[#fff2e2] font-semibold text-[#a84a0b]"
+                  : "border-[#d9dde2] bg-white text-[#2b303b] hover:border-[#f96706]/60 hover:bg-[#fffaf5]"
+              }`}
+            >
+              {selected && <Check className="h-4 w-4 text-[#f96706]" aria-hidden="true" />}
+              {service}
+            </button>
+          );
+        })}
+      </div>
+      {error && (
+        <p role="alert" className="mt-2 text-[15px] font-medium text-red-700">
+          {error}
+        </p>
       )}
-
-      {error && <p className="mt-1.5 text-[13px] font-medium text-red-700">{error}</p>}
     </div>
   );
 }
@@ -120,6 +116,8 @@ export default function ContactForm() {
   const [state, formAction, isPending] = useActionState(submitContactForm, initialState);
   const [service, setService] = useState("");
   const [serviceError, setServiceError] = useState("");
+  const [count, setCount] = useState(0);
+  const [dismissed, setDismissed] = useState(null); // the success state object the user moved on from
 
   function handleSubmit(event) {
     if (!service) {
@@ -128,137 +126,117 @@ export default function ContactForm() {
     }
   }
 
+  function sendAnother() {
+    setDismissed(state);
+    setService("");
+    setServiceError("");
+    setCount(0);
+  }
+
+  const showSuccess = state.status === "success" && dismissed !== state;
+
   return (
-    <section className="relative overflow-hidden border-t border-[#d9dde2] bg-[#fafbfc] py-10 lg:py-12">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-[#f96706]/8 blur-[110px]" />
-        <div className="absolute -bottom-24 right-1/4 h-72 w-72 rounded-full bg-[#1c2f4a]/8 blur-[110px]" />
-      </div>
-
+    <section className="relative overflow-hidden border-t border-[#d9dde2] bg-[#f6f8fc] py-10 lg:py-12">
       <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-[0.18em] text-[#c9580d]">
-            <span aria-hidden="true" className="h-px w-8 bg-[#f96706]" />
-            Contact Form
-            <span aria-hidden="true" className="h-px w-8 bg-[#f96706]" />
-          </span>
-          <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-[#1d2735] sm:text-4xl">
-            Tell us about{" "}
-            <span className="bg-gradient-to-r from-[#f96706] to-[#3089a6] bg-clip-text text-transparent">
-              your project
-            </span>
-          </h2>
-          <p className="mt-4 text-lg leading-relaxed text-[#4a5668]">
-            Share a few details and we&apos;ll get back to you within one
-            business day.
-          </p>
-        </div>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-8">
+          {/* Calm, light side panel */}
+          <aside className="order-2 rounded-2xl border border-[#dfe5ef] bg-[#eef3fa] p-6 text-[#1d2735] lg:order-1 lg:p-7">
+            <span className="text-sm font-bold uppercase tracking-[0.14em] text-[#173a52]">What happens next</span>
+            <ol className="mt-4 space-y-3.5">
+              {NEXT_STEPS.map((step, i) => (
+                <li key={step.title} className="flex items-start gap-3">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#173a52] text-sm font-bold text-white">
+                    {i + 1}
+                  </span>
+                  <span className="min-w-0 text-[15px] leading-snug">
+                    <span className="block font-semibold text-[#173a52]">{step.title}</span>
+                    <span className="block text-[#3d4858]">{step.text}</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-4 flex items-center gap-2 text-[15px] font-semibold text-[#173a52]">
+              <Clock className="h-4 w-4 shrink-0 text-[#c9580d]" aria-hidden="true" />
+              We reply within one business day.
+            </p>
 
-        <div className="mt-10 grid grid-cols-1 overflow-hidden rounded-[28px] border border-[#e2e5ea] bg-white shadow-2xl shadow-[#1c2f4a]/10 lg:grid-cols-[0.8fr_1.2fr]">
-          {/* Slim side panel: only content that is NOT shown elsewhere on the page. */}
-          <aside className="relative order-2 overflow-hidden bg-gradient-to-br from-[#1c2f4a] to-[#0f1826] p-6 text-white sm:p-10 lg:order-1 lg:p-10">
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-              <div
-                className="absolute inset-0 opacity-[0.06]"
-                style={{
-                  backgroundImage: "radial-gradient(rgba(255,255,255,0.8) 1px, transparent 1px)",
-                  backgroundSize: "24px 24px",
-                }}
-              />
-              <div className="absolute -top-16 -left-10 h-56 w-56 rounded-full bg-[#f96706] opacity-25 blur-[90px]" />
-              <div className="absolute -bottom-16 -right-10 h-56 w-56 rounded-full bg-[#3089a6] opacity-30 blur-[90px]" />
+            <div className="mt-6 border-t border-[#d3dbe8] pt-5">
+              <span className="text-sm font-bold uppercase tracking-[0.14em] text-[#173a52]">What to include</span>
+              <ul className="mt-3 space-y-2">
+                {INCLUDE.map((item) => (
+                  <li key={item} className="flex items-start gap-2.5 text-[15px] leading-snug text-[#3d4858]">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#1f7f4d]" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            <div className="relative flex flex-col gap-8">
-              <div>
-                <span className="text-sm font-bold uppercase tracking-[0.16em] text-[#ffb15c]">What happens next</span>
-                <ol className="mt-4 space-y-4">
-                  {NEXT_STEPS.map((step, i) => (
-                    <li key={step.title} className="flex items-start gap-3.5">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f96706] text-sm font-bold text-white">
-                        {i + 1}
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block text-base font-bold text-white">{step.title}</span>
-                        <span className="mt-0.5 block text-[15px] leading-relaxed text-white/90">{step.text}</span>
-                      </span>
-                    </li>
-                  ))}
-                </ol>
-                <p className="mt-5 flex items-center gap-2.5 rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-[15px] font-semibold text-white">
-                  <Clock className="h-5 w-5 shrink-0 text-[#ffb15c]" aria-hidden="true" />
-                  We reply within one business day.
-                </p>
-              </div>
-
-              <div>
-                <span className="text-sm font-bold uppercase tracking-[0.16em] text-[#ffb15c]">What to include</span>
-                <ul className="mt-4 space-y-2.5">
-                  {INCLUDE.map((item) => (
-                    <li key={item} className="flex items-start gap-3 text-[15px] leading-relaxed text-white/90">
-                      <Check className="mt-1 h-4 w-4 shrink-0 text-[#ffb15c]" aria-hidden="true" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <span className="text-sm font-bold uppercase tracking-[0.16em] text-[#ffb15c]">Learn about our services</span>
-                <ul className="mt-4 flex flex-wrap gap-2">
-                  {SERVICES_LIST.map((svc) => (
-                    <li key={svc.slug}>
-                      <Link
-                        href={`/services/${svc.slug}`}
-                        className="inline-flex min-h-11 items-center rounded-full border border-white/25 bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:border-[#ffb15c] hover:bg-white/20 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#ffb15c]/60"
-                      >
-                        {svc.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            <div className="mt-6 border-t border-[#d3dbe8] pt-5">
+              <span className="text-sm font-bold uppercase tracking-[0.14em] text-[#173a52]">Our services</span>
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {SERVICES_LIST.map((svc) => (
+                  <li key={svc.slug}>
+                    <Link
+                      href={`/services/${svc.slug}`}
+                      className="inline-flex min-h-11 items-center rounded-full border border-[#c9d3e3] bg-white px-3.5 py-2 text-[15px] font-medium text-[#1f4693] transition-colors hover:border-[#1f4693] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#1f4693]/30"
+                    >
+                      {svc.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
           </aside>
 
-          {/* Form */}
-          <div className="order-1 min-w-0 p-5 sm:p-8 lg:order-2 lg:p-10">
-            {state.status === "success" ? (
-              <div className="flex h-full flex-col items-center justify-center py-10 text-center">
-                <h3 className="text-xl font-semibold text-[#1d2735]">
-                  Thanks — we&apos;ve got your message.
-                </h3>
-                <p className="mt-2 text-base leading-relaxed text-[#4a5668]">
-                  Our team will reach out within one business day.
-                </p>
-              </div>
-            ) : (
-              <form action={formAction} onSubmit={handleSubmit} className="flex flex-col gap-7">
-                <div>
-                  <span className="text-sm font-bold uppercase tracking-[0.14em] text-[#1c2f4a]">
-                    Your Details
+          {/* Form card */}
+          <div className="order-1 min-w-0 overflow-hidden rounded-2xl border border-[#e2e5ea] bg-white shadow-xl shadow-[#1c2f4a]/10 lg:order-2">
+            <div aria-hidden="true" className="h-1.5 bg-gradient-to-r from-[#f96706] via-[#f7941e] to-[#3089a6]" />
+            <div className="p-5 sm:p-8">
+              {showSuccess ? (
+                <div role="status" className="flex flex-col items-center justify-center py-12 text-center">
+                  <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#e7f6ee] text-[#1f7f4d]">
+                    <CheckCircle2 className="h-9 w-9" aria-hidden="true" />
                   </span>
-                  <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2">
-                    <div>
-                      <label htmlFor="fullName" className="mb-1.5 block text-sm font-medium text-[#1d2735]">
-                        Full Name
-                        <RequiredMark />
-                      </label>
+                  <h3 className="mt-5 text-2xl font-extrabold text-[#1d2735]">Thanks, we&apos;ve got your message.</h3>
+                  <p className="mt-2 max-w-sm text-base leading-relaxed text-[#4a5668]">
+                    Our team will reach out within one business day.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={sendAnother}
+                    className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-[#1f4693]/40 bg-white px-6 py-2.5 text-[15px] font-semibold text-[#1f4693] transition-colors hover:border-[#1f4693] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#1f4693]/30"
+                  >
+                    Send another message
+                  </button>
+                </div>
+              ) : (
+                <form action={formAction} onSubmit={handleSubmit} className="flex flex-col gap-5">
+                  <div>
+                    <h2 className="text-2xl font-extrabold tracking-tight text-[#1d2735] sm:text-3xl">
+                      Send us a{" "}
+                      <span className="bg-gradient-to-r from-[#f96706] to-[#3089a6] bg-clip-text text-transparent">
+                        message
+                      </span>
+                    </h2>
+                    <p className="mt-1.5 text-base leading-relaxed text-[#4a5668]">
+                      Share a few details and we&apos;ll reply within one business day. No spam, no pressure.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <Field id="fullName" label="Full Name" required icon={User}>
                       <input
                         id="fullName"
                         name="fullName"
                         type="text"
+                        autoComplete="name"
                         required
                         placeholder="Your full name"
-                        className="w-full rounded-lg border border-[#d9dde2] bg-[#fafbfc] px-4 py-3 text-base text-[#1d2735] sm:py-2.5 sm:text-sm placeholder:text-[#4a5668]/70 outline-none transition-all duration-200 focus:border-[#1c2f4a]/60 focus:bg-white focus:ring-4 focus:ring-[#1c2f4a]/10"
+                        className={inputBase}
                       />
-                    </div>
-
-                    <div>
-                      <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-[#1d2735]">
-                        Email
-                        <RequiredMark />
-                      </label>
+                    </Field>
+                    <Field id="email" label="Email" required icon={Mail}>
                       <input
                         id="email"
                         name="email"
@@ -266,15 +244,10 @@ export default function ContactForm() {
                         autoComplete="email"
                         required
                         placeholder="you@company.com"
-                        className="w-full rounded-lg border border-[#d9dde2] bg-[#fafbfc] px-4 py-3 text-base text-[#1d2735] sm:py-2.5 sm:text-sm placeholder:text-[#4a5668]/70 outline-none transition-all duration-200 focus:border-[#1c2f4a]/60 focus:bg-white focus:ring-4 focus:ring-[#1c2f4a]/10"
+                        className={inputBase}
                       />
-                    </div>
-
-                    <div>
-                      <label htmlFor="phone" className="mb-1.5 block text-sm font-medium text-[#1d2735]">
-                        Phone Number
-                        <RequiredMark />
-                      </label>
+                    </Field>
+                    <Field id="phone" label="Phone Number" required icon={Phone}>
                       <input
                         id="phone"
                         name="phone"
@@ -282,36 +255,27 @@ export default function ContactForm() {
                         autoComplete="tel"
                         required
                         placeholder="+91 00000 00000"
-                        className="w-full rounded-lg border border-[#d9dde2] bg-[#fafbfc] px-4 py-3 text-base text-[#1d2735] sm:py-2.5 sm:text-sm placeholder:text-[#4a5668]/70 outline-none transition-all duration-200 focus:border-[#1c2f4a]/60 focus:bg-white focus:ring-4 focus:ring-[#1c2f4a]/10"
+                        className={inputBase}
                       />
-                    </div>
-
-                    <div>
-                      <label htmlFor="company" className="mb-1.5 block text-sm font-medium text-[#1d2735]">
-                        Company Name
-                      </label>
+                    </Field>
+                    <Field id="company" label="Company Name" icon={Building2}>
                       <input
                         id="company"
                         name="company"
                         type="text"
-                        placeholder="Your company"
-                        className="w-full rounded-lg border border-[#d9dde2] bg-[#fafbfc] px-4 py-3 text-base text-[#1d2735] sm:py-2.5 sm:text-sm placeholder:text-[#4a5668]/70 outline-none transition-all duration-200 focus:border-[#1c2f4a]/60 focus:bg-white focus:ring-4 focus:ring-[#1c2f4a]/10"
+                        autoComplete="organization"
+                        placeholder="Your company (optional)"
+                        className={inputBase}
                       />
-                    </div>
+                    </Field>
                   </div>
-                </div>
 
-                <div>
-                  <span className="text-sm font-bold uppercase tracking-[0.14em] text-[#1c2f4a]">
-                    Project Details
-                  </span>
-
-                  <div className="mt-4">
-                    <label htmlFor="service" className="mb-1.5 block text-sm font-medium text-[#1d2735]">
+                  <div>
+                    <span id="service-label" className="mb-2 block text-[15px] font-semibold text-[#1d2735]">
                       Service Required
                       <RequiredMark />
-                    </label>
-                    <ServiceDropdown
+                    </span>
+                    <ServiceChips
                       value={service}
                       onChange={(next) => {
                         setService(next);
@@ -321,56 +285,78 @@ export default function ContactForm() {
                     />
                   </div>
 
-                  <div className="mt-5">
-                    <label htmlFor="description" className="mb-1.5 block text-sm font-medium text-[#1d2735]">
-                      Project Description
-                      <RequiredMark />
-                    </label>
+                  <div>
+                    <div className="mb-1.5 flex items-baseline justify-between gap-3">
+                      <label htmlFor="description" className="text-[15px] font-semibold text-[#1d2735]">
+                        Project Description
+                        <RequiredMark />
+                      </label>
+                      <span className="text-[15px] text-[#667085]">{count} characters</span>
+                    </div>
                     <textarea
                       id="description"
                       name="description"
-                      rows={5}
+                      rows={4}
                       required
+                      onChange={(e) => setCount(e.target.value.length)}
                       placeholder="Tell us a bit about what you're looking to build..."
-                      className="w-full resize-none rounded-lg border border-[#d9dde2] bg-[#fafbfc] px-4 py-3 text-base text-[#1d2735] sm:py-2.5 sm:text-sm placeholder:text-[#4a5668]/70 outline-none transition-all duration-200 focus:border-[#1c2f4a]/60 focus:bg-white focus:ring-4 focus:ring-[#1c2f4a]/10"
+                      className="w-full resize-y rounded-xl border border-[#d9dde2] bg-white px-4 py-3 text-base text-[#1d2735] placeholder:text-[#667085] outline-none transition-all duration-200 hover:border-[#b9c0cb] focus:border-[#f96706] focus:ring-4 focus:ring-[#f96706]/20"
                     />
+                    <p className="mt-1.5 text-[15px] text-[#667085]">
+                      <RequiredMark /> Required fields. A sentence or two is plenty to start.
+                    </p>
                   </div>
-                </div>
 
-                {state.status === "error" && (
-                  <p className="text-sm font-medium text-red-600">{state.message}</p>
-                )}
+                  {state.status === "error" && (
+                    <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[15px] font-medium text-red-700">
+                      {state.message}
+                    </p>
+                  )}
 
-                <div className="flex flex-col gap-3 border-t border-[#e2e5ea] pt-7 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-[13px] text-[#4a5668]">
-                    <RequiredMark /> Required field
-                  </p>
                   <button
                     type="submit"
                     disabled={isPending}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#f96706] px-8 py-3.5 sm:w-auto text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(247,148,30,0.35),0_8px_10px_-6px_rgba(247,148,30,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-[#c9580d] disabled:pointer-events-none disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:scale-100"
+                    aria-busy={isPending}
+                    className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#f96706] to-[#e8590c] px-8 py-3 text-base font-bold text-white shadow-[0_14px_28px_-10px_rgba(249,103,6,0.7)] transition-all duration-200 hover:brightness-105 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f96706]/40 disabled:cursor-not-allowed disabled:opacity-70 motion-reduce:transition-none"
                   >
-                    {isPending ? "Sending..." : "Send Message"}
+                    {isPending ? (
+                      <>
+                        <Loader2 className="h-5 w-5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-5 w-5" aria-hidden="true" />
+                        Send Message
+                      </>
+                    )}
                   </button>
-                </div>
-                <div className="space-y-2 text-[15px] leading-relaxed text-[#4a5668]">
-                  <p>
-                    Read how we handle your details in our{" "}
-                    <Link href="/privacy" className="font-semibold text-[#1f4693] underline underline-offset-4 hover:text-[#c9580d]">
-                      Privacy Policy
-                    </Link>
-                    .
-                  </p>
-                  <p>
-                    Looking for a job?{" "}
-                    <Link href="/careers#open-positions" className="inline-flex items-center gap-1 font-semibold text-[#1f4693] underline underline-offset-4 hover:text-[#c9580d]">
-                      See open roles
+
+                  <div className="flex flex-col gap-1 text-[15px] leading-relaxed text-[#4a5668] sm:flex-row sm:items-center sm:justify-between">
+                    <p className="inline-flex items-center gap-2">
+                      <Lock className="h-4 w-4 shrink-0 text-[#1f7f4d]" aria-hidden="true" />
+                      <span>
+                        Your details stay private. See our{" "}
+                        <Link
+                          href="/privacy"
+                          className="font-semibold text-[#1f4693] underline underline-offset-4 hover:text-[#c9580d]"
+                        >
+                          Privacy Policy
+                        </Link>
+                        .
+                      </span>
+                    </p>
+                    <Link
+                      href="/careers#open-positions"
+                      className="inline-flex min-h-11 items-center gap-1 font-semibold text-[#1f4693] underline underline-offset-4 hover:text-[#c9580d]"
+                    >
+                      Looking for a job?
                       <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </Link>
-                  </p>
-                </div>
-              </form>
-            )}
+                  </div>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -53,13 +53,11 @@ export default function ContactMethods() {
           );
         })}
       </ul>
-      <p className="mx-auto mt-4 flex max-w-6xl items-center justify-center gap-2 text-center text-sm text-[#4a5668]">
+      <p className="mx-auto mt-4 flex max-w-6xl items-center justify-center gap-2 text-center text-[15px] text-[#4a5668]">
         <ShieldCheck className="h-4 w-4 shrink-0 text-[#1f7f4d]" aria-hidden="true" />
         <span>
           GST registered &middot;{" "}
-          <a href="#company-details" className="font-mono font-semibold tracking-wider text-[#173a52] underline-offset-4 hover:text-[#c9580d] hover:underline">
-            GSTIN {CONTACT_INFO.gstin}
-          </a>
+          <span className="font-mono font-semibold tracking-wider text-[#173a52]">GSTIN {CONTACT_INFO.gstin}</span>
         </span>
       </p>
     </section>
