@@ -18,9 +18,12 @@ import {
   Link2Off,
   RefreshCw,
   PackageCheck,
+  Users,
 } from "lucide-react";
 import { updateApplicationStatus, updateApplicationProspectRating } from "@/lib/api/admin/careers";
 import ResumeViewer from "../careers/applicants/ResumeViewer";
+import PageHeader from "../PageHeader";
+import EmptyState from "../EmptyState";
 
 const STATUS_STYLES = {
   new: "bg-[#5b7fd4]/10 text-[#1f4693]",
@@ -356,12 +359,10 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-[#2b303b]">Job Applications</h1>
-        <p className="mt-1 text-sm text-[#676b7a]">
-          Review every applicant across all open and closed positions, record decisions, and rate prospects.
-        </p>
-      </div>
+      <PageHeader
+        title="Job Applications"
+        subtitle="Review every applicant across all open and closed positions, record decisions, and rate prospects."
+      />
 
       <div className="inline-flex w-fit items-center gap-1 rounded-full border border-[#e7e9ee] bg-white p-1 shadow-sm">
         <button
@@ -494,9 +495,9 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
           </select>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="max-h-[70vh] overflow-auto">
           <table className="w-full min-w-[900px] text-left text-sm">
-            <thead>
+            <thead className="sticky top-0 z-10">
               <tr className="border-b border-[#e7e9ee] bg-[#fafbfc] text-xs font-bold uppercase tracking-wide text-[#676b7a]">
                 <th className="px-5 py-3">Name</th>
                 <th className="px-5 py-3">Position</th>
@@ -572,11 +573,15 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
         </div>
 
         {filtered.length === 0 && (
-          <div className="py-12 text-center text-sm text-[#676b7a]">
-            {applications.length === 0
-              ? "No applications yet — they'll appear here once someone applies to a role."
-              : "No applications match your filters."}
-          </div>
+          <EmptyState
+            icon={Users}
+            title={applications.length === 0 ? "No applications yet" : "No matching applications"}
+            message={
+              applications.length === 0
+                ? "No applications yet — they'll appear here once someone applies to a role."
+                : "No applications match your filters."
+            }
+          />
         )}
       </div>
       </>
@@ -663,9 +668,9 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
             </select>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="max-h-[70vh] overflow-auto">
             <table className="w-full min-w-[760px] text-left text-sm">
-              <thead>
+              <thead className="sticky top-0 z-10">
                 <tr className="border-b border-[#e7e9ee] bg-[#fafbfc] text-xs font-bold uppercase tracking-wide text-[#676b7a]">
                   <th className="w-10 px-5 py-3">
                     <input
@@ -753,11 +758,15 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
           </div>
 
           {filteredLibraryFiles.length === 0 && (
-            <div className="py-12 text-center text-sm text-[#676b7a]">
-              {resumeFiles.length === 0
-                ? "No resume files yet — they'll appear here once someone applies to a role."
-                : "No files match your search."}
-            </div>
+            <EmptyState
+              icon={FolderOpen}
+              title={resumeFiles.length === 0 ? "No resume files yet" : "No matching files"}
+              message={
+                resumeFiles.length === 0
+                  ? "No resume files yet — they'll appear here once someone applies to a role."
+                  : "No files match your search."
+              }
+            />
           )}
         </div>
       )}

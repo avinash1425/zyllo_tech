@@ -1,4 +1,5 @@
 
+import PageHeader from "../PageHeader";
 import {
   Search,
   AlertTriangle,
@@ -70,17 +71,17 @@ function FeatureChecklist({ features }) {
 export default function SeoAuditManager({ audit, features }) {
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <div className="flex items-center gap-2">
-          <Search className="h-5 w-5 text-[#f7941e]" aria-hidden="true" />
-          <h1 className="text-2xl font-bold tracking-tight text-[#2b303b]">SEO</h1>
-        </div>
-        <p className="mt-1 text-sm text-[#676b7a]">
-          Technical SEO status for this site — real checks against the live sitemap, robots
-          rules, and content, not sample data. For search rankings and click performance, see{" "}
-          <span className="font-semibold text-[#2b303b]">Search Console</span> instead.
-        </p>
-      </div>
+      <PageHeader
+        icon={Search}
+        title="SEO"
+        subtitle={
+          <>
+            Technical SEO status for this site — real checks against the live sitemap, robots
+            rules, and content, not sample data. For search rankings and click performance, see{" "}
+            <span className="font-semibold text-[#2b303b]">Search Console</span> instead.
+          </>
+        }
+      />
 
       {audit.isPlaceholderDomain ? (
         <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4">

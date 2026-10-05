@@ -3,17 +3,15 @@ import { useEffect, useState, useTransition } from "react";
 import { useActionState } from "react";
 import Link from "@/lib/nx/link";
 import { Plus, MapPin, Pencil, Trash2, Users, X, Briefcase, CheckCircle2, XCircle } from "lucide-react";
+import PageHeader from "../PageHeader";
+import StatusBadge from "../StatusBadge";
+import EmptyState from "../EmptyState";
 import {
   createJobPosting,
   updateJobPosting,
   toggleJobStatus,
   deleteJobPosting,
 } from "@/lib/api/admin/careers";
-
-const STATUS_STYLES = {
-  open: "bg-[#3b6d11]/10 text-[#3b6d11]",
-  closed: "bg-red-600/10 text-red-600",
-};
 
 const initialFormState = { status: "idle", message: "" };
 
@@ -242,15 +240,15 @@ export default function CareersManager({ initialPositions, onReload }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#2b303b]">Careers</h1>
-          <p className="mt-1 text-sm text-[#676b7a]">
+      <PageHeader
+        title="Careers"
+        subtitle={
+          <>
             {totalApplicants} total applicant{totalApplicants === 1 ? "" : "s"} across{" "}
             {totalPositions} position{totalPositions === 1 ? "" : "s"}.
-          </p>
-        </div>
-
+          </>
+        }
+        actions={
         <button
           type="button"
           onClick={openCreateForm}
@@ -259,7 +257,8 @@ export default function CareersManager({ initialPositions, onReload }) {
           <Plus className="h-4 w-4" aria-hidden="true" />
           New Position
         </button>
-      </div>
+        }
+      />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <StatCard icon={Briefcase} label="Total Positions" value={totalPositions} accent="#1f4693" />
@@ -270,11 +269,22 @@ export default function CareersManager({ initialPositions, onReload }) {
       </div>
 
       {positions.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#e7e9ee] bg-white p-10 text-center">
-          <p className="text-sm text-[#676b7a]">
-            No positions yet. Create your first job posting to get started.
-          </p>
-        </div>
+        <EmptyState
+          bordered
+          icon={Briefcase}
+          title="No positions yet"
+          message="No positions yet. Create your first job posting to get started."
+          action={
+            <button
+              type="button"
+              onClick={openCreateForm}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#f7941e] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#db7d17]"
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              New Position
+            </button>
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {positions.map((position) => (
@@ -296,11 +306,7 @@ export default function CareersManager({ initialPositions, onReload }) {
                   <h3 className="text-base font-semibold leading-snug text-[#2b303b] group-hover:text-[#1f4693]">
                     {position.title}
                   </h3>
-                  <span
-                    className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_STYLES[position.status]}`}
-                  >
-                    {position.status === "open" ? "Open" : "Closed"}
-                  </span>
+                  <StatusBadge status={position.status} className="shrink-0" />
                 </div>
 
                 <p className="mt-1.5 text-sm font-medium text-[#1f4693]">{position.department}</p>

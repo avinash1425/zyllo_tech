@@ -49,7 +49,7 @@ export default function RecentActivity({ items, weeklyCounts = [] }) {
   const hasAnyActivity = weeklyCounts.some((d) => d.contacts > 0 || d.applicants > 0);
 
   return (
-    <div className="rounded-2xl border border-[#e7e9ee] bg-white p-4 shadow-sm">
+    <div className="min-w-0 rounded-2xl border border-[#e7e9ee] bg-white p-5 shadow-sm">
       <div className="flex items-center gap-2">
         <Activity className="h-4 w-4 text-[#f7941e]" aria-hidden="true" />
         <h2 className="text-sm font-semibold text-[#2b303b]">Recent Activity</h2>
@@ -105,8 +105,9 @@ export default function RecentActivity({ items, weeklyCounts = [] }) {
                     </span>
                   </div>
                   <p className="mt-0.5 truncate text-xs text-[#676b7a]">{item.subtitle}</p>
+                  <p className="mt-0.5 text-[11px] text-[#8a8f9c] sm:hidden">{timeAgo(item.createdAt)}</p>
                 </div>
-                <span className="shrink-0 text-xs text-[#676b7a]">{timeAgo(item.createdAt)}</span>
+                <span className="hidden shrink-0 text-xs text-[#676b7a] sm:inline">{timeAgo(item.createdAt)}</span>
               </li>
             );
           })}

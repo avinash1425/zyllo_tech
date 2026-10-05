@@ -8,6 +8,7 @@ import { ChevronDown, ArrowRight } from "lucide-react";
 import { SERVICES } from "@/data/services";
 import { SERVICE_THEMES } from "@/sections/ServiceGrid";
 import AISearchBar from "@/components/AISearchBar";
+import AccountBar from "@/components/AccountBar";
 
 const DEFAULT_SERVICE_THEME = SERVICE_THEMES["web-development"];
 
@@ -98,12 +99,7 @@ export default function Header() {
             />
           </Link>
 
-          <Link
-            href="/login"
-            className="inline-flex items-center gap-1.5 rounded-full border border-[#f96706]/30 bg-white px-3.5 py-1 text-[#f96706] shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-transparent hover:bg-gradient-to-r hover:from-[#f96706] hover:to-[#3089a6] hover:text-white hover:shadow-md hover:shadow-[#f96706]/20"
-          >
-            Login
-          </Link>
+          <AccountBar />
         </div>
       </div>
 
@@ -288,7 +284,7 @@ export default function Header() {
           className="mobile-menu-in border-t border-neutral-200 bg-white px-6 py-4 lg:hidden"
         >
           <div className="mb-2 flex items-center gap-6 border-b border-neutral-200 pb-3 text-sm font-semibold text-[#6c7889]">
-            {UTILITY_LINKS.map((link) => (
+            {UTILITY_LINKS.filter((link) => link.href !== "/login").map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -300,6 +296,7 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
+            <AccountBar mobile onNavigate={() => setIsMenuOpen(false)} />
           </div>
 
           <ul className="flex flex-col gap-1 text-sm font-medium text-[#1d2735]">

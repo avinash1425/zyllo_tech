@@ -16,6 +16,9 @@ import {
   MessageCircle,
   CheckCircle2,
 } from "lucide-react";
+import PageHeader from "../PageHeader";
+import StatusBadge from "../StatusBadge";
+import EmptyState from "../EmptyState";
 import { updateSubmissionStatus, deleteSubmission } from "@/lib/api/admin/contacts";
 
 const STATUS_LABELS = {
@@ -202,7 +205,15 @@ export default function ContactsManager({ initialSubmissions }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <PageHeader
+        title="Contact Submissions"
+        subtitle={
+          <>
+            {filtered.length} of {submissions.length} submission
+            {submissions.length === 1 ? "" : "s"} shown.
+          </>
+        }
+        actions={
         <div className="relative w-full sm:w-72">
           <Search
             className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#676b7a]/50"
@@ -216,17 +227,8 @@ export default function ContactsManager({ initialSubmissions }) {
             className="w-full rounded-lg border border-[#e7e9ee] bg-white py-2 pl-9 pr-3 text-sm text-[#2b303b] outline-none placeholder:text-[#676b7a]/50 focus:border-[#1f4693]/50"
           />
         </div>
-
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#2b303b] sm:text-right">
-            Contact Submissions
-          </h1>
-          <p className="mt-1 text-sm text-[#676b7a] sm:text-right">
-            {filtered.length} of {submissions.length} submission
-            {submissions.length === 1 ? "" : "s"} shown.
-          </p>
-        </div>
-      </div>
+        }
+      />
 
       <div className="flex flex-wrap items-center gap-3">
         {SUMMARY_BADGES.map(({ key, icon: Icon, label, value, accent }) => (
@@ -321,9 +323,9 @@ export default function ContactsManager({ initialSubmissions }) {
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-sm">
-        <div className="overflow-x-auto">
+        <div className="max-h-[70vh] overflow-auto">
           <table className="w-full min-w-[760px] text-left text-sm">
-            <thead>
+            <thead className="sticky top-0 z-10">
               <tr className="border-b border-[#e7e9ee] bg-[#fafbfc] text-xs font-bold uppercase tracking-wide text-[#676b7a]">
                 <th className="px-5 py-3">Name</th>
                 <th className="px-5 py-3">Company</th>
@@ -396,11 +398,15 @@ export default function ContactsManager({ initialSubmissions }) {
         </div>
 
         {filtered.length === 0 && (
-          <div className="py-12 text-center text-sm text-[#676b7a]">
-            {submissions.length === 0
-              ? "No submissions yet — they'll appear here once someone fills out the contact form."
-              : "No submissions match your search."}
-          </div>
+          <EmptyState
+            icon={Mail}
+            title={submissions.length === 0 ? "No submissions yet" : "No matching submissions"}
+            message={
+              submissions.length === 0
+                ? "No submissions yet — they'll appear here once someone fills out the contact form."
+                : "No submissions match your search."
+            }
+          />
         )}
       </div>
 
@@ -416,11 +422,11 @@ export default function ContactsManager({ initialSubmissions }) {
             <div className="flex items-start justify-between">
               <div>
                 <h2 className="text-lg font-bold text-[#2b303b]">{viewing.full_name}</h2>
-                <span
-                  className={`mt-1.5 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_STYLES[viewing.status]}`}
-                >
-                  {STATUS_LABELS[viewing.status]}
-                </span>
+                <StatusBadge
+                  status={viewing.status}
+                  label={STATUS_LABELS[viewing.status]}
+                  className="mt-1.5"
+                />
               </div>
               <button
                 type="button"

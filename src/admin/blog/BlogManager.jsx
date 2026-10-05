@@ -12,12 +12,10 @@ import {
   CheckCircle2,
   FileEdit,
 } from "lucide-react";
+import PageHeader from "../PageHeader";
+import StatusBadge from "../StatusBadge";
+import EmptyState from "../EmptyState";
 import { createBlogPost, updateBlogPost, togglePostStatus, deleteBlogPost } from "@/lib/api/admin/blog";
-
-const STATUS_STYLES = {
-  published: "bg-[#3b6d11]/10 text-[#3b6d11]",
-  draft: "bg-[#676b7a]/10 text-[#676b7a]",
-};
 
 const CATEGORY_OPTIONS = [
   "Engineering",
@@ -280,16 +278,16 @@ export default function BlogManager({ initialPosts, onReload }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#2b303b]">Blog Posts</h1>
-          <p className="mt-1 text-sm text-[#676b7a]">
+      <PageHeader
+        title="Blog Posts"
+        subtitle={
+          <>
             {totalPosts} post{totalPosts === 1 ? "" : "s"} — {publishedCount} published,{" "}
             {draftCount} draft{draftCount === 1 ? "" : "s"}.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
+          </>
+        }
+        actions={
+        <>
           <div className="relative w-full sm:w-56">
             <Search
               className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#676b7a]/50"
@@ -311,8 +309,9 @@ export default function BlogManager({ initialPosts, onReload }) {
             <Plus className="h-4 w-4" aria-hidden="true" />
             New Post
           </button>
-        </div>
-      </div>
+        </>
+        }
+      />
 
       <div className="grid grid-cols-3 gap-3">
         <StatCard icon={FileText} label="Total Posts" value={totalPosts} accent="#1f4693" />
@@ -321,9 +320,9 @@ export default function BlogManager({ initialPosts, onReload }) {
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-sm">
-        <div className="overflow-x-auto">
+        <div className="max-h-[70vh] overflow-auto">
           <table className="w-full min-w-[720px] text-left text-sm">
-            <thead>
+            <thead className="sticky top-0 z-10">
               <tr className="border-b border-[#e7e9ee] bg-[#fafbfc] text-xs font-bold uppercase tracking-wide text-[#676b7a]">
                 <th className="px-5 py-3">Title</th>
                 <th className="px-5 py-3">Category</th>
@@ -357,9 +356,9 @@ export default function BlogManager({ initialPosts, onReload }) {
                       onClick={() => handleToggleStatus(post)}
                       disabled={isPending}
                       title="Toggle published/draft"
-                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold transition-opacity hover:opacity-80 disabled:opacity-50 ${STATUS_STYLES[post.status]}`}
+                      className="inline-flex rounded-full transition-opacity hover:opacity-80 disabled:opacity-50"
                     >
-                      {post.status === "published" ? "Published" : "Draft"}
+                      <StatusBadge status={post.status} />
                     </button>
                   </td>
                   <td className="px-5 py-4 text-[#676b7a]">{post.views}</td>
@@ -401,11 +400,15 @@ export default function BlogManager({ initialPosts, onReload }) {
         </div>
 
         {filtered.length === 0 && (
-          <div className="py-12 text-center text-sm text-[#676b7a]">
-            {posts.length === 0
-              ? "No posts yet. Create your first post to get started."
-              : "No posts match your search."}
-          </div>
+          <EmptyState
+            icon={FileText}
+            title={posts.length === 0 ? "No posts yet" : "No matching posts"}
+            message={
+              posts.length === 0
+                ? "No posts yet. Create your first post to get started."
+                : "No posts match your search."
+            }
+          />
         )}
       </div>
 

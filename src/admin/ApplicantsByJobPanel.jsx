@@ -11,12 +11,12 @@ export default function ApplicantsByJobPanel({ jobs }) {
   const maxApplicants = Math.max(1, ...jobs.map((j) => j.applicants));
 
   return (
-    <div className="rounded-2xl border border-[#e7e9ee] bg-white p-4 shadow-sm">
+    <div className="min-w-0 rounded-2xl border border-[#e7e9ee] bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-[#2b303b]">Applicants by Job</h2>
         <Link
           href="/admin/careers"
-          className="text-xs font-medium text-[#676b7a] hover:text-[#1f4693]"
+          className="text-xs font-medium text-[#676b7a] transition-colors hover:text-[#1f4693] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1f4693]"
         >
           View all
         </Link>
@@ -36,19 +36,19 @@ export default function ApplicantsByJobPanel({ jobs }) {
                     {job.title}
                   </span>
                   {job.status !== "open" && (
-                    <span className="shrink-0 rounded-full bg-[#676b7a]/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-[#676b7a]">
+                    <span className="shrink-0 rounded-full bg-[#676b7a]/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#4b4f5c]">
                       Closed
                     </span>
                   )}
                 </div>
-                <span className="flex shrink-0 items-center gap-1 text-xs font-semibold text-[#2b303b]">
+                <span className="flex shrink-0 items-center gap-1 text-xs font-semibold tabular-nums text-[#2b303b]">
                   <Users className="h-3 w-3 text-[#676b7a]" aria-hidden="true" />
                   {job.applicants}
                 </span>
               </div>
               <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[#f1f2f5]">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#f7941e] to-[#1f4693] transition-all duration-500"
+                  className="h-full rounded-full bg-gradient-to-r from-[#f7941e] to-[#1f4693] transition-all duration-500 motion-reduce:transition-none"
                   style={{ width: `${(job.applicants / maxApplicants) * 100}%` }}
                 />
               </div>

@@ -1,13 +1,11 @@
 
 import { useEffect, useState, useTransition } from "react";
 import Image from "@/lib/nx/image";
-import { Plus, Pencil, Trash2, ExternalLink, X, ImageOff } from "lucide-react";
+import { Plus, Pencil, Trash2, ExternalLink, X, ImageOff, FolderKanban } from "lucide-react";
+import PageHeader from "../PageHeader";
+import StatusBadge from "../StatusBadge";
+import EmptyState from "../EmptyState";
 import { createProject, updateProject, toggleProjectStatus, deleteProject } from "@/lib/api/admin/portfolio";
-
-const STATUS_STYLES = {
-  published: "bg-[#3b6d11]/10 text-[#3b6d11]",
-  draft: "bg-[#676b7a]/10 text-[#676b7a]",
-};
 
 const STATUS_LABELS = {
   published: "Published",
@@ -93,14 +91,14 @@ export default function PortfolioManager({ initialProjects, onReload }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#2b303b]">Portfolio</h1>
-          <p className="mt-1 text-sm text-[#676b7a]">
+      <PageHeader
+        title="Portfolio"
+        subtitle={
+          <>
             {published} published project{published === 1 ? "" : "s"}, {draft} in draft.
-          </p>
-        </div>
-
+          </>
+        }
+        actions={
         <button
           type="button"
           onClick={openCreate}
@@ -109,14 +107,16 @@ export default function PortfolioManager({ initialProjects, onReload }) {
           <Plus className="h-4 w-4" aria-hidden="true" />
           New Featured Project
         </button>
-      </div>
+        }
+      />
 
       {projects.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#e7e9ee] bg-white py-16 text-center">
-          <p className="text-sm text-[#676b7a]">
-            No projects yet — click &quot;New Featured Project&quot; to add your first one.
-          </p>
-        </div>
+        <EmptyState
+          bordered
+          icon={FolderKanban}
+          title="No projects yet"
+          message='No projects yet — click "New Featured Project" to add your first one.'
+        />
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
@@ -142,9 +142,9 @@ export default function PortfolioManager({ initialProjects, onReload }) {
                   type="button"
                   onClick={() => handleToggleStatus(project)}
                   disabled={isPending}
-                  className={`absolute left-3 top-3 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold backdrop-blur-sm transition-opacity hover:opacity-80 ${STATUS_STYLES[project.status]}`}
+                  className="absolute left-3 top-3 inline-flex rounded-full bg-white/90 shadow-sm backdrop-blur-sm transition-opacity hover:opacity-80 disabled:opacity-50"
                 >
-                  {STATUS_LABELS[project.status]}
+                  <StatusBadge status={project.status} label={STATUS_LABELS[project.status]} />
                 </button>
               </div>
 

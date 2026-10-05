@@ -116,14 +116,14 @@ export default function AdminSearch() {
         onFocus={() => setOpen(true)}
         onKeyDown={handleKeyDown}
         placeholder="Search everything…"
-        className="w-full rounded-lg border border-[#e7e9ee] bg-[#fafbfc] py-2 pl-9 pr-3 text-sm text-[#2b303b] outline-none placeholder:text-[#676b7a]/50 focus:border-[#1f4693]/50 focus:bg-white"
+        className="w-full rounded-xl border border-[#e7e9ee] bg-[#fafbfc] py-2 pl-9 pr-3 text-sm text-[#2b303b] outline-none placeholder:text-[#676b7a]/50 focus:border-[#1f4693]/50 focus:bg-white"
       />
 
       {open && query.trim().length >= 2 && (
         <div className="absolute left-0 right-0 top-full z-40 mt-2 max-h-80 overflow-y-auto rounded-xl border border-[#e7e9ee] bg-white shadow-lg">
           {loading && (
             <div className="flex items-center gap-2 px-4 py-3 text-sm text-[#676b7a]">
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              <Loader2 className="h-4 w-4 motion-safe:animate-spin" aria-hidden="true" />
               Searching…
             </div>
           )}

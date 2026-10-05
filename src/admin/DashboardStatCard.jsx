@@ -23,7 +23,7 @@ export default function DashboardStatCard({
   const dark = accentDark ?? accent;
 
   return (
-    <div className="group overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+    <div className="group overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0">
       <div
         className="relative flex items-center justify-between overflow-hidden px-4 py-3"
         style={{ background: `linear-gradient(115deg, ${accent}, ${dark})` }}
@@ -44,7 +44,7 @@ export default function DashboardStatCard({
 
       <div className="p-5">
         <p className="text-sm text-[#676b7a]">{label}</p>
-        <p className="mt-1 text-2xl font-bold tracking-tight text-[#2b303b]">{value}</p>
+        <p className="mt-1 text-2xl font-bold tracking-tight tabular-nums text-[#2b303b]">{value}</p>
 
         {(delta || note) && (
           <p className="mt-2 flex items-center gap-1 text-xs">

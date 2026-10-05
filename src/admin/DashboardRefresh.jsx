@@ -42,7 +42,7 @@ export default function DashboardRefresh({ onRefresh }) {
   }, [isPending]);
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <span className="rounded-full bg-white px-3 py-1.5 text-xs font-medium text-[#676b7a] shadow-sm ring-1 ring-[#e7e9ee]">
         {updatedAt ? `Last updated: ${formatTimestamp(updatedAt)}` : "Loading…"}
       </span>
@@ -50,9 +50,9 @@ export default function DashboardRefresh({ onRefresh }) {
         type="button"
         onClick={handleRefresh}
         disabled={isPending}
-        className="inline-flex items-center gap-1.5 rounded-full border border-[#e7e9ee] bg-white px-3 py-1.5 text-xs font-semibold text-[#2b303b] shadow-sm transition-colors hover:border-[#1f4693]/40 hover:text-[#1f4693] disabled:opacity-60"
+        className="inline-flex items-center gap-1.5 rounded-full border border-[#e7e9ee] bg-white px-3 py-1.5 text-xs font-semibold text-[#2b303b] shadow-sm transition-colors hover:border-[#1f4693]/40 hover:text-[#1f4693] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f4693] disabled:opacity-60"
       >
-        <RefreshCw className={`h-3.5 w-3.5 ${isPending ? "animate-spin" : ""}`} aria-hidden="true" />
+        <RefreshCw className={`h-3.5 w-3.5 ${isPending ? "motion-safe:animate-spin" : ""}`} aria-hidden="true" />
         {isPending ? "Refreshing…" : "Refresh"}
       </button>
     </div>

@@ -12,6 +12,7 @@ import {
   ListOrdered,
 } from "lucide-react";
 import SearchConsoleTrendChart from "./SearchConsoleTrendChart";
+import PageHeader from "../PageHeader";
 import { SITE_URL } from "@/lib/site-config";
 
 const RANGE_OPTIONS = [
@@ -261,18 +262,16 @@ export default function SearchConsoleManager({ performance, range, onReload }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <Search className="h-5 w-5 text-[#f7941e]" aria-hidden="true" />
-            <h1 className="text-2xl font-bold tracking-tight text-[#2b303b]">Google Search Console</h1>
-          </div>
-          <p className="mt-1 text-sm text-[#676b7a]">
+      <PageHeader
+        icon={Search}
+        title="Google Search Console"
+        subtitle={
+          <>
             {SITE_URL}/ · {dateRangeLabel}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
+          </>
+        }
+        actions={
+        <div className="flex flex-wrap items-center gap-2">
           {RANGE_OPTIONS.map((option) => (
             <button
               key={option.value}
@@ -295,10 +294,11 @@ export default function SearchConsoleManager({ performance, range, onReload }) {
             aria-label="Refresh"
             className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#e7e9ee] bg-white text-[#676b7a] transition-colors duration-200 hover:border-[#1f4693]/40 hover:text-[#1f4693] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${isPending ? "animate-spin" : ""}`} aria-hidden="true" />
+            <RefreshCw className={`h-3.5 w-3.5 ${isPending ? "motion-safe:animate-spin" : ""}`} aria-hidden="true" />
           </button>
         </div>
-      </div>
+        }
+      />
 
       {performance.isSampleData && (
         <p className="-mt-2 rounded-lg border border-[#f7941e]/25 bg-[#fff7ed] px-3.5 py-2 text-xs leading-relaxed text-[#8a5a12]">

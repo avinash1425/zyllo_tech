@@ -13,16 +13,8 @@ import {
 } from "lucide-react";
 import { updateApplicationStatus } from "@/lib/api/admin/careers";
 import ResumeViewer from "./ResumeViewer";
-
-const STATUS_STYLES = {
-  new: "bg-[#5b7fd4]/10 text-[#1f4693]",
-  reviewed: "bg-[#676b7a]/10 text-[#676b7a]",
-  shortlisted: "bg-[#f7941e]/10 text-[#db7d17]",
-  interview: "bg-purple-100 text-purple-700",
-  offer: "bg-[#1f4693]/10 text-[#1f4693]",
-  hired: "bg-[#3b6d11]/10 text-[#3b6d11]",
-  rejected: "bg-red-50 text-red-600",
-};
+import StatusBadge from "../../StatusBadge";
+import EmptyState from "../../EmptyState";
 
 const STATUS_LABELS = {
   new: "New",
@@ -111,9 +103,11 @@ export default function ApplicantsManager({ job, initialApplicants }) {
       </div>
 
       {applicants.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#e7e9ee] bg-white p-10 text-center">
-          <p className="text-sm text-[#676b7a]">No applicants yet for this role.</p>
-        </div>
+        <EmptyState
+          bordered
+          title="No applicants yet"
+          message="No applicants yet for this role."
+        />
       ) : (
         <div className="flex flex-col gap-3">
           {applicants.map((applicant) => (
@@ -135,11 +129,7 @@ export default function ApplicantsManager({ job, initialApplicants }) {
                   <h3 className="text-base font-semibold text-[#2b303b]">
                     {applicant.full_name}
                   </h3>
-                  <span
-                    className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_STYLES[applicant.status]}`}
-                  >
-                    {STATUS_LABELS[applicant.status]}
-                  </span>
+                  <StatusBadge status={applicant.status} label={STATUS_LABELS[applicant.status]} />
                 </div>
                 <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#676b7a]">
                   <a
@@ -207,11 +197,11 @@ export default function ApplicantsManager({ job, initialApplicants }) {
             <div className="flex items-start justify-between border-b border-[#e7e9ee] p-6">
               <div>
                 <h2 className="text-lg font-bold text-[#2b303b]">{viewing.full_name}</h2>
-                <span
-                  className={`mt-1.5 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_STYLES[viewing.status]}`}
-                >
-                  {STATUS_LABELS[viewing.status]}
-                </span>
+                <StatusBadge
+                  status={viewing.status}
+                  label={STATUS_LABELS[viewing.status]}
+                  className="mt-1.5"
+                />
               </div>
               <button
                 type="button"

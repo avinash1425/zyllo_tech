@@ -8,7 +8,7 @@ const COLORS = {
 
 function renderOuterLabel({ cx, cy, midAngle, outerRadius, percent, name }) {
   const RADIAN = Math.PI / 180;
-  const radius = outerRadius + 26;
+  const radius = outerRadius + 20;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
   const anchor = x > cx ? "start" : "end";
@@ -24,7 +24,7 @@ function renderOuterLabel({ cx, cy, midAngle, outerRadius, percent, name }) {
       className="text-[11px] font-medium"
       fill={COLORS[name]}
     >
-      {`${name}: ${Math.round(percent * 100)}%`}
+      {`${Math.round(percent * 100)}%`}
     </text>
   );
 }

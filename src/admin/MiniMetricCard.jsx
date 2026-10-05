@@ -10,29 +10,29 @@ export default function MiniMetricCard({ icon: Icon, label, value, weekDelta, ac
   const filledSegments = Math.round((clampedProgress / 100) * segments);
 
   return (
-    <div className="group flex overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+    <div className="group flex overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0">
       <div
-        className="flex w-20 shrink-0 items-center justify-center"
+        className="flex w-16 shrink-0 sm:w-20 items-center justify-center"
         style={{ backgroundColor: `${accent}12` }}
       >
         <span
-          className="flex h-14 w-14 items-center justify-center rounded-full shadow-sm transition-transform duration-300 group-hover:scale-110"
+          className="flex h-11 w-11 items-center sm:h-14 sm:w-14 justify-center rounded-full shadow-sm transition-transform duration-300 group-hover:scale-110 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           style={{ backgroundColor: accent }}
         >
           <Icon className="h-6 w-6 text-white" aria-hidden="true" />
         </span>
       </div>
 
-      <div className="flex-1 p-5">
+      <div className="min-w-0 flex-1 p-4 sm:p-5">
         <div className="flex items-baseline justify-between gap-2">
-          <p className="truncate text-base text-[#676b7a]">{label}</p>
+          <p className="truncate text-sm font-medium text-[#676b7a] sm:text-base">{label}</p>
           {weekDelta !== undefined && weekDelta !== null && (
-            <span className="shrink-0 text-xs font-semibold" style={{ color: accent }}>
+            <span className="shrink-0 text-xs font-semibold tabular-nums" style={{ color: accent }}>
               +{weekDelta} this week
             </span>
           )}
         </div>
-        <p className="mt-1 text-3xl font-bold text-[#2b303b]">{value}</p>
+        <p className="mt-1 text-3xl font-bold tabular-nums text-[#2b303b]">{value}</p>
 
         <div className="mt-3 flex gap-1">
           {Array.from({ length: segments }).map((_, i) => (
