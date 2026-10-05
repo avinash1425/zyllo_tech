@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useActionState } from "react";
-import Link from "next/link";
+import Link from "@/lib/nx/link";
 import { Plus, MapPin, Pencil, Trash2, Users, X, Briefcase, CheckCircle2, XCircle } from "lucide-react";
 import {
   createJobPosting,

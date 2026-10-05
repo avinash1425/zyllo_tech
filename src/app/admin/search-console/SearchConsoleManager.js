@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/nx/navigation";
 import { useMemo, useState, useTransition } from "react";
 import {
   Search,

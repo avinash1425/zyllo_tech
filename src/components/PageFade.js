@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/lib/nx/navigation";
 
 // Wraps page content so every route change animates in with a subtle
 // fade + slide instead of Next.js's default hard cut. Keyed on pathname

@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
-import { usePathname } from "next/navigation";
+import Image from "@/lib/nx/image";
+import { usePathname } from "@/lib/nx/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
   Cloud,

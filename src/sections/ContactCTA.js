@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/lib/nx/link";
 import { Mail, MessageCircle, Phone } from "lucide-react";
 
 // Icon medallion style matches WhyChooseUs.js / Values.js / Technologies.js

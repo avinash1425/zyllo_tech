@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/lib/nx/link";
 import PageHero from "@/components/PageHero";
 import { SERVICES } from "@/data/services";
 

@@ -1,11 +1,13 @@
-// Browser/public Supabase client — uses the publishable key, safe to use
-// in client components. Relies on Row Level Security (RLS) policies to
-// control what data is actually readable/writable from here.
+// Single browser Supabase client (publishable key + user session in
+// localStorage). All access control is enforced by Row Level Security —
+// see supabase/policies/*.sql. The service/secret key is never used here.
 import { createClient } from "@supabase/supabase-js";
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "@/lib/env";
+
+export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+});
 
 export function createBrowserSupabaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-  );
+  return supabase;
 }

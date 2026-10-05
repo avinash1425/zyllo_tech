@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
+import Link from "@/lib/nx/link";
+import Image from "@/lib/nx/image";
 import { ArrowRight, Check } from "lucide-react";
 
 // Slider structure, timing, and interactions replicated from a reference

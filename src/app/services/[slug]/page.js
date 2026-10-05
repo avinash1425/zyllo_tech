@@ -1,5 +1,5 @@
-import { notFound } from "next/navigation";
-import Image from "next/image";
+import { notFound } from "@/lib/nx/navigation";
+import Image from "@/lib/nx/image";
 import { Check } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import OtherServices from "@/sections/OtherServices";

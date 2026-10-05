@@ -7,7 +7,7 @@
 // artifact (sitemap, robots.txt, canonical tags, OG links) picks it up
 // automatically — nothing else needs to change.
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.zyllotech.com"
+  import.meta.env.VITE_SITE_URL || "https://www.zyllotech.com"
 ).replace(/\/$/, "");
 
 export const SITE_NAME = "Zyllo Tech";

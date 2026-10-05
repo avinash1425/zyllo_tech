@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition, useActionState } from "react";
-import Link from "next/link";
+import Link from "@/lib/nx/link";
 import {
   Plus,
   Search,

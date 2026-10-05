@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/lib/nx/link";
 import { ArrowRight } from "lucide-react";
 import { getServiceBySlug } from "@/data/services";
 import { SERVICE_THEMES } from "./ServiceGrid";

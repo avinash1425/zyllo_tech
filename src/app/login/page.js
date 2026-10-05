@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
+import Image from "@/lib/nx/image";
+import Link from "@/lib/nx/link";
 import { Suspense, useState } from "react";
 import { useActionState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams } from "@/lib/nx/navigation";
 import {
   ArrowLeft,
   ArrowRight,

@@ -1,5 +1,5 @@
-import Image from "next/image";
-import Link from "next/link";
+import Image from "@/lib/nx/image";
+import Link from "@/lib/nx/link";
 import { Calendar, Clock } from "lucide-react";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { safeImageUrl } from "@/lib/safe-image-url";

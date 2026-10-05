@@ -1,5 +1,5 @@
-import Image from "next/image";
-import Link from "next/link";
+import Image from "@/lib/nx/image";
+import Link from "@/lib/nx/link";
 import { ArrowRight, Compass, Target } from "lucide-react";
 
 const VISION_MISSION = [

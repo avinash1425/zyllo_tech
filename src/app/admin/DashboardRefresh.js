@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/nx/navigation";
 import { RefreshCw } from "lucide-react";
 
 function formatTimestamp(date) {

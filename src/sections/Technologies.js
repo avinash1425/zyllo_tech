@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/lib/nx/image";
 import { BarChart3, Brain, Code2, Layers, Megaphone, Smartphone, Users, Wrench } from "lucide-react";
 
 // Third direction for this section — the marquee didn't land either, so

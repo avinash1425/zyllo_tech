@@ -1,5 +1,5 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
+import { notFound } from "@/lib/nx/navigation";
+import Link from "@/lib/nx/link";
 import { Calendar, Clock, ArrowLeft } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import Reveal from "@/components/Reveal";

@@ -1,8 +1,8 @@
 "use client";
 
 import { ArrowRight, Loader2, Search, Sparkles, X } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
+import Image from "@/lib/nx/image";
+import Link from "@/lib/nx/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { SERVICES } from "@/data/services";

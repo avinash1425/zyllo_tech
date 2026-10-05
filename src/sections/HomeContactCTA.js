@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/lib/nx/link";
 import { ArrowRight, Mail, MessageCircle, Phone } from "lucide-react";
 
 // Compact corporate banner instead of a big centered hero-style card —

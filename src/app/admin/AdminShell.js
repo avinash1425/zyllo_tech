@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Image from "@/lib/nx/image";
+import Link from "@/lib/nx/link";
+import { usePathname } from "@/lib/nx/navigation";
 import { useState } from "react";
 import {
   LayoutDashboard,

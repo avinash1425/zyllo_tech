@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/nx/navigation";
 import { Search, X, Loader2, FileText, Briefcase, Layers, Newspaper } from "lucide-react";
 
 const TYPE_ICON = {

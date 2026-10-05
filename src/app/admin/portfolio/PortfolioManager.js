@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Image from "next/image";
+import Image from "@/lib/nx/image";
 import { Plus, Pencil, Trash2, ExternalLink, X, ImageOff } from "lucide-react";
 import { createProject, updateProject, toggleProjectStatus, deleteProject } from "./actions";
 

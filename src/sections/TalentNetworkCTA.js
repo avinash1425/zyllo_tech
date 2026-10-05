@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/lib/nx/link";
 import { Mail, MessageCircle, Phone } from "lucide-react";
 
 const CONTACT_METHODS = [

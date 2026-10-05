@@ -1,8 +1,8 @@
 "use client";
 
 import { ArrowRight, Mail, MapPin, Phone, Sparkles } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
+import Image from "@/lib/nx/image";
+import Link from "@/lib/nx/link";
 import { useState } from "react";
 import LegalModal from "@/components/LegalModal";
 import {

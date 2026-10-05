@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/lib/nx/image";
 import { useState } from "react";
 
 const ROWS = [

@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/lib/nx/image";
 import { Compass, Hammer, PenTool, Rocket, Wrench } from "lucide-react";
 
 // Light version of the "equal-height cards" concept — every card stretches

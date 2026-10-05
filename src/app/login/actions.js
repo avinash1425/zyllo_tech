@@ -1,6 +1,6 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { redirect } from "@/lib/nx/navigation";
 import { createSsrServerClient } from "@/lib/supabase/ssr-server";
 
 export async function signIn(prevState, formData) {

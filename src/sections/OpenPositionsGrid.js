@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Link from "@/lib/nx/link";
 import { ArrowRight, Briefcase, MapPin } from "lucide-react";
 import Modal from "@/components/Modal";
 import ApplyForm from "@/app/careers/[id]/ApplyForm";

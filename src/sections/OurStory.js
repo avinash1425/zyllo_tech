@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/lib/nx/image";
 import { Compass, Target } from "lucide-react";
 
 // Mission/Vision moved down into this section (was its own standalone

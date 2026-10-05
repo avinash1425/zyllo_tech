@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound } from "@/lib/nx/navigation";
 import PageHero from "@/components/PageHero";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import ApplyForm from "./ApplyForm";
