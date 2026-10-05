@@ -59,10 +59,10 @@ export default function CareerDetail() {
         description={`${job.location} · ${job.employment_type}`}
       />
 
-      <section className="bg-white py-10 lg:py-14">
+      <section className="bg-[#fafbfc] py-10 lg:py-14">
         <div className="mx-auto max-w-3xl px-6 lg:px-8">
           {job.description && (
-            <div className="mb-10">
+            <div className="mb-10 rounded-2xl border border-[#e7e9ee] bg-white p-6 shadow-sm sm:p-8">
               <h2 className="text-xl font-bold tracking-tight text-[#2b303b]">
                 About this role
               </h2>

@@ -41,7 +41,7 @@ export default function OpenPositions() {
   return (
     <section
       id="open-positions"
-      className="relative overflow-hidden border-t border-[#e7e9ee] bg-[#fafbfc] py-6 lg:py-8 scroll-mt-24"
+      className="relative overflow-hidden border-t border-[#e7e9ee] bg-[#fafbfc] py-12 lg:py-16 scroll-mt-24"
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute -top-24 right-1/3 h-72 w-72 rounded-full bg-[#1f4693]/8 blur-[110px]" />
@@ -50,7 +50,7 @@ export default function OpenPositions() {
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-bold tracking-[0.2em] text-[#1f4693] uppercase">
+          <span className="inline-flex items-center gap-2 rounded-full bg-[#1f4693]/10 px-4 py-1.5 text-xs font-bold tracking-[0.2em] text-[#1f4693] uppercase">
             Open Positions
           </span>
 
@@ -64,7 +64,7 @@ export default function OpenPositions() {
           </p>
         </div>
 
-        {!loading && <OpenPositionsGrid positions={positions} />}
+        <OpenPositionsGrid positions={positions} loading={loading} />
       </div>
     </section>
   );
