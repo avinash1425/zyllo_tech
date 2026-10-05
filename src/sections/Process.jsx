@@ -99,7 +99,7 @@ export default function Process() {
               <div
                 key={number}
                 style={{ animationDelay: `${index * 0.08}s` }}
-                className="process-step group relative flex h-full flex-col items-center"
+                className="zt-process-step group relative flex h-full flex-col items-center"
               >
                 <div
                   className="relative z-[1] -mb-8 flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg ring-4 ring-white transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105"
@@ -110,13 +110,13 @@ export default function Process() {
                 >
                   <Icon className="h-6 w-6" aria-hidden="true" />
                   <span
-                    className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[9px] font-extrabold shadow-sm"
+                    className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[9px] font-extrabold shadow-[0_1px_2px_0_rgba(0,0,0,0.05)]"
                     style={{ color: accent }}
                   >
                     {number}
                   </span>
                 </div>
-                <div className="flex h-full w-full flex-col items-center rounded-2xl border border-[#e2e5ea] bg-white px-5 pb-5 pt-11 text-center shadow-sm transition-all duration-300 group-hover:border-[#f96706]/30 group-hover:shadow-lg group-hover:shadow-[#1c2f4a]/5">
+                <div className="flex h-full w-full flex-col items-center rounded-2xl border border-[#e2e5ea] bg-white px-5 pb-5 pt-11 text-center shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] transition-all duration-300 group-hover:border-[#f96706]/30 group-hover:shadow-lg group-hover:shadow-[#1c2f4a]/5">
                   <h3 className="text-base font-bold text-[#0f172a]">{title}</h3>
                   <p className="mt-1.5 text-sm leading-relaxed text-[#54607a]">
                     {description}
@@ -129,7 +129,7 @@ export default function Process() {
       </div>
 
       <style>{`
-        @keyframes stepFadeUp {
+        @keyframes zt-stepFadeUp {
           from {
             opacity: 0;
             transform: translateY(14px);
@@ -139,8 +139,8 @@ export default function Process() {
             transform: translateY(0);
           }
         }
-        .process-step {
-          animation: stepFadeUp 0.6s ease-out both;
+        .zt-process-step {
+          animation: zt-stepFadeUp 0.6s ease-out both;
         }
       `}</style>
     </section>

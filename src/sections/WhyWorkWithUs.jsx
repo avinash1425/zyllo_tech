@@ -55,7 +55,7 @@ export default function WhyWorkWithUs() {
         {/* Connected process row — circular badges on a dashed connector,
             same visual family as a step-by-step implementation timeline.
             Step titles carry real weight since they ARE the content here. */}
-        <div className="relative mt-14 rounded-[28px] border border-[#e2e5ea] bg-white px-8 py-12 shadow-sm sm:px-10 lg:px-12">
+        <div className="relative mt-14 rounded-[28px] border border-[#e2e5ea] bg-white px-8 py-12 shadow-[0_1px_2px_rgba(16,26,58,0.08)] sm:px-10 lg:px-12">
           <div className="relative flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between lg:gap-4">
             <span
               aria-hidden="true"

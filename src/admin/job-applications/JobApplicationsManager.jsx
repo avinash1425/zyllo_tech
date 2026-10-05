@@ -799,7 +799,7 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
                 aria-label="Close"
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-[#fafbfc] hover:text-[#2b303b]"
               >
-                <X className="h-4.5 w-4.5" aria-hidden="true" />
+                <X className="h-[18px] w-[18px]" aria-hidden="true" />
               </button>
             </div>
 
@@ -948,7 +948,7 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
                 aria-label="Close"
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-[#fafbfc] hover:text-[#2b303b]"
               >
-                <X className="h-4.5 w-4.5" aria-hidden="true" />
+                <X className="h-[18px] w-[18px]" aria-hidden="true" />
               </button>
             </div>
 

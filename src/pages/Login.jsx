@@ -107,7 +107,7 @@ export default function LoginPage() {
         Back to Home
       </Link>
 
-      <div className="login-fade-in relative z-[1] w-full max-w-md" style={{ animationDelay: "0.05s" }}>
+      <div className="zt-login-fade-in relative z-[1] w-full max-w-md" style={{ animationDelay: "0.05s" }}>
         <div className="flex flex-col items-center text-center">
           <div className="flex items-center gap-2.5">
             <Image
@@ -153,7 +153,7 @@ export default function LoginPage() {
                   onClick={() => setMode("signin")}
                   className={`flex-1 rounded-full py-1.5 text-xs font-semibold transition-all duration-200 ${
                     mode === "signin"
-                      ? "bg-gradient-to-r from-[#f96706] to-[#3089a6] text-white shadow-sm"
+                      ? "bg-gradient-to-r from-[#f96706] to-[#3089a6] text-white shadow-[0_1px_2px_rgba(16,26,58,0.08)]"
                       : "text-white/50 hover:text-white/80"
                   }`}
                 >
@@ -164,7 +164,7 @@ export default function LoginPage() {
                   onClick={() => setMode("signup")}
                   className={`flex-1 rounded-full py-1.5 text-xs font-semibold transition-all duration-200 ${
                     mode === "signup"
-                      ? "bg-gradient-to-r from-[#f96706] to-[#3089a6] text-white shadow-sm"
+                      ? "bg-gradient-to-r from-[#f96706] to-[#3089a6] text-white shadow-[0_1px_2px_rgba(16,26,58,0.08)]"
                       : "text-white/50 hover:text-white/80"
                   }`}
                 >
@@ -190,7 +190,7 @@ export default function LoginPage() {
                       </label>
                       <div className="relative">
                         <Mail
-                          className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-white/40"
+                          className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-white/40"
                           aria-hidden="true"
                         />
                         <input
@@ -211,7 +211,7 @@ export default function LoginPage() {
                       </label>
                       <div className="relative">
                         <Lock
-                          className="pointer-events-none absolute left-3.5 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-white/40"
+                          className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-white/40"
                           aria-hidden="true"
                         />
                         <input
@@ -230,9 +230,9 @@ export default function LoginPage() {
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 transition-colors hover:text-white"
                         >
                           {showPassword ? (
-                            <EyeOff className="h-4.5 w-4.5" aria-hidden="true" />
+                            <EyeOff className="h-[18px] w-[18px]" aria-hidden="true" />
                           ) : (
-                            <Eye className="h-4.5 w-4.5" aria-hidden="true" />
+                            <Eye className="h-[18px] w-[18px]" aria-hidden="true" />
                           )}
                         </button>
                       </div>
@@ -254,7 +254,7 @@ export default function LoginPage() {
               ) : (
                 <div className="mt-6 flex flex-col items-center text-center">
                   <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#f96706] to-[#3089a6]">
-                    <Users className="h-5.5 w-5.5 text-white" aria-hidden="true" />
+                    <Users className="h-[22px] w-[22px] text-white" aria-hidden="true" />
                   </span>
                   <h1 className="mt-4 text-2xl font-bold text-white">Request access</h1>
                   <p className="mt-2 max-w-xs text-sm leading-relaxed text-white/60">
@@ -292,11 +292,11 @@ export default function LoginPage() {
       </div>
 
       <style>{`
-        .login-fade-in {
+        .zt-login-fade-in {
           opacity: 0;
-          animation: loginFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: ztLoginFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        @keyframes loginFadeIn {
+        @keyframes ztLoginFadeIn {
           from {
             opacity: 0;
             transform: translateY(14px);

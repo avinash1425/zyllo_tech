@@ -27,7 +27,7 @@ export default function ScrollToTop() {
       type="button"
       onClick={scrollToTop}
       aria-label="Back to top"
-      className={`fixed bottom-20 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-[#f96706] text-white shadow-xl shadow-black/20 transition-all duration-300 hover:scale-110 hover:bg-[#c9580d] hover:shadow-2xl sm:bottom-24 sm:right-6 sm:h-14 sm:w-14 ${
+      className={`fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-[#f96706] text-white shadow-[0_20px_25px_-5px_rgba(0,0,0,0.2)] transition-all duration-300 hover:scale-110 hover:bg-[#c9580d] max-sm:[html[data-zt-cookie]_&]:bottom-[calc(10rem+env(safe-area-inset-bottom))] sm:bottom-24 sm:right-6 sm:h-14 sm:w-14 ${
         visible
           ? "translate-y-0 opacity-100"
           : "pointer-events-none translate-y-4 opacity-0"

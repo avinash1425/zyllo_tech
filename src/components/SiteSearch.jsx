@@ -152,12 +152,12 @@ export default function SiteSearch({ variant = "desktop" }) {
         isOpen &&
         createPortal(
           <div
-            className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-[#0b1220]/70 px-4 py-6 backdrop-blur-sm sm:items-center sm:py-10"
+            className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-[#0b1220]/70 px-4 py-6 backdrop-blur-[4px] sm:items-center sm:py-10"
             onMouseDown={(e) => {
               if (e.target === e.currentTarget) closeSearch();
             }}
         >
-          <div className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+          <div className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]">
             <div className="flex items-start justify-between gap-4 border-b border-[#f0f1f4] px-6 py-5">
               <div className="flex items-start gap-3">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#f7941e] to-[#1f4693] text-white shadow-sm">
@@ -181,7 +181,7 @@ export default function SiteSearch({ variant = "desktop" }) {
             </div>
 
             <div className="px-6 pt-5">
-              <div className="flex items-center gap-2 rounded-full border-2 border-[#a8d4f0] bg-white px-2 py-2 shadow-sm transition-colors focus-within:border-[#f7941e]">
+              <div className="flex items-center gap-2 rounded-full border-2 border-[#a8d4f0] bg-white px-2 py-2 shadow-[0_1px_2px_rgba(0,0,0,0.06)] transition-colors focus-within:border-[#f7941e]">
                 <Search className="ml-2 h-4 w-4 shrink-0 text-[#676b7a]/60" aria-hidden="true" />
                 <input
                   ref={inputRef}

@@ -33,7 +33,7 @@ export default function DashboardStatCard({
           className="pointer-events-none absolute -right-3 -top-3 h-20 w-20 text-white/15 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6"
         />
         <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
-          <Icon className="h-4.5 w-4.5 text-white" aria-hidden="true" />
+          <Icon className="h-[18px] w-[18px] text-white" aria-hidden="true" />
         </span>
         {badgeLabel && (
           <span className="relative inline-flex items-center rounded-full bg-white/20 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-sm">

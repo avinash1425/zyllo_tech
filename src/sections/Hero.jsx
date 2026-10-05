@@ -117,7 +117,7 @@ export default function Hero() {
 
   return (
     <section
-      className="hero-slider relative isolate overflow-hidden bg-[#0b0e17] text-white"
+      className="zt-hero-slider relative isolate grid overflow-hidden bg-[#0b0e17] text-white"
       aria-roledescription="carousel"
       aria-label="Zyllo Tech highlights"
       onMouseEnter={stopAutoplay}
@@ -134,7 +134,7 @@ export default function Hero() {
         return (
           <article
             key={slide.image}
-            className={`hero-slide absolute inset-0 transition-[opacity,visibility] duration-1000 ease-in-out ${
+            className={`zt-hero-slide relative col-start-1 row-start-1 min-w-0 transition-[opacity,visibility] duration-1000 ease-in-out ${
               isActive ? "visible opacity-100" : "invisible opacity-0"
             }`}
             aria-hidden={!isActive}
@@ -145,7 +145,7 @@ export default function Hero() {
               fill
               priority={index === 0}
               sizes="100vw"
-              className={`hero-slide-img object-cover transition-transform duration-[9000ms] ease-out ${
+              className={`zt-hero-slide-img object-cover transition-transform duration-[9000ms] ease-out ${
                 isActive ? "scale-100" : "scale-[1.08]"
               }`}
             />
@@ -173,11 +173,11 @@ export default function Hero() {
               style={{ background: slide.accent }}
             />
 
-            <div className="relative mx-auto flex h-full max-w-7xl items-center justify-center px-6 lg:px-8">
-              <div className="mx-auto flex max-w-3xl flex-col items-center py-20 text-center lg:py-0">
+            <div className="zt-hero-content relative mx-auto flex h-full max-w-7xl items-center justify-center px-6 sm:px-20 lg:px-24">
+              <div className="mx-auto flex w-full max-w-3xl flex-col items-center py-10 pb-24 text-center sm:py-16 sm:pb-24 lg:py-20 lg:pb-24">
                 <span
-                  className={`hero-eyebrow inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/10 py-1.5 pl-2 pr-3.5 text-[11px] font-bold uppercase tracking-[0.18em] backdrop-blur-md sm:text-xs ${
-                    isActive ? "hero-rise" : ""
+                  className={`zt-hero-eyebrow inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/10 py-1.5 pl-2 pr-3.5 text-[11px] font-bold uppercase tracking-[0.18em] backdrop-blur-md sm:text-xs ${
+                    isActive ? "zt-hero-rise" : ""
                   }`}
                   style={isActive ? { animationDelay: "0.05s" } : undefined}
                 >
@@ -191,8 +191,8 @@ export default function Hero() {
                 </span>
 
                 <h2
-                  className={`mt-4 text-[30px] font-extrabold leading-[1.04] tracking-[-0.028em] text-white [text-shadow:0_2px_22px_rgba(0,0,0,0.65)] sm:text-[44px] lg:text-[52px] ${
-                    isActive ? "hero-rise" : ""
+                  className={`mt-4 text-[30px] font-extrabold leading-[1.04] tracking-[-0.028em] text-white [text-shadow:0_2px_22px_rgba(0,0,0,0.65)] sm:text-[44px] lg:text-[52px] 2xl:text-[60px] ${
+                    isActive ? "zt-hero-rise" : ""
                   }`}
                   style={isActive ? { animationDelay: "0.16s" } : undefined}
                 >
@@ -214,7 +214,7 @@ export default function Hero() {
 
                 <p
                   className={`mt-4 max-w-2xl text-[14.5px] leading-[1.6] text-white/90 [text-shadow:0_1px_10px_rgba(0,0,0,0.55)] sm:text-base ${
-                    isActive ? "hero-rise" : ""
+                    isActive ? "zt-hero-rise" : ""
                   }`}
                   style={isActive ? { animationDelay: "0.28s" } : undefined}
                 >
@@ -222,19 +222,19 @@ export default function Hero() {
                 </p>
 
                 <div
-                  className={`mt-6 flex flex-wrap items-center justify-center gap-2.5 ${isActive ? "hero-rise" : ""}`}
+                  className={`mt-6 flex w-full flex-col items-stretch justify-center gap-2.5 min-[420px]:w-auto min-[420px]:flex-row min-[420px]:flex-wrap min-[420px]:items-center ${isActive ? "zt-hero-rise" : ""}`}
                   style={isActive ? { animationDelay: "0.4s" } : undefined}
                 >
                   <Link
                     href={slide.primaryCta.href}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold text-white shadow-[0_14px_34px_rgba(0,0,0,0.4)] transition-transform duration-200 hover:-translate-y-0.5"
+                    className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold text-white shadow-[0_14px_34px_rgba(0,0,0,0.4)] transition-transform duration-200 hover:-translate-y-0.5"
                     style={{ background: `linear-gradient(135deg, ${slide.accent}, ${slide.accentSoft})` }}
                   >
                     {slide.primaryCta.label}
                   </Link>
                   <Link
                     href={slide.secondaryCta.href}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/50 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-white/20"
+                    className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-white/50 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-white/20"
                   >
                     {slide.secondaryCta.label}
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -242,8 +242,8 @@ export default function Hero() {
                 </div>
 
                 <ul
-                  className={`mt-6 flex flex-wrap justify-center gap-x-2 gap-y-2 text-xs font-semibold text-white/90 ${
-                    isActive ? "hero-rise" : ""
+                  className={`mt-6 flex flex-col items-center gap-2 text-xs sm:flex-row sm:flex-wrap sm:justify-center font-semibold text-white/90 ${
+                    isActive ? "zt-hero-rise" : ""
                   }`}
                   style={isActive ? { animationDelay: "0.52s" } : undefined}
                 >
@@ -253,7 +253,7 @@ export default function Hero() {
                       className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1 backdrop-blur-sm"
                     >
                       <span
-                        className="grid h-3.5 w-3.5 place-items-center rounded-full text-white"
+                        className="grid h-3.5 w-3.5 shrink-0 place-items-center rounded-full text-white"
                         style={{ background: "linear-gradient(135deg, #3089a6, #f96706)" }}
                       >
                         <Check className="h-2.5 w-2.5" aria-hidden="true" />
@@ -276,7 +276,7 @@ export default function Hero() {
           restartAutoplay();
         }}
         aria-label="Previous slide"
-        className="slider-arrow absolute left-3 top-1/2 z-20 grid h-[2.875rem] w-[2.875rem] -translate-y-1/2 place-items-center rounded-full border border-white/40 bg-[#0b0e17]/60 text-white shadow-lg shadow-black/30 backdrop-blur-md transition-all duration-200 hover:scale-105 hover:border-white/70 hover:bg-[#0b0e17]/80 sm:left-5"
+        className="zt-slider-arrow absolute left-3 top-1/2 z-20 hidden h-[2.875rem] w-[2.875rem] -translate-y-1/2 place-items-center rounded-full border border-white/40 bg-[#0b0e17]/60 text-white shadow-lg shadow-black/30 backdrop-blur-md transition-all duration-200 hover:scale-105 hover:border-white/70 hover:bg-[#0b0e17]/80 sm:left-5 sm:grid"
       >
         <ArrowRight className="h-6 w-6 rotate-180" aria-hidden="true" />
       </button>
@@ -287,33 +287,38 @@ export default function Hero() {
           restartAutoplay();
         }}
         aria-label="Next slide"
-        className="slider-arrow absolute right-3 top-1/2 z-20 grid h-[2.875rem] w-[2.875rem] -translate-y-1/2 place-items-center rounded-full border border-white/40 bg-[#0b0e17]/60 text-white shadow-lg shadow-black/30 backdrop-blur-md transition-all duration-200 hover:scale-105 hover:border-white/70 hover:bg-[#0b0e17]/80 sm:right-5"
+        className="zt-slider-arrow absolute right-3 top-1/2 z-20 hidden h-[2.875rem] w-[2.875rem] -translate-y-1/2 place-items-center rounded-full border border-white/40 bg-[#0b0e17]/60 text-white shadow-lg shadow-black/30 backdrop-blur-md transition-all duration-200 hover:scale-105 hover:border-white/70 hover:bg-[#0b0e17]/80 sm:right-5 sm:grid"
       >
         <ArrowRight className="h-6 w-6" aria-hidden="true" />
       </button>
 
-      {/* Dots */}
-      <div className="absolute inset-x-0 bottom-7 z-20 flex justify-center gap-2.5">
-        {SLIDES.map((slide, index) => (
-          <button
-            key={slide.image}
-            type="button"
-            onClick={() => {
-              goTo(index);
-              restartAutoplay();
-            }}
-            aria-label={`Go to slide ${index + 1}`}
-            className={`h-[0.55rem] rounded-full shadow-[0_1px_4px_rgba(0,0,0,0.5)] ring-1 ring-black/20 transition-all duration-200 ${
-              index === activeIndex ? "w-[1.85rem] bg-white" : "w-[0.55rem] bg-white/70 hover:bg-white/90"
-            }`}
-          />
-        ))}
+      {/* Dots (+ arrows on phones) */}
+      <div className="absolute inset-x-0 bottom-5 z-20 flex items-center justify-center gap-3 sm:bottom-7">
+        <button type="button" onClick={() => { prev(); restartAutoplay(); }} aria-label="Previous slide"
+          className="grid h-11 w-11 place-items-center rounded-full border border-white/40 bg-[#0b0e17]/60 text-white backdrop-blur-md sm:hidden">
+          <ArrowRight className="h-5 w-5 rotate-180" aria-hidden="true" />
+        </button>
+        <div className="flex items-center gap-1">
+          {SLIDES.map((slide, index) => (
+            <button key={slide.image} type="button" onClick={() => { goTo(index); restartAutoplay(); }}
+              aria-label={`Go to slide ${index + 1}`}
+              className="grid h-11 w-5 place-items-center sm:h-6 sm:w-4">
+              <span className={`block h-[0.55rem] rounded-full shadow-[0_1px_4px_rgba(0,0,0,0.5)] ring-1 ring-black/20 transition-all duration-200 ${
+                  index === activeIndex ? "w-[1.85rem] bg-white" : "w-[0.55rem] bg-white/70"
+                }`} />
+            </button>
+          ))}
+        </div>
+        <button type="button" onClick={() => { next(); restartAutoplay(); }} aria-label="Next slide"
+          className="grid h-11 w-11 place-items-center rounded-full border border-white/40 bg-[#0b0e17]/60 text-white backdrop-blur-md sm:hidden">
+          <ArrowRight className="h-5 w-5" aria-hidden="true" />
+        </button>
       </div>
 
       {/* Scroll cue */}
-      <span className="scroll-cue absolute bottom-7 right-8 z-20 hidden flex-col items-center gap-2 text-white/85 lg:flex">
+      <span className="zt-scroll-cue absolute bottom-7 right-8 z-20 hidden flex-col items-center gap-2 text-white/85 lg:flex">
         <span className="grid h-[1.6rem] w-4 place-items-start justify-center rounded-full border-[1.5px] border-current pt-1">
-          <span className="scroll-cue-dot h-1 w-0.5 rounded-full bg-current" />
+          <span className="zt-scroll-cue-dot h-1 w-0.5 rounded-full bg-current" />
         </span>
         <span className="text-[10.5px] font-bold uppercase tracking-[0.22em]">Scroll</span>
       </span>
@@ -329,21 +334,14 @@ export default function Hero() {
       />
 
       <style>{`
-        .hero-slider {
-          min-height: 480px;
-          height: 70vh;
-          max-height: 660px;
+        .zt-hero-slider { min-height: clamp(540px, 80svh, 760px); }
+        @media (min-width: 640px) and (max-width: 1023px) { .zt-hero-slider { min-height: clamp(560px, 62svh, 700px); } }
+        @media (min-width: 1024px) { .zt-hero-slider { min-height: clamp(560px, 72svh, 720px); } }
+        @media (min-width: 1920px) { .zt-hero-slider { min-height: clamp(640px, 70svh, 820px); } }
+        .zt-hero-rise {
+          animation: zt-heroRise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
-        @media (max-width: 1023px) {
-          .hero-slider {
-            height: auto;
-            min-height: 460px;
-          }
-        }
-        .hero-rise {
-          animation: heroRise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
-        }
-        @keyframes heroRise {
+        @keyframes zt-heroRise {
           from {
             opacity: 0;
             transform: translateY(22px);
@@ -353,10 +351,10 @@ export default function Hero() {
             transform: none;
           }
         }
-        .scroll-cue-dot {
-          animation: cueBounce 1.6s ease-in-out infinite;
+        .zt-scroll-cue-dot {
+          animation: zt-cueBounce 1.6s ease-in-out infinite;
         }
-        @keyframes cueBounce {
+        @keyframes zt-cueBounce {
           0%,
           to {
             transform: translateY(0);
@@ -368,9 +366,9 @@ export default function Hero() {
           }
         }
         @media (prefers-reduced-motion: reduce) {
-          .hero-rise,
-          .scroll-cue-dot,
-          .hero-slide-img {
+          .zt-hero-rise,
+          .zt-scroll-cue-dot,
+          .zt-hero-slide-img {
             animation: none !important;
             transition: none !important;
           }

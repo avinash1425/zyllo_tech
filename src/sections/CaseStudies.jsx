@@ -36,8 +36,8 @@ export default function CaseStudies() {
   return (
     <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-white py-6 lg:py-8">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 right-1/4 h-72 w-72 rounded-full bg-[#1f4693]/8 blur-[110px]" />
-        <div className="absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-[#f7941e]/8 blur-[110px]" />
+        <div className="absolute -top-24 right-1/4 h-72 w-72 rounded-full bg-[#1f4693]/[0.08] blur-[110px]" />
+        <div className="absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-[#f7941e]/[0.08] blur-[110px]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
@@ -57,7 +57,7 @@ export default function CaseStudies() {
         {cases.length === 0 ? (
           <div className="mx-auto mt-8 flex max-w-lg flex-col items-center rounded-2xl border border-[#e7e9ee] bg-[#fafbfc] p-10 text-center">
             <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#f7941e]/15 to-[#1f4693]/15">
-              <Lightbulb className="h-5.5 w-5.5 text-[#f7941e]" aria-hidden="true" />
+              <Lightbulb className="h-[22px] w-[22px] text-[#f7941e]" aria-hidden="true" />
             </span>
             <p className="mt-4 text-base text-[#676b7a]">
               We&apos;re documenting detailed case studies from recent
@@ -120,14 +120,14 @@ export default function CaseStudies() {
                           />
                         )}
                         <span
-                          className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border shadow-sm ${
+                          className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] ${
                             key === "result"
                               ? "border-[#f7941e]/30 bg-gradient-to-br from-[#f7941e]/15 to-[#db7d17]/15"
                               : "border-white/70 bg-gradient-to-br from-[#f7941e]/10 to-[#1f4693]/10"
                           }`}
                         >
                           <Icon
-                            className={`h-4.5 w-4.5 ${key === "result" ? "text-[#f7941e]" : "text-[#1f4693]"}`}
+                            className={`h-[18px] w-[18px] ${key === "result" ? "text-[#f7941e]" : "text-[#1f4693]"}`}
                             aria-hidden="true"
                           />
                         </span>

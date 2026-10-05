@@ -51,30 +51,30 @@ export default function Reveal({ children, delay = 0, className = "" }) {
   return (
     <div
       ref={ref}
-      className={`reveal-wrap reveal-${state} ${className}`}
+      className={`zt-reveal-wrap zt-reveal-${state} ${className}`}
       style={{ transitionDelay: state === "visible" ? `${delay}ms` : "0ms" }}
     >
       {children}
 
       <style>{`
-        .reveal-wrap {
+        .zt-reveal-wrap {
           overflow: clip;
           transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
             transform 1s cubic-bezier(0.16, 1, 0.3, 1),
             filter 1s cubic-bezier(0.16, 1, 0.3, 1);
           will-change: opacity, transform, filter;
         }
-        .reveal-hidden-down {
+        .zt-reveal-hidden-down {
           opacity: 0;
           filter: blur(5px);
           transform: scale(0.97) translateY(48px);
         }
-        .reveal-hidden-up {
+        .zt-reveal-hidden-up {
           opacity: 0;
           filter: blur(5px);
           transform: scale(0.97) translateY(-48px);
         }
-        .reveal-visible {
+        .zt-reveal-visible {
           opacity: 1;
           filter: blur(0px);
           transform: scale(1) translateY(0);

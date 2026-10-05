@@ -3,6 +3,7 @@ import Seo from "@/components/Seo";
 import PageHero from "@/components/PageHero";
 import WhyJoinZyllo from "@/sections/WhyJoinZyllo";
 import OpenPositions from "@/sections/OpenPositions";
+import HowWeHire from "@/sections/careers/HowWeHire";
 import Reveal from "@/components/Reveal";
 
 const PERKS = [
@@ -64,6 +65,9 @@ export default function CareersPage() {
 
       <Reveal>
         <WhyJoinZyllo />
+      </Reveal>
+      <Reveal>
+        <HowWeHire />
       </Reveal>
       <Reveal>
         <OpenPositions />

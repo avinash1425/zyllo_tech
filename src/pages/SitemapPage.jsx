@@ -57,18 +57,18 @@ export default function SitemapPage() {
 
       <section className="bg-white py-12 lg:py-16">
         <div className="mx-auto max-w-5xl px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-x-8 gap-y-8 lg:gap-x-10 sm:grid-cols-2 lg:grid-cols-4">
             {GROUPS.map((group) => (
               <div key={group.title}>
                 <h2 className="relative inline-block pb-3 text-sm font-bold uppercase tracking-[0.15em] text-[#f96706] after:absolute after:bottom-0 after:left-0 after:h-px after:w-8 after:bg-[#f96706]">
                   {group.title}
                 </h2>
-                <ul className="mt-4 flex flex-col gap-2.5">
+                <ul className="mt-4 flex flex-col gap-0">
                   {group.links.map((link) => (
                     <li key={link.href}>
                       <Link
                         href={link.href}
-                        className="text-sm font-medium text-[#54607a] transition-all duration-200 hover:translate-x-1 hover:text-[#f96706]"
+                        className="inline-flex min-h-[44px] items-center text-sm font-medium text-[#54607a] transition-all duration-200 hover:translate-x-1 hover:text-[#f96706]"
                       >
                         {link.label}
                       </Link>

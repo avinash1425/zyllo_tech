@@ -208,7 +208,7 @@ export default function AdminShell({ children }) {
           </button>
         </div>
 
-        <nav className="admin-scroll relative flex-1 overflow-y-auto px-3 pb-2 pt-1" aria-label="Admin">
+        <nav className="zt-admin-scroll relative flex-1 overflow-y-auto px-3 pb-2 pt-1" aria-label="Admin">
           <div className="flex flex-col gap-4">
             {NAV_SECTIONS.map((section) => (
               <div key={section.label}>
@@ -324,10 +324,10 @@ export default function AdminShell({ children }) {
         <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
       <style>{`
-        .admin-scroll { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.18) transparent; }
-        .admin-scroll::-webkit-scrollbar { width: 6px; }
-        .admin-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 9999px; }
-        .admin-scroll::-webkit-scrollbar-track { background: transparent; }
+        .zt-admin-scroll { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.18) transparent; }
+        .zt-admin-scroll::-webkit-scrollbar { width: 6px; }
+        .zt-admin-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 9999px; }
+        .zt-admin-scroll::-webkit-scrollbar-track { background: transparent; }
       `}</style>
     </div>
   );

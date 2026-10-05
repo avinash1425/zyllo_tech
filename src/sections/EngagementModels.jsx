@@ -44,10 +44,10 @@ const MODELS = [
 
 export default function EngagementModels() {
   return (
-    <section className="relative overflow-hidden border-t border-[#e2e5ea] bg-white py-14 lg:py-18">
+    <section className="relative overflow-hidden border-t border-[#e2e5ea] bg-white py-14 lg:py-[4.5rem]">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 right-1/4 h-72 w-72 rounded-full bg-[#f96706]/8 blur-[110px]" />
-        <div className="absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-[#1c2f4a]/8 blur-[110px]" />
+        <div className="absolute -top-24 right-1/4 h-72 w-72 rounded-full bg-[#f96706]/[0.08] blur-[110px]" />
+        <div className="absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-[#1c2f4a]/[0.08] blur-[110px]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
@@ -69,12 +69,12 @@ export default function EngagementModels() {
         {/* Styled as a comparison table, not another icon-badge card grid —
             a top color band per tier + a divided feature list instead of
             individual bordered cards with a square icon badge. */}
-        <div className="mt-10 grid grid-cols-1 overflow-hidden rounded-2xl border border-[#e2e5ea] shadow-sm lg:grid-cols-3">
+        <div className="mt-10 grid grid-cols-1 overflow-hidden rounded-2xl border border-[#e2e5ea] shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] lg:grid-cols-3">
           {MODELS.map(({ icon: Icon, name, tagline, features, highlighted }, index) => (
             <div
               key={name}
               style={{ animationDelay: `${index * 0.1}s` }}
-              className={`model-in relative flex flex-col ${
+              className={`zt-model-in relative flex flex-col ${
                 highlighted ? "bg-[#fffaf5]" : "bg-white"
               } ${index > 0 ? "border-t border-[#e2e5ea] lg:border-l lg:border-t-0" : ""}`}
             >
@@ -89,7 +89,7 @@ export default function EngagementModels() {
                 }}
               />
               {highlighted && (
-                <span className="absolute right-5 top-5 rounded-full bg-gradient-to-r from-[#f96706] to-[#3089a6] px-3 py-1 text-[10.5px] font-bold uppercase tracking-wide text-white shadow-sm">
+                <span className="absolute right-5 top-5 rounded-full bg-gradient-to-r from-[#f96706] to-[#3089a6] px-3 py-1 text-[10.5px] font-bold uppercase tracking-wide text-white shadow-[0_1px_2px_0_rgba(0,0,0,0.05)]">
                   Most Common
                 </span>
               )}
@@ -118,10 +118,10 @@ export default function EngagementModels() {
       </div>
 
       <style>{`
-        .model-in {
-          animation: modelFadeUp 0.6s ease-out both;
+        .zt-model-in {
+          animation: zt-modelFadeUp 0.6s ease-out both;
         }
-        @keyframes modelFadeUp {
+        @keyframes zt-modelFadeUp {
           from {
             opacity: 0;
             transform: translateY(16px);

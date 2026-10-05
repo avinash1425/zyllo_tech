@@ -17,8 +17,8 @@ export default function OtherServices({ excludeSlug }) {
   return (
     <section className="relative overflow-hidden bg-[#fafbfc] py-10 lg:py-14">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 right-1/4 h-80 w-80 rounded-full bg-[#f7941e]/8 blur-[110px]" />
-        <div className="absolute -bottom-24 left-1/4 h-80 w-80 rounded-full bg-[#1f4693]/8 blur-[110px]" />
+        <div className="absolute -top-24 right-1/4 h-80 w-80 rounded-full bg-[#f7941e]/[0.08] blur-[110px]" />
+        <div className="absolute -bottom-24 left-1/4 h-80 w-80 rounded-full bg-[#1f4693]/[0.08] blur-[110px]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
@@ -32,8 +32,8 @@ export default function OtherServices({ excludeSlug }) {
         </div>
       </div>
 
-      <div className="marquee-mask relative mt-12 overflow-hidden px-10 lg:px-24">
-        <div className="marquee-track flex w-max gap-6 px-6">
+      <div className="zt-marquee-mask relative mt-12 overflow-hidden px-10 lg:px-24">
+        <div className="zt-marquee-track flex w-max gap-6 px-6">
           {track.map((service, index) => {
             const Icon = service.icon;
             const theme = SERVICE_THEMES[service.slug] ?? DEFAULT_THEME;
@@ -41,7 +41,7 @@ export default function OtherServices({ excludeSlug }) {
               <Link
                 key={`${service.slug}-${index}`}
                 href={`/services/${service.slug}`}
-                className="group flex w-80 shrink-0 flex-col overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl"
+                className="group flex w-80 shrink-0 flex-col overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl"
               >
                 <div className="relative h-44 w-full overflow-hidden">
                   <Image
@@ -53,7 +53,7 @@ export default function OtherServices({ excludeSlug }) {
                   />
                   <div className="absolute inset-0 bg-black/20" />
                   <span className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm">
-                    <Icon className="h-4.5 w-4.5" style={{ color: theme.accent }} aria-hidden="true" />
+                    <Icon className="h-[18px] w-[18px]" style={{ color: theme.accent }} aria-hidden="true" />
                   </span>
                 </div>
 
@@ -77,7 +77,7 @@ export default function OtherServices({ excludeSlug }) {
       </div>
 
       <style>{`
-        .marquee-mask {
+        .zt-marquee-mask {
           -webkit-mask-image: linear-gradient(
             to right,
             transparent,
@@ -93,13 +93,13 @@ export default function OtherServices({ excludeSlug }) {
             transparent
           );
         }
-        .marquee-track {
-          animation: marqueeScroll 60s linear infinite;
+        .zt-marquee-track {
+          animation: zt-marqueeScroll 60s linear infinite;
         }
-        .marquee-mask:hover .marquee-track {
+        .zt-marquee-mask:hover .zt-marquee-track {
           animation-play-state: paused;
         }
-        @keyframes marqueeScroll {
+        @keyframes zt-marqueeScroll {
           from {
             transform: translateX(0);
           }

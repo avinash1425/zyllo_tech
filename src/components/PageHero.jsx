@@ -27,10 +27,10 @@ export default function PageHero({
     <section
       className={`relative flex overflow-hidden bg-[#171f2b] items-center ${
         isLarge
-          ? "min-h-[60vh] py-16 lg:py-20"
+          ? "min-h-[min(60vh,640px)] py-12 sm:py-16 lg:py-20"
           : structured
-            ? "min-h-[46vh] py-16 lg:py-20"
-            : "min-h-[54vh] py-16 sm:min-h-[58vh] lg:min-h-[62vh] lg:py-20"
+            ? "min-h-[min(46vh,520px)] py-12 sm:py-16 lg:py-20"
+            : "min-h-[min(54vh,560px)] py-12 sm:min-h-[min(58vh,600px)] sm:py-16 lg:min-h-[min(62vh,640px)] lg:py-20"
       }`}
     >
       <span
@@ -59,7 +59,7 @@ export default function PageHero({
       </div>
 
       <div
-        className={`relative mx-auto w-full px-6 lg:px-8 ${
+        className={`relative mx-auto w-full px-4 sm:px-6 lg:px-8 ${
           structured ? "max-w-7xl" : "max-w-5xl text-center"
         }`}
       >
@@ -88,7 +88,7 @@ export default function PageHero({
             )}
 
             <h1
-              className={`mt-4 max-w-3xl text-3xl font-bold leading-tight text-white [text-shadow:0_2px_20px_rgba(0,0,0,0.5)] sm:text-4xl lg:text-5xl ${
+              className={`mt-4 max-w-3xl text-[1.75rem] font-bold leading-tight text-white break-words [text-shadow:0_2px_20px_rgba(0,0,0,0.5)] sm:text-4xl lg:text-5xl ${
                 structured ? "" : "mx-auto"
               }`}
             >
@@ -97,7 +97,7 @@ export default function PageHero({
 
             {description && (
               <p
-                className={`mt-6 max-w-2xl text-lg leading-8 text-white/85 [text-shadow:0_1px_12px_rgba(0,0,0,0.4)] sm:text-xl ${
+                className={`mt-5 max-w-2xl text-base leading-7 sm:mt-6 sm:leading-8 text-white/85 [text-shadow:0_1px_12px_rgba(0,0,0,0.4)] sm:text-xl ${
                   structured ? "" : "mx-auto"
                 }`}
               >
@@ -131,14 +131,14 @@ export default function PageHero({
                   (secondaryCta.href.startsWith("#") ? (
                     <a
                       href={secondaryCta.href}
-                      className="inline-flex items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/20"
+                      className="inline-flex items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur-[4px] transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/20"
                     >
                       {secondaryCta.label}
                     </a>
                   ) : (
                     <Link
                       href={secondaryCta.href}
-                      className="inline-flex items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/20"
+                      className="inline-flex items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur-[4px] transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/20"
                     >
                       {secondaryCta.label}
                     </Link>

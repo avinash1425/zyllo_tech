@@ -72,13 +72,13 @@ export default function ContactCTA({
                 href={href}
                 target={href.startsWith("http") ? "_blank" : undefined}
                 rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-                className="group flex flex-col items-center gap-1.5 rounded-xl border bg-white/60 px-4 py-5 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:bg-white/80 hover:shadow-lg"
+                className="group flex flex-col items-center gap-1.5 rounded-xl border bg-white/60 px-4 py-5 shadow-[0_1px_2px_rgba(16,26,58,0.08)] backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:bg-white/80 hover:shadow-lg"
                 style={{ borderColor: `${accent}30` }}
               >
                 <div className="relative flex flex-col items-center">
                   <span
                     aria-hidden="true"
-                    className="pulse-glow absolute top-1 h-11 w-11 rounded-full blur-lg"
+                    className="zt-pulse-glow absolute top-1 h-11 w-11 rounded-full blur-lg"
                     style={{ backgroundColor: accentSoft, opacity: 0.5 }}
                   />
                   <div
@@ -103,10 +103,10 @@ export default function ContactCTA({
       </div>
 
       <style>{`
-        .pulse-glow {
-          animation: pulseGlow 3.5s ease-in-out infinite;
+        .zt-pulse-glow {
+          animation: ztPulseGlow 3.5s ease-in-out infinite;
         }
-        @keyframes pulseGlow {
+        @keyframes ztPulseGlow {
           0%,
           100% {
             transform: scale(1);

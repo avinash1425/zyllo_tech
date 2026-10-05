@@ -47,7 +47,7 @@ export default function FeaturedArticle() {
 
         <Link
           href={`/blog/${post.slug}`}
-          className="group mt-5 grid grid-cols-1 gap-0 overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl lg:grid-cols-2"
+          className="group mt-5 grid grid-cols-1 gap-0 overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl lg:grid-cols-2"
         >
           <div className="relative h-64 w-full overflow-hidden bg-[#fafbfc] lg:h-full">
             {imageUrl && (

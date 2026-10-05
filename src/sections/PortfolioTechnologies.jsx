@@ -48,8 +48,8 @@ export default function PortfolioTechnologies() {
   return (
     <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-white py-6 lg:py-8">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-[#1f4693]/8 blur-[110px]" />
-        <div className="absolute -bottom-24 right-1/4 h-72 w-72 rounded-full bg-[#f7941e]/8 blur-[110px]" />
+        <div className="absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-[#1f4693]/[0.08] blur-[110px]" />
+        <div className="absolute -bottom-24 right-1/4 h-72 w-72 rounded-full bg-[#f7941e]/[0.08] blur-[110px]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
@@ -70,13 +70,13 @@ export default function PortfolioTechnologies() {
           {CATEGORIES.map(({ icon: Icon, title, items, accent, accentSoft }) => (
             <div
               key={title}
-              className="group flex flex-col items-center rounded-2xl border bg-white/60 p-6 text-center shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:bg-white/80 hover:shadow-lg"
+              className="group flex flex-col items-center rounded-2xl border bg-white/60 p-6 text-center shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:bg-white/80 hover:shadow-lg"
               style={{ borderColor: `${accent}30` }}
             >
               <div className="relative flex flex-col items-center">
                 <span
                   aria-hidden="true"
-                  className="pulse-glow absolute top-2 h-14 w-14 rounded-full blur-xl"
+                  className="zt-pulse-glow absolute top-2 h-14 w-14 rounded-full blur-xl"
                   style={{ backgroundColor: accentSoft, opacity: 0.5 }}
                 />
                 <div
@@ -107,10 +107,10 @@ export default function PortfolioTechnologies() {
       </div>
 
       <style>{`
-        .pulse-glow {
-          animation: pulseGlow 3.5s ease-in-out infinite;
+        .zt-pulse-glow {
+          animation: zt-pulseGlow 3.5s ease-in-out infinite;
         }
-        @keyframes pulseGlow {
+        @keyframes zt-pulseGlow {
           0%,
           100% {
             transform: scale(1);

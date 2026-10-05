@@ -28,8 +28,8 @@ export default function FeaturedProjects() {
   return (
     <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-[#fafbfc] py-6 lg:py-8">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 right-1/4 h-72 w-72 rounded-full bg-[#f7941e]/8 blur-[110px]" />
-        <div className="absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-[#1f4693]/8 blur-[110px]" />
+        <div className="absolute -top-24 right-1/4 h-72 w-72 rounded-full bg-[#f7941e]/[0.08] blur-[110px]" />
+        <div className="absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-[#1f4693]/[0.08] blur-[110px]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
@@ -49,7 +49,7 @@ export default function FeaturedProjects() {
         {projects.length === 0 ? (
           <div className="mx-auto mt-8 flex max-w-lg flex-col items-center rounded-2xl border border-[#e7e9ee] bg-white p-10 text-center">
             <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#f7941e]/15 to-[#1f4693]/15">
-              <FolderKanban className="h-5.5 w-5.5 text-[#f7941e]" aria-hidden="true" />
+              <FolderKanban className="h-[22px] w-[22px] text-[#f7941e]" aria-hidden="true" />
             </span>
             <p className="mt-4 text-base text-[#676b7a]">
               We&apos;re putting together project highlights from recent work
@@ -64,11 +64,11 @@ export default function FeaturedProjects() {
             </Link>
           </div>
         ) : (
-          <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="mt-6 flex flex-wrap justify-center gap-5">
             {projects.map((project) => (
               <div
                 key={project.id}
-                className="group overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                className="group w-full overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] sm:w-[calc(50%-0.625rem)] lg:w-[calc(33.333%-0.84rem)] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className="relative h-52 w-full overflow-hidden bg-[#f5f6f8]">
                   {project.image_url && (

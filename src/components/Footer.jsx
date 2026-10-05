@@ -72,7 +72,7 @@ function FooterHeading({ children, dot }) {
   return (
     <h3 className="relative inline-flex items-center gap-2 pb-3.5 text-xs font-bold uppercase tracking-[0.15em] text-white after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-10 after:rounded-full after:bg-gradient-to-r after:from-[#f96706] after:to-[#3089a6] after:shadow-[0_0_10px_rgba(249,103,6,0.55)] after:content-['']">
       {dot && (
-        <span className="footer-dot h-1.5 w-1.5 rounded-full bg-[#2f8fe0]" aria-hidden="true" />
+        <span className="zt-footer-dot h-1.5 w-1.5 rounded-full bg-[#2f8fe0]" aria-hidden="true" />
       )}
       {children}
     </h3>
@@ -111,13 +111,13 @@ export default function Footer() {
           <div className="sm:col-span-2 lg:col-span-1">
             {/* White card behind the logo guarantees full contrast no
                 matter what the footer's own background is. */}
-            <span className="footer-brand inline-block rounded-lg bg-white p-3 shadow-sm transition-shadow duration-300 hover:shadow-lg">
+            <span className="zt-footer-brand inline-block rounded-lg bg-white p-3 shadow-[0_1px_2px_rgba(0,0,0,0.06)] transition-shadow duration-300 hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.15)]">
               <Image
                 src="/zyllo-logo.png"
                 alt="Zyllo Tech Software Solutions Private Limited"
                 width={1920}
                 height={384}
-                className="footer-logo h-10 w-auto"
+                className="zt-footer-logo h-10 w-auto"
               />
             </span>
             <p className="mt-4 max-w-xs text-[14px] leading-relaxed text-[#c9cfdb]">
@@ -136,7 +136,7 @@ export default function Footer() {
             ) : (
               <form
                 onSubmit={handleSubscribe}
-                className="footer-form mt-3 flex w-full max-w-xs items-stretch overflow-hidden rounded-lg border border-white/15"
+                className="zt-footer-form mt-3 flex w-full max-w-xs items-stretch overflow-hidden rounded-lg border border-white/15"
               >
                 <input
                   type="email"
@@ -215,7 +215,7 @@ export default function Footer() {
                     aria-label={social.label}
                     target={social.href.startsWith("http") ? "_blank" : undefined}
                     rel={social.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="footer-social flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.06] text-white/70 transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/[0.12] hover:text-white"
+                    className="zt-footer-social flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.06] text-white/70 transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/[0.12] hover:text-white"
                   >
                     <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                       <path d={social.path} />
@@ -233,14 +233,14 @@ export default function Footer() {
               © {year} Zyllo Tech Software Solutions Pvt. Ltd. All rights
               reserved.
             </p>
-            <span className="footer-cert group inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1">
+            <span className="zt-footer-cert group inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1">
               <Sparkles className="h-3 w-3 text-[#f96706]" aria-hidden="true" />
               <span className="text-[11px] font-semibold text-[#c9cfdb]">
                 DPIIT-Recognized — Startup India
               </span>
             </span>
           </div>
-          <ul className="flex items-center gap-6 text-[12.5px] text-[#c9cfdb]">
+          <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12.5px] text-[#c9cfdb]">
             <li>
               <button
                 type="button"
@@ -287,21 +287,21 @@ export default function Footer() {
       />
 
       <style>{`
-        .footer-brand {
+        .zt-footer-brand {
           transition: transform 0.3s ease;
         }
-        .footer-brand:hover {
+        .zt-footer-brand:hover {
           transform: translateY(-2px);
         }
-        .footer-logo {
-          animation: footerLogoBreathe 4s ease-in-out infinite;
+        .zt-footer-logo {
+          animation: ztFooterLogoBreathe 4s ease-in-out infinite;
           transition: filter 0.3s ease;
         }
-        .footer-brand:hover .footer-logo {
+        .zt-footer-brand:hover .zt-footer-logo {
           animation: none;
           filter: drop-shadow(0 8px 18px rgba(48, 137, 166, 0.45));
         }
-        @keyframes footerLogoBreathe {
+        @keyframes ztFooterLogoBreathe {
           0%,
           100% {
             transform: scale(1);
@@ -310,14 +310,14 @@ export default function Footer() {
             transform: scale(1.015);
           }
         }
-        .footer-form:focus-within {
+        .zt-footer-form:focus-within {
           border-color: rgba(47, 143, 224, 0.6);
         }
-        .footer-dot {
+        .zt-footer-dot {
           box-shadow: 0 0 8px rgba(47, 143, 224, 0.85);
-          animation: footerDotPulse 1.8s ease-in-out infinite;
+          animation: ztFooterDotPulse 1.8s ease-in-out infinite;
         }
-        @keyframes footerDotPulse {
+        @keyframes ztFooterDotPulse {
           0%,
           100% {
             opacity: 1;
@@ -329,12 +329,12 @@ export default function Footer() {
           }
         }
         @media (prefers-reduced-motion: reduce) {
-          .footer-logo,
-          .footer-dot {
+          .zt-footer-logo,
+          .zt-footer-dot {
             animation: none !important;
           }
-          .footer-brand,
-          .footer-social {
+          .zt-footer-brand,
+          .zt-footer-social {
             transition: none !important;
           }
         }

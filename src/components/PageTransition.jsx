@@ -162,7 +162,7 @@ export default function PageTransition() {
       {SERVICE_ICONS.map(({ Icon, x, y, color, delay }, i) => (
         <div
           key={i}
-          className="loader-service-icon absolute flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl border"
+          className="zt-loader-service-icon absolute flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl border"
           style={{
             left: x,
             top: y,
@@ -175,12 +175,12 @@ export default function PageTransition() {
         </div>
       ))}
 
-      <div className="page-transition-content relative flex flex-col items-center gap-5">
+      <div className="zt-page-transition-content relative flex flex-col items-center gap-5">
         {/* Icon in a round gradient-ring frame with a shine sweep — no duplicate logo below */}
         <div className="relative flex h-32 w-32 items-center justify-center">
           <div
             aria-hidden="true"
-            className="loader-glow absolute h-24 w-24 rounded-full bg-gradient-to-r from-[#f96706]/45 to-[#3089a6]/45 blur-2xl"
+            className="zt-loader-glow absolute h-24 w-24 rounded-full bg-gradient-to-r from-[#f96706]/45 to-[#3089a6]/45 blur-2xl"
           />
 
           <svg viewBox="0 0 100 100" className="absolute h-full w-full -rotate-90">
@@ -194,7 +194,7 @@ export default function PageTransition() {
               strokeWidth="2"
               strokeLinecap="round"
               strokeDasharray="80 209"
-              className="loader-arc"
+              className="zt-loader-arc"
             />
             <defs>
               <linearGradient id="loader-arc-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -211,9 +211,9 @@ export default function PageTransition() {
               width={500}
               height={273}
               priority
-              className="loader-icon-pulse h-11 w-auto drop-shadow-[0_0_16px_rgba(249,103,6,0.55)]"
+              className="zt-loader-icon-pulse h-11 w-auto drop-shadow-[0_0_16px_rgba(249,103,6,0.55)]"
             />
-            <span aria-hidden="true" className="loader-shine absolute inset-0" />
+            <span aria-hidden="true" className="zt-loader-shine absolute inset-0" />
           </div>
         </div>
 
@@ -227,22 +227,22 @@ export default function PageTransition() {
         </p>
 
         <div className="flex items-center gap-2">
-          <span className="loader-dot h-2 w-2 rounded-full bg-[#f96706]" style={{ animationDelay: "0s" }} />
-          <span className="loader-dot h-2 w-2 rounded-full bg-[#ffb15c]" style={{ animationDelay: "0.18s" }} />
-          <span className="loader-dot h-2 w-2 rounded-full bg-[#3089a6]" style={{ animationDelay: "0.36s" }} />
+          <span className="zt-loader-dot h-2 w-2 rounded-full bg-[#f96706]" style={{ animationDelay: "0s" }} />
+          <span className="zt-loader-dot h-2 w-2 rounded-full bg-[#ffb15c]" style={{ animationDelay: "0.18s" }} />
+          <span className="zt-loader-dot h-2 w-2 rounded-full bg-[#3089a6]" style={{ animationDelay: "0.36s" }} />
         </div>
 
         <p className="flex h-4 items-center text-xs font-medium tracking-wide text-white/45">
           {statusText}
-          <span className="typewriter-caret ml-0.5 inline-block h-3.5 w-px bg-white/50" />
+          <span className="zt-typewriter-caret ml-0.5 inline-block h-3.5 w-px bg-white/50" />
         </p>
       </div>
 
       <style>{`
-        .page-transition-content {
-          animation: pulseIn 0.4s ease-out;
+        .zt-page-transition-content {
+          animation: ztPulseIn 0.4s ease-out;
         }
-        @keyframes pulseIn {
+        @keyframes ztPulseIn {
           from {
             opacity: 0;
             transform: scale(0.95);
@@ -252,10 +252,10 @@ export default function PageTransition() {
             transform: scale(1);
           }
         }
-        .loader-icon-pulse {
-          animation: loaderIconPulse 2.2s ease-in-out infinite;
+        .zt-loader-icon-pulse {
+          animation: ztLoaderIconPulse 2.2s ease-in-out infinite;
         }
-        @keyframes loaderIconPulse {
+        @keyframes ztLoaderIconPulse {
           0%,
           100% {
             transform: scale(1);
@@ -264,10 +264,10 @@ export default function PageTransition() {
             transform: scale(1.08);
           }
         }
-        .loader-glow {
-          animation: loaderGlowPulse 2.2s ease-in-out infinite;
+        .zt-loader-glow {
+          animation: ztLoaderGlowPulse 2.2s ease-in-out infinite;
         }
-        @keyframes loaderGlowPulse {
+        @keyframes ztLoaderGlowPulse {
           0%,
           100% {
             opacity: 0.6;
@@ -276,21 +276,21 @@ export default function PageTransition() {
             opacity: 1;
           }
         }
-        .loader-arc {
-          animation: loaderArcSpin 1.6s linear infinite;
+        .zt-loader-arc {
+          animation: ztLoaderArcSpin 1.6s linear infinite;
           transform-origin: center;
         }
-        @keyframes loaderArcSpin {
+        @keyframes ztLoaderArcSpin {
           to {
             transform: rotate(360deg);
           }
         }
-        .loader-shine {
+        .zt-loader-shine {
           background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, 0.35) 50%, transparent 60%);
           background-size: 250% 250%;
-          animation: loaderShineSweep 2.6s ease-in-out infinite;
+          animation: ztLoaderShineSweep 2.6s ease-in-out infinite;
         }
-        @keyframes loaderShineSweep {
+        @keyframes ztLoaderShineSweep {
           0% {
             background-position: 200% 200%;
           }
@@ -299,10 +299,10 @@ export default function PageTransition() {
             background-position: -50% -50%;
           }
         }
-        .loader-dot {
-          animation: loaderDotWave 1.3s ease-in-out infinite;
+        .zt-loader-dot {
+          animation: ztLoaderDotWave 1.3s ease-in-out infinite;
         }
-        @keyframes loaderDotWave {
+        @keyframes ztLoaderDotWave {
           0%,
           60%,
           100% {
@@ -314,10 +314,10 @@ export default function PageTransition() {
             opacity: 1;
           }
         }
-        .loader-service-icon {
-          animation: loaderServiceFloat 5s ease-in-out infinite;
+        .zt-loader-service-icon {
+          animation: ztLoaderServiceFloat 5s ease-in-out infinite;
         }
-        @keyframes loaderServiceFloat {
+        @keyframes ztLoaderServiceFloat {
           0%,
           100% {
             transform: translate(-50%, -50%) translateY(0);
@@ -328,10 +328,10 @@ export default function PageTransition() {
             opacity: 0.85;
           }
         }
-        .typewriter-caret {
-          animation: caretBlink 0.8s step-end infinite;
+        .zt-typewriter-caret {
+          animation: ztCaretBlink 0.8s step-end infinite;
         }
-        @keyframes caretBlink {
+        @keyframes ztCaretBlink {
           0%,
           100% {
             opacity: 1;

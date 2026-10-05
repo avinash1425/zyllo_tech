@@ -90,7 +90,7 @@ function CapabilityCard({ icon: Icon, title, description, chips, accent }) {
   return (
     <div className="group flex gap-4">
       <span
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl shadow-sm transition-transform duration-300 group-hover:scale-110"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] transition-transform duration-300 group-hover:scale-110"
         style={{ backgroundColor: `${accent}1a`, color: accent }}
       >
         <Icon className="h-5 w-5" aria-hidden="true" />
@@ -102,7 +102,7 @@ function CapabilityCard({ icon: Icon, title, description, chips, accent }) {
           {chips.map((chip) => (
             <span
               key={chip}
-              className="rounded-full border border-white/70 bg-white/70 px-2.5 py-1 text-[11.5px] font-medium text-[#3a4453] shadow-sm backdrop-blur-sm"
+              className="rounded-full border border-white/70 bg-white/70 px-2.5 py-1 text-[11.5px] font-medium text-[#3a4453] shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] backdrop-blur-sm"
             >
               {chip}
             </span>
@@ -116,7 +116,7 @@ function CapabilityCard({ icon: Icon, title, description, chips, accent }) {
 export default function Technologies({ tint = "tint" }) {
   const bg = tint === "tint" ? "bg-[#fafbfc]" : "bg-white";
   return (
-    <section className={`relative overflow-hidden border-t border-[#e2e5ea] ${bg} pt-14 lg:pt-18`}>
+    <section className={`relative overflow-hidden border-t border-[#e2e5ea] ${bg} pt-14 lg:pt-[4.5rem]`}>
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#f96706]">
@@ -145,7 +145,7 @@ export default function Technologies({ tint = "tint" }) {
           <div className="absolute -bottom-24 -right-16 h-64 w-64 rounded-full bg-[#f96706] opacity-[0.1] blur-[100px]" />
         </div>
 
-        <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 lg:grid-cols-[1fr_auto_1fr] lg:gap-10 lg:px-8">
+        <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-start gap-12 px-6 md:grid-cols-2 md:gap-x-10 lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:gap-10 lg:px-8">
           <div className="flex flex-col gap-8">
             {LEFT_CAPABILITIES.map((item) => (
               <CapabilityCard key={item.title} {...item} />
@@ -156,11 +156,11 @@ export default function Technologies({ tint = "tint" }) {
               (was 260/300/320) with a smaller radius and tighter label
               padding so labels have real clearance from the ring instead
               of touching it. */}
-          <div className="relative mx-auto flex aspect-square w-[300px] shrink-0 items-center justify-center sm:w-[380px] lg:w-[440px]">
+          <div className="relative mx-auto flex aspect-square w-[300px] md:order-first md:col-span-2 lg:order-none lg:col-span-1 shrink-0 items-center justify-center sm:w-[380px] lg:w-[440px]">
             <div aria-hidden="true" className="absolute inset-0 rounded-full border border-[#0f172a]/10" />
             <div aria-hidden="true" className="absolute inset-10 rounded-full border border-[#0f172a]/5" />
 
-            <div className="orbit-spin absolute inset-0">
+            <div className="zt-orbit-spin absolute inset-0">
               {ORBIT_ITEMS.map(({ label, angle }, index) => {
                 const accent = index % 2 === 0 ? "#f96706" : "#3089a6";
                 const radius = 35;
@@ -169,7 +169,7 @@ export default function Technologies({ tint = "tint" }) {
                 return (
                   <div
                     key={label}
-                    className="orbit-counter-spin absolute flex flex-col items-center gap-1.5"
+                    className="zt-orbit-counter-spin absolute flex flex-col items-center gap-1.5"
                     style={{ left: `${x}%`, top: `${y}%`, transform: "translate(-50%, -50%)" }}
                   >
                     <span
@@ -178,7 +178,7 @@ export default function Technologies({ tint = "tint" }) {
                       aria-hidden="true"
                     />
                     <span
-                      className="whitespace-nowrap rounded-full border border-white/70 bg-white/90 px-2 py-0.5 text-[11px] font-medium text-[#3a4453] shadow-sm backdrop-blur-sm"
+                      className="whitespace-nowrap rounded-full border border-white/70 bg-white/90 px-2 py-0.5 text-[11px] font-medium text-[#3a4453] shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] backdrop-blur-sm"
                     >
                       {label}
                     </span>
@@ -212,13 +212,13 @@ export default function Technologies({ tint = "tint" }) {
       </div>
 
       <style>{`
-        .orbit-spin {
-          animation: orbitSpin 40s linear infinite;
+        .zt-orbit-spin {
+          animation: zt-orbitSpin 40s linear infinite;
         }
-        .orbit-counter-spin {
-          animation: orbitCounterSpin 40s linear infinite;
+        .zt-orbit-counter-spin {
+          animation: zt-orbitCounterSpin 40s linear infinite;
         }
-        @keyframes orbitSpin {
+        @keyframes zt-orbitSpin {
           from {
             transform: rotate(0deg);
           }
@@ -226,7 +226,7 @@ export default function Technologies({ tint = "tint" }) {
             transform: rotate(360deg);
           }
         }
-        @keyframes orbitCounterSpin {
+        @keyframes zt-orbitCounterSpin {
           from {
             transform: translate(-50%, -50%) rotate(0deg);
           }
@@ -235,8 +235,8 @@ export default function Technologies({ tint = "tint" }) {
           }
         }
         @media (prefers-reduced-motion: reduce) {
-          .orbit-spin,
-          .orbit-counter-spin {
+          .zt-orbit-spin,
+          .zt-orbit-counter-spin {
             animation: none;
           }
         }

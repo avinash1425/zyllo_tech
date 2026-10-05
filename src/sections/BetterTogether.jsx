@@ -72,7 +72,7 @@ export default function BetterTogether() {
             <div
               key={combo}
               style={{ animationDelay: `${index * 0.1}s` }}
-              className="pairing-in group relative flex flex-col gap-3 p-6 transition-colors duration-300 hover:bg-[#fafbfc] sm:border-t sm:border-[#e2e5ea] lg:border-t-0"
+              className="zt-pairing-in group relative flex flex-col gap-3 p-6 transition-colors duration-300 hover:bg-[#fafbfc] sm:border-t sm:border-[#e2e5ea] lg:border-t-0"
             >
               <span className="text-[11px] font-bold tracking-widest text-[#c7cdd6]">
                 0{index + 1}
@@ -96,10 +96,10 @@ export default function BetterTogether() {
       </div>
 
       <style>{`
-        .pairing-in {
-          animation: pairingFadeUp 0.6s ease-out both;
+        .zt-pairing-in {
+          animation: zt-pairingFadeUp 0.6s ease-out both;
         }
-        @keyframes pairingFadeUp {
+        @keyframes zt-pairingFadeUp {
           from {
             opacity: 0;
             transform: translateY(16px);

@@ -33,7 +33,7 @@ export default function ModalHeader({
       <Watermark
         aria-hidden="true"
         strokeWidth={1.25}
-        className="pointer-events-none absolute -bottom-6 -right-4 h-40 w-40 rotate-[-8deg] text-white/[0.09] sm:h-52 sm:w-52"
+        className="pointer-events-none absolute -bottom-6 -right-4 h-40 w-40 rotate-[-8deg] text-white/[0.09] sm:h-52 sm:w-52 [@media(max-height:500px)]:hidden"
       />
       <span aria-hidden="true" className="absolute left-1/2 top-2.5 h-1 w-10 -translate-x-1/2 rounded-full bg-white/30 sm:hidden" />
 
@@ -48,7 +48,7 @@ export default function ModalHeader({
 
       <div className="relative pr-12">
         {step ? (
-          <ol className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em]" aria-label="Progress">
+          <ol className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-[0.14em]" aria-label="Progress">
             {STEPS.map((label, i) => {
               const n = i + 1;
               const done = step > n;
@@ -90,17 +90,17 @@ export default function ModalHeader({
             })}
           </ol>
         ) : (
-          eyebrow && <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#ffb15c]">{eyebrow}</p>
+          eyebrow && <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#ffb15c]">{eyebrow}</p>
         )}
-        <h2 id={titleId} className="mt-3 text-2xl font-bold leading-snug tracking-tight sm:text-[1.75rem]">
+        <h2 id={titleId} className="mt-3 break-words text-2xl font-bold leading-snug tracking-tight sm:text-[1.75rem] [@media(max-height:500px)]:mt-1.5">
           {title}
         </h2>
         {chips.length > 0 && (
-          <ul className="mt-4 flex flex-wrap gap-2">
+          <ul className="mt-4 flex flex-wrap gap-2 [@media(max-height:500px)]:hidden">
             {chips.map(({ icon: Icon, label }) => (
               <li
                 key={label}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-[13px] font-medium text-white backdrop-blur-sm"
               >
                 {Icon && <Icon className="h-3.5 w-3.5 text-[#ffb15c]" aria-hidden="true" />}
                 {label}

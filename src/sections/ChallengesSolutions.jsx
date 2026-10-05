@@ -111,8 +111,8 @@ export default function ChallengesSolutions() {
   return (
     <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-white py-5 lg:py-6">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-[#f7941e]/8 blur-[110px]" />
-        <div className="absolute -bottom-24 right-1/4 h-72 w-72 rounded-full bg-[#1f4693]/8 blur-[110px]" />
+        <div className="absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-[#f7941e]/[0.08] blur-[110px]" />
+        <div className="absolute -bottom-24 right-1/4 h-72 w-72 rounded-full bg-[#1f4693]/[0.08] blur-[110px]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
@@ -129,16 +129,16 @@ export default function ChallengesSolutions() {
           </p>
         </div>
 
-        <div className="mt-6 flex flex-wrap justify-center gap-2.5">
+        <div className="-mx-6 mt-6 flex flex-nowrap gap-2.5 overflow-x-auto px-6 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0 sm:pb-0">
           {ROWS.map((row, index) => (
             <button
               key={row.tag}
               type="button"
               onClick={() => setActiveIndex(index)}
-              className={`rounded-full border px-4 py-2 text-sm font-semibold transition-all duration-300 ${
+              className={`min-h-[44px] shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition-all duration-300 sm:min-h-0 ${
                 index === activeIndex
                   ? "border-transparent bg-gradient-to-r from-[#f7941e] to-[#db7d17] text-white shadow-md shadow-[#f7941e]/25"
-                  : "border-[#e7e9ee] bg-white text-[#676b7a] hover:-translate-y-0.5 hover:border-[#f7941e]/40 hover:text-[#f7941e] hover:shadow-sm"
+                  : "border-[#e7e9ee] bg-white text-[#676b7a] hover:-translate-y-0.5 hover:border-[#f7941e]/40 hover:text-[#f7941e] hover:shadow-[0_1px_2px_0_rgba(0,0,0,0.05)]"
               }`}
             >
               {row.tag}
@@ -148,7 +148,7 @@ export default function ChallengesSolutions() {
 
         <div
           key={activeIndex}
-          className="challenge-panel mt-6 flex flex-col items-center gap-6 overflow-hidden rounded-3xl border border-[#e7e9ee] bg-white p-5 shadow-lg shadow-[#1f4693]/5 sm:p-6 lg:flex-row lg:gap-10 lg:p-8"
+          className="zt-challenge-panel mt-6 flex flex-col items-center gap-6 overflow-hidden rounded-3xl border border-[#e7e9ee] bg-white p-5 shadow-lg shadow-[#1f4693]/5 sm:p-6 lg:flex-row lg:gap-10 lg:p-8"
         >
           <div className="relative h-48 w-full shrink-0 overflow-hidden rounded-2xl shadow-md lg:h-64 lg:w-[340px]">
             <Image
@@ -188,7 +188,7 @@ export default function ChallengesSolutions() {
       </div>
 
       <style>{`
-        @keyframes panelFadeIn {
+        @keyframes zt-panelFadeIn {
           from {
             opacity: 0;
             transform: translateY(10px) scale(0.98);
@@ -198,8 +198,8 @@ export default function ChallengesSolutions() {
             transform: translateY(0) scale(1);
           }
         }
-        .challenge-panel {
-          animation: panelFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+        .zt-challenge-panel {
+          animation: zt-panelFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
       `}</style>
     </section>

@@ -71,8 +71,8 @@ export default function ServiceGrid() {
   return (
     <section id="services-grid" className="relative overflow-hidden bg-gradient-to-b from-white via-[#fff7ed] to-white py-10 lg:py-14">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 right-1/4 h-80 w-80 rounded-full bg-[#f7941e]/8 blur-[110px]" />
-        <div className="absolute -bottom-24 left-1/4 h-80 w-80 rounded-full bg-[#1f4693]/8 blur-[110px]" />
+        <div className="absolute -top-24 right-1/4 h-80 w-80 rounded-full bg-[#f7941e]/[0.08] blur-[110px]" />
+        <div className="absolute -bottom-24 left-1/4 h-80 w-80 rounded-full bg-[#1f4693]/[0.08] blur-[110px]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
@@ -88,7 +88,7 @@ export default function ServiceGrid() {
               <Link
                 key={service.slug}
                 href={`/services/${service.slug}`}
-                className={`group flex flex-col rounded-2xl border bg-gradient-to-br p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${theme.border} ${theme.wash}`}
+                className={`group flex flex-col rounded-2xl border bg-gradient-to-br p-5 shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${theme.border} ${theme.wash}`}
               >
                 <span
                   className={`flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-lg ${theme.badge}`}

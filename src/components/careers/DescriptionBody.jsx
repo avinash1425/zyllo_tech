@@ -55,7 +55,7 @@ export default function DescriptionBody({ text, className = "" }) {
           return (
             <h3
               key={i}
-              className="flex items-center gap-2 pt-2 text-xs font-bold uppercase tracking-[0.16em] text-[#173a52]"
+              className="flex items-center gap-2 pt-2 text-[13px] font-bold uppercase tracking-[0.14em] text-[#173a52]"
             >
               <span aria-hidden="true" className="h-1.5 w-5 rounded-full bg-gradient-to-r from-[#f96706] to-[#ffb15c]" />
               {b.text}
@@ -65,7 +65,7 @@ export default function DescriptionBody({ text, className = "" }) {
           return (
             <ul key={i} className="space-y-2.5">
               {b.items.map((it, j) => (
-                <li key={j} className="flex items-start gap-3 text-[15px] leading-relaxed text-[#4a4f5e]">
+                <li key={j} className="flex items-start gap-3 text-[15px] leading-relaxed text-[#3a3f4d] sm:text-base">
                   <span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#3089a6]/12 text-[#3089a6]">
                     <Check className="h-3 w-3" strokeWidth={3} aria-hidden="true" />
                   </span>
@@ -75,7 +75,7 @@ export default function DescriptionBody({ text, className = "" }) {
             </ul>
           );
         return (
-          <p key={i} className="whitespace-pre-line text-[15px] leading-[1.75] text-[#4a4f5e]">
+          <p key={i} className="whitespace-pre-line text-[15px] leading-[1.75] text-[#3a3f4d] sm:text-base">
             {b.text}
           </p>
         );

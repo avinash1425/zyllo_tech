@@ -2,7 +2,9 @@ import Seo from "@/components/Seo";
 import PageHero from "@/components/PageHero";
 import ContactForm from "@/sections/ContactForm";
 import OfficeLocation from "@/sections/OfficeLocation";
-import WhyWorkWithUs from "@/sections/WhyWorkWithUs";
+import ContactClosing from "@/sections/ContactClosing";
+import ContactMethods from "@/sections/ContactMethods";
+import ContactFAQ from "@/sections/ContactFAQ";
 import Reveal from "@/components/Reveal";
 
 export default function ContactPage() {
@@ -21,6 +23,7 @@ export default function ContactPage() {
         image="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1920&q=80"
         imageAlt="Team having a conversation about a project"
       />
+      <ContactMethods />
       <Reveal>
         <ContactForm />
       </Reveal>
@@ -28,7 +31,10 @@ export default function ContactPage() {
         <OfficeLocation />
       </Reveal>
       <Reveal>
-        <WhyWorkWithUs />
+        <ContactFAQ />
+      </Reveal>
+      <Reveal>
+        <ContactClosing />
       </Reveal>
     </>
   );

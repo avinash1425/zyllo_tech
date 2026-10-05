@@ -58,22 +58,22 @@ export default function ServiceTiles() {
           </Link>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
           {TILES.map(({ slug, title, tagline, icon: Icon }, index) => (
             <Link
               key={slug}
               href={`/services/${slug}`}
               style={{ animationDelay: `${index * 0.06}s` }}
-              className="tile-in group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] p-6 shadow-lg shadow-black/20 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-[#f96706]/40 hover:bg-white/[0.1] hover:shadow-xl hover:shadow-[#f96706]/10"
+              className="zt-tile-in group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] p-4 sm:p-6 shadow-lg shadow-black/20 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-[#f96706]/40 hover:bg-white/[0.1] hover:shadow-xl hover:shadow-[#f96706]/10"
             >
               <span
                 aria-hidden="true"
                 className={`absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-gradient-to-r transition-transform duration-300 group-hover:scale-x-100 ${ACCENT}`}
               />
               <span
-                className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-sm transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105 ${ACCENT}`}
+                className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105 ${ACCENT}`}
               >
-                <Icon className="h-5.5 w-5.5" aria-hidden="true" />
+                <Icon className="h-[22px] w-[22px]" aria-hidden="true" />
               </span>
               <h3 className="mt-5 text-base font-bold leading-snug text-white">
                 {title}
@@ -81,7 +81,7 @@ export default function ServiceTiles() {
               <p className="mt-1.5 text-sm leading-relaxed text-white/65">
                 {tagline}
               </p>
-              <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-[#ffb15c] opacity-0 transition-all duration-200 group-hover:opacity-100">
+              <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-[#ffb15c] opacity-0 transition-all duration-200 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
                 Learn More
                 <ArrowRight className="h-3 w-3" aria-hidden="true" />
               </span>
@@ -91,10 +91,10 @@ export default function ServiceTiles() {
       </div>
 
       <style>{`
-        .tile-in {
-          animation: tileFadeUp 0.6s ease-out both;
+        .zt-tile-in {
+          animation: zt-tileFadeUp 0.6s ease-out both;
         }
-        @keyframes tileFadeUp {
+        @keyframes zt-tileFadeUp {
           from {
             opacity: 0;
             transform: translateY(14px);

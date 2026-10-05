@@ -51,7 +51,7 @@ export default function ResumeDropzone({ inputRef, file, error, onChange, onRemo
           </span>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-[#1b2030]">{file.name}</p>
-            <p className="text-xs text-[#676b7a]">{formatBytes(file.size)} &middot; ready to upload</p>
+            <p className="text-[13px] text-[#4a5668]">{formatBytes(file.size)} &middot; ready to upload</p>
           </div>
           <button
             type="button"
@@ -93,11 +93,11 @@ export default function ResumeDropzone({ inputRef, file, error, onChange, onRemo
         </label>
       )}
 
-      <p id="resume-hint" className="mt-2 text-xs text-[#676b7a]">
+      <p id="resume-hint" className="mt-2 text-[13px] text-[#4a5668]">
         PDF only, max 5 MB.
       </p>
       {error && (
-        <p id="resume-error" role="alert" className="mt-1 text-xs font-medium text-red-600">
+        <p id="resume-error" role="alert" className="mt-1 text-[13px] font-medium text-red-700">
           {error}
         </p>
       )}

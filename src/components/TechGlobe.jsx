@@ -25,7 +25,7 @@ export default function TechGlobe() {
       <div className="absolute left-1/2 top-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 sm:h-56 sm:w-56">
         <svg
           viewBox="0 0 200 200"
-          className="globe-spin h-full w-full"
+          className="zt-globe-spin h-full w-full"
           aria-hidden="true"
         >
           <circle cx="100" cy="100" r="90" fill="none" stroke="#3b82f6" strokeOpacity="0.15" strokeWidth="1.5" />
@@ -57,7 +57,7 @@ export default function TechGlobe() {
         {/* Sweeping highlight arc, like the orange sweep in the reference */}
         <div
           aria-hidden="true"
-          className="globe-sweep absolute inset-0 rounded-full"
+          className="zt-globe-sweep absolute inset-0 rounded-full"
           style={{
             background:
               "conic-gradient(from 0deg, transparent 0%, #f59e0b55 8%, transparent 16%)",
@@ -86,7 +86,7 @@ export default function TechGlobe() {
       {ORBIT_ICONS.map(({ Icon, accent, top, left }, i) => (
         <span
           key={i}
-          className="orbit-chip absolute flex h-11 w-11 items-center justify-center rounded-2xl border bg-white shadow-lg"
+          className="zt-orbit-chip absolute flex h-11 w-11 items-center justify-center rounded-2xl border bg-white shadow-lg"
           style={{
             top,
             left,
@@ -99,10 +99,10 @@ export default function TechGlobe() {
       ))}
 
       <style>{`
-        .globe-spin {
-          animation: globeSpin 24s linear infinite;
+        .zt-globe-spin {
+          animation: ztGlobeSpin 24s linear infinite;
         }
-        @keyframes globeSpin {
+        @keyframes ztGlobeSpin {
           from {
             transform: rotateY(0deg);
           }
@@ -110,10 +110,10 @@ export default function TechGlobe() {
             transform: rotateY(360deg);
           }
         }
-        .globe-sweep {
-          animation: sweepRotate 6s linear infinite;
+        .zt-globe-sweep {
+          animation: ztSweepRotate 6s linear infinite;
         }
-        @keyframes sweepRotate {
+        @keyframes ztSweepRotate {
           from {
             transform: rotate(0deg);
           }
@@ -121,10 +121,10 @@ export default function TechGlobe() {
             transform: rotate(360deg);
           }
         }
-        .orbit-chip {
-          animation: chipFloat 5s ease-in-out infinite;
+        .zt-orbit-chip {
+          animation: ztChipFloat 5s ease-in-out infinite;
         }
-        @keyframes chipFloat {
+        @keyframes ztChipFloat {
           0%,
           100% {
             transform: translateY(0);

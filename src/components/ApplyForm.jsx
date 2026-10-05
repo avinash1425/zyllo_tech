@@ -50,7 +50,7 @@ function validateFile(file) {
 }
 
 const inputBase =
-  "peer min-h-14 w-full rounded-2xl border bg-white pb-2 pl-11 pr-4 pt-6 text-[15px] text-[#1b2030] placeholder-transparent shadow-sm outline-none transition-all duration-200 hover:border-[#1f4693]/30 focus:border-[#f7941e] focus:ring-4 focus:ring-[#f7941e]/15";
+  "peer min-h-14 w-full rounded-2xl border bg-white pb-2 pl-11 pr-4 pt-6 text-base text-[#1b2030] sm:text-[15px] placeholder-transparent shadow-[0_1px_2px_rgba(16,26,58,0.08)] outline-none transition-all duration-200 hover:border-[#1f4693]/30 focus:border-[#f7941e] focus:ring-4 focus:ring-[#f7941e]/15";
 
 // Floating-label field: the <input>/<textarea> child must use `inputBase`
 // (it is the `peer`) and carry placeholder=" " so the label can float.
@@ -67,7 +67,7 @@ function Field({ id, label, required, icon: Icon, error, hint, children }) {
         )}
         <label
           htmlFor={id}
-          className="pointer-events-none absolute left-11 top-[1.0625rem] origin-left text-sm text-[#676b7a] transition-all duration-200 peer-focus:top-2 peer-focus:text-[11px] peer-focus:font-semibold peer-focus:text-[#f96706] peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:text-[11px] peer-not-placeholder-shown:font-semibold"
+          className="pointer-events-none absolute left-11 top-[1.0625rem] origin-left text-sm text-[#676b7a] transition-all duration-200 peer-focus:top-2 peer-focus:text-[11px] peer-focus:font-semibold peer-focus:text-[#f96706] peer-[&:not(:placeholder-shown)]:top-2 peer-[&:not(:placeholder-shown)]:text-[11px] peer-[&:not(:placeholder-shown)]:font-semibold"
         >
           {label}
           {required ? (
@@ -79,9 +79,9 @@ function Field({ id, label, required, icon: Icon, error, hint, children }) {
           )}
         </label>
       </div>
-      {hint && !error && <p className="mt-1 text-xs text-[#676b7a]">{hint}</p>}
+      {hint && !error && <p className="mt-1 text-[13px] text-[#4a5668]">{hint}</p>}
       {error && (
-        <p id={`${id}-error`} role="alert" className="mt-1.5 text-xs font-medium text-red-600">
+        <p id={`${id}-error`} role="alert" className="mt-1.5 text-[13px] font-medium text-red-700">
           {error}
         </p>
       )}
@@ -408,7 +408,7 @@ export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, 
       >
         <input type="hidden" name="jobId" value={jobId} />
         <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain bg-[#fafbfc] px-5 py-6 sm:px-8">
-          <p className="text-xs text-[#676b7a]">
+          <p className="text-[13px] text-[#4a5668]">
             Fields marked <span className="text-[#c2410c]">*</span> are required.
           </p>
           {fields}
@@ -434,7 +434,7 @@ export default function ApplyForm({ jobId, jobTitle, variant = "card", onClose, 
     <div className="relative overflow-hidden rounded-3xl border border-[#e7e9ee] bg-white p-6 shadow-[0_24px_48px_-20px_rgba(31,70,147,0.22)] sm:p-8">
       <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#f96706] via-[#ffb15c] to-[#3089a6]" />
       <h2 className="text-2xl font-bold tracking-tight text-[#1b2030]">Apply for this role</h2>
-      <p className="mt-1 text-xs text-[#676b7a]">
+      <p className="mt-1 text-[13px] text-[#4a5668]">
         Fields marked <span className="text-[#c2410c]">*</span> are required.
       </p>
 

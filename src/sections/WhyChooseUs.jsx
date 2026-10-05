@@ -75,16 +75,16 @@ export default function WhyChooseUs() {
               <div
                 key={title}
                 style={{ animationDelay: `${index * 0.1}s` }}
-                className="why-item group relative flex flex-col items-center text-center"
+                className="zt-why-item group relative flex flex-col items-center text-center"
               >
                 <div className="relative z-[1] flex flex-col items-center">
                   <span
                     aria-hidden="true"
-                    className="pulse-glow absolute h-16 w-16 rounded-full blur-xl"
+                    className="zt-pulse-glow absolute h-16 w-16 rounded-full blur-xl"
                     style={{ backgroundColor: accentSoft, opacity: 0.35 }}
                   />
                   <div
-                    className="relative flex h-14 w-14 items-center justify-center rounded-full border-2 border-[#e2e5ea] bg-white shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg"
+                    className="relative flex h-14 w-14 items-center justify-center rounded-full border-2 border-[#e2e5ea] bg-white shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg"
                     style={{ borderColor: `${accent}30` }}
                   >
                     <Icon className="h-6 w-6" style={{ color: accent }} aria-hidden="true" />
@@ -108,10 +108,10 @@ export default function WhyChooseUs() {
       </div>
 
       <style>{`
-        .pulse-glow {
-          animation: pulseGlow 3.5s ease-in-out infinite;
+        .zt-pulse-glow {
+          animation: zt-pulseGlow 3.5s ease-in-out infinite;
         }
-        @keyframes pulseGlow {
+        @keyframes zt-pulseGlow {
           0%,
           100% {
             transform: scale(1);
@@ -122,10 +122,10 @@ export default function WhyChooseUs() {
             opacity: 0.45;
           }
         }
-        .why-item {
-          animation: whyItemIn 0.6s ease-out both;
+        .zt-why-item {
+          animation: zt-whyItemIn 0.6s ease-out both;
         }
-        @keyframes whyItemIn {
+        @keyframes zt-whyItemIn {
           from {
             opacity: 0;
             transform: translateY(16px);

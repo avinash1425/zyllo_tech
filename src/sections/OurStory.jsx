@@ -22,7 +22,7 @@ const CARDS = [
 
 export default function OurStory() {
   return (
-    <section className="relative overflow-hidden bg-white py-14 lg:py-18">
+    <section className="relative overflow-hidden bg-white py-14 lg:py-[4.5rem]">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute -top-20 -right-24 h-72 w-72 rounded-full bg-[#f96706]/10 blur-[100px]" />
         <div className="absolute bottom-0 -left-24 h-72 w-72 rounded-full bg-[#1c2f4a]/10 blur-[100px]" />
@@ -78,10 +78,10 @@ export default function OurStory() {
               className="group flex gap-5 rounded-2xl border border-[#e2e5ea] bg-[#f8f9fb] p-7 transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-lg"
             >
               <span
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
                 style={{ backgroundColor: color }}
               >
-                <Icon className="h-5.5 w-5.5" aria-hidden="true" />
+                <Icon className="h-[22px] w-[22px]" aria-hidden="true" />
               </span>
               <div>
                 <h3 className="text-lg font-bold text-[#0f172a]">{title}</h3>

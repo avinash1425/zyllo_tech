@@ -139,7 +139,7 @@ export default function Modal({
             initial={reduce ? false : { opacity: 0, y: 72, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1, transition: t }}
             exit={reduce ? { opacity: 0 } : { opacity: 0, y: 48, scale: 0.98, transition: tExit }}
-            className={`relative flex max-h-[92dvh] w-full ${maxWidthClassName} flex-col overflow-hidden rounded-t-[2rem] bg-white shadow-[0_-8px_40px_-8px_rgba(16,26,58,0.4)] ring-1 ring-black/5 outline-none sm:max-h-[88vh] sm:rounded-[2rem] sm:shadow-[0_40px_80px_-20px_rgba(16,26,58,0.55)]`}
+            className={`relative flex max-h-[92dvh] w-full ${maxWidthClassName} flex-col overflow-hidden rounded-t-[2rem] bg-white shadow-[0_-8px_40px_-8px_rgba(16,26,58,0.4)] ring-1 ring-black/5 outline-none sm:max-h-[88dvh] sm:rounded-[2rem] sm:shadow-[0_40px_80px_-20px_rgba(16,26,58,0.55)]`}
           >
             {showClose && (
               <button

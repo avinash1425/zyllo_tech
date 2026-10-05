@@ -86,8 +86,8 @@ export default function Industries({
   return (
     <section className={`relative overflow-hidden border-t border-[#e7e9ee] ${bg} py-6 lg:py-8`}>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-[#1f4693]/8 blur-[110px]" />
-        <div className="absolute -bottom-24 right-1/4 h-72 w-72 rounded-full bg-[#f7941e]/8 blur-[110px]" />
+        <div className="absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-[#1f4693]/[0.08] blur-[110px]" />
+        <div className="absolute -bottom-24 right-1/4 h-72 w-72 rounded-full bg-[#f7941e]/[0.08] blur-[110px]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
@@ -106,13 +106,13 @@ export default function Industries({
         </div>
       </div>
 
-      <div className="marquee-mask relative mt-6 overflow-hidden">
-        <div className="marquee-track flex w-max gap-6 px-6">
+      <div className="zt-marquee-mask relative mt-6 overflow-hidden">
+        <div className="zt-marquee-track flex w-max gap-6 px-6">
           {[...INDUSTRIES, ...INDUSTRIES].map((industry, index) => (
             <Link
               key={`${industry.title}-${index}`}
               href="/industries"
-              className="group relative h-56 w-72 shrink-0 overflow-hidden rounded-2xl shadow-sm transition-shadow duration-300 hover:shadow-lg sm:w-80"
+              className="group relative h-56 w-72 shrink-0 overflow-hidden rounded-2xl shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] transition-shadow duration-300 hover:shadow-lg sm:w-80"
             >
               <Image
                 src={industry.image}
@@ -132,7 +132,7 @@ export default function Industries({
       </div>
 
       <style>{`
-        .marquee-mask {
+        .zt-marquee-mask {
           -webkit-mask-image: linear-gradient(
             to right,
             transparent,
@@ -148,13 +148,13 @@ export default function Industries({
             transparent
           );
         }
-        .marquee-track {
-          animation: marqueeScroll 45s linear infinite;
+        .zt-marquee-track {
+          animation: zt-marqueeScroll 45s linear infinite;
         }
-        .marquee-mask:hover .marquee-track {
+        .zt-marquee-mask:hover .zt-marquee-track {
           animation-play-state: paused;
         }
-        @keyframes marqueeScroll {
+        @keyframes zt-marqueeScroll {
           from {
             transform: translateX(0);
           }

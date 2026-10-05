@@ -7,7 +7,8 @@ export default function FloatingWhatsApp() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with Zyllo Tech on WhatsApp"
-      className="group fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-black/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#25D366]/30 sm:bottom-6 sm:right-6"
+      style={{ right: "max(1.25rem, env(safe-area-inset-right))" }}
+      className="group fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_10px_15px_-3px_rgba(0,0,0,0.2)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_25px_-5px_rgba(37,211,102,0.3)] max-sm:[html[data-zt-cookie]_&]:bottom-[calc(7.5rem+env(safe-area-inset-bottom))] sm:right-6 sm:bottom-6"
     >
       <span
         aria-hidden="true"
@@ -23,7 +24,7 @@ export default function FloatingWhatsApp() {
         <path d="M12.001 2C6.478 2 2 6.478 2 12c0 1.821.487 3.53 1.338 5.003L2.06 22l5.13-1.345A9.94 9.94 0 0 0 12.001 22c5.522 0 10-4.478 10-10S17.523 2 12.001 2zm0 18.031a8.02 8.02 0 0 1-4.085-1.11l-.293-.174-3.045.799.813-2.968-.191-.305A8.014 8.014 0 0 1 4 12c0-4.418 3.584-8.001 8.001-8.001 4.418 0 8.001 3.583 8.001 8.001 0 4.417-3.583 8.031-8.001 8.031z" />
       </svg>
 
-      <span className="pointer-events-none absolute right-full mr-3 whitespace-nowrap rounded-lg bg-[#0b0e17] px-3 py-2 text-sm font-medium text-white opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100">
+      <span className="pointer-events-none absolute right-full mr-3 whitespace-nowrap hidden rounded-lg bg-[#0b0e17] px-3 py-2 text-sm font-medium text-white opacity-0 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.2)] md:block transition-opacity duration-200 group-hover:opacity-100">
         Chat with us
       </span>
     </a>

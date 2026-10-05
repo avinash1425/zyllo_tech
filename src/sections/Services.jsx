@@ -51,7 +51,7 @@ export default function Services() {
               <Link
                 key={service.slug}
                 href={`/services/${service.slug}`}
-                className={`group flex flex-col rounded-2xl border bg-white/60 p-5 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-white/80 hover:shadow-lg ${theme.border}`}
+                className={`group flex flex-col rounded-2xl border bg-white/60 p-5 shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-white/80 hover:shadow-lg ${theme.border}`}
               >
                 <span
                   className={`flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-lg ${theme.badge}`}

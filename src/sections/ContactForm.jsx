@@ -1,12 +1,10 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import { Check, ChevronDown, Clock, ExternalLink, Mail, MapPin, MessageCircle, Navigation, Phone } from "lucide-react";
+import Link from "@/lib/nx/link";
+import { ArrowRight, Check, ChevronDown, Clock } from "lucide-react";
+import { SERVICES as SERVICES_LIST } from "@/data/services";
 import { submitContactForm } from "@/lib/api/contact";
-
-const OFFICE_QUERY = encodeURIComponent(
-  "R V Plaza, Gayathri Nagar Phase-2, Mahatma Gandhi Inner Ring Road, Guntur 522034, Andhra Pradesh",
-);
 
 const SERVICES = [
   "Web Development",
@@ -21,14 +19,17 @@ const SERVICES = [
   "Other",
 ];
 
-// Folded in from the old standalone ContactInfo section — one unified
-// card (dark rail + form) reads as a single, deliberate piece rather than
-// two disconnected sections stacked on the page.
-const CONTACT_ITEMS = [
-  { icon: Phone, label: "Call Us", value: "+91 70757 73680", href: "tel:+917075773680" },
-  { icon: Mail, label: "Email Us", value: "info@zyllotech.com", href: "mailto:info@zyllotech.com" },
-  { icon: MessageCircle, label: "WhatsApp", value: "Chat with us", href: "https://wa.me/917075773680" },
-  { icon: Clock, label: "Response Time", value: "Within one business day", href: null },
+const NEXT_STEPS = [
+  { title: "We read your message", text: "Your inquiry goes straight to our team." },
+  { title: "We get back to you", text: "You receive a reply with suggested next steps." },
+  { title: "We talk it through", text: "A straightforward, no-pressure conversation about your needs." },
+];
+
+const INCLUDE = [
+  "What you want to achieve (your goals)",
+  "Your preferred timeline, if you have one",
+  "A budget range, if known",
+  "Any existing systems or tools we should know about",
 ];
 
 const initialState = { status: "idle", message: "" };
@@ -67,15 +68,15 @@ function ServiceDropdown({ value, onChange, error }) {
         onClick={() => setOpen((prev) => !prev)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className={`flex w-full items-center justify-between gap-2 rounded-lg border bg-[#fafbfc] px-4 py-2.5 text-left text-sm outline-none transition-all duration-200 ${
+        className={`flex w-full items-center justify-between gap-2 rounded-lg border bg-[#fafbfc] px-4 py-3 text-left text-base outline-none sm:py-2.5 sm:text-sm transition-all duration-200 ${
           error ? "border-red-400" : "border-[#d9dde2]"
         } ${open ? "border-[#1c2f4a]/60 bg-white ring-4 ring-[#1c2f4a]/10" : ""}`}
       >
-        <span className={value ? "text-[#1d2735]" : "text-[#6c7889]/60"}>
+        <span className={value ? "text-[#1d2735]" : "text-[#4a5668]/70"}>
           {value || "Select a service"}
         </span>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-[#6c7889] transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`h-4 w-4 shrink-0 text-[#4a5668] transition-transform duration-200 ${open ? "rotate-180" : ""}`}
           aria-hidden="true"
         />
       </button>
@@ -95,7 +96,7 @@ function ServiceDropdown({ value, onChange, error }) {
                     onChange(service);
                     setOpen(false);
                   }}
-                  className={`flex w-full items-center justify-between gap-2 rounded-lg px-3.5 py-2.5 text-left text-sm transition-colors duration-150 ${
+                  className={`flex w-full items-center justify-between gap-2 rounded-lg px-3.5 py-3 text-left text-sm transition-colors duration-150 ${
                     selected
                       ? "bg-[#fff2e2] font-semibold text-[#c9580d]"
                       : "text-[#1d2735] hover:bg-[#fafbfc]"
@@ -110,7 +111,7 @@ function ServiceDropdown({ value, onChange, error }) {
         </ul>
       )}
 
-      {error && <p className="mt-1.5 text-xs font-medium text-red-600">{error}</p>}
+      {error && <p className="mt-1.5 text-[13px] font-medium text-red-700">{error}</p>}
     </div>
   );
 }
@@ -128,7 +129,7 @@ export default function ContactForm() {
   }
 
   return (
-    <section className="relative overflow-hidden border-t border-[#d9dde2] bg-[#fafbfc] py-6 lg:py-8">
+    <section className="relative overflow-hidden border-t border-[#d9dde2] bg-[#fafbfc] py-10 lg:py-12">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-[#f96706]/8 blur-[110px]" />
         <div className="absolute -bottom-24 right-1/4 h-72 w-72 rounded-full bg-[#1c2f4a]/8 blur-[110px]" />
@@ -136,7 +137,7 @@ export default function ContactForm() {
 
       <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#f96706]">
+          <span className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-[0.18em] text-[#c9580d]">
             <span aria-hidden="true" className="h-px w-8 bg-[#f96706]" />
             Contact Form
             <span aria-hidden="true" className="h-px w-8 bg-[#f96706]" />
@@ -147,15 +148,15 @@ export default function ContactForm() {
               your project
             </span>
           </h2>
-          <p className="mt-4 text-lg leading-relaxed text-[#6c7889]">
+          <p className="mt-4 text-lg leading-relaxed text-[#4a5668]">
             Share a few details and we&apos;ll get back to you within one
             business day.
           </p>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 overflow-hidden rounded-[28px] border border-[#e2e5ea] bg-white shadow-2xl shadow-[#1c2f4a]/10 lg:grid-cols-[0.85fr_1.15fr]">
-          {/* Dark contact rail */}
-          <div className="relative overflow-hidden bg-gradient-to-br from-[#1c2f4a] to-[#0f1826] p-10 text-white lg:p-11">
+        <div className="mt-10 grid grid-cols-1 overflow-hidden rounded-[28px] border border-[#e2e5ea] bg-white shadow-2xl shadow-[#1c2f4a]/10 lg:grid-cols-[0.8fr_1.2fr]">
+          {/* Slim side panel: only content that is NOT shown elsewhere on the page. */}
+          <aside className="relative order-2 overflow-hidden bg-gradient-to-br from-[#1c2f4a] to-[#0f1826] p-6 text-white sm:p-10 lg:order-1 lg:p-10">
             <div aria-hidden="true" className="pointer-events-none absolute inset-0">
               <div
                 className="absolute inset-0 opacity-[0.06]"
@@ -168,108 +169,73 @@ export default function ContactForm() {
               <div className="absolute -bottom-16 -right-10 h-56 w-56 rounded-full bg-[#3089a6] opacity-30 blur-[90px]" />
             </div>
 
-            <div className="relative flex h-full flex-col justify-center">
-              <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#ffb15c]">
-                Get in Touch
-              </span>
-              <h3 className="mt-2.5 text-2xl font-extrabold leading-tight">
-                Let&apos;s talk about your project
-              </h3>
-              <p className="mt-2.5 text-sm leading-relaxed text-white/65">
-                Reach out however works best for you — we reply within one
-                business day.
-              </p>
-
-              <div className="mt-7 flex flex-col divide-y divide-white/10">
-                {CONTACT_ITEMS.map(({ icon: Icon, label, value, href }) => {
-                  const content = (
-                    <>
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 transition-colors duration-200 group-hover:bg-white/15">
-                        <Icon className="h-4 w-4" aria-hidden="true" />
+            <div className="relative flex flex-col gap-8">
+              <div>
+                <span className="text-sm font-bold uppercase tracking-[0.16em] text-[#ffb15c]">What happens next</span>
+                <ol className="mt-4 space-y-4">
+                  {NEXT_STEPS.map((step, i) => (
+                    <li key={step.title} className="flex items-start gap-3.5">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f96706] text-sm font-bold text-white">
+                        {i + 1}
                       </span>
-                      <span>
-                        <span className="block text-[13px] font-bold">{label}</span>
-                        <span className="mt-0.5 block text-[12.5px] text-white/60">{value}</span>
+                      <span className="min-w-0">
+                        <span className="block text-base font-bold text-white">{step.title}</span>
+                        <span className="mt-0.5 block text-[15px] leading-relaxed text-white/90">{step.text}</span>
                       </span>
-                    </>
-                  );
-                  return href ? (
-                    <a
-                      key={label}
-                      href={href}
-                      target={href.startsWith("http") ? "_blank" : undefined}
-                      rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-                      className="group flex items-start gap-3.5 py-3.5 transition-transform duration-200 hover:translate-x-1"
-                    >
-                      {content}
-                    </a>
-                  ) : (
-                    <div key={label} className="group flex items-start gap-3.5 py-3.5">
-                      {content}
-                    </div>
-                  );
-                })}
+                    </li>
+                  ))}
+                </ol>
+                <p className="mt-5 flex items-center gap-2.5 rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-[15px] font-semibold text-white">
+                  <Clock className="h-5 w-5 shrink-0 text-[#ffb15c]" aria-hidden="true" />
+                  We reply within one business day.
+                </p>
               </div>
 
-              <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur-sm">
-                <div className="flex items-start gap-3.5">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#f96706] to-[#f7941e] text-white shadow-lg shadow-[#f96706]/30">
-                    <MapPin className="h-5 w-5" aria-hidden="true" />
-                  </span>
-                  <div>
-                    <span className="block text-[13px] font-bold">Office address</span>
-                    <address className="mt-1 text-[12.5px] not-italic leading-relaxed text-white/70">
-                      Zyllo Tech Software Solutions Private Limited
-                      <br />
-                      R V Plaza, Door No. 134-77/1, 3rd Floor,
-                      <br />
-                      Gayathri Nagar, Phase-2,
-                      <br />
-                      Mahatma Gandhi Inner Ring Road,
-                      <br />
-                      Guntur - 522034, Andhra Pradesh, India.
-                    </address>
-                  </div>
-                </div>
-                <div className="mt-4 flex flex-wrap gap-2.5">
-                  <a
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${OFFICE_QUERY}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[#f96706] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#c9580d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                  >
-                    <Navigation className="h-3.5 w-3.5" aria-hidden="true" />
-                    Get directions
-                  </a>
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${OFFICE_QUERY}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-full border border-white/25 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-                    Open in Google Maps
-                  </a>
-                </div>
+              <div>
+                <span className="text-sm font-bold uppercase tracking-[0.16em] text-[#ffb15c]">What to include</span>
+                <ul className="mt-4 space-y-2.5">
+                  {INCLUDE.map((item) => (
+                    <li key={item} className="flex items-start gap-3 text-[15px] leading-relaxed text-white/90">
+                      <Check className="mt-1 h-4 w-4 shrink-0 text-[#ffb15c]" aria-hidden="true" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div>
+                <span className="text-sm font-bold uppercase tracking-[0.16em] text-[#ffb15c]">Learn about our services</span>
+                <ul className="mt-4 flex flex-wrap gap-2">
+                  {SERVICES_LIST.map((svc) => (
+                    <li key={svc.slug}>
+                      <Link
+                        href={`/services/${svc.slug}`}
+                        className="inline-flex min-h-11 items-center rounded-full border border-white/25 bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:border-[#ffb15c] hover:bg-white/20 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#ffb15c]/60"
+                      >
+                        {svc.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
-          </div>
+          </aside>
 
           {/* Form */}
-          <div className="p-8 lg:p-11">
+          <div className="order-1 min-w-0 p-5 sm:p-8 lg:order-2 lg:p-10">
             {state.status === "success" ? (
               <div className="flex h-full flex-col items-center justify-center py-10 text-center">
                 <h3 className="text-xl font-semibold text-[#1d2735]">
                   Thanks — we&apos;ve got your message.
                 </h3>
-                <p className="mt-2 text-sm text-[#6c7889]">
+                <p className="mt-2 text-base leading-relaxed text-[#4a5668]">
                   Our team will reach out within one business day.
                 </p>
               </div>
             ) : (
               <form action={formAction} onSubmit={handleSubmit} className="flex flex-col gap-7">
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#1c2f4a]">
+                  <span className="text-sm font-bold uppercase tracking-[0.14em] text-[#1c2f4a]">
                     Your Details
                   </span>
                   <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -284,7 +250,7 @@ export default function ContactForm() {
                         type="text"
                         required
                         placeholder="Your full name"
-                        className="w-full rounded-lg border border-[#d9dde2] bg-[#fafbfc] px-4 py-2.5 text-sm text-[#1d2735] placeholder:text-[#6c7889]/60 outline-none transition-all duration-200 focus:border-[#1c2f4a]/60 focus:bg-white focus:ring-4 focus:ring-[#1c2f4a]/10"
+                        className="w-full rounded-lg border border-[#d9dde2] bg-[#fafbfc] px-4 py-3 text-base text-[#1d2735] sm:py-2.5 sm:text-sm placeholder:text-[#4a5668]/70 outline-none transition-all duration-200 focus:border-[#1c2f4a]/60 focus:bg-white focus:ring-4 focus:ring-[#1c2f4a]/10"
                       />
                     </div>
 
@@ -300,7 +266,7 @@ export default function ContactForm() {
                         autoComplete="email"
                         required
                         placeholder="you@company.com"
-                        className="w-full rounded-lg border border-[#d9dde2] bg-[#fafbfc] px-4 py-2.5 text-sm text-[#1d2735] placeholder:text-[#6c7889]/60 outline-none transition-all duration-200 focus:border-[#1c2f4a]/60 focus:bg-white focus:ring-4 focus:ring-[#1c2f4a]/10"
+                        className="w-full rounded-lg border border-[#d9dde2] bg-[#fafbfc] px-4 py-3 text-base text-[#1d2735] sm:py-2.5 sm:text-sm placeholder:text-[#4a5668]/70 outline-none transition-all duration-200 focus:border-[#1c2f4a]/60 focus:bg-white focus:ring-4 focus:ring-[#1c2f4a]/10"
                       />
                     </div>
 
@@ -316,7 +282,7 @@ export default function ContactForm() {
                         autoComplete="tel"
                         required
                         placeholder="+91 00000 00000"
-                        className="w-full rounded-lg border border-[#d9dde2] bg-[#fafbfc] px-4 py-2.5 text-sm text-[#1d2735] placeholder:text-[#6c7889]/60 outline-none transition-all duration-200 focus:border-[#1c2f4a]/60 focus:bg-white focus:ring-4 focus:ring-[#1c2f4a]/10"
+                        className="w-full rounded-lg border border-[#d9dde2] bg-[#fafbfc] px-4 py-3 text-base text-[#1d2735] sm:py-2.5 sm:text-sm placeholder:text-[#4a5668]/70 outline-none transition-all duration-200 focus:border-[#1c2f4a]/60 focus:bg-white focus:ring-4 focus:ring-[#1c2f4a]/10"
                       />
                     </div>
 
@@ -329,14 +295,14 @@ export default function ContactForm() {
                         name="company"
                         type="text"
                         placeholder="Your company"
-                        className="w-full rounded-lg border border-[#d9dde2] bg-[#fafbfc] px-4 py-2.5 text-sm text-[#1d2735] placeholder:text-[#6c7889]/60 outline-none transition-all duration-200 focus:border-[#1c2f4a]/60 focus:bg-white focus:ring-4 focus:ring-[#1c2f4a]/10"
+                        className="w-full rounded-lg border border-[#d9dde2] bg-[#fafbfc] px-4 py-3 text-base text-[#1d2735] sm:py-2.5 sm:text-sm placeholder:text-[#4a5668]/70 outline-none transition-all duration-200 focus:border-[#1c2f4a]/60 focus:bg-white focus:ring-4 focus:ring-[#1c2f4a]/10"
                       />
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#1c2f4a]">
+                  <span className="text-sm font-bold uppercase tracking-[0.14em] text-[#1c2f4a]">
                     Project Details
                   </span>
 
@@ -366,7 +332,7 @@ export default function ContactForm() {
                       rows={5}
                       required
                       placeholder="Tell us a bit about what you're looking to build..."
-                      className="w-full resize-none rounded-lg border border-[#d9dde2] bg-[#fafbfc] px-4 py-2.5 text-sm text-[#1d2735] placeholder:text-[#6c7889]/60 outline-none transition-all duration-200 focus:border-[#1c2f4a]/60 focus:bg-white focus:ring-4 focus:ring-[#1c2f4a]/10"
+                      className="w-full resize-none rounded-lg border border-[#d9dde2] bg-[#fafbfc] px-4 py-3 text-base text-[#1d2735] sm:py-2.5 sm:text-sm placeholder:text-[#4a5668]/70 outline-none transition-all duration-200 focus:border-[#1c2f4a]/60 focus:bg-white focus:ring-4 focus:ring-[#1c2f4a]/10"
                     />
                   </div>
                 </div>
@@ -376,16 +342,32 @@ export default function ContactForm() {
                 )}
 
                 <div className="flex flex-col gap-3 border-t border-[#e2e5ea] pt-7 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-xs text-[#6c7889]">
+                  <p className="text-[13px] text-[#4a5668]">
                     <RequiredMark /> Required field
                   </p>
                   <button
                     type="submit"
                     disabled={isPending}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[#f96706] px-8 py-3.5 text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(247,148,30,0.35),0_8px_10px_-6px_rgba(247,148,30,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-[#c9580d] disabled:pointer-events-none disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:scale-100"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#f96706] px-8 py-3.5 sm:w-auto text-sm font-semibold text-white shadow-[0_20px_25px_-5px_rgba(247,148,30,0.35),0_8px_10px_-6px_rgba(247,148,30,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-105 hover:bg-[#c9580d] disabled:pointer-events-none disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:scale-100"
                   >
                     {isPending ? "Sending..." : "Send Message"}
                   </button>
+                </div>
+                <div className="space-y-2 text-[15px] leading-relaxed text-[#4a5668]">
+                  <p>
+                    Read how we handle your details in our{" "}
+                    <Link href="/privacy" className="font-semibold text-[#1f4693] underline underline-offset-4 hover:text-[#c9580d]">
+                      Privacy Policy
+                    </Link>
+                    .
+                  </p>
+                  <p>
+                    Looking for a job?{" "}
+                    <Link href="/careers#open-positions" className="inline-flex items-center gap-1 font-semibold text-[#1f4693] underline underline-offset-4 hover:text-[#c9580d]">
+                      See open roles
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </Link>
+                  </p>
                 </div>
               </form>
             )}

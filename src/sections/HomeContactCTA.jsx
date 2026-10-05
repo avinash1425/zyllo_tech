@@ -40,7 +40,7 @@ export default function HomeContactCTA({
   return (
     <section className="relative overflow-hidden border-t border-[#e2e5ea] bg-[#f8f9fb] py-10 lg:py-12">
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="cta-in relative isolate overflow-hidden rounded-2xl border border-[#e2e5ea] bg-white shadow-sm">
+        <div className="zt-cta-in relative isolate overflow-hidden rounded-2xl border border-[#e2e5ea] bg-white shadow-sm">
           {/* Subtle texture + accent glow — visual richness without adding
               back the height/padding that made the previous version big. */}
           <div
@@ -81,7 +81,7 @@ export default function HomeContactCTA({
               href={buttonHref}
               className="group relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-[#f96706] to-[#3089a6] px-7 py-3.5 text-sm font-semibold text-white shadow-[0_12px_20px_-6px_rgba(249,103,6,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_20px_-6px_rgba(48,137,166,0.4)]"
             >
-              <span className="cta-shine" aria-hidden="true" />
+              <span className="zt-cta-shine" aria-hidden="true" />
               <span className="relative z-[1]">{buttonLabel}</span>
               <ArrowRight
                 className="relative z-[1] h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
@@ -115,10 +115,10 @@ export default function HomeContactCTA({
       </div>
 
       <style>{`
-        .cta-in {
-          animation: ctaFadeUp 0.6s ease-out both;
+        .zt-cta-in {
+          animation: zt-ctaFadeUp 0.6s ease-out both;
         }
-        @keyframes ctaFadeUp {
+        @keyframes zt-ctaFadeUp {
           from {
             opacity: 0;
             transform: translateY(16px);
@@ -128,7 +128,7 @@ export default function HomeContactCTA({
             transform: translateY(0);
           }
         }
-        .cta-shine {
+        .zt-cta-shine {
           position: absolute;
           top: 0;
           left: -75%;
@@ -137,7 +137,7 @@ export default function HomeContactCTA({
           background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
           transform: skewX(-20deg);
         }
-        a:hover .cta-shine {
+        a:hover .zt-cta-shine {
           left: 130%;
           transition: left 0.6s ease;
         }

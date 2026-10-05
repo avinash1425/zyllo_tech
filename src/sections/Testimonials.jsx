@@ -22,8 +22,8 @@ export default function Testimonials() {
   return (
     <section className="relative overflow-hidden border-t border-[#e7e9ee] bg-white py-10 lg:py-14">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-[#f7941e]/8 blur-[110px]" />
-        <div className="absolute -bottom-24 right-1/4 h-72 w-72 rounded-full bg-[#1f4693]/8 blur-[110px]" />
+        <div className="absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-[#f7941e]/[0.08] blur-[110px]" />
+        <div className="absolute -bottom-24 right-1/4 h-72 w-72 rounded-full bg-[#1f4693]/[0.08] blur-[110px]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">

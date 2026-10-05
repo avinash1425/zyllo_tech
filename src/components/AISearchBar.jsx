@@ -122,7 +122,7 @@ export default function AISearchBar() {
         onClick={openBar}
         aria-label="Ask AI about Zyllo Tech"
         title="AI Search"
-        className="group relative inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#d9dde2] bg-white text-[#6c7889] shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#f96706]/50 hover:text-[#f96706] hover:shadow-md hover:shadow-[#f96706]/15"
+        className="group relative inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#d9dde2] bg-white text-[#6c7889] shadow-[0_1px_2px_rgba(0,0,0,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#f96706]/50 hover:text-[#f96706] hover:shadow-md hover:shadow-[#f96706]/15"
       >
         <Search className="h-4 w-4" aria-hidden="true" />
         <Sparkles className="absolute -right-1 -top-1 h-3 w-3 text-[#f96706]" aria-hidden="true" />
@@ -139,11 +139,11 @@ export default function AISearchBar() {
           >
             <div
               aria-hidden="true"
-              className="ai-search-backdrop fixed inset-0 bg-[#0b0e17]/55 backdrop-blur-sm"
+              className="zt-ai-search-backdrop fixed inset-0 bg-[#0b0e17]/55 backdrop-blur-[4px]"
               onClick={closeBar}
             />
 
-            <div className="ai-search-pop relative w-full max-w-xl overflow-hidden rounded-2xl border border-[#d9dde2] bg-white shadow-2xl">
+            <div className="zt-ai-search-pop relative w-full max-w-xl overflow-hidden rounded-2xl border border-[#d9dde2] bg-white shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]">
               <div className="flex items-center gap-2.5 border-b border-[#d9dde2] bg-gradient-to-br from-[#fff2e2] via-white to-[#e6f1f4] px-4 py-3">
                 <Image
                   src="/zyllo-icon.png"
@@ -260,7 +260,7 @@ export default function AISearchBar() {
             </div>
 
             <style>{`
-              @keyframes aiSearchBackdropFadeIn {
+              @keyframes ztAiSearchBackdropFadeIn {
                 from {
                   opacity: 0;
                 }
@@ -268,10 +268,10 @@ export default function AISearchBar() {
                   opacity: 1;
                 }
               }
-              .ai-search-backdrop {
-                animation: aiSearchBackdropFadeIn 0.2s ease-out both;
+              .zt-ai-search-backdrop {
+                animation: ztAiSearchBackdropFadeIn 0.2s ease-out both;
               }
-              @keyframes aiSearchPop {
+              @keyframes ztAiSearchPop {
                 from {
                   opacity: 0;
                   transform: scale(0.97) translateY(-8px);
@@ -281,8 +281,8 @@ export default function AISearchBar() {
                   transform: scale(1) translateY(0);
                 }
               }
-              .ai-search-pop {
-                animation: aiSearchPop 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+              .zt-ai-search-pop {
+                animation: ztAiSearchPop 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
               }
             `}</style>
           </div>,

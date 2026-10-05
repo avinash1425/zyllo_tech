@@ -7,6 +7,7 @@ import Modal from "@/components/Modal";
 import ApplyForm from "@/components/ApplyForm";
 import ModalHeader from "@/components/careers/ModalHeader";
 import DescriptionBody from "@/components/careers/DescriptionBody";
+import { RoleRow, DetailPanel } from "@/sections/careers/RoleMaster";
 import JobCard, { JobCardSkeleton, OpeningsPill } from "@/sections/careers/JobCard";
 
 const TITLE_ID = "careers-modal-title";
@@ -52,6 +53,8 @@ export default function OpenPositionsGrid({ positions, loading = false }) {
   const [modalOpen, setModalOpen] = useState(false); // view is kept while the exit animation runs
   const [department, setDepartment] = useState("All");
   const [query, setQuery] = useState("");
+  const [sort, setSort] = useState("newest");
+  const [selectedId, setSelectedId] = useState(null);
 
   const departments = useMemo(
     () => Array.from(new Set(positions.map((p) => p.department).filter(Boolean))).sort(),
@@ -111,7 +114,7 @@ export default function OpenPositionsGrid({ positions, loading = false }) {
   if (positions.length === 0) {
     return (
       <>
-        <div className="mx-auto mt-8 max-w-xl rounded-3xl border border-[#e7e9ee] bg-white p-8 text-center shadow-sm sm:p-10">
+        <div className="mx-auto mt-8 max-w-xl rounded-3xl border border-[#e7e9ee] bg-white p-8 text-center shadow-[0_1px_2px_rgba(16,26,58,0.08)] sm:p-10">
           <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f7941e] to-[#f96706] text-white shadow-lg shadow-[#f7941e]/30">
             <FileText className="h-7 w-7" aria-hidden="true" />
           </span>
@@ -132,71 +135,116 @@ export default function OpenPositionsGrid({ positions, loading = false }) {
     );
   }
 
+  const sortedFiltered =
+    sort === "title" ? [...filtered].sort((a, b) => String(a.title).localeCompare(String(b.title))) : filtered;
+  const selected = sortedFiltered.find((p) => p.id === selectedId) || sortedFiltered[0] || null;
+
   const chipClass = (active) =>
-    `inline-flex items-center rounded-full border px-4 py-2 text-sm font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/30 ${
+    `inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-[15px] font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/30 motion-reduce:transition-none ${
       active
         ? "border-transparent bg-gradient-to-r from-[#1f4693] to-[#173a52] text-white shadow-md shadow-[#1f4693]/25"
-        : "border-[#e7e9ee] bg-white text-[#2b303b] hover:border-[#1f4693]/40 hover:text-[#1f4693]"
+        : "border-[#d5d9e2] bg-white text-[#2b303b] hover:border-[#1f4693]/50 hover:text-[#1f4693]"
     }`;
+
+  const deptCount = (d) => (d === "All" ? positions.length : positions.filter((p) => p.department === d).length);
 
   return (
     <>
-      <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div role="group" aria-label="Filter by department" className="flex flex-wrap gap-2">
-          {["All", ...departments].map((d) => (
-            <button
-              key={d}
-              type="button"
-              aria-pressed={department === d}
-              onClick={() => setDepartment(d)}
-              className={chipClass(department === d)}
-            >
-              {d}
-            </button>
-          ))}
-        </div>
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-center sm:justify-between sm:text-left">
+        <p className="inline-flex items-center gap-2.5 rounded-full bg-[#1f4693]/10 px-4 py-2 text-[15px] font-bold text-[#173a52]">
+          <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#16a34a]" />
+          {positions.length} open role{positions.length === 1 ? "" : "s"}
+        </p>
+        <p className="text-[15px] text-[#4a5668]" role="status" aria-live="polite">
+          Showing {filtered.length} of {positions.length}
+        </p>
+      </div>
 
-        <div className="relative w-full lg:max-w-xs">
-          <label htmlFor="role-search" className="sr-only">
-            Search roles
-          </label>
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#676b7a]" aria-hidden="true" />
-          <input
-            id="role-search"
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search roles, location..."
-            className="w-full rounded-full border border-[#d5d9e2] bg-white py-2.5 pl-10 pr-4 text-sm text-[#2b303b] placeholder:text-[#676b7a]/70 outline-none transition-all focus:border-[#f7941e] focus:ring-4 focus:ring-[#f7941e]/15"
-          />
+      {/* Sticky filter / search / sort toolbar */}
+      <div className="z-30 mt-4 rounded-2xl border border-[#e7e9ee] bg-white/95 p-3 shadow-[0_8px_24px_-16px_rgba(16,26,58,0.25)] backdrop-blur sm:p-4 lg:sticky lg:top-[4.75rem]">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+          <div role="group" aria-label="Filter by department" className="flex flex-wrap gap-2">
+            {["All", ...departments].map((d) => (
+              <button key={d} type="button" aria-pressed={department === d} onClick={() => setDepartment(d)} className={chipClass(department === d)}>
+                {d}
+                <span className={`rounded-full px-2 py-0.5 text-[13px] ${department === d ? "bg-white/20 text-white" : "bg-[#1f4693]/10 text-[#1f4693]"}`}>
+                  {deptCount(d)}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="relative w-full sm:w-72">
+              <label htmlFor="role-search" className="sr-only">
+                Search roles
+              </label>
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#4a5668]" aria-hidden="true" />
+              <input
+                id="role-search"
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search roles, location..."
+                className="min-h-11 w-full rounded-full border border-[#c9ced9] bg-white py-2.5 pl-10 pr-4 text-base text-[#2b303b] placeholder:text-[#4a5668]/70 outline-none transition-all focus:border-[#f7941e] focus:ring-4 focus:ring-[#f7941e]/15 sm:text-[15px]"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="role-sort" className="text-[15px] font-semibold text-[#2b303b]">
+                Sort
+              </label>
+              <select
+                id="role-sort"
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                className="min-h-11 flex-1 rounded-full border border-[#c9ced9] bg-white px-4 text-base text-[#2b303b] outline-none focus:border-[#f7941e] focus:ring-4 focus:ring-[#f7941e]/15 sm:flex-none sm:text-[15px]"
+              >
+                <option value="newest">Newest first</option>
+                <option value="title">Title A to Z</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 
-      <p className="mt-4 text-sm text-[#676b7a]" role="status" aria-live="polite">
-        Showing {filtered.length} of {positions.length} role{positions.length === 1 ? "" : "s"}
-      </p>
-
-      {filtered.length === 0 ? (
-        <div className="mt-4 rounded-2xl border border-dashed border-[#d5d9e2] bg-white p-10 text-center">
-          <SearchX className="mx-auto h-8 w-8 text-[#676b7a]" aria-hidden="true" />
-          <p className="mt-3 text-base font-semibold text-[#2b303b]">No roles match your filters</p>
+      {sortedFiltered.length === 0 ? (
+        <div className="mt-6 rounded-2xl border border-dashed border-[#c9ced9] bg-white p-10 text-center">
+          <SearchX className="mx-auto h-8 w-8 text-[#4a5668]" aria-hidden="true" />
+          <p className="mt-3 text-lg font-semibold text-[#2b303b]">No roles match your filters</p>
           <button
             type="button"
             onClick={() => {
               setDepartment("All");
               setQuery("");
             }}
-            className="mt-3 text-sm font-semibold text-[#1f4693] underline underline-offset-4 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/30"
+            className="mt-3 min-h-11 text-[15px] font-semibold text-[#1f4693] underline underline-offset-4 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/30"
           >
             Clear filters
           </button>
         </div>
       ) : (
-        <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((position, i) => (
-            <JobCard key={position.id} index={i} position={position} onDetails={openDetails} onApply={openApply} />
-          ))}
-        </div>
+        <>
+          {/* Phones + tablets: cards that open the popup */}
+          <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:hidden">
+            {sortedFiltered.map((position, i) => (
+              <JobCard key={position.id} index={i} position={position} onDetails={openDetails} onApply={openApply} />
+            ))}
+          </div>
+
+          {/* Desktop: master-detail */}
+          <div className="mt-6 hidden items-start gap-6 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+            <ul aria-label="Open roles" className="max-h-[calc(100dvh-12rem)] min-h-0 space-y-3 overflow-y-auto overscroll-contain p-1 pr-2">
+              {sortedFiltered.map((p) => (
+                <li key={p.id}>
+                  <RoleRow position={p} active={selected?.id === p.id} onSelect={() => setSelectedId(p.id)} />
+                </li>
+              ))}
+            </ul>
+            {selected && (
+              <DetailPanel position={selected} onApply={() => openApply(selected)} onDetails={() => openDetails(selected)} />
+            )}
+          </div>
+        </>
       )}
 
       <ContactBand />
@@ -223,7 +271,7 @@ export default function OpenPositionsGrid({ positions, loading = false }) {
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[#fafbfc] px-5 py-6 sm:px-8">
               <OpeningsPill remaining={activeJob.remaining} />
               {activeJob.description ? (
-                <div className="mt-5 rounded-3xl border border-[#e7e9ee] bg-white p-5 shadow-sm sm:p-6">
+                <div className="mt-5 rounded-3xl border border-[#e7e9ee] bg-white p-5 shadow-[0_1px_2px_rgba(16,26,58,0.08)] sm:p-6">
                   <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.16em] text-[#1b2030]">
                     <span aria-hidden="true" className="h-1.5 w-5 rounded-full bg-gradient-to-r from-[#f96706] to-[#ffb15c]" />
                     About this role

@@ -48,7 +48,7 @@ export default function TechOrbit() {
             className="absolute inset-8 rounded-full border border-white/[0.06]"
           />
 
-          <div className="orbit-spin absolute inset-0">
+          <div className="zt-orbit-spin absolute inset-0">
             {ORBIT_ITEMS.map((item, index) => {
               const Icon = CATEGORY_ICONS[index % CATEGORY_ICONS.length];
               const accent = index % 2 === 0 ? "#f96706" : "#5b7fd4";
@@ -58,7 +58,7 @@ export default function TechOrbit() {
               return (
                 <div
                   key={item.label}
-                  className="orbit-counter-spin absolute flex flex-col items-center gap-1.5"
+                  className="zt-orbit-counter-spin absolute flex flex-col items-center gap-1.5"
                   style={{ left: `${x}%`, top: `${y}%`, transform: "translate(-50%, -50%)" }}
                 >
                   <span
@@ -84,13 +84,13 @@ export default function TechOrbit() {
       </div>
 
       <style>{`
-        .orbit-spin {
-          animation: orbitSpin 40s linear infinite;
+        .zt-orbit-spin {
+          animation: zt-orbitSpin 40s linear infinite;
         }
-        .orbit-counter-spin {
-          animation: orbitCounterSpin 40s linear infinite;
+        .zt-orbit-counter-spin {
+          animation: zt-orbitCounterSpin 40s linear infinite;
         }
-        @keyframes orbitSpin {
+        @keyframes zt-orbitSpin {
           from {
             transform: rotate(0deg);
           }
@@ -98,7 +98,7 @@ export default function TechOrbit() {
             transform: rotate(360deg);
           }
         }
-        @keyframes orbitCounterSpin {
+        @keyframes zt-orbitCounterSpin {
           from {
             transform: translate(-50%, -50%) rotate(0deg);
           }

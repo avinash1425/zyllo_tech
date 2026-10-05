@@ -31,12 +31,19 @@ export default function CookieConsent() {
     setVisible(false);
   }
 
+  // Tell the floating buttons to lift above the banner on small screens.
+  useEffect(() => {
+    const on = visible && !showPolicy;
+    document.documentElement.toggleAttribute("data-zt-cookie", on);
+    return () => document.documentElement.removeAttribute("data-zt-cookie");
+  }, [visible, showPolicy]);
+
   if (!visible) return null;
 
   return (
     <>
-      <div className="pointer-events-none fixed inset-x-0 bottom-4 z-[60] flex justify-center px-3 sm:bottom-6 sm:px-4">
-        <div className="cookie-pop pointer-events-auto w-fit max-w-full rounded-[28px] bg-gradient-to-r from-[#3089a6] via-[#f96706] to-[#ffb15c] p-[2px] shadow-xl shadow-black/10 sm:rounded-full">
+      <div className="pointer-events-none fixed inset-x-0 z-[60] flex justify-center px-3 sm:px-4" style={{ bottom: "max(1rem, env(safe-area-inset-bottom))" }}>
+        <div className="zt-cookie-pop pointer-events-auto w-fit max-w-[calc(100vw-1.5rem)] rounded-[28px] bg-gradient-to-r from-[#3089a6] via-[#f96706] to-[#ffb15c] p-[2px] shadow-[0_20px_25px_-5px_rgba(0,0,0,0.10)] sm:rounded-full">
           <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-[26px] bg-white px-4 py-2 sm:rounded-full sm:pr-2">
             <Cookie className="h-4 w-4 shrink-0 text-[#f96706]" aria-hidden="true" />
             <span className="whitespace-nowrap text-xs font-medium text-[#1d2735]">
@@ -80,7 +87,7 @@ export default function CookieConsent() {
       />
 
       <style>{`
-        @keyframes cookiePop {
+        @keyframes ztCookiePop {
           from {
             opacity: 0;
             transform: translateY(16px);
@@ -90,11 +97,11 @@ export default function CookieConsent() {
             transform: translateY(0);
           }
         }
-        .cookie-pop {
-          animation: cookiePop 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+        .zt-cookie-pop {
+          animation: ztCookiePop 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
         @media (prefers-reduced-motion: reduce) {
-          .cookie-pop {
+          .zt-cookie-pop {
             animation: none;
           }
         }

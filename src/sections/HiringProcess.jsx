@@ -52,7 +52,7 @@ export default function HiringProcess() {
           <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
             {STEPS.map(({ icon: Icon, title, description }, index) => (
               <div key={title} className="relative flex flex-col items-center text-center">
-                <div className="relative flex h-12 w-12 items-center justify-center rounded-full border border-[#f7941e]/30 bg-white shadow-sm transition-transform duration-300 hover:scale-110">
+                <div className="relative flex h-12 w-12 items-center justify-center rounded-full border border-[#f7941e]/30 bg-white shadow-[0_1px_2px_0_rgba(0,0,0,0.05)] transition-transform duration-300 hover:scale-110">
                   <Icon className="h-5 w-5 text-[#f7941e]" aria-hidden="true" />
                 </div>
                 <span className="mt-4 text-xs font-bold tracking-widest text-[#2b303b]/30">

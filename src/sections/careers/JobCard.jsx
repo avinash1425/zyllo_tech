@@ -21,7 +21,7 @@ export function JobCardSkeleton() {
 export function OpeningsPill({ remaining }) {
   const pips = Math.max(0, Math.min(5, remaining));
   return (
-    <span className="inline-flex items-center gap-2 rounded-full bg-[#f7941e]/10 py-1 pl-2.5 pr-3 text-xs font-semibold text-[#a64b06] ring-1 ring-[#f7941e]/20">
+    <span className="inline-flex items-center gap-2 rounded-full bg-[#f7941e]/10 py-1 pl-2.5 pr-3 text-[13px] font-semibold text-[#a64b06] ring-1 ring-[#f7941e]/20">
       <span className="flex gap-0.5" aria-hidden="true">
         {Array.from({ length: pips }).map((_, i) => (
           <span key={i} className="h-1.5 w-3 rounded-full bg-gradient-to-r from-[#f96706] to-[#ffb15c]" />
@@ -74,14 +74,14 @@ export default function JobCard({ position, onDetails, onApply, index = 0 }) {
 
           <div className="relative mt-6">
             {department && (
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: theme.from }}>
+              <p className="text-[13px] font-bold uppercase tracking-[0.14em]" style={{ color: theme.from }}>
                 {department}
               </p>
             )}
             <h3 className="mt-1.5 text-xl font-bold leading-snug tracking-tight text-[#1b2030]">{title}</h3>
           </div>
 
-          <ul className="relative mt-4 space-y-2 text-sm text-[#676b7a]">
+          <ul className="relative mt-4 space-y-2 text-[15px] text-[#4a5668]">
             {location && (
               <li className="flex items-center gap-2.5">
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#3089a6]/10 text-[#3089a6]">
