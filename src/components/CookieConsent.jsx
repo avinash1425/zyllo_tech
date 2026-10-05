@@ -35,9 +35,9 @@ export default function CookieConsent() {
 
   return (
     <>
-      <div className="cookie-pop fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 px-4">
-        <div className="rounded-full bg-gradient-to-r from-[#3089a6] via-[#f96706] to-[#ffb15c] p-[2px] shadow-xl shadow-black/10">
-          <div className="flex flex-wrap items-center gap-3 rounded-full bg-white py-2 pl-4 pr-2">
+      <div className="pointer-events-none fixed inset-x-0 bottom-4 z-[60] flex justify-center px-3 sm:bottom-6 sm:px-4">
+        <div className="cookie-pop pointer-events-auto w-fit max-w-full rounded-[28px] bg-gradient-to-r from-[#3089a6] via-[#f96706] to-[#ffb15c] p-[2px] shadow-xl shadow-black/10 sm:rounded-full">
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-[26px] bg-white px-4 py-2 sm:rounded-full sm:pr-2">
             <Cookie className="h-4 w-4 shrink-0 text-[#f96706]" aria-hidden="true" />
             <span className="whitespace-nowrap text-xs font-medium text-[#1d2735]">
               We use cookies
@@ -83,11 +83,11 @@ export default function CookieConsent() {
         @keyframes cookiePop {
           from {
             opacity: 0;
-            transform: translate(-50%, 16px);
+            transform: translateY(16px);
           }
           to {
             opacity: 1;
-            transform: translate(-50%, 0);
+            transform: translateY(0);
           }
         }
         .cookie-pop {
@@ -96,7 +96,6 @@ export default function CookieConsent() {
         @media (prefers-reduced-motion: reduce) {
           .cookie-pop {
             animation: none;
-            transform: translateX(-50%);
           }
         }
       `}</style>

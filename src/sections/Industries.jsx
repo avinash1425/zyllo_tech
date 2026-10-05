@@ -131,7 +131,7 @@ export default function Industries({
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .marquee-mask {
           -webkit-mask-image: linear-gradient(
             to right,

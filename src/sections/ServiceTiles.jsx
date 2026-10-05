@@ -90,7 +90,7 @@ export default function ServiceTiles() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .tile-in {
           animation: tileFadeUp 0.6s ease-out both;
         }
