@@ -2,9 +2,7 @@ import Seo from "@/components/Seo";
 import PageHero from "@/components/PageHero";
 import ContactForm from "@/sections/ContactForm";
 import OfficeLocation from "@/sections/OfficeLocation";
-import ContactClosing from "@/sections/ContactClosing";
 import ContactMethods from "@/sections/ContactMethods";
-import ContactFAQ from "@/sections/ContactFAQ";
 import Reveal from "@/components/Reveal";
 
 export default function ContactPage() {
@@ -29,12 +27,6 @@ export default function ContactPage() {
       </Reveal>
       <Reveal>
         <OfficeLocation />
-      </Reveal>
-      <Reveal>
-        <ContactFAQ />
-      </Reveal>
-      <Reveal>
-        <ContactClosing />
       </Reveal>
     </>
   );

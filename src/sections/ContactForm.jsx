@@ -75,22 +75,26 @@ function Field({ id, label, required, icon: Icon, children }) {
   );
 }
 
-// Selectable chips. The hidden input keeps name="service" + the same option
-// strings, so FormData (and submitContactForm) is unchanged.
+// Multi-select chips. The hidden input keeps name="service"; its value is the
+// selected options joined with ", " (stored in the existing text column; the
+// longest possible value is 198 characters, within the 200 limit of the RLS policy).
 function ServiceChips({ value, onChange, error }) {
+  function toggle(service) {
+    onChange(value.includes(service) ? value.filter((item) => item !== service) : [...value, service]);
+  }
   return (
     <div>
-      <input type="hidden" name="service" value={value} />
-      <div role="radiogroup" aria-labelledby="service-label" className="flex flex-wrap gap-2">
+      <input type="hidden" name="service" value={value.join(", ")} />
+      <div role="group" aria-labelledby="service-label" className="flex flex-wrap gap-2">
         {SERVICES.map((service) => {
-          const selected = service === value;
+          const selected = value.includes(service);
           return (
             <button
               key={service}
               type="button"
-              role="radio"
+              role="checkbox"
               aria-checked={selected}
-              onClick={() => onChange(service)}
+              onClick={() => toggle(service)}
               className={`inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 py-2 text-[15px] font-medium transition-all duration-150 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f96706]/30 ${
                 selected
                   ? "border-[#f96706] bg-[#fff2e2] font-semibold text-[#a84a0b]"
@@ -114,21 +118,21 @@ function ServiceChips({ value, onChange, error }) {
 
 export default function ContactForm() {
   const [state, formAction, isPending] = useActionState(submitContactForm, initialState);
-  const [service, setService] = useState("");
+  const [service, setService] = useState([]);
   const [serviceError, setServiceError] = useState("");
   const [count, setCount] = useState(0);
   const [dismissed, setDismissed] = useState(null); // the success state object the user moved on from
 
   function handleSubmit(event) {
-    if (!service) {
+    if (service.length === 0) {
       event.preventDefault();
-      setServiceError("Please select a service.");
+      setServiceError("Please select at least one service.");
     }
   }
 
   function sendAnother() {
     setDismissed(state);
-    setService("");
+    setService([]);
     setServiceError("");
     setCount(0);
   }
@@ -274,6 +278,7 @@ export default function ContactForm() {
                     <span id="service-label" className="mb-2 block text-[15px] font-semibold text-[#1d2735]">
                       Service Required
                       <RequiredMark />
+                      <span className="ml-2 text-sm font-normal text-[#667085]">Select all that apply</span>
                     </span>
                     <ServiceChips
                       value={service}
