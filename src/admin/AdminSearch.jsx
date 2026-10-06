@@ -27,7 +27,21 @@ export default function AdminSearch() {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
+  const inputRef = useRef(null);
   const router = useRouter();
+
+  // Ctrl/Cmd + K focuses the search box.
+  useEffect(() => {
+    function onShortcut(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }
+    }
+    window.addEventListener("keydown", onShortcut);
+    return () => window.removeEventListener("keydown", onShortcut);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -101,12 +115,13 @@ export default function AdminSearch() {
   }
 
   return (
-    <div ref={containerRef} className="relative w-full sm:max-w-sm sm:flex-1">
+    <div ref={containerRef} className="relative w-full sm:max-w-md sm:flex-1">
       <Search
-        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#676b7a]/50"
+        className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-[#6b7280]"
         aria-hidden="true"
       />
       <input
+        ref={inputRef}
         type="text"
         value={query}
         onChange={(e) => {
@@ -115,9 +130,15 @@ export default function AdminSearch() {
         }}
         onFocus={() => setOpen(true)}
         onKeyDown={handleKeyDown}
-        placeholder="Search everything…"
-        className="w-full rounded-xl border border-[#e7e9ee] bg-[#fafbfc] py-2 pl-9 pr-3 text-sm text-[#2b303b] outline-none placeholder:text-[#676b7a]/50 focus:border-[#1f4693]/50 focus:bg-white"
+        placeholder="Search contacts, applicants, posts…"
+        aria-label="Search the admin"
+        className="h-11 w-full rounded-xl border border-[#e3e6ee] bg-[#f4f6fa] pl-11 pr-16 text-sm text-[#101a3a] outline-none transition-all placeholder:text-[#6b7280] hover:border-[#cfd5e2] focus:border-[#f7941e] focus:bg-white focus:ring-4 focus:ring-[#f7941e]/20"
       />
+      {!query && (
+        <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 items-center gap-0.5 rounded-md border border-[#dfe3ec] bg-white px-1.5 py-0.5 text-[11px] font-semibold text-[#6b7280] shadow-[0_1px_0_#dfe3ec] lg:inline-flex">
+          Ctrl K
+        </kbd>
+      )}
 
       {open && query.trim().length >= 2 && (
         <div className="absolute left-0 right-0 top-full z-40 mt-2 max-h-80 overflow-y-auto rounded-xl border border-[#e7e9ee] bg-white shadow-lg">

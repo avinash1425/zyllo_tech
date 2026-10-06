@@ -81,14 +81,15 @@ function UserMenu({ email, onSignOut }) {
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex items-center gap-2.5 rounded-full border border-[#e7e9ee] bg-white py-1 pl-1 pr-2.5 shadow-sm transition-colors hover:border-[#1f4693]/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f4693]"
+        className="flex h-11 items-center gap-2.5 rounded-xl border border-[#e7e9ee] bg-white py-1 pl-1 pr-3 shadow-[0_1px_2px_rgba(16,26,58,0.08)] transition-all hover:border-[#1f4693]/30 hover:shadow-[0_6px_16px_-10px_rgba(16,26,58,0.5)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f4693]"
       >
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#f7941e] to-[#1f4693] text-sm font-semibold text-white">
+        <span className="relative flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[#f7941e] to-[#1f4693] text-sm font-bold text-white">
           {initial}
+          <span aria-hidden="true" className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-[#3089a6]" />
         </span>
-        <span className="hidden text-left sm:block">
-          <span className="block text-sm font-semibold leading-tight text-[#2b303b]">Admin</span>
-          <span className="block max-w-[140px] truncate text-xs leading-tight text-[#676b7a]">
+        <span className="hidden text-left md:block">
+          <span className="block text-[13.5px] font-semibold leading-tight text-[#101a3a]">Admin</span>
+          <span className="block max-w-[150px] truncate text-xs leading-tight text-[#6b7280]">
             {email || "Zyllo Tech"}
           </span>
         </span>
@@ -273,30 +274,37 @@ export default function AdminShell({ children }) {
       </aside>
 
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 border-b border-[#e7e9ee] bg-white/80 backdrop-blur-xl">
-          <div className="flex h-[4.25rem] items-center gap-3 px-4 sm:gap-4 sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-30 bg-white/85 shadow-[0_1px_0_0_#e7e9ee,0_8px_24px_-18px_rgba(16,26,58,0.35)] backdrop-blur-xl">
+          <div className="flex h-[4.5rem] items-center gap-3 px-4 sm:gap-4 sm:px-6 lg:px-8">
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
-              className="-ml-1 rounded-lg border border-[#e7e9ee] bg-white p-2 text-[#2b303b] shadow-sm hover:bg-[#f3f4f7] lg:hidden"
+              className="-ml-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#e7e9ee] bg-white text-[#173a52] shadow-[0_1px_2px_rgba(16,26,58,0.08)] transition-colors hover:bg-[#f3f4f7] lg:hidden"
               aria-label="Open sidebar"
             >
               <Menu className="h-5 w-5" aria-hidden="true" />
             </button>
 
-            <div className="min-w-0">
-              <nav aria-label="Breadcrumb" className="hidden items-center gap-1.5 text-xs text-[#8a8f9c] sm:flex">
-                <span>Admin</span>
-                {currentSection && (
-                  <>
-                    <span aria-hidden="true">/</span>
-                    <span>{currentSection.label}</span>
-                  </>
-                )}
-              </nav>
-              <h2 className="truncate text-base font-bold leading-tight text-[#1b2030] sm:text-lg">
-                {currentItem?.label ?? "Admin"}
-              </h2>
+            <div className="flex min-w-0 items-center gap-3">
+              {currentItem?.icon && (
+                <span className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#f7941e] to-[#f96706] text-white shadow-[0_8px_18px_-8px_rgba(249,103,6,0.7)] sm:flex">
+                  <currentItem.icon className="h-5 w-5" aria-hidden="true" />
+                </span>
+              )}
+              <div className="min-w-0">
+                <nav aria-label="Breadcrumb" className="hidden items-center gap-1.5 text-[12.5px] font-medium text-[#6b7280] sm:flex">
+                  <span>Admin</span>
+                  {currentSection && (
+                    <>
+                      <span aria-hidden="true" className="text-[#c4c8d0]">/</span>
+                      <span>{currentSection.label}</span>
+                    </>
+                  )}
+                </nav>
+                <h2 className="truncate text-lg font-bold leading-tight tracking-tight text-[#101a3a] sm:text-[1.35rem]">
+                  {currentItem?.label ?? "Admin"}
+                </h2>
+              </div>
             </div>
 
             <div className="ml-auto hidden flex-1 justify-end sm:flex">
@@ -305,7 +313,7 @@ export default function AdminShell({ children }) {
 
             <Link
               href="/"
-              className="hidden items-center gap-1.5 rounded-full border border-[#e7e9ee] bg-white px-3.5 py-2 text-sm font-medium text-[#2b303b] shadow-sm transition-colors hover:border-[#f7941e]/50 hover:text-[#f96706] md:inline-flex"
+              className="hidden h-11 items-center gap-2 rounded-xl border border-[#e7e9ee] bg-white px-4 text-sm font-semibold text-[#173a52] shadow-[0_1px_2px_rgba(16,26,58,0.08)] transition-all hover:border-[#f7941e]/60 hover:text-[#c24f05] hover:shadow-[0_6px_16px_-8px_rgba(249,103,6,0.5)] md:inline-flex"
             >
               <ExternalLink className="h-4 w-4" aria-hidden="true" />
               View site
@@ -316,9 +324,10 @@ export default function AdminShell({ children }) {
             </div>
           </div>
 
-          <div className="border-t border-[#e7e9ee] px-4 py-2 sm:hidden">
+          <div className="px-4 pb-3 sm:hidden">
             <AdminSearch />
           </div>
+          <div aria-hidden="true" className="h-[2px] w-full bg-gradient-to-r from-[#1f4693] via-[#f7941e] to-[#3089a6] opacity-80" />
         </header>
 
         <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
