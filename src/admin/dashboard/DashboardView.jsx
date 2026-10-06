@@ -1,6 +1,7 @@
 import { MessageSquare, Users, Briefcase, CalendarDays, UserPlus, UserCheck } from "lucide-react";
 import HeroBanner from "./HeroBanner";
 import KpiCard from "./KpiCard";
+import SolidKpiCard from "./SolidKpiCard";
 import WeeklyActivityChart from "./WeeklyActivityChart";
 import LeadDonut from "./LeadDonut";
 import ActivityTimeline from "./ActivityTimeline";
@@ -34,13 +35,16 @@ export default function DashboardView({ data, traffic, onRefresh }) {
     <div className="flex min-w-0 flex-col gap-6">
       <HeroBanner greeting={greeting} todayLabel={todayLabel} stats={heroStats} onRefresh={onRefresh} />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <KpiCard icon={MessageSquare} label="Contact submissions" value={totals.contactsTotal} hint="All time" from="#ffb15c" to="#f96706" accent="#f96706" href="/admin/contacts" chip={`${today.contacts} today`} />
-        <KpiCard icon={Users} label="Job applicants" value={totals.applicantsTotal} hint="All time" from="#3089a6" to="#1f4693" accent="#1f4693" href="/admin/job-applications" chip={`${today.applicants} today`} />
-        <KpiCard icon={Briefcase} label="Open positions" value={totals.openPositions} hint={`${totals.totalPositions} total · ${plural(totals.totalOpenings, "opening", "openings")}`} from="#3089a6" to="#173a52" accent="#3089a6" href="/admin/careers" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <SolidKpiCard icon={MessageSquare} label="Contact submissions" value={totals.contactsTotal} hint="All time" from="#f7941e" to="#f96706" href="/admin/contacts" chip={`${today.contacts} today`} />
+        <SolidKpiCard icon={Users} label="Job applicants" value={totals.applicantsTotal} hint="All time" from="#1f4693" to="#173a52" href="/admin/job-applications" chip={`${today.applicants} today`} />
+        <SolidKpiCard icon={Briefcase} label="Open positions" value={totals.openPositions} hint={`${totals.totalPositions} total · ${plural(totals.totalOpenings, "opening", "openings")}`} from="#3089a6" to="#1f6f8b" href="/admin/careers" />
+        <SolidKpiCard icon={UserCheck} label="Hired candidates" value={totals.selectedTotal} hint="Status: hired" from="#173a52" to="#3089a6" href="/admin/job-applications" />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <KpiCard icon={CalendarDays} label="Contacts this week" value={contactsThisWeek} hint="Last 7 days" series={contactSeries} sparkId="zt-spark-c" from="#f7941e" to="#f96706" accent="#f96706" href="/admin/contacts" />
         <KpiCard icon={UserPlus} label="Applicants this week" value={applicantsThisWeek} hint="Last 7 days" series={applicantSeries} sparkId="zt-spark-a" from="#1f4693" to="#101a3a" accent="#1f4693" href="/admin/job-applications" />
-        <KpiCard icon={UserCheck} label="Hired candidates" value={totals.selectedTotal} hint="Status: hired" from="#3089a6" to="#1f4693" accent="#3089a6" href="/admin/job-applications" />
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
