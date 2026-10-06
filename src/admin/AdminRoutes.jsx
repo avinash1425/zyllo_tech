@@ -3,7 +3,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase/client";
-import PageLoader from "@/components/PageLoader";
+import AdminLoading from "./AdminLoading";
 import AdminShell from "./AdminShell";
 import DashboardPage from "./pages/DashboardPage";
 import BlogPage from "./pages/BlogPage";
@@ -17,8 +17,8 @@ import SeoPage from "./pages/SeoPage";
 
 function Spinner() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f6f7fb]">
-      <PageLoader inline label="Checking your access…" />
+    <div className="flex min-h-screen items-center justify-center bg-[#f6f7fb] p-4 sm:p-8">
+      <AdminLoading label="Checking your access…" />
     </div>
   );
 }
