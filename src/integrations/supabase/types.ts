@@ -388,6 +388,7 @@ export type Database = {
         Args: { post_slug: string }
         Returns: undefined
       }
+      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
