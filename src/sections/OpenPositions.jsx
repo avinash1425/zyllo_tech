@@ -56,11 +56,12 @@ export default function OpenPositions() {
 
   return (
     <>
-      <section id="open-positions" className="scroll-mt-24 border-t border-[#e7e9ee] bg-[#f6f8fc] py-14 lg:py-20">
-        <div className="mx-auto max-w-6xl px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-[#173a52] sm:text-4xl">Current Job Openings</h2>
-            <p className="mt-3 text-base leading-relaxed text-[#4a5668] sm:text-lg">
+      <section id="open-positions" className="scroll-mt-24 bg-white py-16 lg:py-24">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="max-w-2xl">
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#3089a6]">Open roles</p>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight text-[#173a52] sm:text-4xl">Current Job Openings</h2>
+            <p className="mt-4 text-[17px] leading-relaxed text-[#4a5668] sm:text-lg">
               Explore career opportunities across our teams.
             </p>
           </div>

@@ -66,9 +66,9 @@ export default function OpenPositionsGrid({ positions, loading = false, onApply 
 
   if (positions.length === 0) {
     return (
-      <div className="mx-auto mt-10 max-w-xl rounded-2xl bg-gradient-to-br from-[#1f4693] to-[#f96706] p-[1.5px]">
-        <div className="rounded-[14.5px] bg-white p-8 text-center sm:p-10">
-          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#f7941e]/15 text-[#c2500a]">
+      <div className="mx-auto mt-10 max-w-xl rounded-2xl border border-[#e5e8ef] bg-white shadow-[0_1px_2px_rgba(16,26,58,0.05),0_12px_30px_-18px_rgba(16,26,58,0.2)]">
+        <div className="p-8 text-center sm:p-10">
+          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#eef3fb] text-[#1f4693]">
             <FileText className="h-6 w-6" aria-hidden="true" />
           </span>
           <h3 className="mt-4 text-xl font-bold text-[#1b2030]">No open roles right now</h3>
@@ -77,7 +77,7 @@ export default function OpenPositionsGrid({ positions, loading = false, onApply 
           </p>
           <Link
             href="/contact"
-            className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#f96706] to-[#f7941e] px-7 py-3 text-[15px] font-bold text-white shadow-md shadow-[#f7941e]/30 transition-all hover:brightness-105 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/40"
+            className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#f96706] px-7 py-3 text-[15px] font-semibold text-white transition-colors hover:bg-[#e25a02] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/40"
           >
             Send your resume
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -88,18 +88,18 @@ export default function OpenPositionsGrid({ positions, loading = false, onApply 
   }
 
   const chipClass = (active) =>
-    `inline-flex min-h-11 items-center rounded-full border px-4 py-2 text-[15px] font-semibold transition-colors focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/30 ${
+    `inline-flex min-h-11 items-center rounded-full border px-4 py-2 text-[15px] font-semibold transition-colors focus:outline-none focus-visible:ring-4 focus-visible:ring-[#1f4693]/20 ${
       active
-        ? "border-[#1f4693] bg-[#1f4693] text-white"
-        : "border-[#d5d9e2] bg-white text-[#2b303b] hover:border-[#1f4693]/50 hover:text-[#1f4693]"
+        ? "border-[#173a52] bg-[#173a52] text-white"
+        : "border-transparent bg-transparent text-[#4a5668] hover:bg-[#eef3fb] hover:text-[#173a52]"
     }`;
 
   const newestId = positions.length > 1 ? positions[0].id : null;
 
   return (
     <>
-      <div className="mt-8 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div role="group" aria-label="Filter by department" className="flex flex-wrap justify-center gap-2 lg:justify-start">
+      <div className="mt-10 flex flex-col gap-3 rounded-2xl border border-[#e5e8ef] bg-[#f7f9fc] p-2.5 lg:flex-row lg:items-center lg:justify-between">
+        <div role="group" aria-label="Filter by department" className="flex flex-wrap gap-1.5">
           {["All", ...departments].map((d) => (
             <button key={d} type="button" aria-pressed={department === d} onClick={() => setDepartment(d)} className={chipClass(department === d)}>
               {d}
@@ -117,7 +117,7 @@ export default function OpenPositionsGrid({ positions, loading = false, onApply 
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search roles, location..."
-            className="min-h-11 w-full rounded-full border border-[#c9ced9] bg-white py-2.5 pl-10 pr-4 text-base text-[#2b303b] placeholder:text-[#4a5668]/70 outline-none transition-all focus:border-[#f7941e] focus:ring-4 focus:ring-[#f7941e]/15"
+            className="min-h-11 w-full rounded-full border border-[#d5dae4] bg-white py-2.5 pl-10 pr-4 text-base text-[#2b303b] placeholder:text-[#4a5668]/70 outline-none transition-all focus:border-[#1f4693] focus:ring-4 focus:ring-[#1f4693]/15"
           />
         </div>
       </div>
@@ -141,7 +141,7 @@ export default function OpenPositionsGrid({ positions, loading = false, onApply 
           </button>
         </div>
       ) : (
-        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:gap-7">
           {filtered.map((p) => (
             <JobCard key={p.id} position={p} featured={p.id === newestId} onDetails={openDetails} onApply={onApply} />
           ))}
@@ -181,7 +181,7 @@ export default function OpenPositionsGrid({ positions, loading = false, onApply 
                 </p>
               )}
             </div>
-            <div className="flex shrink-0 items-center gap-3 border-t border-[#e7e9ee] bg-white px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-12px_24px_-16px_rgba(16,26,58,0.18)] sm:justify-end sm:px-10">
+            <div className="flex shrink-0 items-center gap-3 border-t border-[#e5e8ef] bg-white px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-12px_24px_-16px_rgba(16,26,58,0.18)] sm:justify-end sm:px-10">
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
@@ -192,9 +192,9 @@ export default function OpenPositionsGrid({ positions, loading = false, onApply 
               <button
                 type="button"
                 onClick={applyFromModal}
-                className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#f96706] to-[#f7941e] px-8 py-3 text-[15px] font-bold text-white shadow-md shadow-[#f7941e]/30 transition-all hover:brightness-105 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/40 sm:flex-none"
+                className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full bg-[#f96706] px-8 py-3 text-[15px] font-semibold text-white transition-colors hover:bg-[#e25a02] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/40 sm:flex-none"
               >
-                Apply Now
+                Apply now
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>

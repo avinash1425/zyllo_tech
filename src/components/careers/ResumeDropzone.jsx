@@ -51,7 +51,7 @@ export default function ResumeDropzone({ inputRef, file, error, onChange, onRemo
           </span>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-[#1b2030]">{file.name}</p>
-            <p className="text-[13px] text-[#4a5668]">{formatBytes(file.size)} &middot; ready to upload</p>
+            <p className="text-sm text-[#4a5668]">{formatBytes(file.size)} &middot; ready to upload</p>
           </div>
           <button
             type="button"
@@ -75,29 +75,30 @@ export default function ResumeDropzone({ inputRef, file, error, onChange, onRemo
             error
               ? "border-red-300 bg-red-50/40"
               : dragging
-                ? "scale-[1.01] border-[#f96706] bg-[#f7941e]/10"
-                : "border-[#f7941e]/40 bg-gradient-to-b from-[#fffaf3] to-white hover:border-[#f96706] hover:bg-[#f7941e]/5"
+                ? "scale-[1.01] border-[#1f4693] bg-[#eef3fb]"
+                : "border-[#c5cfe0] bg-[#f7f9fc] hover:border-[#1f4693] hover:bg-[#eef3fb]"
           }`}
         >
           <span
-            className={`flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg shadow-[#f7941e]/30 transition-transform duration-200 group-hover/drop:-translate-y-0.5 group-hover/drop:scale-105 ${
+            className={`flex h-14 w-14 items-center justify-center rounded-full bg-white text-[#1f4693] shadow-[0_6px_16px_-6px_rgba(23,58,82,0.35)] ring-1 ring-[#dbe5f5] transition-transform duration-200 motion-reduce:transition-none group-hover/drop:-translate-y-0.5 ${
               dragging ? "-translate-y-1 scale-110" : ""
-            } bg-gradient-to-br from-[#f96706] to-[#f7941e]`}
+            }`}
           >
             <UploadCloud className="h-7 w-7" aria-hidden="true" />
           </span>
-          <span className="text-sm font-semibold text-[#1b2030]">
+          <span className="text-[15px] font-semibold text-[#1b2030]">
             {dragging ? "Drop your resume here" : "Drag & drop your resume, or "}
             {!dragging && <span className="text-[#1f4693] underline underline-offset-2">browse</span>}
           </span>
+          <span className="text-sm text-[#4a5668]">PDF format</span>
         </label>
       )}
 
-      <p id="resume-hint" className="mt-2 text-[13px] text-[#4a5668]">
+      <p id="resume-hint" className="mt-2 text-sm text-[#4a5668]">
         PDF only, max 5 MB.
       </p>
       {error && (
-        <p id="resume-error" role="alert" className="mt-1 text-[13px] font-medium text-red-700">
+        <p id="resume-error" role="alert" className="mt-1 text-sm font-medium text-red-700">
           {error}
         </p>
       )}

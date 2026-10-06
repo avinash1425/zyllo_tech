@@ -50,7 +50,7 @@ function validateFile(file) {
 }
 
 const inlineInput =
-  "min-h-12 w-full rounded-xl border bg-white px-4 py-3 text-base text-[#1b2030] placeholder:text-[#6b7280] outline-none transition-all duration-200 hover:border-[#1f4693]/40 focus:border-[#f7941e] focus:ring-4 focus:ring-[#f7941e]/15";
+  "min-h-12 w-full rounded-xl border bg-white px-4 py-3 text-base text-[#1b2030] placeholder:text-[#6b7280] outline-none transition-all duration-200 hover:border-[#1f4693]/40 focus:border-[#1f4693] focus:ring-4 focus:ring-[#1f4693]/15";
 
 const inputBase =
   "peer min-h-14 w-full rounded-2xl border bg-white pb-2 pl-11 pr-4 pt-6 text-base text-[#1b2030] sm:text-[15px] placeholder-transparent shadow-[0_1px_2px_rgba(16,26,58,0.08)] outline-none transition-all duration-200 hover:border-[#1f4693]/30 focus:border-[#f7941e] focus:ring-4 focus:ring-[#f7941e]/15";
@@ -231,9 +231,9 @@ function SuccessState({ jobTitle, variant, onClose, onViewOthers }) {
   return (
     <div
       role="status"
-      className="relative overflow-hidden rounded-3xl border border-[#e7e9ee] bg-white shadow-xl shadow-[#1f4693]/10"
+      className="relative overflow-hidden rounded-3xl border border-[#e5e8ef] bg-white shadow-[0_1px_2px_rgba(16,26,58,0.05),0_30px_60px_-30px_rgba(23,58,82,0.3)]"
     >
-      <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#f96706] via-[#ffb15c] to-[#3089a6]" />
+      <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-[#3089a6]" />
       {body}
       <div className="flex gap-3 border-t border-[#e7e9ee] px-5 py-4 sm:justify-center sm:px-8">{buttons}</div>
     </div>
@@ -478,7 +478,7 @@ export default function ApplyForm({
       type="submit"
       disabled={isPending}
       aria-busy={isPending}
-      className="group/submit inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#f96706] via-[#f7941e] to-[#ffb15c] px-8 py-4 text-sm font-bold text-white shadow-lg shadow-[#f7941e]/30 transition-all duration-200 hover:shadow-xl hover:brightness-105 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/40 disabled:cursor-not-allowed disabled:opacity-70 sm:flex-none"
+      className="group/submit inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full bg-[#f96706] px-8 py-4 text-base font-semibold text-white shadow-[0_12px_24px_-10px_rgba(249,103,6,0.7)] transition-colors duration-200 hover:bg-[#e25a02] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#f7941e]/40 disabled:cursor-not-allowed disabled:opacity-70 sm:flex-none"
     >
       {isPending ? (
         <>
@@ -534,17 +534,19 @@ export default function ApplyForm({
         noValidate
         onSubmit={handleSubmit}
         onReset={() => setFile(null)}
-        className="rounded-2xl border border-[#e7e9ee] bg-white p-6 shadow-[0_16px_40px_-24px_rgba(16,26,58,0.3)] sm:p-8"
+        className="rounded-3xl border border-[#e5e8ef] bg-white p-6 shadow-[0_1px_2px_rgba(16,26,58,0.05),0_30px_60px_-30px_rgba(23,58,82,0.3)] sm:p-9"
       >
         <input type="hidden" name="jobId" value={effectiveJobId} />
-        <p className="mb-5 text-sm text-[#4a5668]">
+        <h3 className="text-xl font-semibold tracking-tight text-[#173a52]">Your application</h3>
+        <p className="mb-6 mt-1 border-b border-[#eef0f4] pb-5 text-[15px] text-[#4a5668]">
           Fields marked <span className="text-[#c2410c]">*</span> are required.
         </p>
         {fields}
         {errorBanner && <div className="mt-5">{errorBanner}</div>}
-        <div className="mt-6 flex">
+        <div className="mt-7 flex">
           <div className="flex w-full [&>button]:w-full [&>button]:min-h-12">{submitButton}</div>
         </div>
+        <p className="mt-3 text-center text-sm text-[#4a5668]">We respect your privacy and use your details only for hiring.</p>
       </form>
     );
   }

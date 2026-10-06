@@ -3,6 +3,7 @@ import Link from "@/lib/nx/link";
 import Seo from "@/components/Seo";
 import WhyJoinZyllo from "@/sections/WhyJoinZyllo";
 import OpenPositions from "@/sections/OpenPositions";
+import HowWeHire from "@/sections/careers/HowWeHire";
 
 function scrollToOpenings(event) {
   const target = document.getElementById("open-positions");
@@ -69,6 +70,7 @@ export default function CareersPage() {
       </section>
 
       <WhyJoinZyllo />
+      <HowWeHire />
       <OpenPositions />
     </>
   );
