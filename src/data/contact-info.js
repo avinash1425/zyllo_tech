@@ -2,7 +2,6 @@
 // (Values are the ones already used across the site.)
 export const CONTACT_INFO = {
   legalName: "Zyllo Tech Software Solutions Private Limited",
-  gstin: "37AACCZ9107G1Z4",
   addressLines: [
     "R V Plaza, Door No. 134-77/1, 3rd Floor,",
     "Gayathri Nagar, Phase-2,",
