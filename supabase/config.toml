@@ -8,7 +8,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.seo-audit]
-verify_jwt = true
+verify_jwt = false
 
 [functions.search-console]
-verify_jwt = true
+verify_jwt = false
