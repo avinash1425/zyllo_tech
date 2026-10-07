@@ -103,7 +103,7 @@ function formatDateLabel(date) {
   return `${year}-${month}-${day}`;
 }
 
-function StatCard({ card, value }) {
+function StatCard({ card, value, showDelta }) {
   const Icon = card.icon;
   const DeltaIcon = card.deltaGood ? ArrowUpRight : ArrowDownRight;
   const deltaColor = card.deltaGood ? "#3b6d11" : "#dc2626";
@@ -125,11 +125,13 @@ function StatCard({ card, value }) {
       <p className="mt-3 text-3xl font-bold tracking-tight text-[#2b303b]">
         {card.format(value)}
       </p>
+      {showDelta && (
       <p className="mt-2 inline-flex items-center gap-0.5 text-xs font-semibold" style={{ color: deltaColor }}>
         <DeltaIcon className="h-3 w-3" aria-hidden="true" />
         {card.delta}
         <span className="ml-1 font-normal text-[#676b7a]">vs prior period</span>
       </p>
+      )}
     </div>
   );
 }
@@ -267,7 +269,7 @@ export default function SearchConsoleManager({ performance, range, onReload }) {
         title="Google Search Console"
         subtitle={
           <>
-            {SITE_URL}/ · {dateRangeLabel}
+            {performance.siteUrl ?? `${SITE_URL}/`} · {performance.startDate ? `${performance.startDate} → ${performance.endDate}` : dateRangeLabel}
           </>
         }
         actions={
@@ -309,7 +311,7 @@ export default function SearchConsoleManager({ performance, range, onReload }) {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {STAT_CARDS.map((card) => (
-          <StatCard key={card.key} card={card} value={performance.totals[card.key]} />
+          <StatCard key={card.key} card={card} value={performance.totals[card.key]} showDelta={performance.isSampleData} />
         ))}
       </div>
 
