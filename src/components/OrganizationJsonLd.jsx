@@ -7,10 +7,11 @@ import {
   DEFAULT_DESCRIPTION,
   HOME_TITLE,
 } from "@/lib/site-config";
+import { SERVICE_COUNTRIES } from "@/data/service-areas";
 
 // Site-wide Organization + WebSite schema. The address is the office on the
-// company signboard; areaServed says the services are offered remotely
-// worldwide and does not claim any other office. Add "sameAs" (real
+// company signboard; areaServed lists the countries the services are offered
+// to remotely and does not claim any other office. Add "sameAs" (real
 // LinkedIn/X/etc. URLs) once confirmed; guessing would be worse than
 // omitting it. Keep in sync with the static copy in index.html.
 //
@@ -40,7 +41,7 @@ export default function OrganizationJsonLd() {
           postalCode: "522034",
           addressCountry: "IN",
         },
-        areaServed: "Worldwide",
+        areaServed: SERVICE_COUNTRIES.map((name) => ({ "@type": "Country", name })),
         knowsAbout: [
           "Custom software development",
           "Web development",

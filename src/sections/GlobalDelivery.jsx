@@ -1,21 +1,13 @@
 import Link from "@/lib/nx/link";
 import { ArrowRight, Globe2, MessagesSquare, Clock } from "lucide-react";
+import { SERVICE_REGIONS, SERVICE_AREA_SUMMARY } from "@/data/service-areas";
 
 // Worldwide remote-delivery positioning plus internal links between the
 // main sections of the site. Zyllo Tech has one office (Guntur, India):
-// the countries below are places the services are available remotely,
-// never office locations.
-const COUNTRIES = [
-  "United States",
-  "United Kingdom",
-  "Canada",
-  "Australia",
-  "United Arab Emirates",
-  "Singapore",
-  "Germany",
-  "Netherlands",
-];
-
+// the countries in src/data/service-areas.js are places the services are
+// available remotely, never office locations. The full list is shown only
+// where `showCountries` is set (home and /services); other pages get a
+// one-sentence summary so the names are not repeated on every page.
 const POINTS = [
   {
     icon: Globe2,
@@ -47,6 +39,7 @@ const LINKS = [
 export default function GlobalDelivery({
   heading = "Custom Software & AI Development, Delivered Remotely Worldwide",
   excludeHref,
+  showCountries = false,
 }) {
   const links = LINKS.filter((link) => link.href !== excludeHref);
 
@@ -70,22 +63,37 @@ export default function GlobalDelivery({
               build custom software, web and mobile apps, and AI solutions for startups and
               established businesses, and we deliver every project remotely.
             </p>
-            <p className="mt-4 text-base leading-relaxed text-[#54607a]">
-              Our services are available to businesses in:
-            </p>
-            <ul className="mt-3 flex flex-wrap gap-2">
-              {COUNTRIES.map((country) => (
-                <li
-                  key={country}
-                  className="rounded-full border border-[#e2e5ea] bg-[#f8f9fb] px-3 py-1 text-sm font-medium text-[#2b303b]"
-                >
-                  {country}
-                </li>
-              ))}
-              <li className="rounded-full border border-[#e2e5ea] bg-[#f8f9fb] px-3 py-1 text-sm font-medium text-[#2b303b]">
-                and other countries
-              </li>
-            </ul>
+            {showCountries ? (
+              <>
+                <p className="mt-4 text-base leading-relaxed text-[#54607a]">
+                  Our services are available to businesses in:
+                </p>
+                <dl className="mt-3 flex flex-col gap-3">
+                  {SERVICE_REGIONS.map((region) => (
+                    <div key={region.name}>
+                      <dt className="text-xs font-bold uppercase tracking-[0.14em] text-[#6c7889]">
+                        {region.name}
+                      </dt>
+                      <dd className="mt-1.5">
+                        <ul className="flex flex-wrap gap-2">
+                          {region.countries.map((country) => (
+                            <li
+                              key={country}
+                              className="rounded-full border border-[#e2e5ea] bg-[#f8f9fb] px-3 py-1 text-sm font-medium text-[#2b303b]"
+                            >
+                              {country}
+                            </li>
+                          ))}
+                        </ul>
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+                <p className="mt-3 text-sm text-[#54607a]">Enquiries from other countries are welcome.</p>
+              </>
+            ) : (
+              <p className="mt-4 text-base leading-relaxed text-[#54607a]">{SERVICE_AREA_SUMMARY}</p>
+            )}
             <p className="mt-3 text-sm text-[#6c7889]">
               We work from a single office in India and do not have offices in other countries.
             </p>
