@@ -1,4 +1,6 @@
 import Seo from "@/components/Seo";
+import { HOME_TITLE } from "@/lib/site-config";
+import GlobalDelivery from "@/sections/GlobalDelivery";
 import Hero from "@/sections/Hero";
 import About from "@/sections/About";
 import ServiceTiles from "@/sections/ServiceTiles";
@@ -13,13 +15,16 @@ import Reveal from "@/components/Reveal";
 export default function HomePage() {
   return (
     <>
-      <Seo path="/" />
+      <Seo absoluteTitle={HOME_TITLE} path="/" />
       <Hero />
       <Reveal>
         <About />
       </Reveal>
       <Reveal>
         <ServiceTiles />
+      </Reveal>
+      <Reveal>
+        <GlobalDelivery />
       </Reveal>
       <Reveal>
         <WhyChooseUs />

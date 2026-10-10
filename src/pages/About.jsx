@@ -11,8 +11,8 @@ export default function AboutPage() {
   return (
     <>
       <Seo 
-        title="About Us"
-        description="Zyllo Tech is an India-based software company partnering with businesses to design, build, and support intelligent digital products."
+        title="About Us: Software Development Company in India"
+        description="Zyllo Tech is a software development company in Guntur, India, partnering remotely with businesses worldwide to design, build and support digital products."
         path="/about"
        />
       <PageHero

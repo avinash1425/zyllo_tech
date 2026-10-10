@@ -3,13 +3,14 @@ import PageHero from "@/components/PageHero";
 import WhatWeBelieve from "@/sections/WhatWeBelieve";
 import ServiceGrid from "@/sections/ServiceGrid";
 import Reveal from "@/components/Reveal";
+import GlobalDelivery from "@/sections/GlobalDelivery";
 
 export default function ServicesPage() {
   return (
     <>
       <Seo 
-        title="Services"
-        description="Web, mobile, AI, cloud, and security engineering services from Zyllo Tech — end-to-end software delivery under one team."
+        title="Software Development Services: Web, Mobile & AI"
+        description="Custom software, web, mobile app, AI, cloud, QA and cybersecurity services from Zyllo Tech, one team in India delivering remotely to businesses worldwide."
         path="/services"
        />
       <PageHero
@@ -26,6 +27,9 @@ export default function ServicesPage() {
       </Reveal>
       <Reveal>
         <ServiceGrid />
+      </Reveal>
+      <Reveal>
+        <GlobalDelivery heading="Software Development Services, Delivered Remotely Worldwide" excludeHref="/services" />
       </Reveal>
     </>
   );

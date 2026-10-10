@@ -126,7 +126,8 @@ export default function Hero() {
       onTouchEnd={handleTouchEnd}
     >
       <h1 className="sr-only">
-        Zyllo Tech Software Solutions — Web, Mobile, AI &amp; Cloud Engineering
+        Zyllo Tech — Custom Software Development, AI Development, Web and Mobile App
+        Development Company
       </h1>
 
       {SLIDES.map((slide, index) => {
@@ -141,7 +142,7 @@ export default function Hero() {
           >
             <Image
               src={slide.image}
-              alt=""
+              alt={`${slide.eyebrow} by Zyllo Tech`}
               fill
               priority={index === 0}
               sizes="100vw"

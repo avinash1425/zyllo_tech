@@ -9,8 +9,8 @@ export default function ContactPage() {
   return (
     <>
       <Seo 
-        title="Contact"
-        description="Get in touch with Zyllo Tech to discuss your next web, mobile, AI, or cloud project."
+        title="Contact Us: Start Your Software or AI Project"
+        description="Talk to Zyllo Tech about your custom software, web, mobile app or AI project. Based in Guntur, India, working remotely worldwide. Reply within one business day."
         path="/contact"
        />
       <PageHero

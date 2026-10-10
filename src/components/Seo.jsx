@@ -4,6 +4,8 @@ import { SITE_URL, SITE_NAME, DEFAULT_DESCRIPTION, OG_IMAGE_PATH } from "@/lib/s
 
 export default function Seo({
   title,
+  // Full <title> used as-is, without the " | Zyllo Tech" suffix.
+  absoluteTitle,
   description = DEFAULT_DESCRIPTION,
   path,
   image = OG_IMAGE_PATH,
@@ -11,7 +13,7 @@ export default function Seo({
   noindex = false,
   children,
 }) {
-  const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
+  const fullTitle = absoluteTitle || (title ? `${title} | ${SITE_NAME}` : SITE_NAME);
   const url = path != null ? `${SITE_URL}${path}` : undefined;
   const img = image?.startsWith("http") ? image : `${SITE_URL}${image}`;
   return (

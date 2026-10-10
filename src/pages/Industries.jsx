@@ -4,12 +4,13 @@ import Industries from "@/sections/Industries";
 import ChallengesSolutions from "@/sections/ChallengesSolutions";
 import SolutionsWeDeliver from "@/sections/SolutionsWeDeliver";
 import Reveal from "@/components/Reveal";
+import GlobalDelivery from "@/sections/GlobalDelivery";
 
 export default function IndustriesPage() {
   return (
     <>
       <Seo 
-        title="Industries"
+        title="Industries We Serve: Healthcare, Finance, Retail"
         description="Zyllo Tech builds software for startups, healthcare, finance, retail, logistics, and more — solutions shaped around how each industry actually works."
         path="/industries"
        />
@@ -34,6 +35,9 @@ export default function IndustriesPage() {
       </Reveal>
       <Reveal>
         <SolutionsWeDeliver />
+      </Reveal>
+      <Reveal>
+        <GlobalDelivery heading="Industry Software, Built in India and Delivered Worldwide" excludeHref="/industries" />
       </Reveal>
     </>
   );

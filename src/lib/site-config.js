@@ -17,6 +17,9 @@ export const SITE_NAME = "Zyllo Tech";
 export const LEGAL_NAME = "Zyllo Tech Software Solutions Private Limited";
 
 export const DEFAULT_DESCRIPTION =
-  "Zyllo Tech builds custom software, mobile apps, and AI-powered digital products for ambitious companies. Explore our services, portfolio, and careers.";
+  "Zyllo Tech is a custom software, web, mobile app and AI development company in India, delivering projects remotely to startups and businesses worldwide.";
+
+// Homepage <title>. Also the static fallback <title> in index.html.
+export const HOME_TITLE = "Custom Software & AI Development Company | Zyllo Tech";
 
 export const OG_IMAGE_PATH = "/zyllo-logo.png";

@@ -5,12 +5,13 @@ import CaseStudies from "@/sections/CaseStudies";
 import PortfolioTechnologies from "@/sections/PortfolioTechnologies";
 import WhyOurSolutions from "@/sections/WhyOurSolutions";
 import Reveal from "@/components/Reveal";
+import GlobalDelivery from "@/sections/GlobalDelivery";
 
 export default function PortfolioPage() {
   return (
     <>
       <Seo 
-        title="Portfolio"
+        title="Portfolio: Web, Mobile, AI & Cloud Projects"
         description="A look at the kind of web, mobile, AI, and cloud projects Zyllo Tech builds — from featured work to case studies and our development process."
         path="/portfolio"
        />
@@ -35,6 +36,9 @@ export default function PortfolioPage() {
       </Reveal>
       <Reveal>
         <WhyOurSolutions />
+      </Reveal>
+      <Reveal>
+        <GlobalDelivery heading="Have a Project in Mind? We Deliver Remotely Worldwide" excludeHref="/portfolio" />
       </Reveal>
     </>
   );

@@ -4,7 +4,10 @@ All called with `supabase.functions.invoke(name, { body })` under the signed-in 
 session; both are admin-only (`is_admin()`).
 
 ## seo-audit
-Used by `src/lib/api/admin/seo.js`. No request body.
+No longer called by the app. Admin -> SEO now measures robots.txt, sitemap.xml and
+page HTML in the browser (`src/lib/api/admin/seo.js`, `src/lib/seo/audit-core.js`),
+because this function only returned hardcoded robots rules and a calculated sitemap
+count. The function is left in place and unchanged. No request body.
 Response:
 ```json
 { "siteUrl": "", "isPlaceholderDomain": false, "sitemapUrlCount": 0,
