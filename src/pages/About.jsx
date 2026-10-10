@@ -6,6 +6,20 @@ import WhyChooseUs from "@/sections/WhyChooseUs";
 import Values from "@/sections/Values";
 import Technologies from "@/sections/Technologies";
 import Reveal from "@/components/Reveal";
+import IndiaDelivery from "@/sections/IndiaDelivery";
+import ServiceFaq from "@/sections/ServiceFaq";
+import { INDIA_FAQS } from "@/data/india-service-areas";
+
+// FAQPage structured data for the India FAQ shown on this page.
+const FAQ_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: INDIA_FAQS.map((faq) => ({
+    "@type": "Question",
+    name: faq.q,
+    acceptedAnswer: { "@type": "Answer", text: faq.a },
+  })),
+};
 
 export default function AboutPage() {
   return (
@@ -14,7 +28,9 @@ export default function AboutPage() {
         title="About Us: Software Development Company in India"
         description="Zyllo Tech is a software development company in Guntur, India, partnering remotely with businesses worldwide to design, build and support digital products."
         path="/about"
-       />
+      >
+        <script type="application/ld+json">{JSON.stringify(FAQ_JSON_LD)}</script>
+      </Seo>
       <PageHero
         breadcrumbLabel="About"
         eyebrow="About Zyllo Tech"
@@ -41,6 +57,10 @@ export default function AboutPage() {
       <Reveal>
         <Technologies />
       </Reveal>
+      <Reveal>
+        <IndiaDelivery />
+      </Reveal>
+      <ServiceFaq serviceName="Working with us from elsewhere in India" faqs={INDIA_FAQS} />
     </>
   );
 }

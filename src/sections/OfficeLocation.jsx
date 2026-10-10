@@ -1,4 +1,5 @@
 import { ExternalLink, Globe, MapPin, Navigation } from "lucide-react";
+import Link from "@/lib/nx/link";
 import { CONTACT_INFO, DIRECTIONS_URL, MAP_EMBED_URL, MAP_OPEN_URL } from "@/data/contact-info";
 
 // The one place on /contact where the full postal address is printed.
@@ -27,6 +28,13 @@ export default function OfficeLocation() {
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-[#4a5668]">
             Please get in touch before you visit so we can make sure someone is there to meet you.
+          </p>
+          <p className="mt-3 text-base leading-relaxed text-[#4a5668]">
+            Not in Guntur? We serve businesses in{" "}
+            <Link href="/about#india" className="font-semibold text-[#1f4693] underline underline-offset-4 hover:text-[#c9580d]">
+              other Indian cities
+            </Link>{" "}
+            and abroad remotely.
           </p>
         </div>
 
