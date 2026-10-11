@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
-const FAQS = [
+// Exported so Contact.jsx can build matching FAQPage structured data.
+export const FAQS = [
   {
     q: "How do I get started?",
     a: "Fill out the contact form above, or reach us by phone, email or WhatsApp. We reply to every inquiry within one business day.",

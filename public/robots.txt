@@ -4,4 +4,40 @@ Disallow: /admin
 Disallow: /login
 Disallow: /api
 
+# AI assistants and answer engines (AEO/GEO): explicitly welcomed so
+# Zyllo Tech content can be read, summarized and cited. See /llms.txt
+# for a structured content summary aimed at these systems.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Disallow: /
+
 Sitemap: https://zyllotech.com/sitemap.xml

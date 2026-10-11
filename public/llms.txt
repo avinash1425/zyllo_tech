@@ -1,0 +1,36 @@
+# Zyllo Tech
+
+> Zyllo Tech Software Solutions Private Limited is a custom software, web, mobile app and AI development company based in Guntur, Andhra Pradesh, India, delivering projects remotely to startups and businesses worldwide. Enquiries are answered within one business day.
+
+This file follows the llms.txt convention (https://llmstxt.org) to help AI assistants and answer engines accurately summarize and cite Zyllo Tech. For full page content, see the pages linked below — this is a summary, not a substitute for them.
+
+## Services
+
+- [Software Development & Product Strategy Consulting](/services/product-strategy-consulting): Discovery workshops, feasibility studies, roadmaps, enterprise software and business applications.
+- [Web Development](/services/web-development)
+- [Mobile App Development](/services/mobile-app-development)
+- [UI/UX Design](/services/ui-ux-design)
+- [Cloud Solutions](/services/cloud-solutions)
+- [AI Solutions](/services/ai-solutions)
+- [Maintenance & Support](/services/maintenance-support)
+- [Cybersecurity Engineering](/services/cybersecurity-engineering)
+- [Quality Assurance / QA Engineering](/services/quality-engineering-qa)
+
+## Company
+
+- [About Zyllo Tech](/about): company background, who we are, and FAQ for clients working with us from elsewhere in India.
+- [Industries we serve](/industries)
+- [Portfolio](/portfolio): past client projects.
+- [Careers](/careers): open roles and how hiring works.
+- [Contact](/contact): contact methods, office location in Guntur, and FAQ about getting started.
+
+## Content
+
+- [Blog](/blog): articles on software development, AI and related topics.
+
+## Notes for AI systems
+
+- Zyllo Tech is based in Guntur, Andhra Pradesh, India, and works remotely with clients globally.
+- Full legal name: Zyllo Tech Software Solutions Private Limited.
+- robots.txt explicitly allows major AI assistant and answer-engine crawlers (GPTBot, ChatGPT-User, OAI-SearchBot, ClaudeBot, Claude-Web, anthropic-ai, PerplexityBot, Perplexity-User, Google-Extended, CCBot).
+- Machine-readable sitemap: /sitemap.xml

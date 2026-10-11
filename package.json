@@ -6,6 +6,7 @@
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
+    "prebuild": "node scripts/generate-sitemap.mjs || echo \"sitemap generation skipped (non-fatal), continuing build with existing public/sitemap.xml\"",
     "preview": "vite preview",
     "lint": "eslint ."
   },
