@@ -7,12 +7,12 @@ import LeadDonut from "./LeadDonut";
 import ActivityTimeline from "./ActivityTimeline";
 import ApplicantsRanking from "./ApplicantsRanking";
 import QuickActions from "./QuickActions";
-import SampleAnalytics from "./SampleAnalytics";
+import SearchPerformance from "./SearchPerformance";
 
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
-/** Presentational dashboard layout. All figures come from real loaded data except `traffic`. */
-export default function DashboardView({ data, traffic, onRefresh }) {
+/** Presentational dashboard layout. All figures come from real loaded data. */
+export default function DashboardView({ data, onRefresh }) {
   const { weeklyCounts, totals, applicantsByJob, activity } = data;
   const contactsThisWeek = weeklyCounts.reduce((s, d) => s + d.contacts, 0);
   const applicantsThisWeek = weeklyCounts.reduce((s, d) => s + d.applicants, 0);
@@ -61,7 +61,7 @@ export default function DashboardView({ data, traffic, onRefresh }) {
 
       <QuickActions />
 
-      <SampleAnalytics traffic={traffic} />
+      <SearchPerformance />
     </div>
   );
 }

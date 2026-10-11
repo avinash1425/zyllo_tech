@@ -191,28 +191,6 @@ export async function getApplicantsByJob() {
     .sort((a, b) => b.applicants - a.applicants);
 }
 
-// Placeholder traffic numbers — no page-view tracking or session/bounce
-// detection exists yet, so Total Visitors/Page Views/Bounce Rate/Conversion
-// Rate below are illustrative only (clearly labeled as sample data in the
-// UI), same convention TrafficChart already uses for its own chart data.
-// leadsTotal is the one real number woven in: contactsTotal + applicantsTotal
-// from getTotalCounts(), shown as supporting context under Conversion Rate.
-export function getTrafficSummary(leadsTotal) {
-  const visitors = 14636;
-  const pageViews = Math.round(visitors * 2.56);
-  const bounceRate = 56.5;
-  const conversionRate = visitors > 0 ? (leadsTotal / visitors) * 100 : 0;
-
-  return {
-    visitors: visitors >= 1000 ? `${(visitors / 1000).toFixed(1)}K` : `${visitors}`,
-    pageViews: pageViews >= 1000 ? `${(pageViews / 1000).toFixed(1)}K` : `${pageViews}`,
-    pagesPerVisit: (pageViews / visitors).toFixed(2),
-    bounceRate: `${bounceRate.toFixed(1)}%`,
-    conversionRate: `${conversionRate.toFixed(1)}%`,
-    leadsTotal,
-  };
-}
-
 export async function fetchDashboardData() {
   const [activity, weeklyCounts, totals, applicantsByJob] = await Promise.all([
     getRecentActivity(),
