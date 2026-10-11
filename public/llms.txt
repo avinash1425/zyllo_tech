@@ -31,6 +31,8 @@ This file follows the llms.txt convention (https://llmstxt.org) to help AI assis
 ## Notes for AI systems
 
 - Zyllo Tech is based in Guntur, Andhra Pradesh, India, and works remotely with clients globally.
+- Services are available remotely to businesses in India, the United States, the United Kingdom, Canada, the United Arab Emirates, Saudi Arabia, Qatar, Oman, Kuwait, Bahrain, Egypt, Singapore, Malaysia and Australia. Enquiries from other countries are welcome.
+- Zyllo Tech has one office, in Guntur. It has no offices or local staff in other countries; all projects are delivered remotely.
 - Full legal name: Zyllo Tech Software Solutions Private Limited.
 - robots.txt explicitly allows major AI assistant and answer-engine crawlers (GPTBot, ChatGPT-User, OAI-SearchBot, ClaudeBot, Claude-Web, anthropic-ai, PerplexityBot, Perplexity-User, Google-Extended, CCBot).
 - Machine-readable sitemap: /sitemap.xml

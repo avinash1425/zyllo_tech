@@ -24,7 +24,7 @@ export default function HomePage() {
         <ServiceTiles />
       </Reveal>
       <Reveal>
-        <GlobalDelivery showCountries />
+        <GlobalDelivery />
       </Reveal>
       <Reveal>
         <WhyChooseUs />

@@ -1,8 +1,9 @@
 // Countries where Zyllo Tech offers its services remotely. These are markets
 // served from the single office in Guntur, India: never office locations,
-// local staff, customers or partnerships. Used by the remote-delivery
-// section, the international FAQ and the Organization structured data.
-// Keep in sync with the static JSON-LD copy in index.html.
+// local staff, customers or partnerships. They are targeting signals only
+// and are not listed in the visible pages: they feed the Organization
+// structured data. Keep in sync with the static JSON-LD and noscript copy
+// in index.html and with public/llms.txt.
 export const SERVICE_REGIONS = [
   {
     name: "Middle East & North Africa",
@@ -28,17 +29,14 @@ export const SERVICE_REGIONS = [
 
 export const SERVICE_COUNTRIES = SERVICE_REGIONS.flatMap((region) => region.countries);
 
-// One-sentence version for pages that do not show the full list.
+// Visible one-sentence version. Names no countries on purpose.
 export const SERVICE_AREA_SUMMARY =
-  "Our services are available remotely to businesses in India, the United States, the United Kingdom, the Middle East and Southeast Asia, and we welcome enquiries from other countries.";
+  "Our services are available remotely to businesses in India and around the world, and we welcome enquiries from any country.";
 
-// Shown on /services and mirrored in its FAQPage structured data. Every
-// answer restates something the site already says elsewhere.
+// Shown on /services and mirrored in its FAQPage structured data, which
+// must match the visible answers. Every answer restates something the site
+// already says elsewhere.
 export const INTERNATIONAL_FAQS = [
-  {
-    q: "Which countries does Zyllo Tech work with?",
-    a: "Our services are available remotely to businesses in India, the United States, the United Kingdom and Canada, in the Middle East and North Africa (the United Arab Emirates, Saudi Arabia, Qatar, Oman, Kuwait, Bahrain and Egypt), and in Asia-Pacific (Singapore, Malaysia and Australia). Enquiries from other countries are welcome.",
-  },
   {
     q: "Does Zyllo Tech have offices outside India?",
     a: "No. Our whole team works from one office in Guntur, Andhra Pradesh, India. We do not have offices or local staff in other countries, and every project is delivered remotely.",

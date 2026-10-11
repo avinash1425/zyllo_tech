@@ -47,7 +47,6 @@ export default function ServicesPage() {
         <GlobalDelivery
           heading="Software Development Services, Delivered Remotely Worldwide"
           excludeHref="/services"
-          showCountries
         />
       </Reveal>
       <ServiceFaq serviceName="Working with us from another country" faqs={INTERNATIONAL_FAQS} />
