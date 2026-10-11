@@ -17,15 +17,29 @@ Response:
 
 ## search-console
 Used by `src/lib/api/admin/searchConsole.js`.
+Live Google Search Console data through the Lovable connector gateway. Besides
+`"status": "ok"` it can answer `"not_connected"` or `"selection_required"`.
+
 Request: `{ "range": "7d" | "28d" | "3m" | "12m" }`
-Response (sample data, `isSampleData: true`):
+Response:
 ```json
-{ "timeSeries": [{ "date": "YYYY-MM-DD", "clicks": 0, "impressions": 0 }],
+{ "status": "ok", "siteUrl": "", "startDate": "YYYY-MM-DD", "endDate": "YYYY-MM-DD",
+  "timeSeries": [{ "date": "YYYY-MM-DD", "clicks": 0, "impressions": 0 }],
   "totals": { "clicks": 0, "impressions": 0, "ctr": 4.54, "avgPosition": 13.1 },
   "topQueries": [{ "label": "", "clicks": 0, "impressions": 0, "ctr": 0, "position": 0 }],
   "topPages": [], "topCountries": [], "deviceBreakdown": [],
-  "sitemaps": [{ "label": "", "submitted": 0, "indexed": null, "status": "" }],
-  "isSampleData": true }
+  "sitemaps": [{ "label": "", "submitted": 0, "lastDownloaded": null, "errors": 0, "status": "" }],
+  "isSampleData": false }
+```
+
+Request: `{ "mode": "index-coverage" }` (Admin -> Index Coverage). Inspects every URL in
+the live sitemap with the URL Inspection API.
+Response:
+```json
+{ "status": "ok", "siteUrl": "", "checkedAt": "ISO date",
+  "totals": { "tracked": 0, "indexed": 0, "notIndexed": 0, "errors": 0 },
+  "pages": [{ "url": "", "verdict": "PASS", "coverageState": "", "lastCrawlTime": null,
+              "googleCanonical": null }] }
 ```
 
 ## Not edge functions

@@ -14,6 +14,7 @@ import JobApplicationsPage from "./pages/JobApplicationsPage";
 import PortfolioPage from "./pages/PortfolioPage";
 import SearchConsolePage from "./pages/SearchConsolePage";
 import SeoPage from "./pages/SeoPage";
+import IndexCoveragePage from "./pages/IndexCoveragePage";
 
 function Spinner() {
   return (
@@ -89,6 +90,7 @@ export default function AdminRoutes() {
           <Route path="portfolio" element={<PortfolioPage />} />
           <Route path="search-console" element={<SearchConsolePage />} />
           <Route path="seo" element={<SeoPage />} />
+          <Route path="index-coverage" element={<IndexCoveragePage />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Routes>
       </AdminShell>

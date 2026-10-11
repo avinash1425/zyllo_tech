@@ -13,9 +13,9 @@ export function saveSiteUrl(siteUrl) {
   try { localStorage.setItem(SITE_KEY, siteUrl); } catch { /* ignore */ }
 }
 
-export async function getSearchConsolePerformance(range) {
+async function invoke(body) {
   const { data, error } = await supabase.functions.invoke("search-console", {
-    body: { range, siteUrl: getSavedSiteUrl() },
+    body: { ...body, siteUrl: getSavedSiteUrl() },
   });
   if (error) {
     let details = error.message;
@@ -23,4 +23,13 @@ export async function getSearchConsolePerformance(range) {
     throw new Error(details);
   }
   return data;
+}
+
+export function getSearchConsolePerformance(range) {
+  return invoke({ range });
+}
+
+// Google's index status for every URL in the live sitemap (URL Inspection API).
+export function getIndexCoverage() {
+  return invoke({ mode: "index-coverage" });
 }

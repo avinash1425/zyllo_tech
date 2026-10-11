@@ -1,4 +1,8 @@
-// search-console: ADMIN ONLY. POST { range?: "7d"|"28d"|"3m"|"12m", siteUrl?: string }
+// search-console: ADMIN ONLY. POST { range?: "7d"|"28d"|"3m"|"12m", siteUrl?: string,
+//   mode?: "index-coverage" }
+// With mode "index-coverage" the "ok" response is instead
+//  { status: "ok", siteUrl, checkedAt, totals: { tracked, indexed, notIndexed, errors },
+//    pages: [{ url, verdict, coverageState, lastCrawlTime, googleCanonical, error? }] }
 // Live Google Search Console data via the Lovable connector gateway
 // (read-only connection). Credentials stay server-side.
 // Responses:
@@ -81,6 +85,66 @@ const toRow = (r: Row) => ({
   position: r.position,
 });
 
+// Index coverage: asks Google's URL Inspection API about every URL in the
+// live sitemap. Read-only, and well inside the 2,000 inspections/day quota
+// for a site of this size.
+const INSPECT_CONCURRENCY = 5;
+const INSPECT_MAX_URLS = 200;
+
+async function sitemapUrls() {
+  const res = await fetch(`${TARGET_URL}sitemap.xml`);
+  if (!res.ok) throw new Error(`Could not read the sitemap [${res.status}]`);
+  const xml = await res.text();
+  const urls = [...xml.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)].map((m) => m[1].replace(/&amp;/g, "&"));
+  return [...new Set(urls)].slice(0, INSPECT_MAX_URLS);
+}
+
+async function inspect(siteUrl: string, url: string) {
+  try {
+    const data = await gw("/v1/urlInspection/index:inspect", {
+      method: "POST",
+      body: JSON.stringify({ inspectionUrl: url, siteUrl, languageCode: "en-US" }),
+    });
+    const r = data?.inspectionResult?.indexStatusResult ?? {};
+    return {
+      url,
+      verdict: r.verdict ?? "VERDICT_UNSPECIFIED",
+      coverageState: r.coverageState ?? "Unknown",
+      lastCrawlTime: r.lastCrawlTime ?? null,
+      googleCanonical: r.googleCanonical ?? null,
+    };
+  } catch (err) {
+    return {
+      url,
+      verdict: "ERROR",
+      coverageState: "Check failed",
+      lastCrawlTime: null,
+      googleCanonical: null,
+      error: err instanceof GatewayError ? `${err.status}: ${err.details.slice(0, 300)}` : String(err),
+    };
+  }
+}
+
+async function indexCoverage(siteUrl: string) {
+  const urls = await sitemapUrls();
+  const pages: Awaited<ReturnType<typeof inspect>>[] = [];
+  for (let i = 0; i < urls.length; i += INSPECT_CONCURRENCY) {
+    pages.push(...(await Promise.all(urls.slice(i, i + INSPECT_CONCURRENCY).map((u) => inspect(siteUrl, u)))));
+  }
+  return {
+    status: "ok",
+    siteUrl,
+    checkedAt: new Date().toISOString(),
+    totals: {
+      tracked: pages.length,
+      indexed: pages.filter((p) => p.verdict === "PASS").length,
+      notIndexed: pages.filter((p) => p.verdict !== "PASS" && p.verdict !== "ERROR").length,
+      errors: pages.filter((p) => p.verdict === "ERROR").length,
+    },
+    pages,
+  };
+}
+
 const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
 const ALPHA3_TO_ALPHA2: Record<string, string> = Object.fromEntries(
   ("afg:AF,alb:AL,dza:DZ,ago:AO,arg:AR,arm:AM,aus:AU,aut:AT,aze:AZ,bhr:BH,bgd:BD,blr:BY,bel:BE,btn:BT,bol:BO,bih:BA," +
@@ -110,10 +174,12 @@ Deno.serve(async (req) => {
 
   let range = "28d";
   let selected: string | undefined;
+  let mode = "performance";
   if (req.method === "POST") {
     try {
       const b = await req.json();
       if (typeof b?.range === "string") range = b.range;
+      if (b?.mode === "index-coverage") mode = b.mode;
       if (typeof b?.siteUrl === "string" && b.siteUrl.length < 300) selected = b.siteUrl;
     } catch { /* no body */ }
   }
@@ -130,6 +196,8 @@ Deno.serve(async (req) => {
     }
     if ("candidates" in site) return json(req, { status: "selection_required", candidates: site.candidates });
     const siteUrl = site.siteUrl!;
+
+    if (mode === "index-coverage") return json(req, await indexCoverage(siteUrl));
 
     const days = RANGE_DAYS[range];
     // Anchor the window on the latest day Google has actually published, as
@@ -149,9 +217,9 @@ Deno.serve(async (req) => {
     const [totalsRows, dateRows, queries, pages, countries, devices, sitemapsRes] = await Promise.all([
       query(siteUrl, s, e, [], 1),
       query(siteUrl, s, e, ["date"], 500),
-      query(siteUrl, s, e, ["query"]),
-      query(siteUrl, s, e, ["page"]),
-      query(siteUrl, s, e, ["country"]),
+      query(siteUrl, s, e, ["query"], 50),
+      query(siteUrl, s, e, ["page"], 50),
+      query(siteUrl, s, e, ["country"], 50),
       query(siteUrl, s, e, ["device"]),
       gw(`/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/sitemaps`).catch(() => ({ sitemap: [] })),
     ]);
@@ -179,6 +247,8 @@ Deno.serve(async (req) => {
       sitemaps: ((sitemapsRes.sitemap ?? []) as any[]).map((m) => ({
         label: m.path,
         submitted: (m.contents ?? []).reduce((n: number, c: any) => n + Number(c.submitted ?? 0), 0),
+        lastDownloaded: m.lastDownloaded ?? null,
+        errors: Number(m.errors ?? 0),
         status: m.isPending ? "Pending" : Number(m.errors ?? 0) > 0 ? `${m.errors} error(s)` : "Success",
       })),
       isSampleData: false,

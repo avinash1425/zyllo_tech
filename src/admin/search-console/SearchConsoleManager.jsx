@@ -149,11 +149,13 @@ function BreakdownTable({ rows, columnLabel }) {
 
   if (isSitemapShape) {
     return (
-      <table className="w-full min-w-[420px] text-left text-sm">
+      <table className="w-full min-w-[560px] text-left text-sm">
         <thead>
           <tr className="border-b border-[#e7e9ee] text-xs font-semibold uppercase tracking-wide text-[#9aa0ac]">
             <th className="py-2 pr-3 font-semibold">{columnLabel}</th>
             <th className="py-2 px-3 text-right font-semibold">URLs submitted</th>
+            <th className="py-2 px-3 text-right font-semibold">Last downloaded</th>
+            <th className="py-2 px-3 text-right font-semibold">Errors</th>
             <th className="py-2 pl-3 text-right font-semibold">Status</th>
           </tr>
         </thead>
@@ -162,6 +164,12 @@ function BreakdownTable({ rows, columnLabel }) {
             <tr key={row.label} className="border-b border-[#e7e9ee] last:border-0">
               <td className="py-2.5 pr-3 text-[#2b303b]">{row.label}</td>
               <td className="py-2.5 px-3 text-right text-[#676b7a]">{row.submitted}</td>
+              <td className="py-2.5 px-3 text-right text-[#676b7a]">
+                {row.lastDownloaded
+                  ? new Date(row.lastDownloaded).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
+                  : "—"}
+              </td>
+              <td className="py-2.5 px-3 text-right text-[#676b7a]">{row.errors ?? "—"}</td>
               <td className="py-2.5 pl-3 text-right text-[#676b7a]">{row.status}</td>
             </tr>
           ))}
