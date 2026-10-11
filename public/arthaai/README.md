@@ -1,7 +1,7 @@
 # ArthaAI — Smart Money Guidance for Every Indian
 
 > **By Zyllo Tech Software Solutions Pvt Ltd**
-> CIN: U62013AP2026PTC124120 | Hyderabad, India | info@zyllotech.com
+> CIN: U62013AP2026PTC124120 | Guntur, India | info@zyllotech.com
 
 ---
 
