@@ -26,6 +26,13 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  /* Tokens used by the restored legacy pages (ArthaAI, Startups, Resources, ...). */
+  --color-primary: #f7941e;
+  --color-primary-foreground: #ffffff;
+  --color-muted: #f4f5f7;
+  --color-muted-foreground: #676b7a;
+  --color-card: #ffffff;
+  --color-destructive: #dc2626;
   --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
     "Noto Color Emoji";
