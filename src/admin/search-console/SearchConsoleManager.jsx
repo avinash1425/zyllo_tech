@@ -60,7 +60,7 @@ const STAT_CARDS = [
     accent: "#f7941e",
     delta: "-0.3%",
     deltaGood: false,
-    format: (v) => `${v.toFixed(2)}%`,
+    format: (v) => `${v.toFixed(1)}%`,
   },
   {
     key: "avgPosition",
@@ -187,7 +187,7 @@ function BreakdownTable({ rows, columnLabel }) {
             <td className="py-2.5 pr-3 text-[#2b303b]">{row.label}</td>
             <td className="py-2.5 px-3 text-right text-[#2b303b]">{row.clicks}</td>
             <td className="py-2.5 px-3 text-right text-[#676b7a]">{row.impressions}</td>
-            <td className="py-2.5 px-3 text-right text-[#676b7a]">{row.ctr.toFixed(2)}%</td>
+            <td className="py-2.5 px-3 text-right text-[#676b7a]">{row.ctr.toFixed(1)}%</td>
             <td className="py-2.5 pl-3 text-right text-[#676b7a]">{row.position.toFixed(1)}</td>
           </tr>
         ))}

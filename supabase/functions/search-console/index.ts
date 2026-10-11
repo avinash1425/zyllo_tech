@@ -82,10 +82,22 @@ const toRow = (r: Row) => ({
 });
 
 const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
+const ALPHA3_TO_ALPHA2: Record<string, string> = Object.fromEntries(
+  ("afg:AF,alb:AL,dza:DZ,ago:AO,arg:AR,arm:AM,aus:AU,aut:AT,aze:AZ,bhr:BH,bgd:BD,blr:BY,bel:BE,btn:BT,bol:BO,bih:BA," +
+    "bwa:BW,bra:BR,brn:BN,bgr:BG,khm:KH,cmr:CM,can:CA,chl:CL,chn:CN,col:CO,cri:CR,hrv:HR,cub:CU,cyp:CY,cze:CZ,dnk:DK," +
+    "dom:DO,ecu:EC,egy:EG,slv:SV,est:EE,eth:ET,fin:FI,fra:FR,geo:GE,deu:DE,gha:GH,grc:GR,gtm:GT,hnd:HN,hkg:HK,hun:HU," +
+    "isl:IS,ind:IN,idn:ID,irn:IR,irq:IQ,irl:IE,isr:IL,ita:IT,jam:JM,jpn:JP,jor:JO,kaz:KZ,ken:KE,kor:KR,kwt:KW,kgz:KG," +
+    "lao:LA,lva:LV,lbn:LB,lby:LY,ltu:LT,lux:LU,mac:MO,mys:MY,mdv:MV,mlt:MT,mus:MU,mex:MX,mda:MD,mng:MN,mne:ME,mar:MA," +
+    "moz:MZ,mmr:MM,nam:NA,npl:NP,nld:NL,nzl:NZ,nic:NI,nga:NG,mkd:MK,nor:NO,omn:OM,pak:PK,pan:PA,pry:PY,per:PE,phl:PH," +
+    "pol:PL,prt:PT,pri:PR,qat:QA,rou:RO,rus:RU,rwa:RW,sau:SA,sen:SN,srb:RS,sgp:SG,svk:SK,svn:SI,zaf:ZA,esp:ES,lka:LK," +
+    "sdn:SD,swe:SE,che:CH,syr:SY,twn:TW,tjk:TJ,tza:TZ,tha:TH,tun:TN,tur:TR,tkm:TM,uga:UG,ukr:UA,are:AE,gbr:GB,usa:US," +
+    "ury:UY,uzb:UZ,ven:VE,vnm:VN,yem:YE,zmb:ZM,zwe:ZW")
+    .split(",")
+    .map((pair) => pair.split(":")),
+);
 function countryName(code: string) {
-  // GSC returns ISO 3166-1 alpha-3; map common ones, else show code.
-  const map: Record<string, string> = { ind: "IN", usa: "US", are: "AE", gbr: "GB", can: "CA", aus: "AU", deu: "DE", sgp: "SG", sau: "SA", pak: "PK", bgd: "BD", npl: "NP", lka: "LK", phl: "PH", fra: "FR", nld: "NL" };
-  const a2 = map[code.toLowerCase()];
+  // GSC returns ISO 3166-1 alpha-3; unmapped codes are shown as the code.
+  const a2 = ALPHA3_TO_ALPHA2[code.toLowerCase()];
   try { return a2 ? regionNames.of(a2) ?? code.toUpperCase() : code.toUpperCase(); } catch { return code.toUpperCase(); }
 }
 
@@ -120,8 +132,16 @@ Deno.serve(async (req) => {
     const siteUrl = site.siteUrl!;
 
     const days = RANGE_DAYS[range];
-    const end = new Date();
-    end.setDate(end.getDate() - 2); // GSC data lags ~2 days
+    // Anchor the window on the latest day Google has actually published, as
+    // the Search Console UI does for "Last N days". Assuming a fixed lag
+    // shifted the window by a day and left its last day empty.
+    const today = new Date();
+    const probeStart = new Date(today);
+    probeStart.setDate(probeStart.getDate() - 10);
+    const recent = await query(siteUrl, iso(probeStart), iso(today), ["date"], 25);
+    const latest = recent.map((r) => r.keys?.[0] ?? "").sort().pop();
+    const end = latest ? new Date(`${latest}T00:00:00Z`) : new Date(today);
+    if (!latest) end.setDate(end.getDate() - 3);
     const start = new Date(end);
     start.setDate(start.getDate() - (days - 1));
     const s = iso(start), e = iso(end);
