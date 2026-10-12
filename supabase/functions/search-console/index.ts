@@ -77,6 +77,20 @@ async function query(siteUrl: string, start: string, end: string, dimensions: st
   return (data.rows ?? []) as Row[];
 }
 
+// The API orders by clicks only and returns tied rows alphabetically, so a
+// small rowLimit cuts off high-impression rows that have no clicks. Fetch a
+// wide set and rank it the way the Search Console UI does: clicks, then
+// impressions.
+const BREAKDOWN_FETCH = 1000;
+const BREAKDOWN_ROWS = 50;
+
+async function ranked(siteUrl: string, start: string, end: string, dimension: string) {
+  const rows = await query(siteUrl, start, end, [dimension], BREAKDOWN_FETCH);
+  return rows
+    .sort((a, b) => b.clicks - a.clicks || b.impressions - a.impressions)
+    .slice(0, BREAKDOWN_ROWS);
+}
+
 const toRow = (r: Row) => ({
   label: r.keys?.[0] ?? "",
   clicks: r.clicks,
@@ -217,9 +231,9 @@ Deno.serve(async (req) => {
     const [totalsRows, dateRows, queries, pages, countries, devices, sitemapsRes] = await Promise.all([
       query(siteUrl, s, e, [], 1),
       query(siteUrl, s, e, ["date"], 500),
-      query(siteUrl, s, e, ["query"], 50),
-      query(siteUrl, s, e, ["page"], 50),
-      query(siteUrl, s, e, ["country"], 50),
+      ranked(siteUrl, s, e, "query"),
+      ranked(siteUrl, s, e, "page"),
+      ranked(siteUrl, s, e, "country"),
       query(siteUrl, s, e, ["device"]),
       gw(`/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/sitemaps`).catch(() => ({ sitemap: [] })),
     ]);
