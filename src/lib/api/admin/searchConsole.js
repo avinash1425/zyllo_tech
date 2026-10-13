@@ -29,7 +29,9 @@ export function getSearchConsolePerformance(range) {
   return invoke({ range });
 }
 
-// Google's index status for every URL in the live sitemap (URL Inspection API).
+// Google's index status for the URLs in the live sitemap (URL Inspection API).
+// Every call spends inspection quota, one request per URL: call it only from
+// an explicit admin action, never on page load.
 export function getIndexCoverage() {
   return invoke({ mode: "index-coverage" });
 }

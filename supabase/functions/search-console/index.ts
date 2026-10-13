@@ -2,7 +2,10 @@
 //   mode?: "index-coverage" }
 // With mode "index-coverage" the "ok" response is instead
 //  { status: "ok", siteUrl, checkedAt, totals: { tracked, indexed, notIndexed, errors },
-//    pages: [{ url, verdict, coverageState, lastCrawlTime, googleCanonical, error? }] }
+//    sitemapTotal, maxUrls, truncated, stoppedEarly: "quota" | "auth" | null,
+//    pages: [{ url, verdict, coverageState, lastCrawlTime, googleCanonical, error?, errorCode? }] }
+// Every index-coverage call spends URL Inspection quota, so the admin page
+// only sends it when an admin presses "Run check".
 // Live Google Search Console data via the Lovable connector gateway
 // (read-only connection). Credentials stay server-side.
 // Responses:
@@ -14,6 +17,7 @@
 import { json, preflight } from "../_shared/cors.ts";
 import { requireAdmin } from "../_shared/auth.ts";
 import { addDays, fillDays, latestCompleteDay, reportingWindow } from "./window.ts";
+import { classifyError, ERROR_LABELS, INSPECT_MAX_URLS, parseSitemap, rankRows, summarize } from "./coverage.ts";
 
 const GATEWAY = "https://connector-gateway.lovable.dev/google_search_console";
 const RANGE_DAYS: Record<string, number> = { "7d": 7, "28d": 28, "3m": 90, "12m": 365 };
@@ -96,10 +100,7 @@ const BREAKDOWN_FETCH = 1000;
 const BREAKDOWN_ROWS = 50;
 
 async function ranked(siteUrl: string, start: string, end: string, dimension: string) {
-  const rows = await query(siteUrl, start, end, [dimension], BREAKDOWN_FETCH);
-  return rows
-    .sort((a, b) => b.clicks - a.clicks || b.impressions - a.impressions)
-    .slice(0, BREAKDOWN_ROWS);
+  return rankRows(await query(siteUrl, start, end, [dimension], BREAKDOWN_FETCH), BREAKDOWN_ROWS);
 }
 
 const toRow = (r: Row) => ({
@@ -110,25 +111,34 @@ const toRow = (r: Row) => ({
   position: r.position,
 });
 
-// Index coverage: asks Google's URL Inspection API about every URL in the
-// live sitemap. Read-only, and well inside the 2,000 inspections/day quota
-// for a site of this size.
+// Index coverage: asks Google's URL Inspection API about the URLs in the live
+// sitemap, one request per URL. Read-only, but each request counts against
+// the property's 2,000 inspections/day quota.
 const INSPECT_CONCURRENCY = 5;
-const INSPECT_MAX_URLS = 200;
+const INSPECT_TIMEOUT_MS = 20_000;
 
 async function sitemapUrls() {
-  const res = await fetch(`${TARGET_URL}sitemap.xml`);
+  const res = await fetch(`${TARGET_URL}sitemap.xml`, { signal: AbortSignal.timeout(INSPECT_TIMEOUT_MS) });
   if (!res.ok) throw new Error(`Could not read the sitemap [${res.status}]`);
-  const xml = await res.text();
-  const urls = [...xml.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)].map((m) => m[1].replace(/&amp;/g, "&"));
-  return [...new Set(urls)].slice(0, INSPECT_MAX_URLS);
+  return parseSitemap(await res.text());
 }
 
-async function inspect(siteUrl: string, url: string) {
+type InspectedPage = {
+  url: string;
+  verdict: string;
+  coverageState: string;
+  lastCrawlTime: string | null;
+  googleCanonical: string | null;
+  error?: string;
+  errorCode?: string;
+};
+
+async function inspect(siteUrl: string, url: string): Promise<InspectedPage> {
   try {
     const data = await gw("/v1/urlInspection/index:inspect", {
       method: "POST",
       body: JSON.stringify({ inspectionUrl: url, siteUrl, languageCode: "en-US" }),
+      signal: AbortSignal.timeout(INSPECT_TIMEOUT_MS),
     });
     const r = data?.inspectionResult?.indexStatusResult ?? {};
     return {
@@ -139,33 +149,55 @@ async function inspect(siteUrl: string, url: string) {
       googleCanonical: r.googleCanonical ?? null,
     };
   } catch (err) {
+    const status = err instanceof GatewayError ? err.status : undefined;
+    const details = err instanceof GatewayError ? err.details : String(err);
+    const errorCode = classifyError(status, details);
     return {
       url,
       verdict: "ERROR",
-      coverageState: "Check failed",
+      coverageState: ERROR_LABELS[errorCode],
       lastCrawlTime: null,
       googleCanonical: null,
-      error: err instanceof GatewayError ? `${err.status}: ${err.details.slice(0, 300)}` : String(err),
+      error: status ? `${status}: ${details.slice(0, 300)}` : details.slice(0, 300),
+      errorCode,
     };
   }
 }
 
 async function indexCoverage(siteUrl: string) {
-  const urls = await sitemapUrls();
-  const pages: Awaited<ReturnType<typeof inspect>>[] = [];
+  const { urls, total, truncated } = await sitemapUrls();
+  const pages: InspectedPage[] = [];
+  let stoppedEarly: "quota" | "auth" | null = null;
   for (let i = 0; i < urls.length; i += INSPECT_CONCURRENCY) {
     pages.push(...(await Promise.all(urls.slice(i, i + INSPECT_CONCURRENCY).map((u) => inspect(siteUrl, u)))));
+    // An exhausted quota or a refused connection fails every later request
+    // too, so stop instead of spending more calls on it.
+    const blocked = pages.find((p) => p.errorCode === "quota" || p.errorCode === "auth");
+    if (blocked) {
+      stoppedEarly = blocked.errorCode as "quota" | "auth";
+      break;
+    }
+  }
+  for (const url of urls.slice(pages.length)) {
+    pages.push({
+      url,
+      verdict: "ERROR",
+      coverageState: ERROR_LABELS.skipped,
+      lastCrawlTime: null,
+      googleCanonical: null,
+      error: "Skipped: the check stopped early.",
+      errorCode: "skipped",
+    });
   }
   return {
     status: "ok",
     siteUrl,
     checkedAt: new Date().toISOString(),
-    totals: {
-      tracked: pages.length,
-      indexed: pages.filter((p) => p.verdict === "PASS").length,
-      notIndexed: pages.filter((p) => p.verdict !== "PASS" && p.verdict !== "ERROR").length,
-      errors: pages.filter((p) => p.verdict === "ERROR").length,
-    },
+    totals: summarize(pages),
+    sitemapTotal: total,
+    maxUrls: INSPECT_MAX_URLS,
+    truncated,
+    stoppedEarly,
     pages,
   };
 }
