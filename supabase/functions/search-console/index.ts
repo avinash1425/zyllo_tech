@@ -8,10 +8,12 @@
 // Responses:
 //  { status: "not_connected", message }
 //  { status: "selection_required", candidates: string[] }
-//  { status: "ok", siteUrl, timeSeries, totals, topQueries, topPages,
-//    topCountries, deviceBreakdown, sitemaps, isSampleData: false }
+//  { status: "ok", siteUrl, startDate, endDate, dataState, firstIncompleteDate,
+//    timeSeries, totals, topQueries, topPages, topCountries, deviceBreakdown,
+//    sitemaps, isSampleData: false }
 import { json, preflight } from "../_shared/cors.ts";
 import { requireAdmin } from "../_shared/auth.ts";
+import { addDays, fillDays, latestCompleteDay, reportingWindow } from "./window.ts";
 
 const GATEWAY = "https://connector-gateway.lovable.dev/google_search_console";
 const RANGE_DAYS: Record<string, number> = { "7d": 7, "28d": 28, "3m": 90, "12m": 365 };
@@ -69,11 +71,20 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
 
 type Row = { keys?: string[]; clicks: number; impressions: number; ctr: number; position: number };
 
-async function query(siteUrl: string, start: string, end: string, dimensions: string[], rowLimit = 10) {
-  const data = await gw(`/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`, {
+// Without dataState the API returns finalized days only, which lags the
+// Search Console UI by a day or more. "all" adds the fresh days the UI shows;
+// window.ts keeps the days still being collected out of the window.
+const DATA_STATE = "all";
+
+async function search(siteUrl: string, start: string, end: string, dimensions: string[], rowLimit = 10) {
+  return await gw(`/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`, {
     method: "POST",
-    body: JSON.stringify({ startDate: start, endDate: end, dimensions, rowLimit }),
+    body: JSON.stringify({ startDate: start, endDate: end, dimensions, rowLimit, dataState: DATA_STATE }),
   });
+}
+
+async function query(siteUrl: string, start: string, end: string, dimensions: string[], rowLimit = 10) {
+  const data = await search(siteUrl, start, end, dimensions, rowLimit);
   return (data.rows ?? []) as Row[];
 }
 
@@ -214,19 +225,15 @@ Deno.serve(async (req) => {
     if (mode === "index-coverage") return json(req, await indexCoverage(siteUrl));
 
     const days = RANGE_DAYS[range];
-    // Anchor the window on the latest day Google has actually published, as
+    // Anchor the window on the latest complete day Google has published, as
     // the Search Console UI does for "Last N days". Assuming a fixed lag
     // shifted the window by a day and left its last day empty.
     const today = new Date();
-    const probeStart = new Date(today);
-    probeStart.setDate(probeStart.getDate() - 10);
-    const recent = await query(siteUrl, iso(probeStart), iso(today), ["date"], 25);
-    const latest = recent.map((r) => r.keys?.[0] ?? "").sort().pop();
-    const end = latest ? new Date(`${latest}T00:00:00Z`) : new Date(today);
-    if (!latest) end.setDate(end.getDate() - 3);
-    const start = new Date(end);
-    start.setDate(start.getDate() - (days - 1));
-    const s = iso(start), e = iso(end);
+    const probe = await search(siteUrl, addDays(iso(today), -10), iso(today), ["date"], 25);
+    const firstIncomplete: string | undefined =
+      probe.metadata?.first_incomplete_date ?? probe.metadata?.firstIncompleteDate;
+    const published = ((probe.rows ?? []) as Row[]).map((r) => r.keys?.[0] ?? "");
+    const { start: s, end: e } = reportingWindow(days, latestCompleteDay(published, firstIncomplete, today), today);
 
     const [totalsRows, dateRows, queries, pages, countries, devices, sitemapsRes] = await Promise.all([
       query(siteUrl, s, e, [], 1),
@@ -250,7 +257,9 @@ Deno.serve(async (req) => {
         ctr: (t?.ctr ?? 0) * 100,
         avgPosition: t?.position ?? 0,
       },
-      timeSeries: dateRows.map((r) => ({ date: r.keys?.[0], clicks: r.clicks, impressions: r.impressions })),
+      dataState: DATA_STATE,
+      firstIncompleteDate: firstIncomplete ?? null,
+      timeSeries: fillDays(s, e, dateRows.map((r) => ({ date: r.keys?.[0], clicks: r.clicks, impressions: r.impressions }))),
       topQueries: queries.map(toRow),
       topPages: pages.map(toRow),
       topCountries: countries.map((r) => ({ ...toRow(r), label: countryName(r.keys?.[0] ?? "") })),
