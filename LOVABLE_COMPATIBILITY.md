@@ -4,7 +4,7 @@ This app is a browser-only Vite + React + react-router + Supabase project, so it
 
 ## Verified in this repo (local, not yet in a Lovable project)
 - `vite build` passes; no Next.js code, no `process.env`, no server-only secrets in `src/`.
-- Env only via `import.meta.env.VITE_*` (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SITE_URL`).
+- Env only via `import.meta.env.VITE_*` (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SITE_URL`, `VITE_GA_MEASUREMENT_ID`).
 - No horizontal overflow on 14 public routes at 320, 360, 390, 768, 1024, 1280, 1536 and 1920 px.
 - Custom CSS classes and keyframes use a `zt-` prefix, so they cannot collide with Lovable/shadcn/tailwind-animate class names.
 - Tailwind fractional sizes that exist only in v4 (`h-4.5`, `w-5.5`, `py-18`) were replaced with arbitrary values; `peer-not-placeholder-shown:` was replaced with `peer-[&:not(:placeholder-shown)]:`; text shadows use arbitrary values.

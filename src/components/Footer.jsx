@@ -11,6 +11,7 @@ import {
   TERMS_LAST_UPDATED,
   TERMS_SECTIONS,
 } from "@/data/legal-content";
+import { openCookieSettings } from "@/lib/consent";
 
 // Company/Services links kept as this site's own real pages — the
 // zyllotech.com reference lists different labels (Industries, Resources,
@@ -257,6 +258,15 @@ export default function Footer() {
                 className="transition-colors duration-200 hover:text-white"
               >
                 Terms &amp; Conditions
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                onClick={openCookieSettings}
+                className="transition-colors duration-200 hover:text-white"
+              >
+                Cookie Settings
               </button>
             </li>
             <li>

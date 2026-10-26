@@ -4,6 +4,7 @@ import SiteChrome from "@/components/SiteChrome";
 import OrganizationJsonLd from "@/components/OrganizationJsonLd";
 import ScrollToTopOnRoute from "@/components/ScrollToTopOnRoute";
 import PageLoader from "@/components/PageLoader";
+import Analytics from "@/components/Analytics";
 
 const Home = lazy(() => import("./pages/Home.jsx"));
 const About = lazy(() => import("./pages/About.jsx"));
@@ -28,6 +29,7 @@ export default function App() {
     <>
       <OrganizationJsonLd />
       <ScrollToTopOnRoute />
+      <Analytics />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Admin has its own shell + auth guard (src/admin/AdminRoutes.jsx) */}
