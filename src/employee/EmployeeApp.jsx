@@ -4,7 +4,7 @@
 import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import {
-  Award, BarChart3, Bell, BookOpen, CalendarCheck, ClipboardCheck, DoorOpen, GraduationCap, HeartPulse, UserCheck, ClipboardList, Clock, FileText, HeartHandshake, KanbanSquare, LayoutDashboard, Megaphone, Package, User, Wallet,
+  BarChart3, Bell, BookOpen, CalendarCheck, ClipboardCheck, DoorOpen, UserCheck, ClipboardList, Clock, FileText, HeartHandshake, KanbanSquare, LayoutDashboard, Package, User, Wallet,
 } from "lucide-react";
 import Seo from "@/hr/platform/Seo";
 import AppShell from "@/hr/AppShell";
@@ -22,15 +22,11 @@ export const EMPLOYEE_PAGES = [
   { path: "leave", label: "My Leave", icon: CalendarCheck, section: "Work", page: lazy(() => import("./pages/MyLeavePage.jsx")) },
   { path: "payslips", label: "My Payslips", icon: Wallet, section: "Records", page: lazy(() => import("./pages/MyPayslipsPage.jsx")) },
   { path: "documents", label: "My Documents", icon: FileText, section: "Records", page: lazy(() => import("./pages/MyDocumentsPage.jsx")) },
-  { path: "benefits", label: "My Benefits", icon: HeartPulse, section: "Records", page: lazy(() => import("./pages/MyBenefitsPage.jsx")) },
   { path: "assets", label: "My Assets", icon: Package, section: "Records", page: lazy(() => import("./pages/MyAssetsPage.jsx")) },
   { path: "internship", label: "My Internship", icon: GraduationCap, section: "Records", page: lazy(() => import("./pages/MyInternshipPage.jsx")), when: (hr) => hr?.employee?.employment_type === "intern" },
-  { path: "training", label: "My Training", icon: BookOpen, section: "Work", page: lazy(() => import("./pages/MyTrainingPage.jsx")) },
   { path: "interviews", label: "My Interviews", icon: UserCheck, section: "Work", page: lazy(() => import("./pages/MyInterviewsPage.jsx")) },
-  { path: "performance", label: "My Performance", icon: Award, section: "Records", page: lazy(() => import("./pages/MyPerformancePage.jsx")) },
   { path: "resignation", label: "My Resignation", icon: DoorOpen, section: "Records", page: lazy(() => import("./pages/MyResignationPage.jsx")) },
   { path: "reports", label: "My Reports", icon: BarChart3, section: "Records", page: lazy(() => import("./pages/MyReportsPage.jsx")) },
-  { path: "announcements", label: "Announcements", icon: Megaphone, section: "Company", page: lazy(() => import("./pages/MyAnnouncementsPage.jsx")) },
   { path: "requests", label: "My HR Requests", icon: HeartHandshake, section: "Company", page: lazy(() => import("./pages/MyHrRequestsPage.jsx")) },
   { path: "notifications", label: "Notifications", icon: Bell, section: "Company", page: lazy(() => import("./pages/NotificationsPage.jsx")) },
 ];

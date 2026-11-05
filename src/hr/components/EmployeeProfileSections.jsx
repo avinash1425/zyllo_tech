@@ -260,7 +260,7 @@ export function ReportingSection({ employee: e, canEdit, isSelf, onChangeManager
             ]} />
           )}
       </Card>
-      <Card title={`Direct reports${reports.data ? ` (${reports.data.length})` : ""}`} actions={<Link href="/hr/org-structure" className="text-sm font-semibold text-[#1f4693] hover:underline">Org Structure</Link>}>
+      <Card title={`Direct reports${reports.data ? ` (${reports.data.length})` : ""}`}>
         {reports.loading && !reports.data ? <Loading /> : reports.error ? <ErrorState message={reports.error} onRetry={reports.reload} /> : !reports.data?.length ? (
           <EmptyState title="No direct reports" icon={Users} />
         ) : (

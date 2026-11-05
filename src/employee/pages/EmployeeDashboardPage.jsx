@@ -1,7 +1,7 @@
 // Employee Portal — My Dashboard. Each card loads independently from the
 // employee's own records (RLS restricts every query to the caller).
 import { useNavigate } from "react-router-dom";
-import { Bell, CalendarCheck, Clock, HeartHandshake, Megaphone, Package, Wallet } from "lucide-react";
+import { Bell, CalendarCheck, Clock, HeartHandshake, Package, Wallet } from "lucide-react";
 import { useAuth } from "@/hr/platform/auth";
 import { formatDate, formatDateTime, formatMoney, from, minutesToHm, rpc, run, useHrQuery } from "@/lib/hr/client";
 import { Badge, Button, Card, EmptyState, ErrorState, Loading, PageHeader, StatusBadge } from "@/hr/ui";
@@ -23,7 +23,6 @@ export default function EmployeeDashboardPage() {
   const balances = useHrQuery(() => rpc("hr_my_leave_balances", {}), []);
   const payslip = useHrQuery(() => run(from("hr_payslips").select("id, period_start, period_end, net, published_at").order("period_end", { ascending: false }).limit(1)), []);
   const notices = useHrQuery(() => run(from("hr_notifications").select("id, title, created_at, read_at").is("read_at", null).order("created_at", { ascending: false }).limit(5)), []);
-  const news = useHrQuery(() => run(from("hr_announcements").select("id, title, category, published_at, requires_acknowledgement").eq("status", "published").order("published_at", { ascending: false }).limit(4)), []);
   const assets = useHrQuery(() => run(from("hr_asset_assignments").select("id, acknowledged_at, asset:hr_assets(asset_tag, asset_type, brand, model)").eq("status", "active")), []);
   const requests = useHrQuery(() => run(from("hr_requests").select("id, subject, status, created_at").eq("employee_id", me?.id).not("status", "in", "(closed,cancelled)").order("created_at", { ascending: false }).limit(4)), [me?.id]);
   const t = today.data;
@@ -53,9 +52,6 @@ export default function EmployeeDashboardPage() {
         </Section>
         <Section title="Unread notifications" icon={Bell} to="/employee/notifications" query={notices} empty={notices.data && !notices.data.length ? "You're all caught up" : null}>
           <ul className="flex flex-col gap-1.5 text-sm">{(notices.data ?? []).map((n) => <li key={n.id} className="flex justify-between gap-2"><span className="truncate font-medium text-[#101a3a]">{n.title}</span><span className="shrink-0 text-xs text-slate-500">{formatDate(n.created_at)}</span></li>)}</ul>
-        </Section>
-        <Section title="Announcements" icon={Megaphone} to="/employee/announcements" query={news} empty={news.data && !news.data.length ? "No announcements" : null}>
-          <ul className="flex flex-col gap-1.5 text-sm">{(news.data ?? []).map((a) => <li key={a.id} className="flex items-center justify-between gap-2"><span className="truncate font-medium text-[#101a3a]">{a.title}</span>{a.requires_acknowledgement && <Badge tone="orange">ack</Badge>}</li>)}</ul>
         </Section>
         <Section title="My assets" icon={Package} to="/employee/assets" query={assets} empty={assets.data && !assets.data.length ? "No assets assigned" : null}>
           <ul className="flex flex-col gap-1.5 text-sm">{(assets.data ?? []).map((a) => <li key={a.id} className="flex items-center justify-between gap-2"><span className="truncate">{a.asset?.asset_tag} · {a.asset?.asset_type}</span>{!a.acknowledged_at && <Badge tone="orange">acknowledge</Badge>}</li>)}</ul>

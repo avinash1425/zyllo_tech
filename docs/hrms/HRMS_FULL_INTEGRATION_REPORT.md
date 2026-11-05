@@ -47,6 +47,19 @@ Apply order is the filename order: 100–118 → 120 → 125 → 128 → 129 →
   - `browser-flows-m4`, `-m5-attendance`, `-leave`, `-payroll`, `-m8`, `-m9`, `-m10`, `-assets`
   - Module 12 has a browser plan only, never run.
 
+## Scope: only the 12 modules (owner decision, 2026-11-05)
+
+- **Kept:** HR Operations shows exactly the 12 session modules, in session order: Dashboard, Employee Management, Recruitment & Hiring (with Interns), Onboarding & Exit, Attendance & Time, Leave Management, Payroll & Salary, Daily Work Reports, Employee Documents, Requests & Approvals, Asset Allocation and Reports & Analytics. HR Settings stays as the configuration screen for them.
+- **Exit cases:** `/hr/exits` stays, without a menu entry, because Onboarding & Exit opens exit cases there.
+- **Removed from the UI:** Org Structure, Benefits, Training, Performance and Announcements.
+  - Their HR pages, Employee Portal pages (My Benefits, My Training, My Performance, Announcements) and settings tabs (Benefit plans, Training categories, Review cycles, KPI definitions) are deleted.
+  - Their data-layer files are deleted.
+  - The Training and Benefits report templates are deleted.
+- **Kept in the database:** migrations 106, 108, 114 and 115.
+  - Other modules depend on them: Onboarding induction (130) links training courses, and the dashboard and report RPCs (112, 116, 117, 190) reference them.
+  - Removing the tables would break the 12 modules, so they are inert, with no UI.
+- **Performance Reports:** these stay in Reports & Analytics, as Session 12 specified. They now show no data, because there is no Performance module to create reviews.
+
 ## Integration fixes (2026-11-05, after the merge)
 
 | Migration | Fix |

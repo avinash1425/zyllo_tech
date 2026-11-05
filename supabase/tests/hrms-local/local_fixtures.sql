@@ -272,10 +272,10 @@ begin
   -- HR Requests, Module 10), so these synthetic payroll-side rows are inserted as owner.
   perform hrms_local.act_as_owner();
   insert into public.hr_reimbursements (employee_id, claim_date, category, amount, description)
-  values (hrms_local.emp('employee@example.com'), hrms_local.past_workday(3), 'travel', 1250, 'Synthetic client visit cab fare (local harness)')
+  values (hrms_local.emp('demo.engineer3@example.com'), hrms_local.past_workday(3), 'travel', 1250, 'Synthetic client visit cab fare (local harness)')
   returning id into v_claim;
   insert into public.hr_reimbursements (employee_id, claim_date, category, amount, description)
-  values (hrms_local.emp('employee@example.com'), hrms_local.past_workday(2), 'internet', 799, 'Synthetic home internet (local harness)');
+  values (hrms_local.emp('demo.engineer3@example.com'), hrms_local.past_workday(2), 'internet', 799, 'Synthetic home internet (local harness)');
   perform hrms_local.act_as('payroll.admin@example.com');
   perform public.hr_decide_reimbursement(v_claim, true, 'Approved (synthetic).');
   perform hrms_local.act_as_owner();
