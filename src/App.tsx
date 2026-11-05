@@ -10,6 +10,14 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import SiteChrome from "./components/SiteChrome";
 
 const Index = lazy(() => import("./pages/Index"));
+// HRMS (HR Operations + Employee Portal). Lazy-loaded and wrapped in its own
+// HrAuthProvider so the marketing site and the website admin login are untouched.
+const HrAuthProvider = lazy(() => import("./hr/platform/auth").then((m) => ({ default: m.HrAuthProvider })));
+const HrLoginPage = lazy(() => import("./hr/platform/HrLoginPage"));
+const HrApp = lazy(() => import("./hr/HrApp"));
+const EmployeeApp = lazy(() => import("./employee/EmployeeApp"));
+const ActivatePage = lazy(() => import("./employee/pages/ActivatePage"));
+const AccountPending = lazy(() => import("./hr/platform/AccountPending"));
 const ServicesPage = lazy(() => import("./pages/ServicesPage"));
 const ServiceDetailPage = lazy(() => import("./pages/ServiceDetailPage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
@@ -133,6 +141,13 @@ const App = () => (
                     </AuthProvider>
                   }
                 />
+                {/* HRMS */}
+                <Route path="/hr/login" element={<HrAuthProvider><HrLoginPage /></HrAuthProvider>} />
+                <Route path="/hr/*" element={<HrAuthProvider><HrApp /></HrAuthProvider>} />
+                <Route path="/employee/login" element={<Navigate to="/hr/login?next=/employee" replace />} />
+                <Route path="/employee/activate" element={<HrAuthProvider><ActivatePage /></HrAuthProvider>} />
+                <Route path="/employee/*" element={<HrAuthProvider><EmployeeApp /></HrAuthProvider>} />
+                <Route path="/account-pending" element={<HrAuthProvider><AccountPending /></HrAuthProvider>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>

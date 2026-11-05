@@ -1,0 +1,14 @@
+-- 198: Candidate resume privacy (Recruitment & Hiring).
+--
+-- The original site migration 002_resume_storage.sql created
+--   create policy "Public can view resumes" on storage.objects for select using (bucket_id = 'resumes');
+-- which lets anyone (anon and every signed-in employee) read candidate resume
+-- PDFs. Later site hardening (001_rls_for_browser_app.sql in this repo;
+-- 012_restrict_resume_read_access.sql in the website repo) intends resumes to
+-- be readable only by admins / authorised HR, but a database built from the
+-- migration chain alone can still carry the 002 policy.
+--
+-- HRMS rule (104 / 120): resumes are visible only to recruitment staff through
+-- the HRMS storage policies and to site admins. Drop the public read policy.
+-- Idempotent: a no-op where the policy was already removed.
+drop policy if exists "Public can view resumes" on storage.objects;

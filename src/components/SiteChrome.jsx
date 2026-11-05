@@ -19,9 +19,11 @@ export default function SiteChrome({ children, user = undefined }) {
     initAnalytics();
   }, []);
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
+  // HRMS portals have their own full-screen app shell (no site header/footer).
+  const isHrms = /^\/(hr|employee|account-pending)(\/|$)/.test(pathname);
   const isLogin = pathname === "/login";
 
-  if (isAdmin) {
+  if (isAdmin || isHrms) {
     return <>{children}</>;
   }
 
