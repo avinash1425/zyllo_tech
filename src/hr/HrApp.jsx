@@ -11,7 +11,7 @@ import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import {
   BarChart3, CalendarCheck, ClipboardList, Clock, FileText, Gauge, HeartHandshake,
-  LogOut, Package, School, Settings, UserCheck, UserPlus, Users, Wallet,
+  LogOut, Package, Settings, UserCheck, UserPlus, Users, Wallet,
 } from "lucide-react";
 import Seo from "@/hr/platform/Seo";
 import AppShell from "@/hr/AppShell";
@@ -30,7 +30,6 @@ export const HR_MODULES = [
   { path: "", label: "HR Dashboard", icon: Gauge, section: "HR Modules", permissions: ["dashboard.view", "dashboard.view_team"], page: lazy(() => import("./pages/HrDashboardPage.jsx")), end: true },
   { path: "employees", label: "Employee Management", icon: Users, section: "HR Modules", permissions: ["employees.view", "employees.view_team"], page: lazy(() => import("./pages/EmployeesPage.jsx")) },
   { path: "recruitment", label: "Recruitment & Hiring", icon: UserPlus, section: "HR Modules", permissions: ["recruitment.view", "recruitment.manage", "recruitment.convert", "recruitment.export", ...INTERN_PERMS], page: lazy(() => import("./pages/RecruitmentPage.jsx")), exclude: ["/hr/recruitment/interns"] },
-  { nav: "/hr/recruitment/interns", label: "Interns", icon: School, section: "HR Modules", permissions: INTERN_PERMS },
   { path: "onboarding-exit", label: "Onboarding & Exit", icon: UserCheck, section: "HR Modules", permissions: LIFECYCLE_PERMISSIONS, page: lazy(() => import("./pages/lifecycle/OnboardingExitPage.jsx")) },
   { path: "attendance", label: "Attendance & Time", icon: Clock, section: "HR Modules", permissions: ["attendance.view", "attendance.view_team"], page: lazy(() => import("./pages/AttendancePage.jsx")) },
   { path: "leave", label: "Leave Management", icon: CalendarCheck, section: "HR Modules", permissions: ["leave.view", "leave.view_team", "leave.manage"], page: lazy(() => import("./pages/LeavePage.jsx")) },
