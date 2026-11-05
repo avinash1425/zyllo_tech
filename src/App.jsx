@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import SiteChrome from "@/components/SiteChrome";
 import OrganizationJsonLd from "@/components/OrganizationJsonLd";
 import ScrollToTopOnRoute from "@/components/ScrollToTopOnRoute";
@@ -24,6 +24,15 @@ const Login = lazy(() => import("./pages/Login.jsx"));
 const NotFound = lazy(() => import("./pages/NotFound.jsx"));
 const AdminRoutes = lazy(() => import("./admin/AdminRoutes.jsx"));
 
+// HRMS (HR Operations + Employee Portal). Lazy-loaded and wrapped in its own
+// HrAuthProvider so the marketing site and the website admin login are untouched.
+const HrAuthProvider = lazy(() => import("./hr/platform/auth").then((m) => ({ default: m.HrAuthProvider })));
+const HrLoginPage = lazy(() => import("./hr/platform/HrLoginPage"));
+const HrApp = lazy(() => import("./hr/HrApp"));
+const EmployeeApp = lazy(() => import("./employee/EmployeeApp"));
+const ActivatePage = lazy(() => import("./employee/pages/ActivatePage"));
+const AccountPending = lazy(() => import("./hr/platform/AccountPending"));
+
 export default function App() {
   return (
     <>
@@ -34,6 +43,13 @@ export default function App() {
         <Routes>
           {/* Admin has its own shell + auth guard (src/admin/AdminRoutes.jsx) */}
           <Route path="/admin/*" element={<AdminRoutes />} />
+          {/* HRMS has its own full-screen shell (no site header/footer) */}
+          <Route path="/hr/login" element={<HrAuthProvider><HrLoginPage /></HrAuthProvider>} />
+          <Route path="/hr/*" element={<HrAuthProvider><HrApp /></HrAuthProvider>} />
+          <Route path="/employee/login" element={<Navigate to="/hr/login?next=/employee" replace />} />
+          <Route path="/employee/activate" element={<HrAuthProvider><ActivatePage /></HrAuthProvider>} />
+          <Route path="/employee/*" element={<HrAuthProvider><EmployeeApp /></HrAuthProvider>} />
+          <Route path="/account-pending" element={<HrAuthProvider><AccountPending /></HrAuthProvider>} />
           <Route element={<SiteChrome />}>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />

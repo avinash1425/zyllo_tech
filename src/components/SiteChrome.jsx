@@ -15,9 +15,11 @@ export default function SiteChrome() {
   const pathname = usePathname();
   const { user } = useAuth();
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
+  // HRMS portals have their own full-screen app shell (no site header/footer).
+  const isHrms = /^\/(hr|employee|account-pending)(\/|$)/.test(pathname);
   const isLogin = pathname === "/login";
 
-  if (isAdmin) {
+  if (isAdmin || isHrms) {
     return <Outlet />;
   }
 
