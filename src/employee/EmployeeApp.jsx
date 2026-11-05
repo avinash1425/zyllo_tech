@@ -4,7 +4,7 @@
 import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import {
-  BarChart3, Bell, BookOpen, CalendarCheck, ClipboardCheck, DoorOpen, UserCheck, ClipboardList, Clock, FileText, HeartHandshake, KanbanSquare, LayoutDashboard, Package, User, Wallet,
+  BarChart3, Bell, BookOpen, CalendarCheck, ClipboardCheck, DoorOpen, GraduationCap, UserCheck, ClipboardList, Clock, FileText, HeartHandshake, KanbanSquare, LayoutDashboard, Package, User, Wallet,
 } from "lucide-react";
 import Seo from "@/hr/platform/Seo";
 import AppShell from "@/hr/AppShell";

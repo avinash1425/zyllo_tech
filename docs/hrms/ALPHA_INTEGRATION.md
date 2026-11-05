@@ -1,5 +1,7 @@
 # HRMS in this repository (alpha branch)
 
+> **To try it locally with test accounts, see [RUN_LOCALLY.md](RUN_LOCALLY.md).**
+
 The Zyllo Tech HRMS was built in the internal Vite/React project and ported here on 2026-11-05. This file covers only what is specific to this repo. The module docs in this folder describe the HR functionality itself.
 
 ## What was added

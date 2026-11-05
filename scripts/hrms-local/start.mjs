@@ -114,8 +114,11 @@ try {
 
   const steps = [
     "supabase/tests/hr/_supabase_local_shim.sql",
-    "supabase/schema/000_full_schema.sql",
-    "supabase/policies/001_rls_for_browser_app.sql",
+    // Base schema: the consolidated dump when the repo has one, otherwise the
+    // repo's own (non-HRMS) migrations in filename order.
+    ...(existsSync(path.join(ROOT, "supabase/schema/000_full_schema.sql"))
+      ? ["supabase/schema/000_full_schema.sql", "supabase/policies/001_rls_for_browser_app.sql"]
+      : readdirSync(path.join(ROOT, "supabase/migrations")).filter((f) => f.endsWith(".sql") && !/^1\d\d_hr_/.test(f)).sort().map((f) => `supabase/migrations/${f}`)),
     ...readdirSync(path.join(ROOT, "supabase/migrations")).filter((f) => /^1\d\d_hr_.*\.sql$/.test(f)).sort().map((f) => `supabase/migrations/${f}`),
     "supabase/seed/hr_dev_seed.sql",
     "supabase/tests/hrms-local/local_harness.sql",
@@ -124,6 +127,12 @@ try {
   for (const rel of steps) {
     const t0 = Date.now();
     const r = psqlFileSync(pg, path.join(ROOT, rel));
+    // Site (non-HRMS) migrations may not all replay on an empty database
+    // (some assume columns that exist only on the live project): warn, continue.
+    if (!r.ok && /^supabase\/migrations\//.test(rel) && !/^supabase\/migrations\/1\d\d_hr_/.test(rel)) {
+      console.log(`WARN     ${rel}  (site migration did not replay on an empty database; HRMS does not need it)`);
+      continue;
+    }
     if (!r.ok) {
       console.log(`FAILED   ${rel}`);
       console.log(r.out.split(/\r?\n/).filter((l) => /ERROR|FATAL|LINE|CONTEXT|DETAIL|HINT|\^/.test(l)).slice(0, 25).join("\n"));
@@ -210,17 +219,27 @@ try {
       writeState({ anonKey });
       await waitFor(async () => (await fetch(`http://127.0.0.1:${WEB_PORT}/`)).ok, { what: "Vite", tries: 240 });
       // Prove the second dev server is wired to the local API, not live Supabase.
-      const envModule = await (await fetch(`http://127.0.0.1:${WEB_PORT}/src/lib/env.js`)).text();
-      const wired = envModule.includes(`http://127.0.0.1:${API_PORT}`) && !/supabase\.co/i.test(envModule);
+      // The module that reads VITE_SUPABASE_URL differs per repo.
+      const envPath = existsSync(path.join(ROOT, "src/lib/env.js")) ? "/src/lib/env.js" : "/src/integrations/supabase/client.ts";
+      const envModule = await (await fetch(`http://127.0.0.1:${WEB_PORT}${envPath}`)).text();
+      // src/lib/env.js must not mention supabase.co at all. A client module
+      // with a hard-coded fallback URL (src/integrations/supabase/client.ts) is
+      // accepted only when Vite injected VITE_SUPABASE_URL=<local API>, which
+      // takes precedence over that fallback.
+      const injected = new RegExp(`"VITE_SUPABASE_URL"\\s*:\\s*"http://127\\.0\\.0\\.1:${API_PORT}"`).test(envModule);
+      const wired = envPath === "/src/lib/env.js"
+        ? envModule.includes(`http://127.0.0.1:${API_PORT}`) && !/supabase\.co/i.test(envModule)
+        : injected;
       if (!wired) throw new Error("Vite on the test port did not pick up VITE_SUPABASE_URL=http://127.0.0.1:" + API_PORT + " — refusing to continue.");
-      console.log(`[hrms-local] Vite ready on http://127.0.0.1:${WEB_PORT} (verified /src/lib/env.js → local API)`);
+      console.log(`[hrms-local] Vite ready on http://127.0.0.1:${WEB_PORT} (verified ${envPath} → local API)`);
     }
     writeState({ anonKey });
   }
 
   // ---------------------------------------------------------------- summary
   console.log("\n================ Zyllo HRMS LOCAL TEST HARNESS (synthetic data only) ================");
-  if (WITH_WEB) console.log(`  Web (test):  http://127.0.0.1:${WEB_PORT}/login   →  /hr  /employee`);
+  const loginPath = existsSync(path.join(ROOT, "src/hr/platform/HrLoginPage.jsx")) ? "/hr/login" : "/login";
+  if (WITH_WEB) console.log(`  Web (test):  http://127.0.0.1:${WEB_PORT}${loginPath}   →  /hr  /employee`);
   if (!opts.dbOnly) console.log(`  API:         http://127.0.0.1:${API_PORT}   (rest/v1, auth/v1, storage/v1, functions/v1)`);
   console.log(`  Postgres:    psql -h 127.0.0.1 -p ${pgPort} -U ${PG_USER} -d postgres`);
   console.log(`  State file:  ${STATE_FILE}`);
