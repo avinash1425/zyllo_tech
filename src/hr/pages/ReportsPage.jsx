@@ -29,7 +29,7 @@ const IDENT = ["employees.view_identity"];
 const ATT = ["attendance.view", "attendance.view_team"];
 const LEAVE = ["leave.view", "leave.view_team", "leave.manage"];
 export const REPORT_GROUPS = ["Workforce & headcount", "Diversity & demographics", "Organisation structure", "Deployment", "Compliance & documents",
-  "Leave", "Attendance", "Daily work", "Payroll", "Recruitment", "Training", "Performance", "Benefits", "Exit management"];
+  "Leave", "Attendance", "Daily work", "Payroll", "Recruitment", "Performance", "Exit management"];
 export const REPORTS = [
   { key: "headcount", label: "Headcount by department & type", group: "Workforce & headcount" },
   { key: "workforce_by_company", label: "Headcount by company", group: "Workforce & headcount" },
@@ -68,11 +68,7 @@ export const REPORTS = [
   { key: "payroll_summary", label: "Payroll summary (Final / Provisional)", group: "Payroll", needs: ["payroll.view"] },
   { key: "recruitment_pipeline", label: "Recruitment pipeline", group: "Recruitment", needs: ["recruitment.view", "recruitment.manage"] },
   { key: "intern_progress", label: "Intern progress", group: "Recruitment" },
-  { key: "training_completion", label: "Training completion", group: "Training", needs: ["training.view", "training.view_team"] },
-  { key: "training_overdue", label: "Overdue training", group: "Training", needs: ["training.view", "training.view_team"] },
   { key: "performance_summary", label: "Performance summary", group: "Performance" },
-  { key: "benefits_enrollment", label: "Benefit enrollment summary", group: "Benefits", needs: ["benefits.view", "benefits.manage"] },
-  { key: "benefits_roster", label: "Benefit enrollments", group: "Benefits", needs: ["benefits.view", "benefits.manage"] },
   { key: "exit_summary", label: "Exit cases (resignations & exits)", group: "Exit management" },
   { key: "completed_exits", label: "Completed exits (attrition basis)", group: "Exit management" },
 ];

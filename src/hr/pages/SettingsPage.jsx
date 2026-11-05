@@ -160,8 +160,8 @@ const GROUP_OF = {
   company: "Organisation", employee_id: "Organisation", legal_entities: "Organisation", departments: "Organisation", designations: "Organisation",
   grades: "Organisation", locations: "Organisation", employment_types: "Organisation",
   shifts: "Time, leave & approvals", holidays: "Time, leave & approvals", leave_types: "Time, leave & approvals", leave_balances: "Time, leave & approvals", module_rules: "Time, leave & approvals",
-  salary_components: "Pay, benefits & talent", benefit_plans: "Pay, benefits & talent", training_categories: "Pay, benefits & talent",
-  review_cycles: "Pay, benefits & talent", kpi_definitions: "Pay, benefits & talent", projects: "Pay, benefits & talent",
+  salary_components: "Pay, benefits & talent",
+  projects: "Pay, benefits & talent",
   document_categories: "Compliance, requests & access", identity_rules: "Compliance, requests & access", request_categories: "Compliance, requests & access",
   templates: "Compliance, requests & access", roles: "Compliance, requests & access", audit: "Compliance, requests & access",
 };
