@@ -108,27 +108,55 @@ language sql as $$
   insert into auth.users (email) values (p_email) returning id
 $$;
 
--- Impersonate a signed-in user for the rest of the transaction.
+-- A live session for the user, like a real Supabase sign-in: reuse the newest
+-- existing row, or create one ("signs in again" after a revocation).
+-- SECURITY DEFINER so it works while a test is impersonating someone.
+create or replace function test.session_for(p_user uuid) returns uuid
+language plpgsql security definer as $$
+declare v uuid;
+begin
+  select id into v from auth.sessions where user_id = p_user order by created_at desc, id limit 1;
+  if v is null then
+    insert into auth.sessions (user_id) values (p_user) returning id into v;
+  end if;
+  return v;
+end $$;
+
+-- Impersonate a signed-in user for the rest of the transaction. Like every
+-- Supabase access token, the claims carry the session_id (migration 202).
 create or replace function test.as_user(p_user uuid) returns void
 language plpgsql as $$
 begin
   perform set_config('request.jwt.claims',
-    json_build_object('sub', p_user, 'role', 'authenticated')::text, true);
-  perform set_config('role', 'authenticated', true);
+    json_build_object('sub', p_user, 'role', 'authenticated', 'session_id', test.session_for(p_user))::text, true);
+  perform set_config('hr.session_key', '', true);   -- drop migration 202's per-request session cache
+  perform set_config('role','authenticated', true);
+end $$;
+
+-- Impersonate with explicit claims (e.g. a token whose session has ended).
+create or replace function test.as_claims(p_user uuid, p_session uuid) returns void
+language plpgsql as $$
+begin
+  perform set_config('request.jwt.claims',
+    json_build_object('sub', p_user, 'role', 'authenticated', 'session_id', p_session)::text, true);
+  perform set_config('hr.session_key', '', true);   -- drop migration 202's per-request session cache
+  perform set_config('role','authenticated', true);
 end $$;
 
 create or replace function test.as_anon() returns void
 language plpgsql as $$
 begin
   perform set_config('request.jwt.claims', json_build_object('role', 'anon')::text, true);
-  perform set_config('role', 'anon', true);
+  perform set_config('hr.session_key', '', true);   -- drop migration 202's per-request session cache
+  perform set_config('role','anon', true);
 end $$;
 
 create or replace function test.as_service() returns void
 language plpgsql as $$
 begin
   perform set_config('request.jwt.claims', json_build_object('role', 'service_role')::text, true);
-  perform set_config('role', 'service_role', true);
+  perform set_config('hr.session_key', '', true);   -- drop migration 202's per-request session cache
+  perform set_config('role','service_role', true);
 end $$;
 
 -- Back to the superuser.
@@ -136,7 +164,8 @@ create or replace function test.as_owner() returns void
 language plpgsql as $$
 begin
   perform set_config('request.jwt.claims', '', true);
-  perform set_config('role', 'none', true);
+  perform set_config('hr.session_key', '', true);   -- drop migration 202's per-request session cache
+  perform set_config('role','none', true);
 end $$;
 
 create or replace function test.ok(p_cond boolean, p_msg text) returns void

@@ -67,6 +67,7 @@ export function HrAuthProvider({ children }) {
   const [hr, setHr] = useState(null); // hr_me() payload
   const [isSiteAdmin, setIsSiteAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [sessionEnded, setSessionEnded] = useState(false);
 
   const loadProfile = useCallback(async (sessionUser) => {
     if (!sessionUser) { setHr(null); setIsSiteAdmin(false); return { hr: null, isSiteAdmin: false }; }
@@ -74,6 +75,15 @@ export function HrAuthProvider({ children }) {
       supabase.rpc("hr_me").then((r) => r, () => ({ data: null })),
       loadSiteAdmin().catch(() => false),
     ]);
+    // Migration 202: this device's session was ended elsewhere (sign-out on
+    // all devices, reset, deactivation, exit revocation). Clear it locally and
+    // send the user to sign in again instead of showing "Access disabled".
+    if (me?.session_ended) {
+      setSessionEnded(true);
+      await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+      setUser(null); setHr(null); setIsSiteAdmin(false);
+      return { hr: null, isSiteAdmin: false, sessionEnded: true };
+    }
     setHr(me ?? null);
     setIsSiteAdmin(admin);
     return { hr: me ?? null, isSiteAdmin: admin };
@@ -102,6 +112,7 @@ export function HrAuthProvider({ children }) {
     hr,
     isSiteAdmin,
     loading,
+    sessionEnded,
     destination: destinationFor({ user, hr, isSiteAdmin }),
     hasPermission: (key) => Boolean(hr?.permissions?.includes(key)),
     refreshProfile: () => loadProfile(user),
@@ -119,7 +130,9 @@ export function HrAuthProvider({ children }) {
         }
         return generic;
       }
+      setSessionEnded(false);
       const profile = await loadProfile(res.data.user);
+      if (profile.sessionEnded) return generic;
       return { ...res, hr: profile.hr, destination: destinationFor({ user: res.data.user, ...profile }) };
     },
     // Self-registration is disabled for the HRMS: HR creates Employee ID
@@ -128,11 +141,13 @@ export function HrAuthProvider({ children }) {
       data: null,
       error: { message: "Accounts are created by Zyllo Tech HR. Ask HR for your Employee ID and temporary password." },
     }),
+    // Ordinary sign-out ends THIS device's session only. Security revocations
+    // (deactivate, reset, exit, suspension) end all sessions server-side.
     signOut: async () => {
-      await supabase.auth.signOut().catch(() => {});
+      await supabase.auth.signOut({ scope: "local" }).catch(() => {});
       setUser(null); setHr(null); setIsSiteAdmin(false);
     },
-  }), [user, hr, isSiteAdmin, loading, loadProfile]);
+  }), [user, hr, isSiteAdmin, loading, sessionEnded, loadProfile]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

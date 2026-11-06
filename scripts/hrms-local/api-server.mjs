@@ -218,7 +218,7 @@ function authenticate(req) {
 }
 
 // ------------------------------------------------------------------ GoTrue
-const refreshTokens = new Map();   // token -> { userId, createdAt, revoked }
+const refreshTokens = new Map();   // token -> { userId, sessionId, createdAt, revoked }
 
 function gotrueUser(u) {
   return {
@@ -229,16 +229,21 @@ function gotrueUser(u) {
   };
 }
 
-function issueSession(u) {
+// Like GoTrue: a sign-in creates an auth.sessions row; a refresh keeps the
+// same session_id. (Migration 202 requires the session row to exist.)
+async function issueSession(u, existingSessionId = null) {
   const now = Math.floor(Date.now() / 1000);
-  const sessionId = randomUUID();
+  const sessionId = existingSessionId || randomUUID();
+  if (!existingSessionId) {
+    await adminJson(`insert into auth.sessions (id, user_id) values (${lit(sessionId)}::uuid, ${lit(u.id)}::uuid) returning null;`);
+  }
   const access = signJwt({
     iss: `http://127.0.0.1:${API_PORT}/auth/v1`, sub: u.id, aud: "authenticated", role: "authenticated", email: u.email,
     exp: now + ACCESS_TTL, iat: now, session_id: sessionId, aal: "aal1", amr: [{ method: "password", timestamp: now }],
     app_metadata: { provider: "email", providers: ["email"] }, user_metadata: u.raw_user_meta_data || {}, is_anonymous: false,
   }, SECRET);
   const refresh = randomBytes(24).toString("base64url");
-  refreshTokens.set(refresh, { userId: u.id, createdAt: Date.now(), revoked: false });
+  refreshTokens.set(refresh, { userId: u.id, sessionId, createdAt: Date.now(), revoked: false });
   return { access_token: access, token_type: "bearer", expires_in: ACCESS_TTL, expires_at: now + ACCESS_TTL, refresh_token: refresh, user: gotrueUser(u) };
 }
 
@@ -271,7 +276,7 @@ async function handleAuth(ctx, sub) {
       if (!row || !row.ok) return authError(ctx, 400, "invalid_credentials", "Invalid login credentials", "invalid_grant");
       if (row.banned) return authError(ctx, 400, "user_banned", "User is banned", "invalid_grant");
       ctx.role = "authenticated";
-      return send(ctx, 200, issueSession(row.user));
+      return send(ctx, 200, await issueSession(row.user));
     }
     if (grant === "refresh_token") {
       const rt = refreshTokens.get(String(body.refresh_token || ""));
@@ -279,9 +284,12 @@ async function handleAuth(ctx, sub) {
       const u = await adminJson(`select jsonb_build_object('banned', coalesce(u.banned_until > now(), false), 'user', to_jsonb(u)) from auth.users u where u.id = ${lit(rt.userId)}::uuid;`);
       if (!u) return authError(ctx, 400, "user_not_found", "User not found", "invalid_grant");
       if (u.banned) return authError(ctx, 400, "user_banned", "User is banned", "invalid_grant");
+      // A deleted session (sign-out, revocation) invalidates its refresh tokens, as in GoTrue.
+      const live = await adminJson(`select to_jsonb(exists (select 1 from auth.sessions where id = ${lit(rt.sessionId)}::uuid));`);
+      if (!live) { rt.revoked = true; return authError(ctx, 400, "session_not_found", "Session from session_id claim in JWT does not exist", "invalid_grant"); }
       rt.revoked = true;
       ctx.role = "authenticated";
-      return send(ctx, 200, issueSession(u.user));
+      return send(ctx, 200, await issueSession(u.user, rt.sessionId));
     }
     return authError(ctx, 400, "validation_failed", "unsupported_grant_type", "unsupported_grant_type");
   }
@@ -319,8 +327,17 @@ async function handleAuth(ctx, sub) {
     return send(ctx, 200, gotrueUser(await userById(u.id)));
   }
   if (sub === "/logout" && req.method === "POST") {
+    // GoTrue semantics: local = this session, global = all of the user's
+    // sessions, others = all but this one. Deleting the auth.sessions row also
+    // ends access for still-unexpired access tokens (migration 202).
     const scope = url.searchParams.get("scope") || "global";
-    if (scope !== "local") for (const [, v] of refreshTokens) if (v.userId === a.claims.sub) v.revoked = true;
+    const me = String(a.claims.session_id || "");
+    const ends = (v) => v.userId === a.claims.sub && (scope === "global" || (scope === "local" ? v.sessionId === me : v.sessionId !== me));
+    for (const [, v] of refreshTokens) if (ends(v)) v.revoked = true;
+    const where = scope === "local" ? `id = ${lit(me)}::uuid`
+      : scope === "others" ? `user_id = ${lit(a.claims.sub)}::uuid and id <> ${lit(me)}::uuid`
+      : `user_id = ${lit(a.claims.sub)}::uuid`;
+    if (/^[0-9a-f-]{36}$/i.test(me) || scope === "global") await adminJson(`delete from auth.sessions where ${where} returning null;`);
     return send(ctx, 204, null);
   }
   return send(ctx, 404, { code: 404, error_code: "not_found", msg: `Endpoint ${sub} is not implemented by the local harness` });
