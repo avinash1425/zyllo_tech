@@ -558,7 +558,7 @@ function TemporaryPasswordModal({ issued, onClose }) {
               <Button size="sm" variant="secondary" onClick={copy}><Copy className="h-4 w-4" aria-hidden="true" />{copied ? "Copied" : "Copy"}</Button>
             </div>
           </div>
-          <p className="text-xs text-slate-500">Sign-in page: /hr/login. Do not send the password by email or chat.</p>
+          <p className="text-xs text-slate-500">Sign-in page: /login (Employee ID + this password). Do not send the password by email or chat.</p>
         </div>
       )}
     </Modal>

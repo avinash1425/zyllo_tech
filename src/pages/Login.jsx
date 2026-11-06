@@ -2,10 +2,11 @@
 
 import Image from "@/lib/nx/image";
 import Link from "@/lib/nx/link";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useActionState } from "react";
 import { useSearchParams, useRouter } from "@/lib/nx/navigation";
 import { useAuth } from "@/lib/auth";
+import { loginEmailFor, safeNext } from "@/hr/platform/account";
 import Seo from "@/components/Seo";
 import {
   ArrowLeft,
@@ -28,55 +29,79 @@ const HIGHLIGHTS = [
   { icon: ShieldCheck, label: "Permissioned access" },
 ];
 
-// Only allow same-site relative redirects (no open redirect). Returns null
-// when no usable ?next= was given, so sign-in picks the destination by role.
-function safeNext(value) {
-  return typeof value === "string" && value.startsWith("/") && !value.startsWith("//") ? value : null;
-}
-
 function NextRedirectField() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "";
   return <input type="hidden" name="next" value={next} />;
 }
 
-// One login page for everyone: HR staff go to HR Operations, employees to the
-// Employee Portal, everyone else to the website admin (whose own guard still
-// checks is_admin()). The HRMS module is loaded only after a successful sign-in.
-async function destinationByRole() {
+// THE login page for everyone (Website Admin, HR Admin, Employee). Email or
+// Employee ID + password, then by role: HR Admin -> /hr, Employee ->
+// /employee (Employee ID accounts with a temporary/expired password ->
+// /employee/set-password), Website Admin -> /admin, otherwise
+// /account-pending. A ?next= is honoured only when the account can open it.
+// The HRMS module is loaded only after a successful sign-in.
+async function destinationAfterSignIn(next) {
   try {
-    const { loadHrPortal } = await import("@/hr/platform/auth");
-    return (await loadHrPortal()) ?? "/admin";
+    const { resolveSignIn } = await import("@/hr/platform/auth");
+    return await resolveSignIn(next);
   } catch {
-    return "/admin";
+    return { sessionEnded: false, destination: "/account-pending" };
   }
 }
+
+const GENERIC_ERROR = "Incorrect email / Employee ID or password, or the account is not active.";
 
 export default function LoginPage() {
   const [mode, setMode] = useState("signin"); // "signin" | "signup"
   const [showPassword, setShowPassword] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, user, loading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const sessionEndedNotice = searchParams.get("reason") === "session_ended";
+  const redirecting = useRef(false);
 
-  // Replaces the old server action: sign in with supabase-js, then
-  // navigate to the ?next= target, or by role when none was given.
+  // Already signed in (e.g. opened /login or an old login link): go straight
+  // to the account's area. A session that was ended elsewhere is cleared.
+  useEffect(() => {
+    if (loading || !user || redirecting.current) return;
+    redirecting.current = true;
+    destinationAfterSignIn(safeNext(searchParams.get("next"))).then((r) => {
+      if (r.destination) router.replace(r.destination);
+      else redirecting.current = false;
+    });
+  }, [loading, user, router, searchParams]);
+
+  // Sign in with supabase-js, then go to the usable ?next= target or by role.
   async function signInAction(prevState, formData) {
-    const email = formData.get("email")?.toString().trim();
+    const identifier = formData.get("email")?.toString().trim();
     const password = formData.get("password")?.toString();
-    // A bare /admin (the old default) is not a real preference: route by role.
-    const rawNext = safeNext(formData.get("next")?.toString());
-    const requestedNext = rawNext === "/admin" || rawNext === "/admin/" ? null : rawNext;
+    const next = safeNext(formData.get("next")?.toString());
 
-    if (!email || !password) {
-      return { status: "error", message: "Please enter your email and password." };
+    if (!identifier || !password) {
+      return { status: "error", message: "Please enter your email or Employee ID, and your password." };
     }
+    // Employee ID (ZT-0007) -> internal login address; emails are used as typed.
+    const email = loginEmailFor(identifier);
+    if (!email) return { status: "error", message: GENERIC_ERROR };
 
+    redirecting.current = true;
     const { error } = await signIn(email, password);
     if (error) {
-      return { status: "error", message: "Invalid email or password." };
+      redirecting.current = false;
+      // 429 = Auth rate limit; the lockout hook rejects with its own message.
+      if (error.status === 429 || /too many sign-in attempts/i.test(error.message ?? "")) {
+        return { status: "error", message: "Too many sign-in attempts. Wait a few minutes and try again, or contact HR." };
+      }
+      return { status: "error", message: GENERIC_ERROR };
     }
 
-    router.replace(requestedNext ?? (await destinationByRole()));
+    const result = await destinationAfterSignIn(next);
+    if (!result.destination) {
+      redirecting.current = false;
+      return { status: "error", message: GENERIC_ERROR };
+    }
+    router.replace(result.destination);
     return { status: "success", message: "" };
   }
 
@@ -193,6 +218,11 @@ export default function LoginPage() {
                   <p className="mt-1.5 text-center text-sm text-white/60">
                     Sign in to your Zyllo Tech account
                   </p>
+                  {sessionEndedNotice && state.status !== "error" && (
+                    <p role="status" data-testid="session-ended" className="mt-4 rounded-lg border border-amber-300/30 bg-amber-400/10 px-3 py-2 text-center text-sm text-amber-200">
+                      Your session has ended. Please sign in again.
+                    </p>
+                  )}
 
                   <form action={formAction} className="mt-6 flex flex-col gap-3.5">
                     <Suspense fallback={<input type="hidden" name="next" value="" />}>
@@ -201,7 +231,7 @@ export default function LoginPage() {
 
                     <div>
                       <label htmlFor="email" className="mb-1 block text-sm font-medium text-white/80">
-                        Email
+                        Email or Employee ID
                       </label>
                       <div className="relative">
                         <Mail
@@ -211,10 +241,14 @@ export default function LoginPage() {
                         <input
                           id="email"
                           name="email"
-                          type="email"
-                          autoComplete="email"
+                          type="text"
+                          inputMode="email"
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                          spellCheck={false}
+                          autoComplete="username"
                           required
-                          placeholder="you@company.com"
+                          placeholder="you@company.com or ZT-0007"
                           className="w-full rounded-lg border border-white/20 bg-white/[0.08] py-2.5 pl-10 pr-3.5 text-sm text-white placeholder:text-white/30 outline-none transition-all duration-200 focus:border-[#f96706]/60 focus:shadow-[0_0_0_3px_rgba(249,103,6,0.12),0_0_20px_-6px_rgba(48,137,166,0.5)]"
                         />
                       </div>
@@ -264,6 +298,9 @@ export default function LoginPage() {
                     >
                       {isPending ? "Signing in..." : "Sign In"}
                     </button>
+                    <p className="text-center text-xs text-white/45">
+                      Employees: sign in with your Employee ID and the temporary password from HR. Forgot it? Ask HR to issue a new one.
+                    </p>
                   </form>
                 </>
               ) : (

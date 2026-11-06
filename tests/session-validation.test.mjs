@@ -18,9 +18,11 @@ test("an ended session is cleared locally and explained on the login page", () =
   const auth = read("src/hr/platform/auth.jsx");
   assert.match(auth, /me\?\.session_ended/);
   assert.match(auth, /setSessionEnded\(true\)/);
-  const login = read("src/hr/platform/HrLoginPage.jsx");
+  // One login page (/login): the guard sends ?reason=session_ended there.
+  const login = read("src/pages/Login.jsx");
   assert.match(login, /data-testid="session-ended"/);
-  assert.match(login, /id="hr-email"/); assert.match(login, /id="hr-password"/);
+  assert.match(login, /reason"\) === "session_ended"/);
+  assert.match(read("src/lib/hr/guards.jsx"), /reason=session_ended/);
 });
 
 test("Website Admin sign-in code is untouched by 202", () => {

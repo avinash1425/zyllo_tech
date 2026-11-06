@@ -61,7 +61,7 @@ export default function ActivatePage() {
         {state === "invalid" && (
           <div className="mt-4 text-sm text-slate-700">
             <p>This invitation link is invalid or has expired. Invitation links can be used once.</p>
-            <p className="mt-2">Ask HR to send a new invitation, or <a className="font-semibold text-[#1f4693] underline" href="/hr/login">sign in</a> if you already set your password.</p>
+            <p className="mt-2">Ask HR to send a new invitation, or <a className="font-semibold text-[#1f4693] underline" href="/login">sign in</a> if you already set your password.</p>
           </div>
         )}
         {state === "ready" && (

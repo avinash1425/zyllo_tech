@@ -70,7 +70,7 @@ export default function AppShell({ portalName, sections, notificationsPath, swit
 
   async function handleSignOut() {
     await signOut();
-    navigate("/hr/login", { replace: true });
+    navigate("/login", { replace: true });
   }
 
   return (

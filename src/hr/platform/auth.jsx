@@ -5,54 +5,40 @@
 // so the HRMS permission model does not change the website's admin/user login.
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/hr/platform/supabase";
-import { loginEmailFor } from "@/hr/platform/account";
+import { destinationFor, hrPortalFor, loginEmailFor, signInDestination } from "@/hr/platform/account";
 
 const AuthContext = createContext(null);
 
-const HR_HOME_PERMISSIONS = ["dashboard.view", "dashboard.view_team", "employees.view", "employees.view_team", "payroll.view", "settings.view", "recruitment.view", "reports.view", "reports.view_team"];
+// Routing rules live in account.js (pure, unit-tested); re-exported here so
+// existing imports keep working. There is ONE login page: /login.
+export {
+  EMPLOYEE_LOGIN_DOMAIN, LOGIN_PATH, SET_PASSWORD_PATH, destinationFor, hrPortalFor, loginEmailFor, safeNext,
+  signInDestination, usableNext,
+} from "@/hr/platform/account";
+export const HR_LOGIN_PATH = "/login"; // legacy name; /hr/login now redirects to /login
 
-export const HR_LOGIN_PATH = "/hr/login";
-export const SET_PASSWORD_PATH = "/employee/set-password";
-
-// Employee ID sign-in mapping (ZT-0007 -> zt-0007@staff.zyllotech.com); see account.js.
-export { EMPLOYEE_LOGIN_DOMAIN, loginEmailFor } from "@/hr/platform/account";
-
-// The HRMS portal an hr_me() payload grants, or null when it grants none.
-// An Employee ID account with a temporary or expired password has no access
-// until it chooses a new one (enforced in the database too).
-export function hrPortalFor(hr) {
-  if (hr?.login?.password_change_required) return SET_PASSWORD_PATH;
-  const perms = hr?.permissions ?? [];
-  if (perms.some((p) => HR_HOME_PERMISSIONS.includes(p))) return "/hr";
-  if (hr?.employee) return "/employee";
-  return null;
+// Used by the unified /login page right after a successful sign-in (or when an
+// already signed-in user opens /login): decides where the account goes.
+// Website Admin -> /admin, HR Admin -> /hr, Employee -> /employee, Employee ID
+// account with a temporary/expired password -> /employee/set-password,
+// nothing granted -> /account-pending. A ?next= is honoured only when usable.
+export async function resolveSignIn(next) {
+  const [{ data: me, error }, isSiteAdmin] = await Promise.all([
+    supabase.rpc("hr_me").then((r) => r, () => ({ data: null, error: true })),
+    loadSiteAdmin().catch(() => false),
+  ]);
+  const hr = error ? null : me;
+  if (hr?.session_ended) {
+    await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+    return { sessionEnded: true, destination: null };
+  }
+  return { sessionEnded: false, destination: signInDestination({ hr, isSiteAdmin, next }) };
 }
 
-// Used by the website's shared /login page: send the signed-in user to their
-// HRMS portal if they have one. Returns null when hr_me() is missing (e.g. a
-// project without the HRMS schema) or grants nothing, so the caller keeps its
-// default (/admin).
+// Kept for compatibility (older callers): the HRMS portal for the current session.
 export async function loadHrPortal() {
   const { data, error } = await supabase.rpc("hr_me");
   return error ? null : hrPortalFor(data);
-}
-
-export function destinationFor({ user, hr, isSiteAdmin }) {
-  if (!user) return HR_LOGIN_PATH;
-  const portal = hrPortalFor(hr);
-  if (portal) return portal;
-  if (isSiteAdmin) return "/admin";
-  return "/account-pending";
-}
-
-// Honour a ?next= HRMS path only when this account can open it; otherwise the
-// user would land on a "No employee profile" / "Not authorised" dead end.
-export function usableNext(next, hr) {
-  if (!next) return null;
-  if (hr?.login?.password_change_required) return null; // must choose a password first
-  if (/^\/employee(\/|$|\?)/.test(next)) return hr?.employee ? next : null;
-  if (/^\/hr(\/|$|\?)/.test(next)) return hrPortalFor(hr) === "/hr" ? next : null;
-  return next;
 }
 
 async function loadSiteAdmin() {

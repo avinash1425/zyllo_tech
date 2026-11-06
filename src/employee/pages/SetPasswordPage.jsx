@@ -25,7 +25,7 @@ export default function SetPasswordPage() {
   const [busy, setBusy] = useState(false);
 
   if (loading) return <div className="min-h-screen bg-[#0b0e17]"><Loading label="Checking your account…" /></div>;
-  if (!user) return <Navigate to="/hr/login?next=/employee/set-password" replace />;
+  if (!user) return <Navigate to="/login?next=/employee/set-password" replace />;
   // Email accounts (Website Admin / HR Admin / invited employees) do not use this page.
   if (!hr?.login) return <Navigate to={destination} replace />;
 
@@ -48,7 +48,7 @@ export default function SetPasswordPage() {
     const again = await signIn(hr.login.login_id, pw);
     setCurrent(""); setPw(""); setPw2("");
     setBusy(false);
-    if (again.error) { navigate("/hr/login", { replace: true }); return; }
+    if (again.error) { navigate("/login", { replace: true }); return; }
     navigate(again.destination === SET_PASSWORD_PATH ? "/employee" : again.destination, { replace: true });
   }
 
@@ -82,7 +82,7 @@ export default function SetPasswordPage() {
         <div className="mt-4 flex justify-between text-sm">
           {!required ? <a className="font-semibold text-[#1f4693] underline" href="/employee">Back to the portal</a> : <span />}
           <button type="button" className="inline-flex items-center gap-1 font-semibold text-slate-600 underline"
-            onClick={async () => { await signOut(); navigate("/hr/login", { replace: true }); }}>
+            onClick={async () => { await signOut(); navigate("/login", { replace: true }); }}>
             <LogOut className="h-4 w-4" aria-hidden="true" />Sign out
           </button>
         </div>

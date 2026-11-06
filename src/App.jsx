@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import SiteChrome from "@/components/SiteChrome";
 import OrganizationJsonLd from "@/components/OrganizationJsonLd";
 import ScrollToTopOnRoute from "@/components/ScrollToTopOnRoute";
@@ -27,7 +27,12 @@ const AdminRoutes = lazy(() => import("./admin/AdminRoutes.jsx"));
 // HRMS (HR Operations + Employee Portal). Lazy-loaded and wrapped in its own
 // HrAuthProvider so the marketing site and the website admin login are untouched.
 const HrAuthProvider = lazy(() => import("./hr/platform/auth").then((m) => ({ default: m.HrAuthProvider })));
-const HrLoginPage = lazy(() => import("./hr/platform/HrLoginPage"));
+// One login page for Website Admin, HR Admin and Employee: /login. The old
+// HRMS login URL keeps working and forwards its ?next= / ?reason=.
+function LegacyLoginRedirect() {
+  const { search } = useLocation();
+  return <Navigate to={`/login${search}`} replace />;
+}
 const HrApp = lazy(() => import("./hr/HrApp"));
 const EmployeeApp = lazy(() => import("./employee/EmployeeApp"));
 const ActivatePage = lazy(() => import("./employee/pages/ActivatePage"));
@@ -45,9 +50,9 @@ export default function App() {
           {/* Admin has its own shell + auth guard (src/admin/AdminRoutes.jsx) */}
           <Route path="/admin/*" element={<AdminRoutes />} />
           {/* HRMS has its own full-screen shell (no site header/footer) */}
-          <Route path="/hr/login" element={<HrAuthProvider><HrLoginPage /></HrAuthProvider>} />
+          <Route path="/hr/login" element={<LegacyLoginRedirect />} />
           <Route path="/hr/*" element={<HrAuthProvider><HrApp /></HrAuthProvider>} />
-          <Route path="/employee/login" element={<Navigate to="/hr/login?next=/employee" replace />} />
+          <Route path="/employee/login" element={<Navigate to="/login?next=/employee" replace />} />
           <Route path="/employee/activate" element={<HrAuthProvider><ActivatePage /></HrAuthProvider>} />
           <Route path="/employee/set-password" element={<HrAuthProvider><SetPasswordPage /></HrAuthProvider>} />
           <Route path="/employee/*" element={<HrAuthProvider><EmployeeApp /></HrAuthProvider>} />

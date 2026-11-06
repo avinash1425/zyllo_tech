@@ -15,7 +15,7 @@ function Blocked({ title, message }) {
         <p className="mt-2 text-sm text-slate-600">{message}</p>
         <div className="mt-5 flex justify-center gap-2">
           <Link href="/" className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-[#173a52] hover:bg-slate-50">Public website</Link>
-          <Link href="/hr/login" className="rounded-xl bg-gradient-to-r from-[#f7941e] to-[#f96706] px-4 py-2 text-sm font-semibold text-white">Sign in</Link>
+          <Link href="/login" className="rounded-xl bg-gradient-to-r from-[#f7941e] to-[#f96706] px-4 py-2 text-sm font-semibold text-white">Sign in</Link>
         </div>
       </div>
     </div>
@@ -26,7 +26,11 @@ function useGate() {
   const auth = useAuth();
   const location = useLocation();
   if (auth.loading) return { el: <div className="min-h-screen bg-[#f6f7fb]"><Loading label="Checking your access…" /></div> };
-  if (!auth.user) return { el: <Navigate to={`/hr/login?next=${encodeURIComponent(location.pathname + location.search)}`} replace /> };
+  if (!auth.user) {
+    // One login page for everyone. After a session ended elsewhere, say so.
+    const reason = auth.sessionEnded ? "&reason=session_ended" : "";
+    return { el: <Navigate to={`/login?next=${encodeURIComponent(location.pathname + location.search)}${reason}`} replace /> };
+  }
   // Employee ID account with a temporary / expired password (the set-password route is outside this gate).
   if (auth.hr?.login?.password_change_required) return { el: <Navigate to="/employee/set-password" replace /> };
   if (auth.hr?.revoked) return { el: <Blocked title="Access disabled" message="Your portal access has been disabled. Contact HR if you believe this is a mistake." /> };
