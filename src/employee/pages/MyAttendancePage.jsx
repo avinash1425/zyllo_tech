@@ -96,7 +96,7 @@ export default function MyAttendancePage() {
               ]} />
               <p className="mt-3 text-xs text-slate-500">Server time when loaded: {formatDateTimeTz(t.server_time, tz)}</p>
             </div>
-            <div className="flex shrink-0 flex-wrap gap-2">
+            <div className="flex shrink-0 flex-wrap gap-2 lg:max-w-md">
               <Button onClick={() => setPunch("in")} disabled={!t.can_check_in} aria-describedby="punch-help"><LogIn className="h-4 w-4" aria-hidden="true" />Check in</Button>
               <Button variant="secondary" onClick={() => setPunch("out")} disabled={!t.can_check_out}><LogOut className="h-4 w-4" aria-hidden="true" />Check out</Button>
               <Button variant="ghost" onClick={today.reload} loading={today.loading}><Clock className="h-4 w-4" aria-hidden="true" />Refresh</Button>
