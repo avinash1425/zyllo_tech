@@ -256,7 +256,7 @@ try {
 
   // ---------------------------------------------------------------- G. employee self-service
   check("login", "employee signs in", (await login(emp, "employee@example.com")) !== "/login");
-  await emp.go("/employee/payslips", 5000);
+  await emp.go("/employee/payslips?tab=payslips", 5000);
   const slip0 = await q1(`select net from hr_payslips where run_id = ${lit(runId)} and employee_id = ${lit(eng.id)}`);
   await waitIncl(emp, money(slip0.net), 45000);
   const slip = await q1(`select id, net from hr_payslips where run_id = ${lit(runId)} and employee_id = ${lit(eng.id)}`);
@@ -269,12 +269,14 @@ try {
   await emp.js(`(() => { ${H}; const el = window.__h.field("About"); window.__h.setVal(el, "missing_earning"); })()`);
   await h(emp, 'fill("What looks wrong?", "Synthetic: shift allowance missing (UI flow)")'); await h(emp, 'confirm("Send query")'); await sleep(3000);
   check("employee", "payroll query raised from the payslip", Boolean(await q1(`select id from hr_payroll_correction_requests where payslip_id = ${lit(slip.id)} and status = 'submitted'`)));
-  await h(emp, 'tab("My salary")'); await sleep(2500);
+  await h(emp, 'tab("Salary details")'); await sleep(2500);
   const mine = (await rpc("employee@example.com", "hr_my_salary_structure")).body;
-  check("employee", "My salary shows the current approved structure", (await h(emp, "text()")).includes(money(mine?.current?.gross ?? -1)), money(mine?.current?.gross));
+  check("employee", "Salary details shows the current approved structure", (await h(emp, "text()")).includes(money(mine?.current?.gross ?? -1)), money(mine?.current?.gross));
   await emp.shot("employee-salary");
   await emp.reload();
-  check("refresh", "employee page reloads its data after refresh", await waitIncl(emp, money(slip.net), 45000));
+  check("refresh", "employee page reloads on the same tab (Salary details) with its data after refresh", await waitIncl(emp, money(mine?.current?.gross ?? -1), 45000));
+  await emp.go("/employee/payslips?tab=payslips", 5000);
+  check("refresh", "payslips tab loads the payslip again", await waitIncl(emp, money(slip.net), 45000));
 
   // ---------------------------------------------------------------- H. mobile layout
   const mob = await session({ w: 390, h: 844, m: true });
@@ -285,7 +287,7 @@ try {
     await mob.shot("overview-mobile");
     await login(mob, "employee@example.com");
     await mob.go("/employee/payslips", 5000);
-    check("responsive", "My Payslips fits a 390px screen", (await h(mob, "overflow()")) <= 1, `overflow ${await h(mob, "overflow()")}px`);
+    check("responsive", "My Payroll & Payslips (overview) fits a 390px screen", (await h(mob, "overflow()")) <= 1, `overflow ${await h(mob, "overflow()")}px`);
     await mob.shot("employee-payslips-mobile");
   } finally { await mob.close(); }
 } catch (e) {

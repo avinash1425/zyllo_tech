@@ -17,6 +17,7 @@ export const DOC_GROUPS = [
   { value: "certificate", label: "Certificates" },
   { value: "letter", label: "HR letters" },
   { value: "identity", label: "Identity documents" },
+  { value: "tax", label: "Tax documents" },
   { value: "policy", label: "Policy records" },
   { value: "attachment", label: "Attachments" },
   { value: "confidential", label: "Confidential" },
@@ -74,7 +75,7 @@ export const POLICY_CATEGORIES = [
   { value: "general", label: "General" }, { value: "code_of_conduct", label: "Code of conduct" }, { value: "hr", label: "HR" },
   { value: "leave_attendance", label: "Leave & attendance" }, { value: "it_security", label: "IT & security" },
   { value: "health_safety", label: "Health & safety" }, { value: "compliance", label: "Compliance" },
-  { value: "benefits", label: "Benefits" }, { value: "other", label: "Other" },
+  { value: "benefits", label: "Benefits" }, { value: "handbook", label: "Employee handbook" }, { value: "other", label: "Other" },
 ];
 export const AUDIENCE_TYPES = [
   { value: "all", label: "All employees" }, { value: "departments", label: "Departments" }, { value: "locations", label: "Locations" },

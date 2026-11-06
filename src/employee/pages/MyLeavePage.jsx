@@ -1,17 +1,21 @@
-// Employee: leave balances, apply (eligibility-aware, live server-side
-// day-count preview, real supporting-document upload), my requests with
-// history, cancellation, clarification replies, balance history (ledger),
-// holidays that apply to me and the team leave calendar (scoped by the
-// server; colleagues' leave shows only "On leave", never the reason).
+// Employee "My Leave": balances, apply (eligibility-aware, live server-side
+// day-count preview, real supporting-document upload), leave history with
+// filters, approval progress per request, direct cancellation (pending, or
+// approved leave not yet started), cancellation REQUESTS to HR for approved
+// leave that has already started (migration 161), clarification replies,
+// balance history (ledger), a year holiday calendar for my location/company
+// and the team leave calendar (scoped by the server; colleagues' leave shows
+// only "On leave", never the reason).
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, ChevronLeft, ChevronRight, Paperclip, Plus } from "lucide-react";
+import { CalendarDays, Check, ChevronLeft, ChevronRight, Circle, Clock, Paperclip, Plus, Undo2, X } from "lucide-react";
 import { useAuth } from "@/hr/platform/auth";
 import { formatDate, formatDateTime, useHrQuery } from "@/lib/hr/client";
 import { businessToday, monthRange, useBusinessTimezone } from "@/lib/hr/attendance";
 import { DOC_ACCEPT, checkDocumentFile, uploadDocument } from "@/lib/hr/documents";
 import {
   LEAVE_DOC_CATEGORY, LEAVE_EVENT_LABELS, LEDGER_LABELS, applyLeave, calculateDays, cancelLeave, halfLabel, leaveCalendar, listLedger,
-  listMyRequests, listRequestEvents, myBalances, myHolidays, myLeaveTypes, pendingClarification, respondClarification,
+  listMyRequests, listRequestEvents, myBalances, myHolidays, myLeaveTypes, pendingClarification, requestCancellation, respondClarification,
+  withdrawCancellation,
 } from "@/lib/hr/leave";
 import { loadEmployeeOptions } from "@/lib/hr/org";
 import {
@@ -20,6 +24,24 @@ import {
 } from "@/hr/ui";
 
 const num = (n) => (n == null ? "—" : Number(n).toLocaleString("en-IN", { maximumFractionDigits: 2 }));
+const dateSpan = (r) => `${formatDate(r.start_date)}${r.end_date !== r.start_date ? ` – ${formatDate(r.end_date)}` : ""}`;
+const levelName = (level) => (level === "hr" ? "HR" : level === "manager" ? "your manager" : level);
+const STATUS_FILTERS = [
+  { value: "", label: "All statuses" }, { value: "pending_approval", label: "Pending approval" }, { value: "approved", label: "Approved" },
+  { value: "rejected", label: "Rejected" }, { value: "cancelled", label: "Cancelled" },
+];
+
+/** Cancelled directly by the employee: pending, or approved and not started. */
+const canCancelDirect = (r, today) => r.status === "pending_approval" || (r.status === "approved" && r.start_date > today);
+/** Needs HR: approved leave that has started, with no cancellation already waiting. */
+const canRequestCancel = (r, today) => r.status === "approved" && r.start_date <= today && r.cancellation_status !== "pending";
+
+function CancellationBadge({ r }) {
+  if (r.cancellation_status === "pending") return <Badge tone="amber">cancellation pending with HR</Badge>;
+  if (r.cancellation_status === "rejected") return <Badge tone="red">cancellation rejected</Badge>;
+  if (r.status === "cancelled" && r.cancellation_decided_at) return <Badge tone="slate">cancelled on your request</Badge>;
+  return null;
+}
 
 export default function MyLeavePage() {
   const { hr } = useAuth();
@@ -32,104 +54,402 @@ export default function MyLeavePage() {
   const [tab, setTab] = useState("overview");
   const balances = useHrQuery(() => myBalances(year), [year]);
   const requests = useHrQuery(() => listMyRequests(me), [me]);
-  const holidays = useHrQuery(() => myHolidays(`${year}-01-01`, `${year}-12-31`), [year]);
   const [applying, setApplying] = useState(false);
   const [detail, setDetail] = useState(null);
   const [cancelling, setCancelling] = useState(null);
+  const [askCancel, setAskCancel] = useState(null);
+  const [withdrawing, setWithdrawing] = useState(null);
+  const reloadAll = () => { requests.reload(); balances.reload(); };
 
-  const canCancel = (r) => r.status === "pending_approval" || (r.status === "approved" && r.start_date > today);
+  const rows = requests.data ?? [];
+  const pendingCancellations = rows.filter((r) => r.cancellation_status === "pending").length;
+  const actions = { open: setDetail, cancel: setCancelling, requestCancel: setAskCancel, withdraw: setWithdrawing };
 
   return (
     <>
-      <PageHeader title="My Leave" description="Balances, applications and your team's leave calendar."
+      <PageHeader title="My Leave" description="Apply for leave, track approvals, check your balance and see the holiday calendar."
         actions={<Button onClick={() => setApplying(true)}><Plus className="h-4 w-4" aria-hidden="true" />Apply for leave</Button>} />
-      <Tabs value={tab} onChange={setTab} label="Leave sections" tabs={[{ value: "overview", label: "Balances & requests" }, { value: "history", label: "Balance history" }, { value: "calendar", label: "Team calendar" }, { value: "holidays", label: "Holidays" }]} />
+      <Tabs value={tab} onChange={setTab} label="Leave sections" tabs={[
+        { value: "overview", label: "Overview" },
+        { value: "history", label: "Leave history" },
+        { value: "cancellations", label: pendingCancellations ? `Cancellation requests (${pendingCancellations})` : "Cancellation requests" },
+        { value: "ledger", label: "Balance history" },
+        { value: "holidays", label: "Holiday calendar" },
+        { value: "calendar", label: "Team calendar" },
+      ]} />
+
+      {(tab === "overview" || tab === "ledger" || tab === "holidays") && (
+        <div className="mb-3 flex items-center gap-2">
+          <label htmlFor="leave-year" className="text-sm font-semibold text-[#173a52]">Year</label>
+          <select id="leave-year" value={year} onChange={(e) => setYear(Number(e.target.value))} className="rounded-lg border border-slate-200 px-2 py-1 text-sm">
+            {[thisYear - 1, thisYear, thisYear + 1].map((y) => <option key={y} value={y}>{y}</option>)}
+          </select>
+        </div>
+      )}
 
       {tab === "overview" && (
         <>
-          <div className="mb-3 flex items-center gap-2">
-            <label htmlFor="leave-year" className="text-sm font-semibold text-[#173a52]">Year</label>
-            <select id="leave-year" value={year} onChange={(e) => setYear(Number(e.target.value))} className="rounded-lg border border-slate-200 px-2 py-1 text-sm">
-              {[thisYear - 1, thisYear, thisYear + 1].map((y) => <option key={y} value={y}>{y}</option>)}
-            </select>
+          <BalanceCards balances={balances} />
+          <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <AwaitingCard rows={rows} loading={requests.loading} error={requests.error} onRetry={requests.reload} onOpen={setDetail} onAll={() => setTab("history")} />
+            <UpcomingCard rows={rows} today={today} onOpen={setDetail} />
           </div>
-          {balances.loading && !balances.data ? <Loading /> : balances.error ? <ErrorState message={balances.error} onRetry={balances.reload} /> : !balances.data?.length ? (
-            <Card><EmptyState title="No leave types available" description="HR has not configured any active leave types." /></Card>
-          ) : (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {balances.data.map((b) => (
-                <div key={b.balance_id} className="rounded-2xl border border-slate-200 bg-white p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="font-bold text-[#101a3a]">{b.name}</p>
-                    <Badge tone={b.paid ? "green" : "slate"}>{b.paid ? "paid" : "unpaid"}</Badge>
-                  </div>
-                  <p className="mt-1 text-3xl font-extrabold text-[#101a3a]">{num(b.available)}<span className="ml-1 text-sm font-semibold text-slate-500">available</span></p>
-                  <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-slate-600">
-                    <dt>Accrued</dt><dd className="text-right">{num(b.accrued)} / {num(b.entitled)}</dd>
-                    <dt>Carried forward</dt><dd className="text-right">{num(b.carried_forward)}</dd>
-                    {Number(b.opening) > 0 && <><dt>Opening balance</dt><dd className="text-right">{num(b.opening)}</dd></>}
-                    <dt>Adjusted</dt><dd className="text-right">{num(b.adjusted)}</dd>
-                    <dt>Used</dt><dd className="text-right">{num(b.used)}</dd>
-                    <dt>Pending approval</dt><dd className="text-right">{num(b.pending)}</dd>
-                  </dl>
-                  {b.cf_expires_on && Number(b.carried_forward) > 0 && (
-                    <p className={`mt-2 text-xs ${Number(b.cf_expired) > 0 ? "text-slate-500" : "font-semibold text-orange-700"}`}>
-                      {Number(b.cf_expired) > 0 ? `${num(b.cf_expired)} carried-forward day(s) expired on ${formatDate(b.cf_expires_on)}.` : `Carried-forward days expire on ${formatDate(b.cf_expires_on)} if unused.`}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-          <div className="mt-4">
-            <Card title="My leave requests" padded={false}>
-              <DataTable caption="My leave requests" rows={requests.data} loading={requests.loading} error={requests.error} onRetry={requests.reload}
-                emptyTitle="No leave requests yet" onRowClick={setDetail}
-                columns={[
-                  { key: "type", header: "Type", render: (r) => <span>{r.leave_type?.name ?? "—"}{r.document_id && <Paperclip className="ml-1 inline h-3.5 w-3.5 text-slate-500" aria-label="Document attached" />}</span> },
-                  { key: "dates", header: "Dates", render: (r) => <span className="whitespace-nowrap">{formatDate(r.start_date)}{r.end_date !== r.start_date ? ` – ${formatDate(r.end_date)}` : ""}</span> },
-                  { key: "half", header: "Part", render: (r) => halfLabel(r) || "—" },
-                  { key: "days", header: "Days", render: (r) => num(r.days) },
-                  { key: "status", header: "Status", render: (r) => <span className="flex flex-col gap-1"><StatusBadge status={r.status} />{r.status === "pending_approval" && r.current_level && <span className="text-xs text-slate-500">awaiting {r.current_level}</span>}</span> },
-                  { key: "created_at", header: "Applied", render: (r) => formatDate(r.created_at) },
-                  { key: "_a", header: <span className="sr-only">Actions</span>, render: (r) => (
-                    <div className="flex gap-1">
-                      <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setDetail(r); }}>Details</Button>
-                      {canCancel(r) && <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setCancelling(r); }}>Cancel</Button>}
-                    </div>) },
-                ]} />
-            </Card>
-            <p className="mt-2 text-xs text-slate-500">You can cancel pending requests, and approved leave that has not started yet. Leave that has already started can only be cancelled by HR.</p>
-          </div>
+          <div className="mt-4"><NextHolidays today={today} onAll={() => setTab("holidays")} /></div>
         </>
       )}
-      {tab === "history" && <MyLedger me={me} year={year} />}
+      {tab === "history" && <History requests={requests} today={today} actions={actions} />}
+      {tab === "cancellations" && <Cancellations requests={requests} today={today} actions={actions} />}
+      {tab === "ledger" && <MyLedger me={me} year={year} />}
+      {tab === "holidays" && <HolidayCalendar year={year} today={today} myLeave={rows} />}
       {tab === "calendar" && <LeaveCalendar tz={tz} />}
-      {tab === "holidays" && (
-        <Card title={`Holidays ${year}`} padded={false}>
-          <DataTable caption="Holidays" rows={holidays.data} loading={holidays.loading} error={holidays.error} onRetry={holidays.reload} emptyTitle="No holidays configured"
-            columns={[
-              { key: "holiday_date", header: "Date", render: (r) => formatDate(r.holiday_date, { weekday: "short", day: "2-digit", month: "short", year: "numeric" }) },
-              { key: "name", header: "Holiday" },
-              { key: "type", header: "Type", render: (r) => <span className="flex flex-wrap gap-1"><Badge tone={r.type === "optional" ? "violet" : "blue"}>{r.type}</Badge>{r.is_recurring && <Badge tone="slate">every year</Badge>}</span> },
-              { key: "upcoming", header: "", render: (r) => (r.holiday_date >= today ? <Badge tone="green">upcoming</Badge> : null) },
-            ]} />
-          <p className="px-4 py-3 text-xs text-slate-500">Holidays for your location and company. Optional holidays are not automatically off; apply for leave to take one.</p>
-        </Card>
-      )}
 
-      {applying && <ApplyModal today={today} me={me} onClose={() => setApplying(false)} onApplied={(r) => { setApplying(false); requests.reload(); balances.reload(); notify(`Leave applied: ${num(r?.days)} day(s), awaiting ${r?.current_level ?? "approval"}.`); }} />}
-      {detail && <RequestDetail request={detail} onClose={() => setDetail(null)} />}
+      {applying && <ApplyModal today={today} me={me} onClose={() => setApplying(false)} onApplied={(r) => { setApplying(false); reloadAll(); notify(`Leave applied: ${num(r?.days)} day(s), awaiting ${r?.current_level ?? "approval"}.`); }} />}
+      {detail && <RequestDetail request={detail} today={today} actions={actions} onClose={() => setDetail(null)} />}
       <ConfirmDialog open={Boolean(cancelling)} onClose={() => setCancelling(null)} title="Cancel leave request?" tone="danger" confirmLabel="Cancel leave"
-        message={cancelling ? `${cancelling.leave_type?.name}: ${formatDate(cancelling.start_date)}${cancelling.end_date !== cancelling.start_date ? ` – ${formatDate(cancelling.end_date)}` : ""} (${num(cancelling.days)} day(s)). The days return to your balance.` : ""}
+        message={cancelling ? `${cancelling.leave_type?.name}: ${dateSpan(cancelling)} (${num(cancelling.days)} day(s)). The days return to your balance.` : ""}
         requireReason={false} reasonLabel="Note (optional)"
         onConfirm={async (note) => {
           const res = await cancelLeave(cancelling.id, note);
           if (res.error) return { error: res.error };
-          notify("Leave cancelled."); requests.reload(); balances.reload();
+          notify("Leave cancelled."); setDetail(null); reloadAll();
+          return {};
+        }} />
+      <ConfirmDialog open={Boolean(askCancel)} onClose={() => setAskCancel(null)} title="Request cancellation from HR" confirmLabel="Send request"
+        message={askCancel ? `${askCancel.leave_type?.name}: ${dateSpan(askCancel)} (${num(askCancel.days)} day(s)). This leave has already started, so HR has to approve the cancellation. If HR approves, the whole request is cancelled and all its days return to your balance; apply again for any of those days you did take. Until HR decides, the leave stays approved.` : ""}
+        requireReason reasonLabel="Why should this leave be cancelled?"
+        onConfirm={async (reason) => {
+          if (reason.length < 3) return { error: "Give a reason (at least 3 characters)." };
+          const res = await requestCancellation(askCancel.id, reason);
+          if (res.error) return { error: res.error };
+          notify("Cancellation request sent to HR."); setDetail(null); reloadAll();
+          return {};
+        }} />
+      <ConfirmDialog open={Boolean(withdrawing)} onClose={() => setWithdrawing(null)} title="Withdraw cancellation request?" confirmLabel="Withdraw request"
+        message={withdrawing ? `Your leave ${dateSpan(withdrawing)} stays approved and HR no longer needs to act on it.` : ""}
+        onConfirm={async () => {
+          const res = await withdrawCancellation(withdrawing.id);
+          if (res.error) return { error: res.error };
+          notify("Cancellation request withdrawn."); setDetail(null); reloadAll();
           return {};
         }} />
     </>
+  );
+}
+
+// ---------------------------------------------------------------- overview
+function BalanceCards({ balances }) {
+  if (balances.loading && !balances.data) return <Loading />;
+  if (balances.error) return <ErrorState message={balances.error} onRetry={balances.reload} />;
+  if (!balances.data?.length) return <Card><EmptyState title="No leave types available" description="HR has not configured any active leave types." /></Card>;
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      {balances.data.map((b) => {
+        const used = Number(b.used ?? 0);
+        const pending = Number(b.pending ?? 0);
+        const total = used + pending + Math.max(0, Number(b.available ?? 0));
+        const usedPct = total > 0 ? (used / total) * 100 : 0;
+        const pendPct = total > 0 ? (pending / total) * 100 : 0;
+        return (
+          <div key={b.balance_id} className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="flex items-start justify-between gap-2">
+              <p className="font-bold text-[#101a3a]">{b.name}</p>
+              <Badge tone={b.paid ? "green" : "slate"}>{b.paid ? "paid" : "unpaid"}</Badge>
+            </div>
+            <p className="mt-1 text-3xl font-extrabold text-[#101a3a]">{num(b.available)}<span className="ml-1 text-sm font-semibold text-slate-500">available</span></p>
+            {total > 0 && (
+              <div className="mt-2 flex h-2 overflow-hidden rounded-full bg-slate-100" role="img" aria-label={`${num(used)} used and ${num(pending)} pending of ${num(total)} day(s)`}>
+                <span className="bg-[#f96706]" style={{ width: `${usedPct}%` }} />
+                <span className="bg-amber-300" style={{ width: `${pendPct}%` }} />
+              </div>
+            )}
+            <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-slate-600">
+              <dt>Accrued</dt><dd className="text-right">{num(b.accrued)} / {num(b.entitled)}</dd>
+              <dt>Carried forward</dt><dd className="text-right">{num(b.carried_forward)}</dd>
+              {Number(b.opening) > 0 && <><dt>Opening balance</dt><dd className="text-right">{num(b.opening)}</dd></>}
+              <dt>Adjusted</dt><dd className="text-right">{num(b.adjusted)}</dd>
+              <dt>Used</dt><dd className="text-right">{num(b.used)}</dd>
+              <dt>Pending approval</dt><dd className="text-right">{num(b.pending)}</dd>
+            </dl>
+            {b.cf_expires_on && Number(b.carried_forward) > 0 && (
+              <p className={`mt-2 text-xs ${Number(b.cf_expired) > 0 ? "text-slate-500" : "font-semibold text-orange-700"}`}>
+                {Number(b.cf_expired) > 0 ? `${num(b.cf_expired)} carried-forward day(s) expired on ${formatDate(b.cf_expires_on)}.` : `Carried-forward days expire on ${formatDate(b.cf_expires_on)} if unused.`}
+              </p>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function MiniRow({ r, onOpen, children }) {
+  return (
+    <li>
+      <button type="button" onClick={() => onOpen(r)} className="flex w-full items-center justify-between gap-3 rounded-lg px-2 py-2 text-left text-sm hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f96706]">
+        <span className="min-w-0">
+          <span className="block font-semibold text-[#101a3a]">{r.leave_type?.name ?? "Leave"} · {num(r.days)} day(s)</span>
+          <span className="block text-xs text-slate-500">{dateSpan(r)}{halfLabel(r) && r.start_date === r.end_date ? ` · ${halfLabel(r)}` : ""}</span>
+        </span>
+        <span className="flex shrink-0 flex-col items-end gap-1">{children}</span>
+      </button>
+    </li>
+  );
+}
+
+function AwaitingCard({ rows, loading, error, onRetry, onOpen, onAll }) {
+  const pending = rows.filter((r) => r.status === "pending_approval" || r.cancellation_status === "pending");
+  return (
+    <Card title="Awaiting a decision" actions={<Button size="sm" variant="ghost" onClick={onAll}>Leave history</Button>}>
+      {loading && !rows.length ? <Loading /> : error ? <ErrorState message={error} onRetry={onRetry} /> : !pending.length ? (
+        <p className="text-sm text-slate-500">Nothing pending. Requests you apply for appear here until they are decided.</p>
+      ) : (
+        <ul className="-mx-2 flex flex-col divide-y divide-slate-100">
+          {pending.map((r) => (
+            <MiniRow key={r.id} r={r} onOpen={onOpen}>
+              {r.status === "pending_approval"
+                ? <><StatusBadge status={r.status} />{r.current_level && <span className="text-xs text-slate-500">with {levelName(r.current_level)}</span>}</>
+                : <CancellationBadge r={r} />}
+            </MiniRow>
+          ))}
+        </ul>
+      )}
+    </Card>
+  );
+}
+
+function UpcomingCard({ rows, today, onOpen }) {
+  const upcoming = rows.filter((r) => r.status === "approved" && r.end_date >= today).sort((a, b) => a.start_date.localeCompare(b.start_date)).slice(0, 5);
+  return (
+    <Card title="Upcoming and current leave">
+      {!upcoming.length ? <p className="text-sm text-slate-500">No approved leave coming up.</p> : (
+        <ul className="-mx-2 flex flex-col divide-y divide-slate-100">
+          {upcoming.map((r) => (
+            <MiniRow key={r.id} r={r} onOpen={onOpen}>
+              {r.start_date <= today ? <Badge tone="blue">on leave now</Badge> : <Badge tone="green">approved</Badge>}
+              <CancellationBadge r={r} />
+            </MiniRow>
+          ))}
+        </ul>
+      )}
+    </Card>
+  );
+}
+
+function NextHolidays({ today, onAll }) {
+  const until = `${Number(today.slice(0, 4)) + 1}${today.slice(4)}`;
+  const q = useHrQuery(() => myHolidays(today, until), [today, until]);
+  const next = (q.data ?? []).filter((h) => h.holiday_date >= today).slice(0, 4);
+  return (
+    <Card title="Next holidays" actions={<Button size="sm" variant="ghost" onClick={onAll}>Holiday calendar</Button>}>
+      {q.loading && !q.data ? <Loading /> : q.error ? <ErrorState message={q.error} onRetry={q.reload} /> : !next.length ? (
+        <p className="text-sm text-slate-500">No upcoming holidays configured for your location.</p>
+      ) : (
+        <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          {next.map((h) => (
+            <li key={`${h.id}-${h.holiday_date}`} className="rounded-xl border border-slate-200 px-3 py-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{formatDate(h.holiday_date, { weekday: "short", day: "2-digit", month: "short" })}</p>
+              <p className="font-semibold text-[#101a3a]">{h.name}</p>
+              <Badge tone={h.type === "optional" ? "violet" : "blue"}>{h.type}</Badge>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
+  );
+}
+
+// ---------------------------------------------------------------- history
+function RowActions({ r, today, actions }) {
+  return (
+    <div className="flex flex-wrap gap-1" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()} role="presentation">
+      <Button size="sm" variant="ghost" onClick={() => actions.open(r)}>Details</Button>
+      {canCancelDirect(r, today) && <Button size="sm" variant="ghost" onClick={() => actions.cancel(r)}>Cancel</Button>}
+      {canRequestCancel(r, today) && <Button size="sm" variant="ghost" onClick={() => actions.requestCancel(r)}>Request cancellation</Button>}
+      {r.cancellation_status === "pending" && <Button size="sm" variant="ghost" onClick={() => actions.withdraw(r)}>Withdraw request</Button>}
+    </div>
+  );
+}
+
+function History({ requests, today, actions }) {
+  const [f, setF] = useState({ status: "", year: "", type: "" });
+  const all = useMemo(() => requests.data ?? [], [requests.data]);
+  const years = useMemo(() => [...new Set(all.map((r) => String(r.year ?? r.start_date.slice(0, 4))))].sort().reverse(), [all]);
+  const types = useMemo(() => [...new Map(all.filter((r) => r.leave_type).map((r) => [r.leave_type.id, r.leave_type.name])).entries()], [all]);
+  const rows = useMemo(() => all.filter((r) => (!f.status || r.status === f.status)
+    && (!f.year || String(r.year ?? r.start_date.slice(0, 4)) === f.year) && (!f.type || r.leave_type_id === f.type)), [all, f]);
+  const approvedDays = rows.filter((r) => r.status === "approved").reduce((s, r) => s + Number(r.days ?? 0), 0);
+  const pendingDays = rows.filter((r) => r.status === "pending_approval").reduce((s, r) => s + Number(r.days ?? 0), 0);
+  const set = (k) => (e) => setF((x) => ({ ...x, [k]: e.target.value }));
+  return (
+    <Card title="Leave history" padded={false}>
+      <div className="flex flex-wrap items-end gap-3 border-b border-slate-100 px-4 py-3">
+        <Field label="Status" className="w-44"><Select value={f.status} onChange={set("status")} options={STATUS_FILTERS} /></Field>
+        <Field label="Year" className="w-32"><Select value={f.year} onChange={set("year")} options={[{ value: "", label: "All years" }, ...years.map((y) => ({ value: y, label: y }))]} /></Field>
+        <Field label="Type" className="w-44"><Select value={f.type} onChange={set("type")} options={[{ value: "", label: "All types" }, ...types.map(([value, label]) => ({ value, label }))]} /></Field>
+        <p className="text-xs text-slate-500 sm:ml-auto">{rows.length} request(s) · {num(approvedDays)} day(s) approved{pendingDays ? ` · ${num(pendingDays)} pending` : ""}</p>
+      </div>
+      <DataTable caption="My leave requests" rows={rows} loading={requests.loading} error={requests.error} onRetry={requests.reload}
+        emptyTitle={all.length ? "No requests match these filters" : "No leave requests yet"} onRowClick={actions.open} pageSize={20}
+        columns={[
+          { key: "type", header: "Type", render: (r) => <span>{r.leave_type?.name ?? "—"}{r.document_id && <Paperclip className="ml-1 inline h-3.5 w-3.5 text-slate-500" aria-label="Document attached" />}</span> },
+          { key: "dates", header: "Dates", render: (r) => <span className="whitespace-nowrap">{dateSpan(r)}</span> },
+          { key: "half", header: "Part", render: (r) => halfLabel(r) || "—" },
+          { key: "days", header: "Days", render: (r) => num(r.days) },
+          { key: "status", header: "Approval status", render: (r) => (
+            <span className="flex flex-col items-start gap-1">
+              <StatusBadge status={r.status} />
+              {r.status === "pending_approval" && r.current_level && <span className="text-xs text-slate-500">with {levelName(r.current_level)}</span>}
+              <CancellationBadge r={r} />
+            </span>) },
+          { key: "created_at", header: "Applied", render: (r) => formatDate(r.created_at) },
+          { key: "_a", header: <span className="sr-only">Actions</span>, render: (r) => <RowActions r={r} today={today} actions={actions} /> },
+        ]} />
+      <p className="px-4 py-3 text-xs text-slate-500">You can cancel pending requests, and approved leave that has not started yet, yourself. For approved leave that has already started, send a cancellation request; HR decides it.</p>
+    </Card>
+  );
+}
+
+// ---------------------------------------------------------------- cancellations
+function Cancellations({ requests, today, actions }) {
+  const all = requests.data ?? [];
+  const requested = all.filter((r) => r.cancellation_requested_at)
+    .sort((a, b) => (b.cancellation_requested_at ?? "").localeCompare(a.cancellation_requested_at ?? ""));
+  const eligible = all.filter((r) => canRequestCancel(r, today) && !r.cancellation_status);
+  const outcome = (r) => (r.cancellation_status === "pending" ? <Badge tone="amber">pending with HR</Badge>
+    : r.cancellation_status === "rejected" ? <Badge tone="red">rejected</Badge>
+      : r.status === "cancelled" ? <Badge tone="green">approved · leave cancelled</Badge> : <Badge tone="slate">withdrawn</Badge>);
+  return (
+    <div className="flex flex-col gap-4">
+      <Card title="My cancellation requests" padded={false}>
+        <DataTable caption="My cancellation requests" rows={requested} loading={requests.loading} error={requests.error} onRetry={requests.reload}
+          emptyTitle="No cancellation requests" emptyDescription="When you ask HR to cancel leave that has already started, it is tracked here." onRowClick={actions.open}
+          columns={[
+            { key: "leave", header: "Leave", render: (r) => <span className="flex flex-col"><span className="font-semibold">{r.leave_type?.name}</span><span className="text-xs text-slate-500">{dateSpan(r)} · {num(r.days)} day(s)</span></span> },
+            { key: "requested", header: "Requested", render: (r) => formatDateTime(r.cancellation_requested_at) },
+            { key: "reason", header: "Your reason", render: (r) => <span className="line-clamp-2 text-xs">{r.cancellation_reason}</span> },
+            { key: "outcome", header: "Outcome", render: (r) => <span className="flex flex-col items-start gap-1">{outcome(r)}{r.cancellation_decision_note && <span className="text-xs text-slate-500">HR: {r.cancellation_decision_note}</span>}</span> },
+            { key: "_a", header: <span className="sr-only">Actions</span>, render: (r) => <RowActions r={r} today={today} actions={actions} /> },
+          ]} />
+      </Card>
+      <Card title="Leave you can ask HR to cancel">
+        {!eligible.length ? <p className="text-sm text-slate-500">No approved leave that has already started. Leave that has not started can be cancelled directly from Leave history.</p> : (
+          <ul className="-mx-2 flex flex-col divide-y divide-slate-100">
+            {eligible.map((r) => (
+              <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 px-2 py-2 text-sm">
+                <span><span className="font-semibold text-[#101a3a]">{r.leave_type?.name}</span> · {dateSpan(r)} · {num(r.days)} day(s)</span>
+                <Button size="sm" variant="secondary" onClick={() => actions.requestCancel(r)}><Undo2 className="h-3.5 w-3.5" aria-hidden="true" />Request cancellation</Button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="mt-3 text-xs text-slate-500">If HR approves, the whole request is cancelled and its days return to your balance. If HR rejects it, the leave stays approved; you can send a new request with more detail.</p>
+      </Card>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- holiday calendar
+const MONTHS = Array.from({ length: 12 }, (_, i) => i);
+
+function HolidayCalendar({ year, today, myLeave }) {
+  const q = useHrQuery(() => myHolidays(`${year}-01-01`, `${year}-12-31`), [year]);
+  const [view, setView] = useState("calendar");
+  const byDate = useMemo(() => {
+    const m = new Map();
+    for (const h of q.data ?? []) m.set(h.holiday_date, [...(m.get(h.holiday_date) ?? []), h]);
+    return m;
+  }, [q.data]);
+  const leaveOn = useMemo(() => {
+    const m = new Map();
+    for (const r of myLeave ?? []) {
+      if (r.status !== "approved" && r.status !== "pending_approval") continue;
+      const end = new Date(`${r.end_date}T00:00:00Z`);
+      for (let d = new Date(`${r.start_date}T00:00:00Z`); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+        const k = d.toISOString().slice(0, 10);
+        if (k.startsWith(`${year}-`) && (r.status === "approved" || !m.has(k))) m.set(k, r.status);
+      }
+    }
+    return m;
+  }, [myLeave, year]);
+  const all = q.data ?? [];
+  const optional = all.filter((h) => h.type === "optional").length;
+  const upcoming = all.filter((h) => h.holiday_date >= today).length;
+
+  return (
+    <Card title={<span className="inline-flex items-center gap-2"><CalendarDays className="h-4 w-4" aria-hidden="true" />Holiday calendar {year}</span>}
+      actions={
+        <div className="inline-flex rounded-lg border border-slate-200 p-0.5 text-sm" role="group" aria-label="Holiday view">
+          {[["calendar", "Calendar"], ["list", "List"]].map(([v, l]) => (
+            <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)}
+              className={`rounded-md px-3 py-1 font-semibold ${view === v ? "bg-[#101a3a] text-white" : "text-slate-600 hover:bg-slate-50"}`}>{l}</button>
+          ))}
+        </div>}>
+      {q.loading && !q.data ? <Loading /> : q.error ? <ErrorState message={q.error} onRetry={q.reload} /> : (
+        <>
+          <p className="mb-3 text-sm text-slate-600">{all.length} holiday(s) in {year}{optional ? `, ${optional} optional` : ""}{year === Number(today.slice(0, 4)) ? ` · ${upcoming} still to come` : ""}.</p>
+          {view === "calendar" ? (
+            <>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {MONTHS.map((m) => <MiniMonth key={m} year={year} month={m} today={today} byDate={byDate} leaveOn={leaveOn} />)}
+              </div>
+              <p className="mt-3 flex flex-wrap gap-3 text-xs text-slate-500">
+                <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-sky-500" />holiday</span>
+                <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-violet-400" />optional holiday</span>
+                <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-emerald-200" />my approved leave</span>
+                <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm border border-dashed border-amber-400 bg-amber-50" />my pending leave</span>
+                <span><span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm ring-2 ring-[#f96706]" />today</span>
+              </p>
+            </>
+          ) : (
+            <DataTable caption="Holidays" rows={all} emptyTitle="No holidays configured"
+              columns={[
+                { key: "holiday_date", header: "Date", render: (r) => formatDate(r.holiday_date, { weekday: "short", day: "2-digit", month: "short", year: "numeric" }) },
+                { key: "name", header: "Holiday" },
+                { key: "type", header: "Type", render: (r) => <span className="flex flex-wrap gap-1"><Badge tone={r.type === "optional" ? "violet" : "blue"}>{r.type}</Badge>{r.is_recurring && <Badge tone="slate">every year</Badge>}</span> },
+                { key: "upcoming", header: "", render: (r) => (r.holiday_date >= today ? <Badge tone="green">upcoming</Badge> : null) },
+              ]} />
+          )}
+          <p className="mt-3 text-xs text-slate-500">Holidays for your location and company. Optional holidays are not automatically off; apply for leave to take one.</p>
+        </>
+      )}
+    </Card>
+  );
+}
+
+function MiniMonth({ year, month, today, byDate, leaveOn }) {
+  const first = new Date(Date.UTC(year, month, 1));
+  const count = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  const lead = (first.getUTCDay() + 6) % 7;
+  const mm = String(month + 1).padStart(2, "0");
+  const cells = [...Array.from({ length: lead }, () => null), ...Array.from({ length: count }, (_, i) => `${year}-${mm}-${String(i + 1).padStart(2, "0")}`)];
+  const name = first.toLocaleDateString("en-IN", { month: "long", timeZone: "UTC" });
+  const monthHolidays = cells.filter(Boolean).flatMap((d) => byDate.get(d) ?? []);
+  return (
+    <section className="rounded-xl border border-slate-200 p-3" aria-label={`${name} ${year}`}>
+      <p className="mb-2 text-sm font-bold text-[#101a3a]">{name}</p>
+      <div className="grid grid-cols-7 gap-0.5 text-center text-[11px]" aria-hidden="true">
+        {WEEKDAYS.map((w) => <span key={w} className="font-semibold text-slate-400">{w.slice(0, 2)}</span>)}
+        {cells.map((d, i) => {
+          if (!d) return <span key={`x${i}`} />;
+          const hs = byDate.get(d);
+          const leave = leaveOn.get(d);
+          const weekend = (i % 7) >= 5;
+          const cls = hs ? (hs.every((h) => h.type === "optional") ? "bg-violet-400 text-white" : "bg-sky-500 text-white")
+            : leave === "approved" ? "bg-emerald-200 text-emerald-900"
+              : leave ? "border border-dashed border-amber-400 bg-amber-50 text-amber-900"
+                : weekend ? "text-slate-400" : "text-slate-700";
+          return (
+            <span key={d} title={hs ? hs.map((h) => h.name).join(", ") : leave ? `My leave (${leave.replace(/_/g, " ")})` : undefined}
+              className={`flex h-6 items-center justify-center rounded ${cls} ${d === today ? "ring-2 ring-[#f96706]" : ""}`}>{Number(d.slice(8))}</span>
+          );
+        })}
+      </div>
+      {monthHolidays.length > 0 ? (
+        <ul className="mt-2 flex flex-col gap-0.5 text-xs text-slate-600">
+          {monthHolidays.map((h) => <li key={`${h.id}-${h.holiday_date}`}><span className="font-semibold">{Number(h.holiday_date.slice(8))}</span> · {h.name}{h.type === "optional" ? " (optional)" : ""}</li>)}
+        </ul>
+      ) : <p className="mt-2 text-xs text-slate-400">No holidays</p>}
+    </section>
   );
 }
 
@@ -260,13 +580,87 @@ function ApplyModal({ today, me, onClose, onApplied }) {
   );
 }
 
-function RequestDetail({ request: r, onClose }) {
+/**
+ * Approval progress built from the request and its event history:
+ * Applied -> (manager) -> (HR) -> outcome, plus a cancellation step when one
+ * was requested. Levels that never appeared in the flow are not shown.
+ */
+function approvalSteps(r, events) {
+  const ev = events ?? [];
+  const last = (action) => [...ev].reverse().find((e) => e.action === action);
+  const applied = last("applied");
+  const mgr = last("manager_approved");
+  const rejected = last("rejected");
+  const approved = last("approved");
+  const cancelled = last("cancelled");
+  const steps = [{ key: "applied", label: "Applied", state: "done", at: applied?.created_at ?? r.created_at }];
+  const usesManager = Boolean(mgr) || r.current_level === "manager" || rejected?.level === "manager";
+  if (usesManager) {
+    steps.push({
+      key: "manager", label: "Manager approval",
+      state: mgr ? "done" : rejected?.level === "manager" ? "rejected" : r.status === "pending_approval" ? "current" : r.status === "cancelled" ? "skipped" : "done",
+      at: mgr?.created_at ?? (rejected?.level === "manager" ? rejected.created_at : null),
+    });
+  }
+  const hrReached = r.current_level === "hr" || approved || (rejected && rejected.level !== "manager");
+  if (hrReached || r.status === "pending_approval") {
+    steps.push({
+      key: "hr", label: usesManager ? "HR approval" : "Approval",
+      state: approved ? "done" : rejected && rejected.level !== "manager" ? "rejected" : r.status === "pending_approval" ? (r.current_level === "hr" ? "current" : "waiting") : r.status === "cancelled" ? "skipped" : "done",
+      at: approved?.created_at ?? (rejected && rejected.level !== "manager" ? rejected.created_at : null),
+    });
+  }
+  if (r.status === "approved" || (r.status === "cancelled" && approved)) steps.push({ key: "approved", label: "Leave approved", state: "done", at: approved?.created_at ?? r.decided_at });
+  if (r.status === "rejected") steps.push({ key: "rejected", label: "Rejected", state: "rejected", at: rejected?.created_at ?? r.decided_at });
+  if (r.cancellation_requested_at) {
+    steps.push({
+      key: "cancel-req", label: "Cancellation requested",
+      state: r.cancellation_status === "pending" ? "current" : r.cancellation_status === "rejected" ? "rejected" : "done",
+      at: r.cancellation_requested_at,
+      note: r.cancellation_status === "pending" ? "Waiting for HR" : r.cancellation_status === "rejected" ? "HR rejected the cancellation" : null,
+    });
+  }
+  if (r.status === "cancelled") steps.push({ key: "cancelled", label: "Cancelled", state: "done", at: cancelled?.created_at ?? r.cancelled_at });
+  return steps;
+}
+
+const STEP_STYLE = {
+  done: { icon: Check, ring: "bg-emerald-500 text-white", text: "text-[#101a3a]" },
+  current: { icon: Clock, ring: "bg-amber-400 text-white", text: "font-semibold text-amber-800" },
+  rejected: { icon: X, ring: "bg-rose-500 text-white", text: "text-rose-700" },
+  waiting: { icon: Circle, ring: "bg-slate-200 text-slate-500", text: "text-slate-500" },
+  skipped: { icon: Circle, ring: "bg-slate-200 text-slate-400", text: "text-slate-400 line-through" },
+};
+
+function ApprovalTracker({ steps }) {
+  return (
+    <ol className="flex flex-col gap-0" aria-label="Approval progress">
+      {steps.map((s, i) => {
+        const st = STEP_STYLE[s.state] ?? STEP_STYLE.waiting;
+        const Icon = st.icon;
+        return (
+          <li key={s.key} className="relative flex gap-3 pb-3 last:pb-0">
+            {i < steps.length - 1 && <span className="absolute left-[11px] top-6 h-[calc(100%-1.25rem)] w-px bg-slate-200" aria-hidden="true" />}
+            <span className={`relative z-10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${st.ring}`} aria-hidden="true"><Icon className="h-3.5 w-3.5" /></span>
+            <span className="flex flex-col">
+              <span className={st.text}>{s.label}{s.state === "current" ? " (in progress)" : s.state === "waiting" ? " (not yet)" : ""}</span>
+              {(s.at || s.note) && <span className="text-xs text-slate-500">{s.at ? formatDateTime(s.at) : ""}{s.at && s.note ? " · " : ""}{s.note ?? ""}</span>}
+            </span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+function RequestDetail({ request: r, today, actions, onClose }) {
   const { notify } = useToast();
   const events = useHrQuery(() => listRequestEvents(r.id), [r.id]);
   const [reply, setReply] = useState("");
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
   const needsReply = r.status === "pending_approval" && pendingClarification(events.data);
+  const steps = useMemo(() => approvalSteps(r, events.data), [r, events.data]);
   async function send() {
     if (!reply.trim()) { setError("Write your response."); return; }
     setBusy(true); setError(null);
@@ -276,22 +670,36 @@ function RequestDetail({ request: r, onClose }) {
     setReply(""); events.reload(); notify("Response sent to your approver.");
   }
   return (
-    <Modal open onClose={onClose} title={`${r.leave_type?.name ?? "Leave"} · ${formatDate(r.start_date)}${r.end_date !== r.start_date ? ` – ${formatDate(r.end_date)}` : ""}`}
-      footer={<Button variant="secondary" onClick={onClose}>Close</Button>}>
+    <Modal open onClose={onClose} title={`${r.leave_type?.name ?? "Leave"} · ${dateSpan(r)}`}
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>Close</Button>
+          {canCancelDirect(r, today) && <Button variant="danger" onClick={() => actions.cancel(r)}>Cancel leave</Button>}
+          {canRequestCancel(r, today) && <Button onClick={() => actions.requestCancel(r)}><Undo2 className="h-4 w-4" aria-hidden="true" />Request cancellation</Button>}
+          {r.cancellation_status === "pending" && <Button variant="secondary" onClick={() => actions.withdraw(r)}>Withdraw cancellation request</Button>}
+        </>}>
       <div className="flex flex-col gap-3 text-sm">
-        <div className="flex flex-wrap items-center gap-2"><StatusBadge status={r.status} /><span>{num(r.days)} day(s)</span>{halfLabel(r) && <span className="text-slate-500">· {halfLabel(r)}</span>}</div>
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusBadge status={r.status} /><CancellationBadge r={r} /><span>{num(r.days)} day(s)</span>{halfLabel(r) && <span className="text-slate-500">· {halfLabel(r)}</span>}
+        </div>
         <p><span className="font-semibold">Reason:</span> {r.reason}</p>
         {r.document_id ? <p className="flex items-center gap-1"><Paperclip className="h-4 w-4" aria-hidden="true" />Supporting document attached (see My Documents).</p>
           : r.document_path && <p><span className="font-semibold">Document reference:</span> {r.document_path}</p>}
         {r.decision_note && <p><span className="font-semibold">Decision note:</span> {r.decision_note}</p>}
+        {r.cancellation_reason && <p><span className="font-semibold">Cancellation reason:</span> {r.cancellation_reason}</p>}
+        {r.cancellation_decision_note && <p><span className="font-semibold">HR note on cancellation:</span> {r.cancellation_decision_note}</p>}
         {r.holiday_review_required && <p className="rounded-lg bg-sky-50 px-3 py-2 text-xs text-sky-900">The holiday calendar changed for these dates. Your approver will recount the days; your balance is unchanged until then.</p>}
+
+        <h3 className="mt-2 font-bold text-[#101a3a]">Approval status</h3>
+        {events.loading && !events.data ? <Loading /> : <ApprovalTracker steps={steps} />}
+
         <h3 className="mt-2 font-bold text-[#101a3a]">History</h3>
         {events.loading && !events.data ? <Loading /> : events.error ? <ErrorState message={events.error} onRetry={events.reload} /> : (
           <ol className="flex flex-col gap-2">
             {(events.data ?? []).map((e) => (
               <li key={e.id} className="rounded-lg border border-slate-100 bg-slate-50 p-2.5">
                 <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                  <Badge tone={e.action === "rejected" ? "red" : e.action.includes("approved") ? "green" : e.action === "clarification_requested" ? "orange" : "slate"}>{LEAVE_EVENT_LABELS[e.action] ?? e.action}</Badge>
+                  <Badge tone={e.action.includes("rejected") ? "red" : e.action.includes("approved") ? "green" : e.action === "clarification_requested" || e.action === "cancellation_requested" ? "orange" : "slate"}>{LEAVE_EVENT_LABELS[e.action] ?? e.action}</Badge>
                   {e.level && <span>{e.level} level</span>}<span>{formatDateTime(e.created_at)}</span>
                 </div>
                 {e.note && <p className="mt-1 whitespace-pre-wrap text-slate-700">{e.note}</p>}

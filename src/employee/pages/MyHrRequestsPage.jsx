@@ -1,44 +1,44 @@
-// Employee: my HR requests — HR questions (conversation, close / reopen /
-// cancel per the server rules), Module 10 workflow requests (HR letters,
-// reimbursements, salary advances, profile changes: status, approvals,
-// files, issued letters, payments), my attendance corrections (Module 5) and
-// the Resignation section (submit, track the workflow, withdraw before HR
-// approval). Mounted at /employee/requests/*.
-import { useState } from "react";
-import { Link, Route, Routes, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, CalendarClock, DoorOpen, Lock, Plus, Send } from "lucide-react";
+// Employee: my HR requests, built around five request types: attendance
+// correction (Module 5), reimbursement, salary certificate, document request
+// and employee information change (Module 10 workflows: status, approvals,
+// files, issued letters, payments). One list covers all of them, with status
+// tabs and a type filter. HR questions are raised in Helpdesk & Support; older
+// HR questions and salary advances still open here. Resignation has its own
+// page (My Resignation). Mounted at /employee/requests/*.
+import { useMemo, useState } from "react";
+import { Link, Navigate, Route, Routes, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { ArrowLeft, Lock, Plus, Send } from "lucide-react";
 import { useAuth } from "@/hr/platform/auth";
 import { formatDate, formatDateTime, useHrQuery } from "@/lib/hr/client";
-import { listMyCorrections } from "@/lib/hr/attendance";
-import { RequestStatusBadge, WorkflowBadge } from "@/hr/requests/RequestWidgets";
+import { cancelCorrection, listMyCorrections, requestTypeLabel } from "@/lib/hr/attendance";
+import { LETTER_TYPES } from "@/lib/hr/requestWorkflows";
+import { RequestStatusBadge } from "@/hr/requests/RequestWidgets";
 import { formatTimeRange } from "@/hr/requests/time";
 import {
-  AttendanceCorrectionForm, LetterForm, ProfileChangeForm, ReimbursementForm, RequestTypeChooser, SalaryAdvanceForm,
+  AttendanceCorrectionForm, LetterForm, ProfileChangeForm, ReimbursementForm, RequestTypeChooser, RequestTypeGrid, SalaryAdvanceForm,
+  availableRequestTypes,
 } from "@/employee/requests/NewRequestForms";
 import MyWorkflowDetail from "@/employee/requests/MyWorkflowDetail";
 import {
   REQUEST_PRIORITIES, REOPEN_WINDOW_DAYS, canReopen, cancelRequest, closeRequest, commentRequest, createRequest, getRequest,
   listMyRequests, listRequestCategories, listRequestComments, reopenRequest,
 } from "@/lib/hr/requests";
-import { ENDED_EXIT_STATUSES, listMyExits, submitResignation, withdrawExit } from "@/lib/hr/exits";
-import { ExitStepper } from "@/hr/pages/ExitsPage";
 import { Conversation, PriorityBadge } from "@/hr/pages/HrRequestsPage";
 import {
   Badge, Button, Card, ConfirmDialog, DataTable, DescriptionList, EmptyState, ErrorState, Field, InlineError, Input, Loading, Modal,
-  PageHeader, Select, StatusBadge, Textarea, useToast,
+  PageHeader, Select, Tabs, Textarea, useToast,
 } from "@/hr/ui";
 
 const label = (s) => String(s ?? "").replace(/_/g, " ");
-const today = () => new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
 
 // ------------------------------------------------------------- new request
-function NewRequestModal({ onClose, onCreated }) {
+function NewRequestModal({ initialCategory = "", onClose, onCreated }) {
   const { notify } = useToast();
   const cats = useHrQuery(async () => {
     const res = await listRequestCategories({ activeOnly: true });
     return { ...res, data: res.data?.filter((c) => !c.workflow || c.workflow === "helpdesk") ?? null };
   }, []);
-  const [v, setV] = useState({ category: "", subject: "", priority: "medium", description: "" });
+  const [v, setV] = useState({ category: initialCategory, subject: "", priority: "medium", description: "" });
   const [errors, setErrors] = useState({});
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -81,102 +81,107 @@ function NewRequestModal({ onClose, onCreated }) {
   );
 }
 
-// -------------------------------------------------------------- resignation
-function ResignModal({ onClose, onDone }) {
-  const { notify } = useToast();
-  const [reason, setReason] = useState("");
-  const [lwd, setLwd] = useState("");
-  const [errors, setErrors] = useState({});
-  const [confirming, setConfirming] = useState(false);
-  function review() {
-    const errs = {};
-    if (reason.trim().length < 3) errs.reason = "Please give a reason (at least 3 characters).";
-    if (lwd && lwd < today()) errs.lwd = "The proposed last working day is in the past.";
-    setErrors(errs);
-    if (!Object.keys(errs).length) setConfirming(true);
+// -------------------------------------------------------------------- list
+// One list for every request type: Module 10 requests (hr_requests) and attendance corrections (Module 5).
+const KINDS = {
+  attendance: { label: "Attendance correction", tone: "amber" },
+  reimbursement: { label: "Reimbursement", tone: "green" },
+  salary: { label: "Salary certificate", tone: "orange" },
+  document: { label: "Document request", tone: "blue" },
+  profile: { label: "Information change", tone: "violet" },
+  helpdesk: { label: "HR question", tone: "slate" },
+  advance: { label: "Salary advance", tone: "slate" },   // older requests; no longer offered on this page
+};
+function requestKind(r) {
+  if (r.workflow === "hr_letter") return r.details?.letter_type === "salary_certificate" ? "salary" : "document";
+  return { reimbursement: "reimbursement", profile_change: "profile", salary_advance: "advance" }[r.workflow] ?? "helpdesk";
+}
+
+const NEEDS_YOU = new Set(["draft", "returned", "waiting_on_employee", "resolved"]);
+const CLOSED = new Set(["completed", "rejected", "cancelled", "closed"]);
+function bucket(row) {
+  if (row.kind === "attendance") return row.status === "pending" ? "progress" : "closed";
+  if (NEEDS_YOU.has(row.status)) return "action";
+  return CLOSED.has(row.status) ? "closed" : "progress";
+}
+function nextStep(row) {
+  if (row.kind === "attendance") {
+    if (row.status !== "pending") return null;
+    return row.correction.approval_stage === "hr" ? "Waiting for HR" : "Waiting for your manager";
   }
+  switch (row.status) {
+    case "draft": return "Not submitted: open it and submit";
+    case "returned": return "Returned: update and resubmit";
+    case "waiting_on_employee": return "HR is waiting for your reply";
+    case "resolved": return "Confirm it is solved, or reopen";
+    case "open": case "in_progress": return "With HR";
+    case "pending_approval": return "Waiting for approval";
+    case "approved":
+      if (row.kind === "reimbursement") return "Approved: paid with the next payroll";
+      if (row.kind === "salary" || row.kind === "document") return "Approved: being prepared";
+      return "Approved: being processed";
+    default: return null;
+  }
+}
+
+const TABS = [
+  { value: "all", label: "All" },
+  { value: "action", label: "Needs your action" },
+  { value: "progress", label: "In progress" },
+  { value: "closed", label: "Closed" },
+];
+const EMPTY = {
+  all: ["No requests yet", "Choose a request type above to get started."],
+  action: ["Nothing needs your action", "Returned requests, drafts and HR replies waiting for you appear here."],
+  progress: ["Nothing in progress", "Submitted requests waiting for approval appear here."],
+  closed: ["No closed requests", "Completed, rejected and cancelled requests appear here."],
+};
+
+function CorrectionModal({ correction: c, onClose, onChanged }) {
+  const navigate = useNavigate();
+  const { notify } = useToast();
+  const [confirming, setConfirming] = useState(false);
+  const has = (a, b) => Boolean(a || b);
   return (
     <>
-      <Modal open={!confirming} onClose={onClose} title="Submit resignation" size="md"
-        footer={<><Button variant="secondary" onClick={onClose}>Cancel</Button><Button variant="danger" onClick={review}>Continue</Button></>}>
-        <div className="flex flex-col gap-3">
-          <p className="text-sm text-slate-600">Your reporting manager reviews the resignation first (if you have one), then HR confirms your last working day. You can withdraw it until HR approves it.</p>
-          <Field label="Reason" required error={errors.reason}><Textarea rows={5} value={reason} maxLength={4000} onChange={(e) => setReason(e.target.value)} /></Field>
-          <Field label="Proposed last working day" error={errors.lwd} hint="Optional — defaults to today plus your notice period."><Input type="date" min={today()} value={lwd} onChange={(e) => setLwd(e.target.value)} /></Field>
-        </div>
+      <Modal open={!confirming} onClose={onClose} title="Attendance correction" size="md"
+        footer={<>
+          {c.status === "pending" && <Button variant="secondary" onClick={() => setConfirming(true)}>Cancel request</Button>}
+          <Button variant="secondary" onClick={() => navigate("/employee/attendance")}>Open My Attendance</Button>
+          <Button onClick={onClose}>Close</Button>
+        </>}>
+        <DescriptionList items={[
+          { label: "Status", value: <RequestStatusBadge status={c.status} /> },
+          { label: "Date", value: formatDate(c.work_date) },
+          { label: "Type", value: c.request_type ? requestTypeLabel(c.request_type) : "Punch correction" },
+          c.status === "pending" && { label: "Waiting for", value: c.approval_stage === "hr" ? "HR" : "Your manager" },
+          has(c.requested_check_in_at, c.requested_check_out_at) && { label: "Requested times", value: formatTimeRange(c.requested_check_in_at, c.requested_check_out_at) },
+          has(c.original_check_in_at, c.original_check_out_at) && { label: "Original punches", value: formatTimeRange(c.original_check_in_at, c.original_check_out_at) },
+          c.requested_status && { label: "Requested status", value: label(c.requested_status) },
+          has(c.applied_check_in_at, c.applied_check_out_at) && { label: "Applied times", value: formatTimeRange(c.applied_check_in_at, c.applied_check_out_at) },
+          { label: "Reason", value: c.reason },
+          c.evidence_note && { label: "Evidence", value: c.evidence_note },
+          c.manager_note && { label: "Manager note", value: c.manager_note },
+          c.review_note && { label: "Reviewer note", value: c.review_note },
+          { label: "Submitted", value: formatDateTime(c.created_at) },
+          c.reviewed_at && { label: "Decided", value: formatDateTime(c.reviewed_at) },
+        ]} />
       </Modal>
-      <ConfirmDialog open={confirming} onClose={() => setConfirming(false)} tone="danger" title="Confirm resignation"
-        message={`Submit your resignation${lwd ? ` with a proposed last working day of ${formatDate(lwd)}` : ""}? Your manager and HR will be notified.`}
-        confirmLabel="Submit resignation"
-        onConfirm={async () => { const res = await submitResignation(reason, lwd); if (!res.error) { notify("Resignation submitted."); onDone(); } return res; }} />
+      <ConfirmDialog open={confirming} onClose={() => setConfirming(false)} tone="danger" title="Cancel correction"
+        message="Cancel this attendance correction? Your attendance stays as it is." confirmLabel="Cancel correction"
+        onConfirm={async () => { const res = await cancelCorrection(c.id); if (!res.error) { notify("Correction cancelled."); onChanged(); } return res; }} />
     </>
   );
 }
 
-function ResignationSection({ employeeId }) {
-  const { notify } = useToast();
-  const exits = useHrQuery(() => listMyExits(employeeId), [employeeId]);
-  const [resigning, setResigning] = useState(false);
-  const [withdrawing, setWithdrawing] = useState(false);
-  const open = (exits.data ?? []).find((x) => !ENDED_EXIT_STATUSES.includes(x.status));
-  const past = (exits.data ?? []).filter((x) => x !== open);
-  const canWithdraw = open && open.initiated_by === "employee" && ["submitted", "manager_review", "hr_review"].includes(open.status);
-  return (
-    <Card title={<span className="inline-flex items-center gap-2"><DoorOpen className="h-4 w-4" aria-hidden="true" />Resignation</span>}
-      actions={exits.data && !open && <Button size="sm" variant="secondary" onClick={() => setResigning(true)}>Submit resignation</Button>}>
-      {exits.loading && !exits.data ? <Loading /> : exits.error ? <ErrorState message={exits.error} onRetry={exits.reload} /> : open ? (
-        <div className="flex flex-col gap-4">
-          <ExitStepper exit={open} />
-          <DescriptionList items={[
-            { label: "Status", value: <StatusBadge status={open.status} /> },
-            { label: "Type", value: label(open.exit_type) },
-            { label: "Resignation date", value: formatDate(open.resignation_date) },
-            { label: "Notice period", value: open.notice_period_days != null ? `${open.notice_period_days} days` : null },
-            { label: "Proposed last working day", value: formatDate(open.proposed_last_working_day) },
-            { label: "Approved last working day", value: formatDate(open.approved_last_working_day) },
-            open.manager_decision && { label: "Manager review", value: `${open.manager_decision}${open.manager_note ? ` — ${open.manager_note}` : ""}` },
-            open.hr_decision && { label: "HR decision", value: `${open.hr_decision}${open.hr_note ? ` — ${open.hr_note}` : ""}` },
-          ]} />
-          {open.status === "clearance" && <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">Clearance has started: please return company assets (see My Assets) and complete your handovers.</p>}
-          {canWithdraw ? (
-            <div><Button variant="secondary" onClick={() => setWithdrawing(true)}>Withdraw resignation</Button></div>
-          ) : open.initiated_by === "employee" && <p className="text-xs text-slate-500">HR has approved your resignation; contact HR to change it.</p>}
-        </div>
-      ) : (
-        <div className="flex flex-col gap-2">
-          <p className="text-sm text-slate-600">You have no open resignation.</p>
-          {past.length > 0 && (
-            <ul className="flex flex-col gap-1 text-sm">
-              {past.map((x) => <li key={x.id} className="flex flex-wrap items-center gap-2 text-slate-600"><StatusBadge status={x.status} /> {label(x.exit_type)} · submitted {formatDate(x.resignation_date ?? x.created_at)}</li>)}
-            </ul>
-          )}
-        </div>
-      )}
-      {resigning && <ResignModal onClose={() => setResigning(false)} onDone={() => { setResigning(false); exits.reload(); }} />}
-      <ConfirmDialog open={withdrawing} onClose={() => setWithdrawing(false)} title="Withdraw resignation"
-        message="Your resignation will be withdrawn and your manager and HR notified." confirmLabel="Withdraw" requireReason={false} reasonLabel="Note (optional)"
-        onConfirm={async (note) => { const res = await withdrawExit(open.id, note); if (!res.error) { notify("Resignation withdrawn."); exits.reload(); } return res; }} />
-    </Card>
-  );
-}
-
-// -------------------------------------------------------------------- list
-function MyCorrections({ employeeId, reloadKey }) {
-  const list = useHrQuery(() => listMyCorrections(employeeId), [employeeId, reloadKey]);
-  return (
-    <Card title={<span className="inline-flex items-center gap-2"><CalendarClock className="h-4 w-4" aria-hidden="true" />My attendance corrections</span>}
-      actions={<Link to="/employee/attendance" className="text-sm font-semibold text-[#1f4693] hover:underline">Open My Attendance</Link>}>
-      <DataTable caption="My attendance corrections" rows={(list.data ?? []).slice(0, 10)} loading={list.loading} error={list.error} onRetry={list.reload} pageSize={10}
-        emptyTitle="No attendance corrections" emptyDescription="Use New request, then Attendance correction, for a missed or wrong punch."
-        columns={[
-          { key: "work_date", header: "Date", render: (c) => formatDate(c.work_date) },
-          { key: "requested", header: "Requested", render: (c) => formatTimeRange(c.requested_check_in_at, c.requested_check_out_at) },
-          { key: "reason", header: "Reason", render: (c) => <span className="line-clamp-2">{c.reason}</span> },
-          { key: "status", header: "Status", render: (c) => <RequestStatusBadge status={c.status} /> },
-          { key: "review_note", header: "Reviewer note", render: (c) => c.review_note || "—" },
-        ]} />
-    </Card>
-  );
+// Deep links (e.g. from My Payroll & Payslips) open a form directly:
+//   ?new=attendance | reimbursement | salary | document | profile | helpdesk[&category=<code>] | advance
+//   ?new=letter[&letter=<letter type>] is kept for older links (salary_certificate opens the salary form).
+const DEEP_LINK_TYPES = ["attendance", "reimbursement", "salary", "document", "profile", "helpdesk", "advance"];
+function initialForm(params) {
+  const n = params.get("new");
+  if (n === "letter") return params.get("letter") === "salary_certificate" ? "salary" : "document";
+  return DEEP_LINK_TYPES.includes(n) ? n : null;
 }
 
 function MyRequestList() {
@@ -184,37 +189,94 @@ function MyRequestList() {
   const me = hr?.employee?.id;
   const navigate = useNavigate();
   const list = useHrQuery(() => listMyRequests(me), [me]);
+  const corrections = useHrQuery(() => listMyCorrections(me), [me]);
   const cats = useHrQuery(() => listRequestCategories(), []);
-  // ?new=reimbursement (e.g. from My Payslips) opens the reimbursement claim form directly.
   const [params, setParams] = useSearchParams();
-  const [creating, setCreating] = useState(() => (params.get("new") === "reimbursement" ? "reimbursement" : null));   // null | "choose" | type key
-  const [corrKey, setCorrKey] = useState(0);
+  const [creating, setCreating] = useState(() => initialForm(params));   // null | "choose" | type key
+  const presetLetter = LETTER_TYPES.some((t) => t.value === params.get("letter") && t.value !== "salary_certificate") ? params.get("letter") : "";
+  const presetCategory = params.get("category") || "";
+  const [tab, setTab] = useState("all");
+  const [kind, setKind] = useState("");
+  const [openCorrection, setOpenCorrection] = useState(null);
+
+  const rows = useMemo(() => {
+    const reqs = (list.data ?? []).map((r) => ({ id: `r-${r.id}`, kind: requestKind(r), title: r.subject, status: r.status,
+      created_at: r.created_at, updated_at: r.last_activity_at ?? r.updated_at ?? r.created_at, request: r }));
+    const corr = (corrections.data ?? []).map((c) => ({ id: `c-${c.id}`, kind: "attendance", status: c.status,
+      title: `${c.request_type ? requestTypeLabel(c.request_type) : "Punch correction"} for ${formatDate(c.work_date)}`,
+      created_at: c.created_at, updated_at: c.reviewed_at ?? c.manager_decided_at ?? c.created_at, correction: c }));
+    return [...reqs, ...corr].map((x) => ({ ...x, bucket: bucket(x) }))
+      .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
+  }, [list.data, corrections.data]);
+
   if (!me) return <ErrorState message="Your account is not linked to an employee record." />;
   const close = () => { setCreating(null); if (params.has("new")) setParams({}, { replace: true }); };
   const created = (id) => { close(); list.reload(); if (id) navigate(`/employee/requests/${id}`); };
+  const reloadAll = () => { list.reload(); corrections.reload(); };
+
+  const ofKind = kind ? rows.filter((x) => x.kind === kind) : rows;
+  const shown = tab === "all" ? ofKind : ofKind.filter((x) => x.bucket === tab);
+  const count = (t) => (t === "all" ? ofKind.length : ofKind.filter((x) => x.bucket === t).length);
+  const loaded = list.data && corrections.data;
+  const kindOptions = Object.entries(KINDS).filter(([k]) => (k !== "advance" && k !== "helpdesk") || rows.some((x) => x.kind === k))
+    .map(([value, k]) => ({ value, label: k.label }));
+  const [emptyTitle, emptyDescription] = kind && tab === "all" ? ["No requests of this type", "Clear the type filter to see all requests."] : EMPTY[tab];
+
   return (
     <>
       <PageHeader title="My HR Requests"
-        description="HR questions, letters, reimbursements, salary advances, profile changes and attendance corrections. HR questions are seen only by HR; claims and advances also go to your manager for approval."
-        actions={<Button onClick={() => setCreating("choose")}><Plus className="h-4 w-4" aria-hidden="true" />New request</Button>} />
-      <DataTable caption="My HR requests" rows={list.data} loading={list.loading} error={list.error} onRetry={list.reload}
-        emptyTitle="No requests yet" emptyDescription="Use New request to contact HR." onRowClick={(r) => navigate(`/employee/requests/${r.id}`)}
+        description="Attendance corrections, reimbursements, salary certificates, document requests and changes to your employee information. Each request shows who approves it and where it is now."
+        actions={<Button className="whitespace-nowrap" onClick={() => setCreating("choose")}><Plus className="h-4 w-4" aria-hidden="true" />New request</Button>} />
+
+      <Card title="Start a request" className="mb-6">
+        <RequestTypeGrid types={availableRequestTypes(cats.data)} onPick={setCreating} className="sm:grid-cols-2 xl:grid-cols-5" />
+        <p className="mt-3 text-xs text-slate-500">Something else? <Link to="/employee/helpdesk?new=1" className="font-semibold text-[#1f4693] hover:underline">Ask HR a question</Link> in Helpdesk &amp; Support.</p>
+      </Card>
+
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+        <div className="min-w-0 flex-1">
+          <Tabs label="Request status" value={tab} onChange={setTab}
+            tabs={TABS.map((t) => ({ ...t, count: loaded ? count(t.value) : undefined }))} />
+        </div>
+        <div className="mb-4 sm:w-60">
+          <Select aria-label="Request type" placeholder="All request types" value={kind} onChange={(e) => setKind(e.target.value)} options={kindOptions} />
+        </div>
+      </div>
+
+      <DataTable caption="My HR requests" rows={shown} loading={(list.loading && !list.data) || (corrections.loading && !corrections.data)}
+        error={list.error || corrections.error} onRetry={reloadAll} emptyTitle={emptyTitle} emptyDescription={emptyDescription}
+        onRowClick={(x) => (x.correction ? setOpenCorrection(x.correction) : navigate(`/employee/requests/${x.request.id}`))}
         columns={[
-          { key: "subject", header: "Request", render: (r) => <div className="min-w-[12rem]"><p className="font-semibold text-[#101a3a]">{r.subject}</p>
-            <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-slate-500">{r.workflow && r.workflow !== "helpdesk" ? <WorkflowBadge workflow={r.workflow} /> : r.category?.name}</p></div> },
-          { key: "status", header: "Status", render: (r) => <RequestStatusBadge status={r.status} /> },
-          { key: "created_at", header: "Created", sortable: true, render: (r) => formatDateTime(r.created_at) },
-          { key: "last_activity_at", header: "Last update", sortable: true, render: (r) => formatDateTime(r.last_activity_at) },
+          { key: "title", header: "Request", render: (x) => (
+            <div className="min-w-[12rem]">
+              <p className="font-semibold text-[#101a3a]">{x.title}</p>
+              <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
+                <Badge tone={KINDS[x.kind].tone}>{KINDS[x.kind].label}</Badge>
+                {x.kind === "helpdesk" && x.request.category?.name}
+              </p>
+            </div>
+          ) },
+          { key: "status", header: "Status", render: (x) => <RequestStatusBadge status={x.status} /> },
+          { key: "next", header: "Next step", render: (x) => {
+            const s = nextStep(x);
+            return s ? <span className={x.bucket === "action" ? "font-semibold text-orange-700" : "text-slate-600"}>{s}</span> : <span className="text-slate-400">—</span>;
+          } },
+          { key: "created_at", header: "Submitted", sortable: true, render: (x) => formatDateTime(x.created_at) },
+          { key: "updated_at", header: "Last update", sortable: true, render: (x) => formatDateTime(x.updated_at) },
         ]} />
-      <div className="mt-6"><MyCorrections employeeId={me} reloadKey={corrKey} /></div>
-      <div className="mt-6"><ResignationSection employeeId={me} /></div>
+
       {creating === "choose" && <RequestTypeChooser categories={cats.data} onClose={close} onPick={setCreating} />}
-      {creating === "helpdesk" && <NewRequestModal onClose={close} onCreated={created} />}
-      {creating === "letter" && <LetterForm onClose={close} onDone={created} />}
+      {/* HR questions and support tickets are raised in Helpdesk & Support (181). */}
+      {creating === "helpdesk" && <Navigate to={`/employee/helpdesk?new=1${presetCategory ? `&category=${encodeURIComponent(presetCategory)}` : ""}`} replace />}
+      {creating === "salary" && <LetterForm variant="salary" onClose={close} onDone={created} />}
+      {creating === "document" && <LetterForm variant="document" request={presetLetter ? { details: { letter_type: presetLetter } } : undefined} onClose={close} onDone={created} />}
       {creating === "reimbursement" && <ReimbursementForm onClose={close} onDone={created} />}
+      {/* Not offered on this page; kept for the My Payroll deep link (?new=advance). */}
       {creating === "advance" && <SalaryAdvanceForm onClose={close} onDone={created} />}
       {creating === "profile" && <ProfileChangeForm employeeId={me} onClose={close} onDone={created} />}
-      {creating === "attendance" && <AttendanceCorrectionForm onClose={close} onDone={() => { close(); setCorrKey((k) => k + 1); }} />}
+      {creating === "attendance" && <AttendanceCorrectionForm onClose={close} onDone={() => { close(); corrections.reload(); }} />}
+      {openCorrection && <CorrectionModal correction={openCorrection} onClose={() => setOpenCorrection(null)}
+        onChanged={() => { setOpenCorrection(null); corrections.reload(); }} />}
     </>
   );
 }
@@ -226,6 +288,7 @@ function MyRequestDetail() {
   const req = useHrQuery(() => getRequest(id), [id]);
   if (req.loading && !req.data) return <Loading />;
   if (req.data?.workflow && req.data.workflow !== "helpdesk") return <MyWorkflowDetail id={id} employeeId={hr?.employee?.id} />;
+  if (req.data?.workflow === "helpdesk") return <Navigate to={`/employee/helpdesk/${id}`} replace />;
   return <MyHelpdeskDetail id={id} req={req} />;
 }
 

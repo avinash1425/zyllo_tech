@@ -245,3 +245,10 @@ export async function listDocumentAccess(documentIds) {
   const byUser = new Map((people.data ?? []).map((p) => [p.user_id, p]));
   return { ...log, data: log.data.map((r) => ({ ...r, accessor: byUser.get(r.accessed_by) ?? null })) };
 }
+
+/** The employee's reporting manager as the employee may see them (RLS: own manager's work record). */
+export async function getReportingManager(managerId) {
+  if (!managerId) return { data: null, error: null };
+  return run(from("hr_employees").select(`id, employee_code, first_name, last_name, display_name, company_email,
+    designation:hr_designations(id, name), department:hr_departments!hr_employees_department_id_fkey(id, name)`).eq("id", managerId).maybeSingle());
+}

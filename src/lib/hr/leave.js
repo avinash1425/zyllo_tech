@@ -12,6 +12,8 @@ export const LEAVE_EVENT_LABELS = {
   applied: "Applied", manager_approved: "Approved by manager", approved: "Approved", rejected: "Rejected",
   clarification_requested: "Clarification requested", clarification_response: "Clarification response", cancelled: "Cancelled",
   holiday_changed: "Holiday calendar changed", recalculated: "Recalculated",
+  cancellation_requested: "Cancellation requested", cancellation_withdrawn: "Cancellation request withdrawn",
+  cancellation_rejected: "Cancellation request rejected",
 };
 export const ACCRUAL_LABELS = { annual: "Annual (full entitlement on 1 Jan)", quarterly: "Quarterly (1/4 per quarter)", monthly: "Monthly (1/12 per month)", none: "None (no balance)" };
 export const LEDGER_LABELS = {
@@ -25,7 +27,8 @@ const EMP = "id, employee_code, first_name, last_name, display_name, department_
 const TYPE_COLS = "id, code, name, description, paid, annual_entitlement, accrual, carry_forward_max, carry_forward_expiry_months, allow_half_day, requires_document_after_days, allow_during_probation, allow_negative, max_negative, counts_weekends, counts_holidays, active, sort_order, eligible_employment_types, min_days_per_request, max_days_per_request, min_notice_days, effective_from, effective_to, policy_version";
 const REQ_COLS = `id, employee_id, leave_type_id, start_date, end_date, start_half, end_half, days, year, reason, document_path, status,
   current_level, manager_approved_at, decided_at, decision_note, cancelled_at, created_at, updated_at, document_id, policy_version,
-  holiday_review_required`;
+  holiday_review_required, cancellation_status, cancellation_reason, cancellation_requested_at, cancellation_decided_at,
+  cancellation_decision_note`;
 
 export async function listLeaveTypes({ activeOnly = false } = {}) {
   let q = from("hr_leave_types").select(TYPE_COLS).order("sort_order").order("code");
@@ -59,6 +62,10 @@ export const applyLeave = ({ type, start, end, reason, startHalf, endHalf, docum
   });
 
 export const cancelLeave = (id, note) => rpc("hr_cancel_leave", { p_id: id, p_note: note?.trim() || null });
+/** Ask HR to cancel approved leave that has already started (migration 161). */
+export const requestCancellation = (id, reason) => rpc("hr_request_leave_cancellation", { p_id: id, p_reason: reason?.trim() });
+export const withdrawCancellation = (id) => rpc("hr_withdraw_leave_cancellation", { p_id: id });
+export const decideCancellation = (id, approve, note) => rpc("hr_decide_leave_cancellation", { p_id: id, p_approve: approve, p_note: note?.trim() || null });
 export const respondClarification = (id, note) => rpc("hr_respond_leave_clarification", { p_id: id, p_note: note?.trim() });
 
 export async function listMyRequests(employeeId) {
@@ -89,7 +96,7 @@ export const leaveOverview = ({ from: f = null, to = null, department = "", type
   rpc("hr_leave_overview", { p_from: f || null, p_to: to || null, p_department: department || null, p_leave_type: type || null,
     p_legal_entity: legalEntity || null, p_employee: employee || null });
 
-export async function listRequests({ status = "", type = "", employee = "", from: f, to, review = false } = {}) {
+export async function listRequests({ status = "", type = "", employee = "", from: f, to, review = false, cancellation = false } = {}) {
   let q = from("hr_leave_requests").select(`${REQ_COLS},
     employee:hr_employees!hr_leave_requests_employee_id_fkey(${EMP}),
     leave_type:hr_leave_types!hr_leave_requests_leave_type_id_fkey(id, code, name, paid)`);
@@ -99,6 +106,7 @@ export async function listRequests({ status = "", type = "", employee = "", from
   if (f) q = q.gte("end_date", f);
   if (to) q = q.lte("start_date", to);
   if (review) q = q.eq("holiday_review_required", true);
+  if (cancellation) q = q.eq("cancellation_status", "pending");
   return run(q.order("start_date", { ascending: status === "pending_approval" }).limit(3000));
 }
 

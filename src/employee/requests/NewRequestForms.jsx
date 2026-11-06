@@ -80,11 +80,16 @@ function FilePicker({ label, files, setFiles, required, hint }) {
   );
 }
 
-// ------------------------------------------------------------- HR letter
-export function LetterForm({ mode = "new", request, onClose, onDone }) {
+// ------------------------------------------------- salary certificate / document request
+// Both are HR letter workflow requests (category document_request). variant "salary" fixes the letter to a
+// salary certificate (prepared by Payroll); "document" offers the other letters. Without a variant (editing a
+// returned request) it follows the request's own letter type.
+const DOCUMENT_LETTER_TYPES = LETTER_TYPES.filter((t) => t.value !== "salary_certificate");
+export function LetterForm({ mode = "new", request, variant, onClose, onDone }) {
   const { notify } = useToast();
   const d = request?.details ?? {};
-  const [v, setV] = useState({ letter_type: d.letter_type ?? "", purpose: d.purpose ?? "", addressed_to: d.addressed_to ?? "",
+  const salary = (variant ?? (d.letter_type === "salary_certificate" ? "salary" : "document")) === "salary";
+  const [v, setV] = useState({ letter_type: salary ? "salary_certificate" : (d.letter_type ?? ""), purpose: d.purpose ?? "", addressed_to: d.addressed_to ?? "",
     required_by: d.required_by ?? "", other_letter_name: d.other_letter_name ?? "", additional_details: d.additional_details ?? "" });
   const [errors, setErrors] = useState({});
   const [error, setError] = useState(null);
@@ -92,9 +97,9 @@ export function LetterForm({ mode = "new", request, onClose, onDone }) {
   const set = (k) => (e) => setV((s) => ({ ...s, [k]: e.target.value }));
   async function submit() {
     const errs = {};
-    if (!v.letter_type) errs.letter_type = "Choose a letter type.";
+    if (!v.letter_type) errs.letter_type = "Choose a document.";
     if (v.purpose.trim().length < 3) errs.purpose = "Describe the purpose (at least 3 characters).";
-    if (v.letter_type === "other" && v.other_letter_name.trim().length < 3) errs.other_letter_name = "Name the letter you need.";
+    if (v.letter_type === "other" && v.other_letter_name.trim().length < 3) errs.other_letter_name = "Name the document you need.";
     if (v.required_by && v.required_by < businessToday()) errs.required_by = "The date is in the past.";
     setErrors(errs);
     if (Object.keys(errs).length) return;
@@ -102,15 +107,18 @@ export function LetterForm({ mode = "new", request, onClose, onDone }) {
     const res = await saveAndSubmit({ mode, requestId: request?.id, category: "document_request", details: v });
     setBusy(false);
     if (res.error) { setError(res.error); return; }
-    notify(mode === "edit" ? "Request resubmitted." : "Letter request submitted to HR.");
+    notify(mode === "edit" ? "Request resubmitted." : salary ? "Salary certificate requested. Payroll will prepare it." : "Document request submitted to HR.");
     onDone(res.id);
   }
+  const title = salary ? (mode === "edit" ? "Update salary certificate request" : "Request a salary certificate")
+    : (mode === "edit" ? "Update document request" : "Request a document");
   return (
-    <FormModal title={mode === "edit" ? "Update letter request" : "Request an HR letter"} onClose={onClose} busy={busy} onSubmit={submit} error={error}
+    <FormModal title={title} onClose={onClose} busy={busy} onSubmit={submit} error={error}
       submitLabel={mode === "edit" ? "Resubmit" : "Submit"}>
-      <Field label="Letter type" required error={errors.letter_type}><Select placeholder="Choose a letter" value={v.letter_type} onChange={set("letter_type")} options={LETTER_TYPES} /></Field>
-      {v.letter_type === "other" && <Field label="Letter name" required error={errors.other_letter_name}><Input maxLength={120} value={v.other_letter_name} onChange={set("other_letter_name")} /></Field>}
-      {v.letter_type === "salary_certificate" && <p className="flex items-start gap-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700"><Lock className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />Salary certificates are prepared by Payroll. Your salary details are not shown to HR reviewers.</p>}
+      {!salary && <Field label="Document" required error={errors.letter_type}><Select placeholder="Choose a document" value={v.letter_type} onChange={set("letter_type")} options={DOCUMENT_LETTER_TYPES} /></Field>}
+      {v.letter_type === "other" && <Field label="Document name" required error={errors.other_letter_name}><Input maxLength={120} value={v.other_letter_name} onChange={set("other_letter_name")} /></Field>}
+      {salary && <p className="flex items-start gap-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700"><Lock className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />Salary certificates are prepared by Payroll. Your salary details are not shown to HR reviewers.</p>}
+      {!salary && <p className="text-xs text-slate-500">HR prepares the document. When it is issued, a download appears on this request.</p>}
       <Field label="Purpose" required error={errors.purpose} hint="e.g. visa application, bank loan, rental agreement"><Textarea rows={3} maxLength={500} value={v.purpose} onChange={set("purpose")} /></Field>
       <Field label="Addressed to" hint="Optional — e.g. the embassy or bank name"><Input maxLength={200} value={v.addressed_to} onChange={set("addressed_to")} /></Field>
       <Field label="Required by" error={errors.required_by}><Input type="date" min={businessToday()} value={v.required_by} onChange={set("required_by")} /></Field>
@@ -241,14 +249,14 @@ export function SalaryAdvanceForm({ mode = "new", request, onClose, onDone }) {
 }
 
 // -------------------------------------------------------- profile change
-export function ProfileChangeForm({ mode = "new", request, employeeId, onClose, onDone }) {
+export function ProfileChangeForm({ mode = "new", request, employeeId, startWithBank = false, onClose, onDone }) {
   const { notify } = useToast();
   const cur = useHrQuery(() => getEmployeePrivate(employeeId), [employeeId]);
   const bank = useHrQuery(() => myBankAccounts(), []);
   const prior = Object.fromEntries((request?.profile_changes ?? []).filter((r) => r.group === "contact").map((r) => [r.field, r.proposed ?? ""]));
   const [v, setV] = useState(prior);
   const [reason, setReason] = useState(request?.details?.reason ?? "");
-  const [withBank, setWithBank] = useState(false);
+  const [withBank, setWithBank] = useState(startWithBank);
   const [b, setB] = useState({ bank_name: "", account_holder: "", account_number: "", confirm: "", ifsc: "", iban: "", swift_code: "", branch: "" });
   const [errors, setErrors] = useState({});
   const [error, setError] = useState(null);
@@ -298,8 +306,13 @@ export function ProfileChangeForm({ mode = "new", request, employeeId, onClose, 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {PROFILE_FIELDS.map((f) => (
               <Field key={f.key} label={f.label} error={errors[f.key]} hint={cur.data?.[f.key] ? `Current: ${cur.data[f.key]}` : undefined}>
-                <Input type={f.type ?? "text"} maxLength={200} value={v[f.key] ?? ""} placeholder={cur.data?.[f.key] ?? ""}
-                  onChange={(e) => setV((s) => ({ ...s, [f.key]: e.target.value }))} />
+                {f.options ? (
+                  <Select placeholder="No change" options={f.options} value={v[f.key] ?? ""}
+                    onChange={(e) => setV((s) => ({ ...s, [f.key]: e.target.value || undefined }))} />
+                ) : (
+                  <Input type={f.type ?? "text"} maxLength={200} value={v[f.key] ?? ""} placeholder={cur.data?.[f.key] ?? ""}
+                    onChange={(e) => setV((s) => ({ ...s, [f.key]: e.target.value }))} />
+                )}
               </Field>
             ))}
           </div>
@@ -378,31 +391,48 @@ export function AttendanceCorrectionForm({ onClose, onDone }) {
 }
 
 // ------------------------------------------------------------- chooser
+// The five request types My HR Requests is built around. `category` is the Module 10 category that must be
+// active for the type to be offered. Salary advances are not offered here (the My Payroll page deep-links to
+// that form); HR questions are offered separately as OTHER_REQUEST_TYPES.
 export const REQUEST_TYPES = [
-  { key: "helpdesk", label: "HR question", description: "Ask HR anything (confidential grievances included)", icon: MessageCircleQuestion },
-  { key: "letter", label: "HR letter", description: "Employment, experience, salary or address letter", icon: FileSignature, category: "document_request" },
-  { key: "reimbursement", label: "Reimbursement claim", description: "Business expense with receipt", icon: Receipt, category: "reimbursement" },
-  { key: "advance", label: "Salary advance", description: "Under the company policy", icon: Banknote, category: "loan_advance" },
-  { key: "profile", label: "Profile change", description: "Phone, address, emergency contact, bank details", icon: UserCog, category: "profile_update" },
-  { key: "attendance", label: "Attendance correction", description: "Missed or incorrect punch", icon: CalendarClock },
+  { key: "attendance", label: "Attendance correction", description: "Missed or wrong punch-in or punch-out", icon: CalendarClock },
+  { key: "reimbursement", label: "Reimbursement", description: "Claim a business expense with its receipt", icon: Receipt, category: "reimbursement" },
+  { key: "salary", label: "Salary certificate", description: "For a bank loan, visa or rental agreement", icon: Banknote, category: "document_request" },
+  { key: "document", label: "Document request", description: "Employment certificate, experience or address letter", icon: FileSignature, category: "document_request" },
+  { key: "profile", label: "Employee information change", description: "Contact, address, emergency contact, bank account", icon: UserCog, category: "profile_update" },
 ];
+export const OTHER_REQUEST_TYPES = [
+  { key: "helpdesk", label: "Ask HR a question", description: "Anything else, including confidential concerns", icon: MessageCircleQuestion },
+];
+/** Types whose category is active. Until the categories load, every type is shown. */
+export function availableRequestTypes(categories) {
+  if (!categories) return REQUEST_TYPES;
+  const active = new Set(categories.filter((c) => c.active).map((c) => c.code));
+  return REQUEST_TYPES.filter((t) => !t.category || active.has(t.category));
+}
+
+export function RequestTypeGrid({ types, onPick, className = "sm:grid-cols-2" }) {
+  return (
+    <ul className={`grid grid-cols-1 gap-2 ${className}`}>
+      {types.map((t) => (
+        <li key={t.key} className="flex">
+          <button type="button" onClick={() => onPick(t.key)}
+            className="flex w-full items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left transition hover:border-[#f96706] hover:bg-orange-50/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1f4693]">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-orange-50 text-[#f96706]"><t.icon className="h-5 w-5" aria-hidden="true" /></span>
+            <span className="min-w-0"><span className="block text-sm font-semibold text-[#101a3a]">{t.label}</span><span className="block text-xs text-slate-500">{t.description}</span></span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function RequestTypeChooser({ categories, onPick, onClose }) {
-  const active = new Set((categories ?? []).filter((c) => c.active).map((c) => c.code));
-  const types = REQUEST_TYPES.filter((t) => !t.category || active.has(t.category));
   return (
     <Modal open onClose={onClose} title="New request" size="md" footer={<Button variant="secondary" onClick={onClose}>Cancel</Button>}>
-      <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        {types.map((t) => (
-          <li key={t.key}>
-            <button type="button" onClick={() => onPick(t.key)}
-              className="flex w-full items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left transition hover:border-[#f96706] hover:bg-orange-50/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1f4693]">
-              <t.icon className="mt-0.5 h-5 w-5 shrink-0 text-[#f96706]" aria-hidden="true" />
-              <span><span className="block text-sm font-semibold text-[#101a3a]">{t.label}</span><span className="block text-xs text-slate-500">{t.description}</span></span>
-            </button>
-          </li>
-        ))}
-      </ul>
-      {!active.has("loan_advance") && <p className="mt-3 text-xs text-slate-500">Salary advances are not offered until the company policy is enabled.</p>}
+      <RequestTypeGrid types={availableRequestTypes(categories)} onPick={onPick} />
+      <p className="mb-2 mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Something else</p>
+      <RequestTypeGrid types={OTHER_REQUEST_TYPES} onPick={onPick} />
     </Modal>
   );
 }

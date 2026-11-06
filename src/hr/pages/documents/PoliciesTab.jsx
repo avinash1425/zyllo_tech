@@ -29,7 +29,7 @@ export function downloadPolicyText(policy, version) {
     `${policy.title.replace(/[^A-Za-z0-9]+/g, "_")}_v${version.version}`);
 }
 
-function MultiPick({ options, value, onChange, label }) {
+export function MultiPick({ options, value, onChange, label }) {
   return (
     <fieldset className="max-h-48 overflow-y-auto rounded-xl border border-slate-200 p-2">
       <legend className="px-1 text-xs font-semibold text-slate-600">{label}</legend>
@@ -41,11 +41,11 @@ function MultiPick({ options, value, onChange, label }) {
   );
 }
 
-function PolicyEditor({ policy, draft, employees, onClose, onSaved }) {
+function PolicyEditor({ policy, draft, employees, onClose, onSaved, defaultCategory = "general", noun = "policy" }) {
   const { notify } = useToast();
   const org = useOrg();
   const [v, setV] = useState({
-    title: policy?.title ?? "", category: policy?.category ?? "general", requires_acknowledgement: policy?.requires_acknowledgement ?? true,
+    title: policy?.title ?? "", category: policy?.category ?? defaultCategory, requires_acknowledgement: policy?.requires_acknowledgement ?? true,
     employee_visible: policy?.employee_visible ?? true, audience_type: policy?.audience_type ?? "all",
     audience_ids: policy?.audience_ids ?? [], audience_codes: policy?.audience_codes ?? [],
     content: draft?.content ?? "", effective_date: draft?.effective_date ?? "", change_summary: draft?.change_summary ?? "",
@@ -80,7 +80,7 @@ function PolicyEditor({ policy, draft, employees, onClose, onSaved }) {
     onClose();
   }
   return (
-    <Modal open onClose={onClose} title={policy ? `Edit policy · ${policy.title}` : "New policy"} size="xl"
+    <Modal open onClose={onClose} title={policy ? `Edit ${noun} · ${policy.title}` : `New ${noun}`} size="xl"
       footer={<><Button variant="secondary" onClick={onClose} disabled={busy}>Cancel</Button><Button loading={busy} onClick={save}>Save draft</Button></>}>
       <div className="flex flex-col gap-3">
         {published && <p className="rounded-lg bg-sky-50 px-3 py-2 text-sm text-sky-900">Version {policy.current_version} is published and cannot be changed. Your edits go into a new draft version; employees keep seeing version {policy.current_version} until you publish.</p>}
@@ -139,10 +139,19 @@ function VersionsModal({ policy, onClose }) {
   );
 }
 
-export default function PoliciesTab({ canManage, employees, onNavigate }) {
+// scope: undefined = every policy (Documents module); "policies" = all but the
+// handbook; "handbook" = only the employee handbook (Announcements & Policies).
+const inScope = (scope) => (p) => (scope === "handbook" ? p.category === "handbook" : scope === "policies" ? p.category !== "handbook" : true);
+
+export default function PoliciesTab({ canManage, employees, onNavigate, scope }) {
   const { notify } = useToast();
   const [status, setStatus] = useState("");
-  const q = useHrQuery(() => listPolicies({ status }), [status]);
+  const handbook = scope === "handbook";
+  const noun = handbook ? "handbook" : "policy";
+  const q = useHrQuery(async () => {
+    const res = await listPolicies({ status });
+    return res.error ? res : { ...res, data: res.data.filter(inScope(scope)) };
+  }, [status, scope]);
   const [editing, setEditing] = useState(null);
   const [history, setHistory] = useState(null);
   const [publishing, setPublishing] = useState(null);
@@ -167,9 +176,11 @@ export default function PoliciesTab({ canManage, employees, onNavigate }) {
       <Toolbar>
         <Select aria-label="Status" className="sm:w-48" placeholder="Any status" value={status} onChange={(e) => setStatus(e.target.value)} options={["draft", "published", "archived"].map((s) => ({ value: s, label: s }))} />
         <Button variant="ghost" onClick={() => onNavigate?.("acknowledgements")}>Acknowledgement tracking</Button>
-        {canManage && <Button className="sm:ml-auto" onClick={() => edit(null)}><Plus className="h-4 w-4" aria-hidden="true" />New policy</Button>}
+        {canManage && <Button className="sm:ml-auto" onClick={() => edit(null)}><Plus className="h-4 w-4" aria-hidden="true" />{handbook ? "New handbook" : "New policy"}</Button>}
       </Toolbar>
-      <DataTable caption="Company policies" rows={q.data} loading={q.loading} error={q.error} onRetry={q.reload} emptyTitle="No policies yet"
+      <DataTable caption={handbook ? "Employee handbook" : "Company policies"} rows={q.data} loading={q.loading} error={q.error} onRetry={q.reload}
+        emptyTitle={handbook ? "No handbook yet" : "No policies yet"}
+        emptyDescription={handbook ? "Publish the employee handbook here. Each edit becomes a new version that employees acknowledge again." : undefined}
         columns={[
           { key: "title", header: "Policy", render: (p) => <div className="min-w-[12rem]"><p className="font-semibold text-[#101a3a]">{p.title}</p><p className="text-xs text-slate-500">{catLabel(p.category)} · {AUDIENCE_TYPES.find((a) => a.value === p.audience_type)?.label}{p.audience_type !== "all" ? ` (${(p.audience_type === "employment_types" ? p.audience_codes : p.audience_ids).length})` : ""}</p></div> },
           { key: "status", header: "Status", render: (p) => <StatusBadge status={p.status} /> },
@@ -184,7 +195,8 @@ export default function PoliciesTab({ canManage, employees, onNavigate }) {
               {canManage && p.status !== "archived" && <Button size="sm" variant="ghost" onClick={() => setConfirm({ p, action: "archive" })} aria-label={`Archive ${p.title}`}><Archive className="h-4 w-4" aria-hidden="true" /></Button>}
             </span>) },
         ]} />
-      {editing && <PolicyEditor policy={editing.policy} draft={editing.draft} employees={employees} onClose={() => setEditing(null)} onSaved={q.reload} />}
+      {editing && <PolicyEditor policy={editing.policy} draft={editing.draft} employees={employees} onClose={() => setEditing(null)} onSaved={q.reload}
+        defaultCategory={handbook ? "handbook" : "general"} noun={noun} />}
       {history && <VersionsModal policy={history} onClose={() => setHistory(null)} />}
       {publishing && (
         <ConfirmDialog open onClose={() => setPublishing(null)} title={`Publish version ${publishing.draft.version}`} confirmLabel="Publish" tone="success"

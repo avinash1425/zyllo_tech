@@ -160,7 +160,7 @@ try {
   check("HR request created by employee", /Synthetic request from flow test/.test(await h(s, "text()")) || (await s.js("location.pathname")).match(/\/employee\/requests\/[0-9a-f-]{36}/) !== null);
   await s.go("/hr/employees", 3000);
   check("Employee is refused HR Operations", /Not authorised/.test(await h(s, "text()")));
-  await s.go("/employee/payslips", 3500);
+  await s.go("/employee/payslips?tab=payslips", 3500);
   const myPayslips = await h(s, "rows()");
   check("Employee sees own payslips", myPayslips >= 1, `${myPayslips} rows`);
   const txt = await h(s, "text()");

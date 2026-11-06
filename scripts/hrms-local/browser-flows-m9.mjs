@@ -270,7 +270,7 @@ async function wfUploadVerify() {
   const W = "upload_verify";
   const title = `Internship cert ${RUN}`;
   await as(EMP, async (s) => {
-    await s.go("/employee/documents", 4500);
+    await s.go("/employee/documents?tab=uploads", 4500);
     check(W, "ui", "upload button available", await h(s, `click("Upload document")`));
     await waitDialog(s);
     check(W, "ui", "category chosen", Boolean(await h(s, `pickText("Category", "Internship certificate")`)));

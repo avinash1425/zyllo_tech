@@ -14,7 +14,7 @@ import { businessToday, useBusinessTimezone } from "@/lib/hr/attendance";
 import {
   LEAVE_EVENT_LABELS, LEAVE_STATUSES, LEDGER_LABELS, adjustBalance, cancelLeave, closeLeaveYear, decideLeave, halfLabel, initializeLeaveYear,
   leaveOverview, listAdjustments, listBalances, listLeaveTypes, listLeaveYears, listLedger, listRequestEvents, listRequests, pendingClarification,
-  processLeaveExpiry, recalculateLeave, requestClarification, setOpeningBalance,
+  decideCancellation, processLeaveExpiry, recalculateLeave, requestClarification, setOpeningBalance,
 } from "@/lib/hr/leave";
 import {
   Badge, Button, Card, ConfirmDialog, DataTable, ErrorState, Field, InlineError, Input, KpiCard, Loading, Modal, PageHeader, SearchInput, Select,
@@ -228,8 +228,50 @@ function Approvals({ org }) {
             ? <Button onClick={() => act({ kind: "recalc", row: detail })}><RefreshCw className="h-4 w-4" aria-hidden="true" />Recalculate</Button>
             : <Button variant="success" onClick={() => act({ kind: "approve", row: detail })}>Approve</Button>}
         </>} />}
+      {hrLevel || hasPermission("leave.manage") ? <CancellationQueue me={me} /> : null}
       {dialog}
     </>
+  );
+}
+
+/** Employees' requests to cancel approved leave that has already started (migration 161). HR only. */
+function CancellationQueue({ me }) {
+  const { notify } = useToast();
+  const q = useHrQuery(() => listRequests({ cancellation: true }), []);
+  const [action, setAction] = useState(null); // { approve: boolean, row }
+  const rows = useMemo(() => (q.data ?? []).filter((r) => r.employee_id !== me), [q.data, me]);
+  return (
+    <div className="mt-6">
+      <Card title="Cancellation requests" padded={false}>
+        <p className="px-4 pt-3 text-xs text-slate-500">Employees asking to cancel approved leave that has already started. Approving cancels the whole request and returns its days to the balance; if payroll for those dates is already processed, correct it in Payroll.</p>
+        <DataTable caption="Leave cancellation requests" rows={rows} loading={q.loading} error={q.error} onRetry={q.reload}
+          emptyTitle="No cancellation requests" emptyDescription="Nothing waiting."
+          columns={[
+            { key: "employee", header: "Employee", render: (r) => <EmpCell e={r.employee} /> },
+            { key: "leave", header: "Leave", render: (r) => <span className="flex flex-col"><span>{r.leave_type?.name}</span><span className="whitespace-nowrap text-xs text-slate-500">{dates(r)} · {num(r.days)} day(s)</span></span> },
+            { key: "reason", header: "Reason", render: (r) => <span className="line-clamp-3 text-xs">{r.cancellation_reason}</span> },
+            { key: "requested", header: "Requested", render: (r) => formatDateTime(r.cancellation_requested_at) },
+            { key: "_a", header: <span className="sr-only">Actions</span>, render: (r) => (
+              <div className="flex flex-wrap gap-1">
+                <Button size="sm" variant="success" onClick={() => setAction({ approve: true, row: r })}>Approve</Button>
+                <Button size="sm" variant="danger" onClick={() => setAction({ approve: false, row: r })}>Reject</Button>
+              </div>) },
+          ]} />
+      </Card>
+      {action && (
+        <ConfirmDialog open onClose={() => setAction(null)} title={action.approve ? "Approve cancellation?" : "Reject cancellation?"}
+          tone={action.approve ? "success" : "danger"} confirmLabel={action.approve ? "Cancel the leave" : "Reject request"}
+          message={`${fullName(action.row.employee)} · ${action.row.leave_type?.name} · ${dates(action.row)} (${num(action.row.days)} day(s)). ${action.approve ? "The leave is cancelled and the days return to the balance. The employee is notified." : "The leave stays approved. The employee sees your reason."}`}
+          requireReason={!action.approve} reasonLabel={action.approve ? "Note (optional)" : "Reason for rejecting"}
+          onConfirm={async (note) => {
+            const res = await decideCancellation(action.row.id, action.approve, note);
+            if (res.error) return { error: res.error };
+            notify(action.approve ? "Leave cancelled." : "Cancellation request rejected.");
+            q.reload();
+            return {};
+          }} />
+      )}
+    </div>
   );
 }
 
@@ -245,6 +287,7 @@ function RequestDetailModal({ request: r, onClose, actions }) {
           ? <p className="flex items-center gap-1"><Paperclip className="h-4 w-4" aria-hidden="true" /><span className="font-semibold">Supporting document attached.</span> <span className="text-xs text-slate-500">HR document viewers can open it in Documents; line managers see only that it exists.</span></p>
           : r.document_path && <p><span className="font-semibold">Document reference:</span> {r.document_path}</p>}
         {r.decision_note && <p><span className="font-semibold">Decision note:</span> {r.decision_note}</p>}
+        {r.cancellation_status === "pending" && <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">The employee asked to cancel this leave: {r.cancellation_reason}</p>}
         {r.holiday_review_required && <p className="rounded-lg bg-orange-50 px-3 py-2 text-xs font-semibold text-orange-800">The holiday calendar changed for these dates. The stored days and balance are unchanged until an approver recalculates the request.</p>}
         {pendingClarification(events.data) && r.status === "pending_approval" && <p className="rounded-lg bg-orange-50 px-3 py-2 text-xs font-semibold text-orange-800">Waiting for the employee to answer a clarification question.</p>}
         <h3 className="mt-2 font-bold text-[#101a3a]">History</h3>

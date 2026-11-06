@@ -528,7 +528,7 @@ async function wfPayroll() {
   // employee sees new payslip
   s = await session();
   await login(s, "employee@example.com");
-  await s.go("/employee/payslips", 4500);
+  await s.go("/employee/payslips?tab=payslips", 4500);
   await s.reload(4500);
   const slipsNow = (await q1(`select count(*)::int n from hr_payslips where employee_id = ${lit(emp3)}`)).n;
   const rowsCount = await s.js("(() => { const t = document.querySelector('main table tbody'); return t ? [...t.querySelectorAll('tr')].filter((r) => r.querySelectorAll('td').length > 1).length : -1; })()");
@@ -647,7 +647,9 @@ async function wfDocuments() {
   await login(s, "employee@example.com");
   await s.go("/employee/documents", 5000);
   await s.reload(5000);
-  check(WF, "refresh", "Employee page after reload shows the document as verified", /verified/.test(await h(s, `rowText(${J(title)})`) ?? ""), await h(s, `rowText(${J(title)})`));
+  // HR letters are listed as cards under Employment documents → Other HR letters.
+  const card = await s.js(`(() => { const li = [...document.querySelectorAll('li')].find((l) => l.innerText.includes(${J(title)})); return li ? li.innerText.replace(/\\s+/g, ' ') : null; })()`);
+  check(WF, "refresh", "Employee page after reload shows the document as verified", /verified/.test(card ?? ""), card);
   await s.shot("documents-employee-verified");
   await s.close();
 }

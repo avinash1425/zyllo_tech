@@ -8,7 +8,7 @@
 // hr_requests.manage (all), hr_requests.payroll / .finance / .approve_team
 // (only requests routed to them). Mounted at /hr/requests/*.
 import { useState } from "react";
-import { Route, Routes, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { AlertTriangle, ArrowLeft, Lock, MessageSquare, Paperclip, Send, StickyNote, UserCheck } from "lucide-react";
 import { useAuth } from "@/hr/platform/auth";
 import { formatDateTime, fullName, useHrQuery } from "@/lib/hr/client";
@@ -210,6 +210,8 @@ function RequestDetail() {
   const req = useHrQuery(() => getRequest(id), [id]);
   if (req.loading && !req.data) return <Loading />;
   if (req.data && req.data.workflow && req.data.workflow !== "helpdesk") return <HrWorkflowDetail id={id} />;
+  // Helpdesk tickets are handled in Helpdesk & Support (181); old links keep working.
+  if (req.data?.workflow === "helpdesk") return <Navigate to={`/hr/helpdesk/${id}`} replace />;
   return <HelpdeskDetail id={id} req={req} />;
 }
 

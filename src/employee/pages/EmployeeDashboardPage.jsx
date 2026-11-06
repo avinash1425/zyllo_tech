@@ -171,7 +171,7 @@ export default function EmployeeDashboardPage() {
         </Block>
 
         {/* 5. Announcements */}
-        <Block title="Announcements" icon={Megaphone} query={announcements} empty={announcements.data && !liveAnnouncements.length ? "No announcements" : null}>
+        <Block title="Announcements" icon={Megaphone} to="/employee/announcements" query={announcements} empty={announcements.data && !liveAnnouncements.length ? "No announcements" : null}>
           <ul className="flex flex-col gap-2 text-sm">
             {liveAnnouncements.map((a) => (
               <li key={a.id} className="flex items-start justify-between gap-2">

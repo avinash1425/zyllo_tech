@@ -71,6 +71,7 @@ export async function listDocumentCategories({ activeOnly = false } = {}) {
 // -------------------------------------------------------------- documents
 const DOC_COLUMNS = `id, employee_id, category_id, title, current_version, expiry_date, verification_status, verified_by, verified_at,
   rejection_reason, uploaded_by, created_at, updated_at, archived_at,
+  source, issue_date, effective_date, contract_type, contract_status, requires_acknowledgement, includes_compensation,
   employee:hr_employees!hr_documents_employee_id_fkey(${EMP}),
   category:hr_document_categories!hr_documents_category_id_fkey(id, code, name, requires_expiry, employee_can_upload, is_confidential, doc_group),
   versions:hr_document_versions!hr_document_versions_document_id_fkey(id, version, storage_path, file_name, mime_type, size_bytes, uploaded_by, uploaded_at)`;

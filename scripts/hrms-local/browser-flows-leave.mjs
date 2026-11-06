@@ -345,6 +345,7 @@ async function wfLeave() {
 
     // persistence after refresh
     await s.reload();
+    await waitFor(s, "tab('Leave history')", 20000);
     await waitFor(s, `rowText(${J(fmtD(mon).slice(0, 6))})`, 20000);
     const persisted = await h(s, `rowText(${J(fmtD(mon).slice(0, 6))})`);
     check(WF, "refresh", "applied request still listed after a browser refresh", Boolean(persisted), persisted);
@@ -514,8 +515,90 @@ async function wfLeave() {
   });
 }
 
+// ------------------------------------------------------------------ cancellation requests (migration 161) + My Leave UI
+async function wfCancellation() {
+  const WF = "cancel";
+  const today = await TODAY();
+  const reason = `WF6 started leave ${RUN}`;
+  // Approved leave that has started: apply for today, approve at every level (API).
+  let applied = null;
+  for (const type of ["Sick", "Casual"]) {
+    const t = await q1(`select id from hr_leave_types where name ilike ${lit(`${type}%`)} and active`);
+    if (!t) continue;
+    applied = await rpc(EMP, "hr_apply_leave", { p_leave_type: t.id, p_start: today, p_end: today, p_reason: reason });
+    if (applied.status < 300) break;
+  }
+  const reqId = applied?.body?.id;
+  check(WF, "setup", "employee applies for leave starting today", Boolean(reqId), wdesc(applied));
+  if (!reqId) return;
+  for (const who of [MGR, HR]) {
+    const st = (await q1(`select status from hr_leave_requests where id = ${lit(reqId)}`)).status;
+    if (st === "pending_approval") await rpc(who, "hr_decide_leave", { p_id: reqId, p_approve: true });
+  }
+  const before = await q1(`select r.status, b.used from hr_leave_requests r join hr_leave_balances b on b.employee_id = r.employee_id and b.leave_type_id = r.leave_type_id and b.year = r.year where r.id = ${lit(reqId)}`);
+  check(WF, "setup", "leave approved", before?.status === "approved", J(before));
+
+  const direct = await rpc(EMP, "hr_cancel_leave", { p_id: reqId });
+  check(WF, "permission", "employee still cannot cancel started leave directly", direct.status >= 400, wdesc(direct));
+
+  await as(EMP, async (s) => {
+    await goReady(s, "/employee/leave", "tab('Leave history')");
+    await h(s, "tab('Leave history')");
+    await waitFor(s, `rowText(${J(fmtD(today).slice(0, 6))})`, 15000);
+    // Only approved leave that has started offers "Request cancellation" (Applied dates are all today, so match the button).
+    const c = await s.js(`(() => { const b = [...document.querySelectorAll('tbody tr button')].find((x) => x.textContent.trim() === 'Request cancellation'); if (!b) return 'no-button'; b.click(); return true; })()`);
+    if (c === true) { await waitDialog(s); await h(s, `fill('Why should', ${J(`WF6 back at work ${RUN}`)})`); await h(s, "confirm()"); }
+    const t = await toastText(s);
+    check(WF, "ui", "employee requests cancellation of started leave", /Cancellation request sent/.test(t), t || c);
+    await h(s, "tab('Cancellation requests')");
+    await waitText(s, /pending with HR/);
+    check(WF, "ui", "cancellation tracked as pending with HR", /pending with HR/.test(await mainText(s)));
+    await s.shot("employee-cancellation-requests");
+    // approval tracker in the detail modal
+    await h(s, `rowClick(${J(`WF6 back at work ${RUN}`)})`);
+    await waitDialog(s);
+    await waitFor(s, "dialogText().includes('Cancellation requested')", 10000);
+    const dt = await h(s, "dialogText()");
+    check(WF, "ui", "detail shows approval progress and the cancellation step", /Approval status/.test(dt) && /Cancellation requested/.test(dt), dt?.slice(0, 200));
+    await s.shot("employee-leave-detail-tracker");
+    await h(s, "cancel()");
+    // holiday calendar
+    await h(s, "tab('Holiday calendar')");
+    await waitText(s, /December/);
+    const hc = await mainText(s);
+    check(WF, "ui", "holiday calendar shows all 12 months", ["January", "June", "December"].every((m) => hc.includes(m)));
+    await s.shot("employee-holiday-calendar");
+  });
+  const mgrNote = await notifs(HR, "leave.cancellation_requested", reqId);
+  check(WF, "db", "HR notified of the cancellation request", mgrNote.length > 0);
+
+  // HR rejects, employee asks again, HR approves.
+  await as(HR, async (s) => {
+    await goReady(s, "/hr/leave?tab=approvals", `rowText(${J(`WF6 back at work ${RUN}`)})`, 20000);
+    const c = await h(s, `rowClick(${J(`WF6 back at work ${RUN}`)}, 'Reject')`);
+    if (c === true) { await waitDialog(s); await h(s, `fill('Reason for rejecting', 'Payroll already run')`); await h(s, "confirm()"); }
+    const t = await toastText(s);
+    check(WF, "ui", "HR rejects the cancellation with a reason", /Cancellation request rejected/.test(t), t || c);
+  });
+  const rej = await q1(`select status, cancellation_status from hr_leave_requests where id = ${lit(reqId)}`);
+  check(WF, "db", "leave stays approved after rejection", rej.status === "approved" && rej.cancellation_status === "rejected", J(rej));
+  const again = await rpc(EMP, "hr_request_leave_cancellation", { p_id: reqId, p_reason: `WF6 second try ${RUN}` });
+  check(WF, "api", "employee can ask again after a rejection", again.status < 300, wdesc(again));
+  await as(HR, async (s) => {
+    await goReady(s, "/hr/leave?tab=approvals", `rowText(${J(`WF6 second try ${RUN}`)})`, 20000);
+    const c = await h(s, `rowClick(${J(`WF6 second try ${RUN}`)}, 'Approve')`);
+    if (c === true) { await waitDialog(s); await h(s, "confirm()"); }
+    const t = await toastText(s);
+    check(WF, "ui", "HR approves the cancellation", /Leave cancelled/.test(t), t || c);
+  });
+  const after = await q1(`select r.status, r.cancellation_status, b.used from hr_leave_requests r join hr_leave_balances b on b.employee_id = r.employee_id and b.leave_type_id = r.leave_type_id and b.year = r.year where r.id = ${lit(reqId)}`);
+  check(WF, "db", "leave cancelled and used days restored", after.status === "cancelled" && after.cancellation_status == null && Number(after.used) < Number(before.used), `${J(before)} -> ${J(after)}`);
+  check(WF, "db", "employee notified of the rejection and the cancellation",
+    (await notifs(EMP, "leave.cancellation_rejected", reqId)).length > 0 && (await notifs(EMP, "leave.cancelled", reqId)).length > 0);
+}
+
 // ------------------------------------------------------------------ main
-const WORKFLOWS = { leave: wfLeave };
+const WORKFLOWS = { leave: wfLeave, cancellation: wfCancellation };
 const started = new Date().toISOString();
 try {
   for (const [k, fn] of Object.entries(WORKFLOWS)) {

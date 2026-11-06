@@ -207,15 +207,102 @@ export function payslipFileName(slip, code) {
   return `payslip-${toPdfText(code || "employee").replace(/[^A-Za-z0-9_-]/g, "")}-${ym}.pdf`;
 }
 
-/** Browser-only: build and download. */
-export function downloadPayslipPdf(slip, company, extra) {
-  const bytes = buildPayslipPdf(slip, company, extra);
+/**
+ * Annual salary & tax deduction statement for one financial year, built from
+ * the employee's released payslips (see payrollSummary.summarizeYear). It is a
+ * summary of what payroll deducted — NOT Form 16, which only the employer
+ * issues (it appears under Tax documents once HR uploads it).
+ * @param {object} summary  summarizeYear() result
+ * @param {object} employee { name, employee_code, designation, department, pan_last4? }
+ * @param {object} [company] hr_settings 'company' value
+ * @param {object} [labels]  { fy, ay, months: [{key,label}], buckets: {tds,pf,esi,pt,other} }
+ */
+export function buildTaxStatementPdf(summary, employee = {}, company = {}, labels = {}) {
+  const cur = summary.currency || "INR";
+  const c = new Canvas();
+  const right = PAGE_W - MARGIN;
+  let y = MARGIN + 16;
+  c.text(MARGIN, y, company.legal_name || company.name || "Company", { size: 14, bold: true });
+  c.text(right, y, "SALARY & TAX STATEMENT", { size: 12, bold: true, align: "right", color: [0.97, 0.4, 0.02] });
+  y += 16;
+  if (company.address) y = c.wrap(MARGIN, y, company.address, 300, { size: 8.5, color: [0.35, 0.4, 0.5] });
+  c.text(right, MARGIN + 32, `${labels.fy ?? ""}${labels.ay ? `  (${labels.ay})` : ""}`, { size: 9.5, align: "right" });
+  y = Math.max(y, MARGIN + 40) + 6;
+  c.line(MARGIN, y, right, y, { width: 1, color: [0.12, 0.27, 0.58] });
+  y += 16;
+  const col2 = MARGIN + (right - MARGIN) / 2;
+  const kv = (x, yy, k, v) => { c.text(x, yy, k, { size: 8, color: [0.4, 0.45, 0.55] }); c.text(x + 80, yy, v || "-", { size: 9, bold: true }); };
+  kv(MARGIN, y, "Employee", employee.name); kv(col2, y, "Employee ID", employee.employee_code); y += 14;
+  kv(MARGIN, y, "Designation", employee.designation); kv(col2, y, "Department", employee.department); y += 20;
+
+  // Totals band
+  const b = labels.buckets ?? {};
+  const t = summary.totals ?? {};
+  c.rect(MARGIN, y - 11, right - MARGIN, 34);
+  const quarter = (right - MARGIN) / 4;
+  [["Gross earnings", t.gross], ["Total deductions", t.deductions], [b.tds ?? "TDS", summary.tax?.tds], ["Net pay", t.net]].forEach(([k, v], i) => {
+    c.text(MARGIN + 8 + i * quarter, y, k, { size: 7.5, color: [0.4, 0.45, 0.55] });
+    c.text(MARGIN + 8 + i * quarter, y + 14, pdfMoney(v, cur), { size: 9.5, bold: true });
+  });
+  y += 38;
+
+  // Month-wise table
+  const cols = [
+    { h: "Month", w: 62, f: (m) => m.label },
+    { h: "Gross", w: 78, f: (m) => pdfMoney(m.gross, cur), r: true },
+    { h: "TDS", w: 70, f: (m) => pdfMoney(m.tax?.tds, cur), r: true },
+    { h: "PF", w: 64, f: (m) => pdfMoney(m.tax?.pf, cur), r: true },
+    { h: "ESI", w: 56, f: (m) => pdfMoney(m.tax?.esi, cur), r: true },
+    { h: "Prof. tax", w: 56, f: (m) => pdfMoney(m.tax?.pt, cur), r: true },
+    { h: "Net pay", w: right - MARGIN - 386, f: (m) => pdfMoney(m.net, cur), r: true },
+  ];
+  const row = (yy, cells, opts = {}) => {
+    let x = MARGIN;
+    cols.forEach((col, i) => {
+      c.text(col.r ? x + col.w - 4 : x + 2, yy, cells[i], { size: opts.size ?? 8, bold: opts.bold, align: col.r ? "right" : "left" });
+      x += col.w;
+    });
+  };
+  row(y, cols.map((col) => col.h), { bold: true, size: 8.5 });
+  y += 5; c.line(MARGIN, y, right, y, { width: 0.8, color: [0.5, 0.55, 0.62] }); y += 12;
+  const byMonth = Object.fromEntries((summary.months ?? []).map((m) => [m.key, m]));
+  for (const mo of labels.months ?? []) {
+    const m = byMonth[mo.key];
+    const data = m ? { ...m, label: mo.label, tax: summary.taxByMonth?.[mo.key] ?? {} } : null;
+    row(y, data ? cols.map((col) => col.f(data)) : [mo.label, "-", "-", "-", "-", "-", "-"]);
+    y += 4; c.line(MARGIN, y, right, y, { width: 0.3 }); y += 10;
+  }
+  row(y + 2, ["Total", pdfMoney(t.gross, cur), pdfMoney(summary.tax?.tds, cur), pdfMoney(summary.tax?.pf, cur), pdfMoney(summary.tax?.esi, cur),
+    pdfMoney(summary.tax?.pt, cur), pdfMoney(t.net, cur)], { bold: true, size: 8.5 });
+  y += 22;
+  if (Number(summary.tax?.other)) { y = c.wrap(MARGIN, y, `${b.other ?? "Other statutory deductions"}: ${pdfMoney(summary.tax.other, cur)}`, right - MARGIN, { size: 8.5 }) + 2; }
+  if (Number(t.reimbursements)) { y = c.wrap(MARGIN, y, `Reimbursements paid with salary (not part of gross): ${pdfMoney(t.reimbursements, cur)}`, right - MARGIN, { size: 8.5 }) + 2; }
+  y += 6;
+  y = c.wrap(MARGIN, y, `Based on ${t.payslips ?? 0} released payslip(s). This statement summarises what payroll paid and deducted; it is not Form 16 or a tax computation. Your employer's Form 16 is the TDS certificate to use for filing your return, and Form 26AS / AIS shows the tax credited against your PAN.`, right - MARGIN, { size: 8, color: [0.3, 0.35, 0.45] });
+  if (summary.mixedCurrency) y = c.wrap(MARGIN, y + 2, "Payslips in this year use more than one currency; totals are shown in the first payslip's currency.", right - MARGIN, { size: 8, color: [0.6, 0.2, 0.1] });
+  c.line(MARGIN, PAGE_H - MARGIN - 22, right, PAGE_H - MARGIN - 22);
+  c.wrap(MARGIN, PAGE_H - MARGIN - 10, "System-generated statement. Generated in your browser from your secure payroll records; no copy is stored. Report discrepancies through Payroll queries.",
+    right - MARGIN, { size: 7.5, color: [0.45, 0.5, 0.58] });
+  return renderPdf(c.ops.join("\n"), { title: `Salary and tax statement ${labels.fy ?? ""}` });
+}
+
+export function taxStatementFileName(fy, code) {
+  return `salary-tax-statement-${toPdfText(code || "employee").replace(/[^A-Za-z0-9_-]/g, "")}-FY${fy}-${String((fy + 1) % 100).padStart(2, "0")}.pdf`;
+}
+
+/** Browser-only: download PDF bytes under a file name. */
+export function downloadPdfBytes(bytes, fileName) {
   const url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
   const a = document.createElement("a");
   a.href = url;
-  a.download = payslipFileName(slip, slip.breakdown?.employee?.employee_code);
+  a.download = fileName;
   document.body.appendChild(a);
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/** Browser-only: build and download. */
+export function downloadPayslipPdf(slip, company, extra) {
+  downloadPdfBytes(buildPayslipPdf(slip, company, extra), payslipFileName(slip, slip.breakdown?.employee?.employee_code));
 }

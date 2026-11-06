@@ -162,7 +162,7 @@ select test.throws($q$select public.hr_dashboard()$q$, 'payroll admin still has 
 select test.as_owner();
 select test.ok(exists (select 1 from public.hr_roles where key = 'it_admin' and is_system), 'IT Admin system role exists');
 select test.eq((select array_agg(permission_key order by permission_key) from public.hr_role_permissions where role_key = 'it_admin'),
-               array['exit.clearance_it']::text[], 'IT Admin holds exactly exit.clearance_it');
+               array['exit.clearance_it','helpdesk.it']::text[], 'IT Admin holds exactly exit.clearance_it and (181) helpdesk.it');
 select test.ok(exists (select 1 from public.hr_role_permissions where role_key = 'payroll_admin' and permission_key = 'hr_requests.payroll'),
   'hr_requests.payroll -> Payroll Admin');
 select test.ok(exists (select 1 from public.hr_role_permissions where role_key = 'payroll_admin' and permission_key = 'hr_requests.finance'),

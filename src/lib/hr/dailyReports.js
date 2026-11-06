@@ -45,7 +45,7 @@ const REPORT_COLS = `id, employee_id, report_date, status, summary, pending_work
 const ITEM_COLS = `id, report_id, project_id, task_id, activity, description, hours, progress_pct, work_status, completed_work, deliverables,
   completion_date, links, notes, created_at,
   project:hr_projects!hr_daily_report_items_project_id_fkey(id, code, name), task:hr_tasks!hr_daily_report_items_task_id_fkey(id, title)`;
-const TASK_COLS = `id, project_id, assignee_id, title, description, status, priority, due_date, completed_at, created_at, updated_at,
+const TASK_COLS = `id, project_id, assignee_id, title, description, status, priority, start_date, due_date, progress_pct, last_update_at, completed_at, created_at, updated_at,
   project:hr_projects!hr_tasks_project_id_fkey(id, code, name, status)`;
 const PROJECT_COLS = "id, code, name, client, description, status, start_date, end_date, manager_employee_id, source, external_ref, created_at";
 
@@ -141,7 +141,8 @@ export async function listMyTasks(employeeId) {
 export async function saveTask(row) {
   const body = {
     project_id: row.project_id, assignee_id: row.assignee_id || null, title: row.title?.trim(),
-    description: row.description?.trim() || null, status: row.status || "todo", priority: row.priority || "medium", due_date: row.due_date || null,
+    description: row.description?.trim() || null, status: row.status || "todo", priority: row.priority || "medium",
+    start_date: row.start_date || null, due_date: row.due_date || null,
   };
   return row.id
     ? run(from("hr_tasks").update(body).eq("id", row.id).select("id").single())
@@ -149,6 +150,31 @@ export async function saveTask(row) {
 }
 
 export const updateMyTaskStatus = (taskId, status) => rpc("hr_update_my_task_status", { p_task: taskId, p_status: status });
+
+/** Assignee posts an update: any of status, progress (0–100), note. Blocked needs a note (server-enforced). */
+export const postMyTaskUpdate = (taskId, { status = null, progress = null, note = null } = {}) =>
+  rpc("hr_post_my_task_update", { p_task: taskId, p_status: status, p_progress: progress, p_note: note?.trim() || null });
+
+/** Status / progress / note history of one task (visible when the task is). */
+export const listTaskUpdates = (taskId) =>
+  run(from("hr_task_updates").select("id, task_id, author_employee_id, old_status, new_status, old_progress, new_progress, note, created_at")
+    .eq("task_id", taskId).order("created_at", { ascending: false }).limit(200));
+
+/** Recent updates on the signed-in employee's own tasks. */
+export const listMyTaskActivity = (limit = 50) => rpc("hr_my_task_activity", { p_limit: limit });
+
+/** Validate a task update before sending (mirrors hr_post_my_task_update). */
+export function validateTaskUpdate(task, { status, progress, note }) {
+  const e = {};
+  const p = Number(progress);
+  if (!Number.isInteger(p) || p < 0 || p > 100) e.progress = "Whole number 0–100.";
+  else if (p === 100 && status !== "done") e.progress = "100% means done — mark it Done, or set progress below 100%.";
+  const n = (note ?? "").trim();
+  if (n.length > 2000) e.note = "At most 2000 characters.";
+  if (status === "blocked" && task.status !== "blocked" && !n) e.note = "Say what is blocking this task.";
+  if (!Object.keys(e).length && status === task.status && (status === "done" || p === task.progress_pct) && !n) e.form = "Change the status or progress, or add a note.";
+  return e;
+}
 
 // ------------------------------------------------------------ my reports
 const sortItems = (res) => {

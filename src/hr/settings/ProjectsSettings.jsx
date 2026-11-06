@@ -11,7 +11,7 @@ import { formatDate, formatDateTime, fullName, useHrQuery } from "@/lib/hr/clien
 import { useEmployeeOptions } from "@/lib/hr/org";
 import {
   PROJECT_STATUSES, TASK_PRIORITIES, TASK_STATUSES, addProjectMember, listAllocationHistory, listProjectMembers, listProjects, listTasks,
-  removeProjectMember, saveProject, saveTask, updateProjectMember, validateAllocation,
+  listTaskUpdates, removeProjectMember, saveProject, saveTask, updateProjectMember, validateAllocation,
 } from "@/lib/hr/dailyReports";
 import {
   Badge, Button, Card, ConfirmDialog, DataTable, Field, InlineError, Input, Loading, Modal, Select, Tabs, Textarea, Toolbar, useToast,
@@ -226,7 +226,10 @@ export function TasksManager({ canEdit }) {
           { key: "assignee", header: "Assignee", render: (r) => (r.assignee ? fullName(r.assignee) : "Unassigned") },
           { key: "priority", header: "Priority", render: (r) => <Badge tone={PRIORITY_TONE[r.priority]}>{r.priority}</Badge> },
           { key: "status", header: "Status", render: (r) => <Badge tone={TASK_TONE[r.status]}>{r.status.replace(/_/g, " ")}</Badge> },
-          { key: "due_date", header: "Due", sortable: true, render: (r) => formatDate(r.due_date) },
+          { key: "progress_pct", header: "Progress", sortable: true, render: (r) => (
+            <div className="flex min-w-[6rem] items-center gap-2"><div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100"><div className={`h-full rounded-full ${r.status === "done" ? "bg-emerald-500" : r.status === "blocked" ? "bg-rose-500" : "bg-[#f96706]"}`} style={{ width: `${r.progress_pct ?? 0}%` }} /></div><span className="text-xs tabular-nums text-slate-600">{r.progress_pct ?? 0}%</span></div>
+          ) },
+          { key: "due_date", header: "Due", sortable: true, render: (r) => <span className={r.status !== "done" && r.due_date && r.due_date < new Date().toISOString().slice(0, 10) ? "font-semibold text-red-600" : ""}>{formatDate(r.due_date)}</span> },
           ...(canEdit ? [{ key: "_a", header: <span className="sr-only">Actions</span>, render: (r) => <Button size="sm" variant="ghost" onClick={() => setEditing(r)}>Edit</Button> }] : []),
         ]} />
       {editing && (
@@ -238,7 +241,8 @@ export function TasksManager({ canEdit }) {
 }
 
 function TaskModal({ row, projectOptions, onClose, onSaved }) {
-  const [v, setV] = useState({ title: "", description: "", assignee_id: "", due_date: "", project_id: "", ...row });
+  const [v, setV] = useState({ title: "", description: "", assignee_id: "", start_date: "", due_date: "", project_id: "", ...row });
+  const history = useHrQuery(() => (row.id ? listTaskUpdates(row.id) : Promise.resolve({ data: [], error: null })), [row.id]);
   const members = useHrQuery(() => (v.project_id ? listProjectMembers(v.project_id) : Promise.resolve({ data: [], error: null })), [v.project_id]);
   const [errors, setErrors] = useState({});
   const [error, setError] = useState(null);
@@ -251,6 +255,7 @@ function TaskModal({ row, projectOptions, onClose, onSaved }) {
     if (!v.project_id) errs.project_id = "Choose a project.";
     const t = (v.title ?? "").trim();
     if (t.length < 2 || t.length > 200) errs.title = "2–200 characters.";
+    if (v.start_date && v.due_date && v.due_date < v.start_date) errs.due_date = "Due date must be on or after the start date.";
     setErrors(errs);
     if (Object.keys(errs).length) return;
     setBusy(true); setError(null);
@@ -269,12 +274,34 @@ function TaskModal({ row, projectOptions, onClose, onSaved }) {
         <Field label="Assignee" hint="Only project members can log hours against the task.">
           {members.loading && v.project_id ? <Loading className="py-2" /> : <Select placeholder="Unassigned" value={v.assignee_id ?? ""} onChange={set("assignee_id")} options={memberOptions} />}
         </Field>
-        <Field label="Due date"><Input type="date" value={v.due_date ?? ""} onChange={set("due_date")} /></Field>
+        <Field label="Start date"><Input type="date" value={v.start_date ?? ""} onChange={set("start_date")} /></Field>
+        <Field label="Due date" error={errors.due_date}><Input type="date" value={v.due_date ?? ""} onChange={set("due_date")} /></Field>
         <Field label="Status"><Select value={v.status} onChange={set("status")} options={opt(TASK_STATUSES)} /></Field>
         <Field label="Priority"><Select value={v.priority} onChange={set("priority")} options={opt(TASK_PRIORITIES)} /></Field>
         <Field label="Description" className="sm:col-span-2"><Textarea maxLength={4000} value={v.description ?? ""} onChange={set("description")} /></Field>
       </div>
       <div className="mt-3"><InlineError message={error || members.error} /></div>
+      {row.id && (
+        <section className="mt-4 border-t border-slate-100 pt-3" aria-label="Update history">
+          <p className="mb-2 text-sm font-bold text-[#101a3a]">Progress {row.progress_pct ?? 0}% · update history</p>
+          {history.loading && !history.data ? <Loading className="py-2" /> : history.error ? <InlineError message={history.error} /> : !history.data?.length ? (
+            <p className="text-sm text-slate-500">No updates yet.</p>
+          ) : (
+            <ol className="flex max-h-60 flex-col gap-2 overflow-y-auto">
+              {history.data.map((u) => (
+                <li key={u.id} className="rounded-lg bg-slate-50 px-3 py-2 text-sm">
+                  <p className="text-xs text-slate-500">{formatDateTime(u.created_at)}{u.author_employee_id === row.assignee_id ? " · assignee" : ""}</p>
+                  <p className="font-medium text-[#1f4693]">
+                    {[u.old_status !== u.new_status && `${(u.old_status ?? "").replace(/_/g, " ")} → ${(u.new_status ?? "").replace(/_/g, " ")}`,
+                      u.old_progress !== u.new_progress && `${u.old_progress ?? 0}% → ${u.new_progress}%`].filter(Boolean).join(" · ") || "Note"}
+                  </p>
+                  {u.note && <p className="whitespace-pre-wrap text-slate-700">{u.note}</p>}
+                </li>
+              ))}
+            </ol>
+          )}
+        </section>
+      )}
     </Modal>
   );
 }

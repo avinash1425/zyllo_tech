@@ -11,7 +11,7 @@ import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import {
   BarChart3, CalendarCheck, ClipboardList, Clock, FileText, Gauge, HeartHandshake,
-  LogOut, Package, Settings, UserCheck, UserPlus, Users, Wallet,
+  LifeBuoy, LogOut, Megaphone, Package, Settings, UserCheck, UserPlus, Users, Wallet,
 } from "lucide-react";
 import Seo from "@/hr/platform/Seo";
 import AppShell from "@/hr/AppShell";
@@ -26,7 +26,7 @@ const INTERN_PERMS = ["interns.view", "interns.view_team", "interns.manage"];
 // Each module: route path, nav item, permissions that unlock it, lazy page.
 // `nav` items without `page` are navigation shortcuts into another module.
 export const HR_MODULES = [
-  // 1–12: the Zyllo Tech HRMS modules, in build-session order.
+  // 1–13: the Zyllo Tech HRMS modules, in build-session order.
   { path: "", label: "HR Dashboard", icon: Gauge, section: "HR Modules", permissions: ["dashboard.view", "dashboard.view_team"], page: lazy(() => import("./pages/HrDashboardPage.jsx")), end: true },
   { path: "employees", label: "Employee Management", icon: Users, section: "HR Modules", permissions: ["employees.view", "employees.view_team"], page: lazy(() => import("./pages/EmployeesPage.jsx")) },
   { path: "recruitment", label: "Recruitment & Hiring", icon: UserPlus, section: "HR Modules", permissions: ["recruitment.view", "recruitment.manage", "recruitment.convert", "recruitment.export", ...INTERN_PERMS], page: lazy(() => import("./pages/RecruitmentPage.jsx")), exclude: ["/hr/recruitment/interns"] },
@@ -38,8 +38,12 @@ export const HR_MODULES = [
   { path: "documents", label: "Employee Documents", icon: FileText, section: "HR Modules", permissions: ["documents.view", "documents.view_team", "documents.manage"], page: lazy(() => import("./pages/DocumentsPage.jsx")) },
   // Module 10: scoped approvers (payroll / finance / managers) reach the inbox without hr_requests.manage.
   { path: "requests", label: "Requests & Approvals", icon: HeartHandshake, section: "HR Modules", permissions: ["hr_requests.view", "hr_requests.manage", "hr_requests.payroll", "hr_requests.finance", "hr_requests.approve_team"], page: lazy(() => import("./pages/HrRequestsPage.jsx")) },
+  // Helpdesk & Support (181): HR / IT / workplace tickets. IT Admins (helpdesk.it) see only IT tickets.
+  { path: "helpdesk", label: "Helpdesk & Support", icon: LifeBuoy, section: "HR Modules", permissions: ["hr_requests.view", "hr_requests.manage", "hr_requests.payroll", "helpdesk.it"], page: lazy(() => import("./pages/HelpdeskPage.jsx")) },
   { path: "assets", label: "Asset Allocation", icon: Package, section: "HR Modules", permissions: ["assets.view", "assets.manage"], page: lazy(() => import("./pages/AssetsPage.jsx")) },
   { path: "reports", label: "Reports & Analytics", icon: BarChart3, section: "HR Modules", permissions: ["reports.view", "reports.view_team"], page: lazy(() => import("./pages/ReportsPage.jsx")) },
+  // Module 13: announcements (announcements.*) and policies / handbook (documents.*), tabs gated per permission.
+  { path: "announcements", label: "Announcements & Policies", icon: Megaphone, section: "HR Modules", permissions: ["announcements.manage", "announcements.view_all", "documents.view", "documents.manage"], page: lazy(() => import("./pages/AnnouncementsPoliciesPage.jsx")) },
   // Exit cases (part of Onboarding & Exit): routable from its pages, not a menu item.
   { path: "exits", label: "Exit cases", hidden: true, icon: LogOut, section: "HR Modules", permissions: ["exit.view", "exit.view_team", "exit.approve_team", "exit.manage", "exit.clearance_it"], page: lazy(() => import("./pages/ExitsPage.jsx")) },
   // ---- Administration (configuration used by the modules above)
@@ -50,8 +54,8 @@ export const HR_MODULES = [
 export const HR_ALIASES = [
   ["dashboard", ""], ["employee-master", "employees"], ["employee-management", "employees"],
   ["leave-management", "leave"], ["attendance-time", "attendance"], ["visa-documents", "documents"], ["interns", "recruitment/interns"],
-  ["hr-reports", "reports"], ["hr-requests", "requests"], ["hr-settings", "settings"], ["exit-management", "exits"],
-  ["onboarding", "onboarding-exit/onboarding"], ["probation", "onboarding-exit/probation"], ["final-settlement", "onboarding-exit/settlement"],
+  ["hr-reports", "reports"], ["hr-requests", "requests"], ["support", "helpdesk"], ["it-support", "helpdesk"], ["hr-settings", "settings"], ["exit-management", "exits"],
+  ["announcements-policies", "announcements"], ["policies", "announcements"], ["onboarding", "onboarding-exit/onboarding"], ["probation", "onboarding-exit/probation"], ["final-settlement", "onboarding-exit/settlement"],
 ];
 
 const ENTRY_PERMISSIONS = [...new Set(HR_MODULES.flatMap((m) => m.permissions))];

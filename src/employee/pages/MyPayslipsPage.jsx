@@ -1,32 +1,38 @@
-// Employee self-service: released payslips (PDF download / print), payment
-// status, salary summary (if the company allows it), payroll queries, masked
-// bank account and reimbursement claims (read-only here; new claims are
-// filed in My HR Requests so they get manager and finance approval). RLS and SECURITY DEFINER RPCs return
-// only the caller's own data; amounts were computed by the server.
-import { useState } from "react";
+// Employee self-service: "My Payroll & Payslips".
+//   Overview · Payslips (view / PDF / print / query) · Salary details ·
+//   Earnings & deductions (financial year, month by month) · Payment history ·
+//   Tax documents (annual tax statement PDF, Form 16 and declarations) ·
+//   Requests (payroll queries + salary-related HR requests + claims) ·
+//   Bank account.
+// RLS and SECURITY DEFINER RPCs return only the caller's own data; every
+// amount was computed by the server — this page only displays and adds up.
+import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { useNavigate } from "react-router-dom";
-import { FileDown, MessageSquareWarning, Plus, Printer } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { FileDown, Landmark, MessageSquareWarning, Printer } from "lucide-react";
 import { useAuth } from "@/hr/platform/auth";
-import { formatDate, formatDateTime, formatMoney, from, run, useHrQuery } from "@/lib/hr/client";
-import {
-  CORRECTION_CATEGORIES, listMyPayrollQueries, listMyPayslips, listMyReimbursements, myBankAccounts, myPayrollPayments, mySalaryStructure,
-  submitPayrollQuery,
-} from "@/lib/hr/payroll";
+import { formatDate, formatDateTime, formatMoney, useHrQuery } from "@/lib/hr/client";
+import { listMyPayrollQueries, listMyPayslips, myBankAccounts, myPayrollPayments, mySalaryStructure } from "@/lib/hr/payroll";
+import { availableFinancialYears, financialYearOf, fyLabel, summarizePayments, summarizeYear } from "@/lib/hr/payrollSummary";
 import { downloadPayslipPdf } from "@/lib/hr/payslipPdf";
 import {
-  Badge, Button, Card, DataTable, EmptyState, ErrorState, Field, InlineError, Input, Loading, Modal, PageHeader, Select, StatusBadge, Tabs, Textarea, useToast,
+  Badge, Button, Card, DataTable, EmptyState, ErrorState, Loading, Modal, PageHeader, Select, Tabs, useToast,
 } from "@/hr/ui";
+import PayrollOverview from "@/employee/payroll/PayrollOverview";
+import EarningsDeductions from "@/employee/payroll/EarningsDeductions";
+import PaymentHistory from "@/employee/payroll/PaymentHistory";
+import TaxDocuments from "@/employee/payroll/TaxDocuments";
+import SalaryRequests, { QueryModal } from "@/employee/payroll/SalaryRequests";
+import { PAY_TONE, label, monthOf, payLabel, period, useCompany } from "@/employee/payroll/shared";
 
-const label = (s) => String(s ?? "").replace(/_/g, " ");
-const period = (s) => `${formatDate(s.period_start)} – ${formatDate(s.period_end)}`;
-const PAY_TONE = { pending: "amber", processing: "blue", partially_paid: "orange", paid: "green", failed: "red", reconciled: "green" };
-const useCompany = () => useHrQuery(() => run(from("hr_settings").select("value").eq("key", "company").maybeSingle()), []);
+const TAB_KEYS = ["overview", "payslips", "salary", "earnings", "payments", "tax", "requests", "bank"];
 
 export default function MyPayslipsPage() {
   const { hr } = useAuth();
   const me = hr?.employee?.id;
-  const [tab, setTab] = useState("payslips");
+  const [params, setParams] = useSearchParams();
+  const [tab, setTabState] = useState(() => (TAB_KEYS.includes(params.get("tab")) ? params.get("tab") : "overview"));
+  const setTab = (t) => { setTabState(t); setParams((p) => { const n = new URLSearchParams(p); n.set("tab", t); return n; }, { replace: true }); };
   const slips = useHrQuery(() => listMyPayslips(me), [me]);
   const payments = useHrQuery(() => (me ? myPayrollPayments() : Promise.resolve({ data: [] })), [me]);
   const queries = useHrQuery(() => listMyPayrollQueries(me), [me]);
@@ -34,26 +40,61 @@ export default function MyPayslipsPage() {
   const { notify } = useToast();
   const [open, setOpen] = useState(null);
   const [querying, setQuerying] = useState(null);
-  const payBySlip = Object.fromEntries((payments.data ?? []).map((p) => [p.payslip_id, p]));
+  const payBySlip = useMemo(() => Object.fromEntries((payments.data ?? []).map((p) => [p.payslip_id, p])), [payments.data]);
+
+  // Financial year (April–March) shared by the year-based tabs.
+  const years = useMemo(() => {
+    const ys = availableFinancialYears(slips.data);
+    return ys.length ? ys : [financialYearOf(new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }))];
+  }, [slips.data]);
+  const [fyChoice, setFy] = useState(null);
+  const fy = fyChoice != null && years.includes(fyChoice) ? fyChoice : years[0];
+  const fySummary = useMemo(() => (slips.data ? summarizeYear(slips.data, fy) : null), [slips.data, fy]);
+  const fyPayments = useMemo(() => summarizePayments(payments.data, fy), [payments.data, fy]);
+  const yearPicker = (
+    <div className="w-36 shrink-0">
+      <Select aria-label="Financial year" value={String(fy)} onChange={(e) => setFy(Number(e.target.value))} className="py-1 text-sm"
+        options={years.map((y) => ({ value: String(y), label: fyLabel(y) }))} />
+    </div>
+  );
+
+  const latest = slips.data?.[0];
+  const self = hr?.employee;
+  const employee = {
+    ...(self ? { name: self.display_name || [self.first_name, self.last_name].filter(Boolean).join(" "), employee_code: self.employee_code } : {}),
+    ...Object.fromEntries(Object.entries(latest?.breakdown?.employee ?? {}).filter(([, v]) => v)),
+  };
   const pdf = (slip) => { const p = payBySlip[slip.id]; downloadPayslipPdf(slip, company.data?.value ?? {}, { paymentStatus: p?.status, paymentDate: p?.payment_date }); };
+  const openById = (id) => { const s = (slips.data ?? []).find((x) => x.id === id); if (s) setOpen(s); };
+  const pendingQueries = (queries.data ?? []).filter((q) => ["submitted", "prepared"].includes(q.status)).length;
+
+  if (!me) return <ErrorState message="Your account is not linked to an employee record." />;
   return (
     <>
-      <PageHeader title="My Payslips" description="Your payslips, payment status, salary details, payroll queries, salary bank account and reimbursement claims." />
-      <Tabs value={tab} onChange={setTab} label="Payslip sections" tabs={[
-        { value: "payslips", label: "Payslips" }, { value: "salary", label: "My salary" }, { value: "queries", label: `Payroll queries${queries.data?.some((q) => ["submitted", "prepared"].includes(q.status)) ? " •" : ""}` },
-        { value: "bank", label: "Bank account" }, { value: "claims", label: "Reimbursements" },
+      <PageHeader title="My Payroll & Payslips" description="Your salary details, monthly payslips, earnings and deductions, payment history, tax documents and salary-related requests." />
+      <Tabs value={tab} onChange={setTab} label="Payroll sections" tabs={[
+        { value: "overview", label: "Overview" },
+        { value: "payslips", label: "Payslips" },
+        { value: "salary", label: "Salary details" },
+        { value: "earnings", label: "Earnings & deductions" },
+        { value: "payments", label: "Payment history" },
+        { value: "tax", label: "Tax documents" },
+        { value: "requests", label: "Requests", count: pendingQueries || undefined },
+        { value: "bank", label: "Bank account" },
       ]} />
+      {tab === "overview" && <PayrollOverview slips={slips} payBySlip={payBySlip} fySummary={fySummary} fyPayments={fyPayments} pendingQueries={pendingQueries}
+        onView={setOpen} onPdf={pdf} onQuery={setQuerying} goTab={setTab} />}
       {tab === "payslips" && (
         <Card padded={false}>
           <DataTable caption="My payslips" rows={slips.data} loading={slips.loading} error={slips.error} onRetry={slips.reload} onRowClick={setOpen}
             emptyTitle="No payslips yet" emptyDescription="Payslips appear here once payroll for a period has been finalized."
             columns={[
-              { key: "period", header: "Period", render: period },
+              { key: "period", header: "Month", render: (r) => <div><p className="font-semibold">{monthOf(r)}</p><p className="text-[11px] text-slate-500">{period(r)}</p></div> },
               { key: "payable_days", header: "Paid days", render: (r) => `${Number(r.payable_days)} / ${Number(r.working_days)}` },
               { key: "gross", header: "Gross", render: (r) => formatMoney(r.gross, r.currency) },
               { key: "total_deductions", header: "Deductions", render: (r) => formatMoney(r.total_deductions, r.currency) },
               { key: "net", header: "Net pay", render: (r) => <strong>{formatMoney(r.net, r.currency)}</strong> },
-              { key: "payment", header: "Payment", render: (r) => { const p = payBySlip[r.id]; return p ? <span><Badge tone={PAY_TONE[p.status] ?? "slate"}>{label(p.status === "reconciled" ? "paid" : p.status)}</Badge>{p.payment_date ? <span className="block text-[11px] text-slate-500">{formatDate(p.payment_date)}</span> : null}</span> : "—"; } },
+              { key: "payment", header: "Payment", render: (r) => { const p = payBySlip[r.id]; return p ? <span><Badge tone={PAY_TONE[p.status] ?? "slate"}>{payLabel(p.status)}</Badge>{p.payment_date ? <span className="block text-[11px] text-slate-500">{formatDate(p.payment_date)}</span> : null}</span> : "—"; } },
               { key: "_v", header: <span className="sr-only">Actions</span>, render: (r) => (
                 <div className="flex flex-wrap gap-1" onClick={(e) => e.stopPropagation()} role="presentation">
                   <Button size="sm" variant="ghost" onClick={() => setOpen(r)}>View</Button>
@@ -65,11 +106,13 @@ export default function MyPayslipsPage() {
         </Card>
       )}
       {tab === "salary" && <MySalary />}
-      {tab === "queries" && <MyQueries query={queries} />}
+      {tab === "earnings" && <EarningsDeductions summary={fySummary} yearPicker={yearPicker} />}
+      {tab === "payments" && <PaymentHistory payments={payments} fy={fy} yearPicker={yearPicker} totals={fyPayments} onOpenSlip={openById} />}
+      {tab === "tax" && <TaxDocuments me={me} summary={fySummary} yearPicker={yearPicker} employee={employee} company={company.data?.value ?? {}} />}
+      {tab === "requests" && <SalaryRequests me={me} queries={queries} />}
       {tab === "bank" && <MyBank />}
-      {tab === "claims" && <MyClaims me={me} />}
       {open && <PayslipModal slip={open} onClose={() => setOpen(null)} onPdf={() => pdf(open)} />}
-      {querying && <QueryModal slip={querying} onClose={() => setQuerying(null)} onDone={() => { setQuerying(null); queries.reload(); setTab("queries"); notify("Query sent to the payroll team."); }} />}
+      {querying && <QueryModal slip={querying} onClose={() => setQuerying(null)} onDone={() => { setQuerying(null); queries.reload(); setTab("requests"); notify("Query sent to the payroll team."); }} />}
     </>
   );
 }
@@ -110,48 +153,6 @@ function MySalary() {
         </Card>
       )}
     </div>
-  );
-}
-
-function MyQueries({ query }) {
-  return (
-    <Card title="My payroll queries" padded={false}>
-      <DataTable caption="My payroll queries" rows={query.data} loading={query.loading} error={query.error} onRetry={query.reload} emptyTitle="No queries"
-        emptyDescription="Use the Query button on a payslip if something looks wrong."
-        columns={[
-          { key: "created_at", header: "Raised", render: (r) => formatDate(r.created_at) },
-          { key: "category", header: "About", render: (r) => label(r.category) },
-          { key: "description", header: "Details", render: (r) => <span className="line-clamp-2 max-w-xs">{r.description}</span> },
-          { key: "status", header: "Status", render: (r) => <StatusBadge status={r.status === "prepared" ? "in_review" : r.status} /> },
-          { key: "outcome", header: "Outcome", render: (r) => (r.status === "applied" ? `Correction of ${formatMoney(r.proposed_amount)} in your next payslip` : r.decision_note || "—") },
-        ]} />
-      <p className="px-4 py-3 text-xs text-slate-500">Approved corrections are paid (or recovered) in the next payroll run. Finalized payslips are never edited.</p>
-    </Card>
-  );
-}
-
-function QueryModal({ slip, onClose, onDone }) {
-  const [v, setV] = useState({ category: "", description: "", evidence: "" });
-  const [error, setError] = useState(null);
-  const [busy, setBusy] = useState(false);
-  async function go() {
-    if (!v.category) { setError("Choose what the query is about."); return; }
-    if (v.description.trim().length < 5) { setError("Describe the issue (at least 5 characters)."); return; }
-    setBusy(true); setError(null);
-    const res = await submitPayrollQuery({ payslipId: slip.id, ...v });
-    setBusy(false);
-    if (res.error) setError(res.error); else onDone();
-  }
-  return (
-    <Modal open onClose={onClose} title={`Payroll query · ${period(slip)}`}
-      footer={<><Button variant="secondary" onClick={onClose}>Cancel</Button><Button loading={busy} onClick={go}>Send query</Button></>}>
-      <div className="grid grid-cols-1 gap-3">
-        <Field label="About" required><Select placeholder="Choose…" value={v.category} onChange={(e) => setV({ ...v, category: e.target.value })} options={CORRECTION_CATEGORIES.map((c) => ({ value: c, label: label(c) }))} /></Field>
-        <Field label="What looks wrong?" required><Textarea maxLength={2000} value={v.description} onChange={(e) => setV({ ...v, description: e.target.value })} /></Field>
-        <Field label="Supporting evidence" hint="e.g. approved leave or attendance correction reference, or a document name in My Documents."><Input maxLength={1000} value={v.evidence} onChange={(e) => setV({ ...v, evidence: e.target.value })} /></Field>
-      </div>
-      <div className="mt-3"><InlineError message={error} /></div>
-    </Modal>
   );
 }
 
@@ -241,8 +242,10 @@ export function PayslipView({ slip, employee }) {
 
 function MyBank() {
   const q = useHrQuery(() => myBankAccounts(), []);
+  const navigate = useNavigate();
   return (
-    <Card title="Salary bank account">
+    <Card title="Salary bank account" actions={
+      <Button size="sm" variant="secondary" onClick={() => navigate("/employee/requests?new=profile")}><Landmark className="h-4 w-4" aria-hidden="true" />{q.data?.length ? "Change bank account" : "Add bank details"}</Button>}>
       {q.loading && !q.data ? <Loading /> : q.error ? <ErrorState message={q.error} onRetry={q.reload} /> : !q.data?.length ? (
         <EmptyState title="No bank account on file" description="The payroll team records your salary account. Raise an HR request to share your bank details securely." />
       ) : (
@@ -258,34 +261,7 @@ function MyBank() {
           ))}
         </ul>
       )}
-      <p className="mt-3 text-xs text-slate-500">Only the last four digits are shown. To change your account, raise an HR request; the payroll team updates it.</p>
-    </Card>
-  );
-}
-
-function MyClaims({ me }) {
-  const q = useHrQuery(() => listMyReimbursements(me), [me]);
-  // New claims go through HR Requests (Module 10): receipt upload, duplicate checks and
-  // manager -> finance approval. Payroll only pays claims approved there.
-  const navigate = useNavigate();
-  const newClaim = (
-    <Button size="sm" onClick={() => navigate("/employee/requests?new=reimbursement")}>
-      <Plus className="h-4 w-4" aria-hidden="true" />New claim in HR Requests
-    </Button>
-  );
-  return (
-    <Card title="My reimbursement claims" actions={newClaim} padded={false}>
-      <DataTable caption="My reimbursement claims" rows={q.data} loading={q.loading} error={q.error} onRetry={q.reload} emptyTitle="No claims yet"
-        emptyDescription="Submit a reimbursement claim with its receipt in My HR Requests."
-        columns={[
-          { key: "claim_date", header: "Date", render: (r) => formatDate(r.claim_date) },
-          { key: "category", header: "Category", render: (r) => label(r.category) },
-          { key: "amount", header: "Amount", render: (r) => formatMoney(r.amount) },
-          { key: "description", header: "Description", render: (r) => <span className="line-clamp-2 max-w-xs">{r.description}</span> },
-          { key: "status", header: "Status", render: (r) => <StatusBadge status={r.status} /> },
-          { key: "decision_note", header: "Note", render: (r) => r.decision_note || "—" },
-        ]} />
-      <p className="px-4 py-3 text-xs text-slate-500">Claims are submitted in My HR Requests, where your manager and then finance approve them. Approved claims are paid with the next payroll run and appear on that payslip.</p>
+      <p className="mt-3 text-xs text-slate-500">Only the last four digits are shown. Changes go through a profile change request; payroll verifies the new account before paying into it.</p>
     </Card>
   );
 }

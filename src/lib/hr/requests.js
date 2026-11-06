@@ -48,7 +48,8 @@ export async function listRequests({ status = "active", category = "", priority 
 
 export async function listMyRequests(employeeId) {
   if (!employeeId) return { data: [], error: null };
-  return run(from("hr_requests").select(COLUMNS).eq("employee_id", employeeId).order("created_at", { ascending: false }).limit(500));
+  // details: non-sensitive request fields (e.g. letter_type, so My HR Requests can tell salary certificates apart).
+  return run(from("hr_requests").select(`${COLUMNS}, details`).eq("employee_id", employeeId).order("created_at", { ascending: false }).limit(500));
 }
 
 export async function getRequest(id) {

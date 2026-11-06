@@ -9,6 +9,7 @@
 //   * Issued letters: Employee Documents (Module 9) or a restricted request file.
 import { from, rpc, run, supabase } from "./client";
 import { decideCorrection, requestCorrection } from "./attendance";
+import { MARITAL_STATUSES } from "./employees";
 
 export const REQUEST_FILE_BUCKET = "hr-request-files";
 export const REQUEST_FILE_MAX_BYTES = 10 * 1024 * 1024;
@@ -53,6 +54,8 @@ export const PROFILE_FIELDS = [
   { key: "emergency_contact_name", label: "Emergency contact name" },
   { key: "emergency_contact_relation", label: "Emergency contact relation" },
   { key: "emergency_contact_phone", label: "Emergency contact phone", type: "tel" },
+  { key: "nationality", label: "Nationality (2-letter code)" },
+  { key: "marital_status", label: "Marital status", options: MARITAL_STATUSES },
 ];
 export const INBOX_BOXES = [
   { value: "assigned", label: "Assigned to me" },
