@@ -4,7 +4,7 @@ import Image from "@/lib/nx/image";
 // Branded loader. `inline` = compact (sections), default = route-level.
 // The box always reserves its height (no layout jump); the visuals fade in
 // only after `delay` ms so ultra-fast loads never flash it.
-export default function PageLoader({ inline = false, label = "Loading...", delay = 120 }) {
+export default function PageLoader({ inline = false, fullHeight = false, label = "Loading...", delay = 120 }) {
   const [show, setShow] = useState(delay <= 0);
 
   useEffect(() => {
@@ -17,7 +17,7 @@ export default function PageLoader({ inline = false, label = "Loading...", delay
     <div
       role="status"
       aria-live="polite"
-      className={`flex w-full items-center justify-center ${inline ? "min-h-[200px]" : "min-h-[60vh]"}`}
+      className={`flex w-full items-center justify-center ${inline ? "min-h-[200px]" : fullHeight ? "min-h-[100svh]" : "min-h-[60vh]"}`}
     >
       <span className="sr-only">{label}</span>
       {show && (

@@ -22,7 +22,9 @@ async function getFeaturedProjects() {
 
 export default function FeaturedProjects() {
   const { data, loading } = useAsync(getFeaturedProjects, []);
-  if (loading) return null;
+  // Keep the sections below off screen until the projects arrive, so they are
+  // not pushed down when this section appears.
+  if (loading) return <div aria-hidden="true" className="min-h-[100svh]" />;
   const projects = data ?? [];
 
   return (

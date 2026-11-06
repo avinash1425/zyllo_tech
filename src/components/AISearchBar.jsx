@@ -6,7 +6,7 @@ import Link from "@/lib/nx/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { SERVICES } from "@/data/services";
-import { supabase } from "@/lib/supabase/client";
+import { loadSupabase } from "@/lib/supabase/load";
 
 const SUGGESTIONS = [
   "What services does Zyllo Tech offer?",
@@ -93,6 +93,7 @@ export default function AISearchBar() {
     setError(null);
 
     try {
+      const supabase = await loadSupabase();
       const { data, error: fnError } = await supabase.functions.invoke("ai-search", {
         body: { query: trimmed },
       });

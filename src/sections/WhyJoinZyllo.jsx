@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "@/lib/nx/image";
 import { Compass, GraduationCap, Heart, Rocket, ShieldCheck, Sparkles, Users } from "lucide-react";
 
 const REASONS = [
@@ -41,13 +42,12 @@ export default function WhyJoinZyllo() {
 
         <div className="relative mx-auto w-full max-w-xl pb-6 lg:max-w-none">
           <div className="relative overflow-hidden rounded-3xl shadow-[0_2px_4px_rgba(16,26,58,0.06),0_30px_60px_-24px_rgba(23,58,82,0.45)]">
-            <img
+            <Image
               src="/about.png"
               alt="Two colleagues reviewing a workflow together on a tablet in a bright office"
-              width="1408"
-              height="768"
-              loading="lazy"
-              decoding="async"
+              width={1408}
+              height={768}
+              sizes="(min-width: 1024px) 50vw, 100vw"
               className="aspect-[4/5] h-full w-full object-cover object-[35%_50%] sm:aspect-[4/3] lg:aspect-[4/5]"
             />
             <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(to_top,rgba(16,34,60,0.55),rgba(23,58,82,0.08)_55%,transparent)]" />
