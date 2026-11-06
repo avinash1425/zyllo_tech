@@ -80,6 +80,9 @@ try {
     if (!r.ok) { console.error(`FAILED   ${f}\n` + r.out.split(/\r?\n/).filter((l) => /ERROR|LINE|DETAIL|HINT/.test(l)).slice(0, 10).join("\n")); process.exit(1); }
     console.log(`applied  ${f}`);
   }
+  // psql does not refresh the Supabase API (PostgREST) schema cache; without this,
+  // embeds over new/changed foreign keys fail with "Could not find a relationship".
+  runSql("notify pgrst, 'reload schema';");
 } finally {
   rmSync(tmp, { recursive: true, force: true });
 }
