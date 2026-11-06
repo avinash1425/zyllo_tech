@@ -62,7 +62,7 @@ function ShiftModal({ shift, onClose, onSaved }) {
     start_time: String(shift.start_time ?? "09:00").slice(0, 5), end_time: String(shift.end_time ?? "18:00").slice(0, 5),
     grace_minutes: shift.grace_minutes ?? 10, break_minutes: shift.break_minutes ?? 60, break_paid: shift.break_paid ?? false,
     early_leave_grace_minutes: shift.early_leave_grace_minutes ?? 10, overtime_after_minutes: shift.overtime_after_minutes ?? "",
-    expected_minutes: shift.expected_minutes ?? "", half_day_minutes: shift.half_day_minutes ?? "",
+    expected_minutes: shift.expected_minutes ?? "", half_day_minutes: shift.half_day_minutes ?? "", absent_below_minutes: shift.absent_below_minutes ?? "",
     working_days: shift.working_days ?? [1, 2, 3, 4, 5], weekly_off_rules: shift.weekly_off_rules ?? {},
     is_default: shift.is_default ?? false, active: shift.active ?? true,
   }));
@@ -91,6 +91,12 @@ function ShiftModal({ shift, onClose, onSaved }) {
       if (v[k] === "" || Number(v[k]) < lo || Number(v[k]) > hi) errs[k] = `Between ${lo} and ${hi}.`;
     }
     if (v.expected_minutes !== "" && (Number(v.expected_minutes) < 1 || Number(v.expected_minutes) > 1440)) errs.expected_minutes = "Between 1 and 1440.";
+    for (const k of ["absent_below_minutes", "half_day_minutes"]) {
+      if (v[k] !== "" && (Number(v[k]) < 0 || Number(v[k]) > 1440)) errs[k] = "Between 0 and 1440.";
+    }
+    if (!errs.half_day_minutes && v.half_day_minutes !== "" && Number(v.half_day_minutes) < (v.absent_below_minutes === "" ? 240 : Number(v.absent_below_minutes))) {
+      errs.half_day_minutes = "Must be at least the absent limit.";
+    }
     if (!v.working_days.length) errs.working_days = "Choose at least one working day.";
     if (v.is_default && !v.active) errs.active = "The default shift must be active.";
     setErrors(errs);
@@ -101,7 +107,7 @@ function ShiftModal({ shift, onClose, onSaved }) {
       name: v.name.trim(), code: v.code || null, description: v.description.trim() || null,
       start_time: v.start_time, end_time: v.end_time, grace_minutes: Number(v.grace_minutes), break_minutes: Number(v.break_minutes),
       break_paid: v.break_paid, early_leave_grace_minutes: Number(v.early_leave_grace_minutes), overtime_after_minutes: num(v.overtime_after_minutes),
-      expected_minutes: num(v.expected_minutes), half_day_minutes: num(v.half_day_minutes), working_days: v.working_days,
+      expected_minutes: num(v.expected_minutes), half_day_minutes: num(v.half_day_minutes), absent_below_minutes: num(v.absent_below_minutes), working_days: v.working_days,
       weekly_off_rules: Object.fromEntries(Object.entries(v.weekly_off_rules).filter(([d]) => v.working_days.includes(Number(d)))),
       is_default: v.is_default, active: v.active,
     });
@@ -122,7 +128,8 @@ function ShiftModal({ shift, onClose, onSaved }) {
         <Field label="Break (minutes)" required error={errors.break_minutes}><Input type="number" min={0} max={480} value={v.break_minutes} onChange={set("break_minutes")} /></Field>
         <Field label="Early-leave grace (minutes)" required error={errors.early_leave_grace_minutes}><Input type="number" min={0} max={240} value={v.early_leave_grace_minutes} onChange={set("early_leave_grace_minutes")} /></Field>
         <Field label="Overtime counts after (minutes)" hint="Minutes beyond expected hours before overtime is recorded. Blank = 0."><Input type="number" min={0} max={1440} value={v.overtime_after_minutes} onChange={set("overtime_after_minutes")} /></Field>
-        <Field label="Half day below (minutes worked)" hint="Blank = half of expected hours."><Input type="number" min={0} max={1440} value={v.half_day_minutes} onChange={set("half_day_minutes")} /></Field>
+        <Field label="Absent below (minutes worked)" error={errors.absent_below_minutes} hint="Punched in and out but worked less than this: absent (leave). Blank = 240 (4 hours)."><Input type="number" min={0} max={1440} value={v.absent_below_minutes} onChange={set("absent_below_minutes")} /></Field>
+        <Field label="Full day from (minutes worked)" error={errors.half_day_minutes} hint="Less than this (but at least the absent limit): half day. Blank = expected hours less the late and early-leave grace."><Input type="number" min={0} max={1440} value={v.half_day_minutes} onChange={set("half_day_minutes")} /></Field>
         <div className="flex items-end pb-2"><Checkbox label="Break is paid (not deducted)" checked={v.break_paid} onChange={set("break_paid")} /></div>
         <fieldset className="sm:col-span-3">
           <legend className="text-sm font-semibold text-[#173a52]">Working days</legend>

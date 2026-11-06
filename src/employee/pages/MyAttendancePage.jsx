@@ -58,6 +58,12 @@ export default function MyAttendancePage() {
 
   const todayHours = rec?.worked_minutes != null ? minutesToHm(rec.worked_minutes)
     : t?.running_minutes != null ? `${minutesToHm(t.running_minutes)} so far` : "—";
+  // Normal working day (no half-day leave): under 4 hours worked = absent (leave), 4 hours+ but short of a full day = half day.
+  const fullDayRule = t?.shift?.day_type === "working" && (t.day?.expected_minutes ?? t.shift.expected_minutes) >= t.shift.expected_minutes;
+  const workedSoFar = t?.running_minutes != null ? Math.max(t.running_minutes - (t.shift?.break_paid ? 0 : Math.min(t.shift?.break_minutes ?? 0, t.running_minutes)), 0) : null;
+  const shortDayWarning = punch === "out" && fullDayRule && workedSoFar != null && workedSoFar < 240
+    ? ` You have worked about ${minutesToHm(workedSoFar)} today. If you check out before working 4 hours, today will be marked absent (leave), not a half day.`
+    : "";
 
   return (
     <>
@@ -95,6 +101,7 @@ export default function MyAttendancePage() {
               <Button variant="secondary" onClick={() => setPunch("out")} disabled={!t.can_check_out}><LogOut className="h-4 w-4" aria-hidden="true" />Check out</Button>
               <Button variant="ghost" onClick={today.reload} loading={today.loading}><Clock className="h-4 w-4" aria-hidden="true" />Refresh</Button>
               <p id="punch-help" className="w-full text-xs text-slate-500">
+                {t.shift?.day_type === "working" && "Under 4 hours worked = absent (leave); 4 hours or more but short of a full day = half day. "}
                 {t.checked_out ? "You have checked out for today." : t.can_check_out ? "You are checked in." : "You have not checked in yet."}
                 {t.pending_corrections > 0 && ` You have ${t.pending_corrections} pending regularization request(s).`}
               </p>
@@ -184,7 +191,7 @@ export default function MyAttendancePage() {
 
       <ConfirmDialog open={Boolean(punch)} onClose={() => setPunch(null)} onConfirm={doPunch}
         title={punch === "in" ? "Check in now?" : "Check out now?"} confirmLabel={punch === "in" ? "Check in" : "Check out"}
-        message={`The server will record the current time (${tz}). This cannot be edited by you afterwards; mistakes need a regularization request.`}
+        message={`The server will record the current time (${tz}). This cannot be edited by you afterwards; mistakes need a regularization request.${shortDayWarning}`}
         requireReason={false} reasonLabel="Note (optional)" />
       <ConfirmDialog open={Boolean(cancelling)} onClose={() => setCancelling(null)} title="Cancel regularization request?" tone="danger" confirmLabel="Cancel request"
         message={cancelling ? `Your pending request for ${formatDate(cancelling.work_date)} will be withdrawn.` : ""}

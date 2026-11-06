@@ -71,13 +71,13 @@ select test.ok((select status = 'present' and late_minutes = 0 and worked_minute
                 from public.hr_attendance where work_date = (select d from t_d where k='mon')),
   'within grace: present, worked 475, no OT');
 select public.hr_upsert_attendance_manual((select v from t_ids where k='emp1'), (select d from t_d where k='tue'),
-  pg_temp.ts('tue', '09:25'), pg_temp.ts('tue', '18:00'), 'Biometric outage');
+  pg_temp.ts('tue', '09:25'), pg_temp.ts('tue', '18:20'), 'Biometric outage');   -- stays late to make up the hours (199: full day needed)
 select test.ok((select status = 'late' and late_minutes = 25 from public.hr_attendance where work_date = (select d from t_d where k='tue')),
   'beyond grace: late by 25 minutes');
 select public.hr_upsert_attendance_manual((select v from t_ids where k='emp1'), (select d from t_d where k='wed'),
   pg_temp.ts('wed', '09:00'), pg_temp.ts('wed', '13:00'), 'Left early - approved');
-select test.ok((select status = 'half_day' and worked_minutes = 180 and early_leave_minutes = 300 from public.hr_attendance where work_date = (select d from t_d where k='wed')),
-  'worked < half shift: half_day with early leave 300');
+select test.ok((select status = 'absent' and worked_minutes = 180 and early_leave_minutes = 300 from public.hr_attendance where work_date = (select d from t_d where k='wed')),
+  'worked < 4 hours: absent (199) with early leave 300');
 select public.hr_upsert_attendance_manual((select v from t_ids where k='emp1'), (select d from t_d where k='thu'),
   pg_temp.ts('thu', '09:00'), pg_temp.ts('thu', '20:00'), 'Release night');
 select test.eq((select overtime_minutes from public.hr_attendance where work_date = (select d from t_d where k='thu')), 90,

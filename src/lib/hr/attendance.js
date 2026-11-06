@@ -196,7 +196,7 @@ export async function listPunches(employeeId, fromDate, toDate) {
 
 // ------------------------------------------------------------ shifts
 const SHIFT_COLS = `id, name, code, description, start_time, end_time, grace_minutes, break_minutes, break_paid, early_leave_grace_minutes,
-  overtime_after_minutes, expected_minutes, half_day_minutes, working_days, weekly_off_rules, is_default, active, updated_at`;
+  overtime_after_minutes, expected_minutes, half_day_minutes, absent_below_minutes, working_days, weekly_off_rules, is_default, active, updated_at`;
 
 export async function listShifts() {
   return run(from("hr_shifts").select(SHIFT_COLS).order("name"));

@@ -169,8 +169,8 @@ select test.as_owner();
 -- =====================================================================
 select pg_temp.su('hr');
 select public.hr_assign_shift(pg_temp.id('emp3'), pg_temp.id('night'), pg_temp.d('tue'), pg_temp.d('tue'), 'Night cover');
-select public.hr_upsert_attendance_manual(pg_temp.id('emp3'), pg_temp.d('tue'), pg_temp.ts('tue', '22:30'), pg_temp.ts('wed', '06:00'), 'Night cover');
-select test.ok((select late_minutes = 30 and worked_minutes = 390 and status = 'late'
+select public.hr_upsert_attendance_manual(pg_temp.id('emp3'), pg_temp.d('tue'), pg_temp.ts('tue', '22:30'), pg_temp.ts('wed', '06:30'), 'Night cover');
+select test.ok((select late_minutes = 30 and worked_minutes = 420 and status = 'late'
                        and expected_end_at = pg_temp.ts('wed', '06:00') from public.hr_attendance where employee_id = pg_temp.id('emp3') and work_date = pg_temp.d('tue')),
   'overnight: expected end next morning, worked across midnight');
 -- late check-in after midnight still belongs to the night shift's date
