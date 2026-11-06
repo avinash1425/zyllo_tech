@@ -177,7 +177,7 @@ export default function Header() {
 
   const navLinkClass = (href) =>
     `group relative inline-block py-1 transition-colors duration-200 ease-out hover:text-[#f96706] ${
-      isActive(href) ? "text-[#f96706]" : ""
+      isActive(href) ? "text-[#c24f05]" : ""
     }`;
   const underline = (active) =>
     `absolute -bottom-0.5 left-0 h-[2px] rounded-full bg-gradient-to-r from-[#f96706] to-[#3089a6] transition-all duration-300 ease-out ${
@@ -188,7 +188,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 transition-all duration-300">
-      <div className="hidden w-full border-b border-[#eceef2] bg-[#f6f7f9] text-[#6c7889] lg:flex">
+      <div className="hidden w-full border-b border-[#eceef2] bg-[#f6f7f9] text-[#5f6b7c] lg:flex">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-end gap-2.5 px-6 py-1 text-[12.5px] font-medium lg:px-8">
           {[
             { href: "/careers", label: "Careers" },
@@ -199,7 +199,7 @@ export default function Header() {
             <Link
               href={l.href}
               className={`group relative inline-block pb-0.5 transition-colors duration-200 ease-out hover:text-[#f96706] ${
-                isActive(l.href) ? "text-[#f96706]" : ""
+                isActive(l.href) ? "text-[#c24f05]" : ""
               }`}
             >
               {l.label}
@@ -278,7 +278,7 @@ export default function Header() {
                     aria-haspopup="true"
                     aria-controls="services-menu"
                     className={`group relative inline-flex items-center gap-1 py-1 transition-colors duration-200 ease-out hover:text-[#f96706] ${
-                      isServicesActive || isServicesOpen ? "text-[#f96706]" : ""
+                      isServicesActive || isServicesOpen ? "text-[#c24f05]" : ""
                     }`}
                   >
                     Services
@@ -404,7 +404,7 @@ export default function Header() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`${mobileRow} ${isActive(link.href) ? "bg-[#f96706]/10 text-[#f96706]" : ""}`}
+                  className={`${mobileRow} ${isActive(link.href) ? "bg-[#f96706]/10 text-[#c24f05]" : ""}`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {link.label}
@@ -419,7 +419,7 @@ export default function Header() {
                 aria-expanded={isMobileServicesOpen}
                 aria-controls="mobile-services"
                 className={`${mobileRow} justify-between text-left ${
-                  isServicesActive ? "bg-[#f96706]/10 text-[#f96706]" : ""
+                  isServicesActive ? "bg-[#f96706]/10 text-[#c24f05]" : ""
                 }`}
               >
                 Services
@@ -475,7 +475,7 @@ export default function Header() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`${mobileRow} ${isActive(link.href) ? "bg-[#f96706]/10 text-[#f96706]" : ""}`}
+                  className={`${mobileRow} ${isActive(link.href) ? "bg-[#f96706]/10 text-[#c24f05]" : ""}`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {link.label}
@@ -491,7 +491,7 @@ export default function Header() {
                   href="/careers"
                   onClick={() => setIsMenuOpen(false)}
                   className={`flex min-h-11 items-center justify-center rounded-xl bg-white transition-colors hover:text-[#f96706] ${
-                    isActive("/careers") ? "text-[#f96706]" : ""
+                    isActive("/careers") ? "text-[#c24f05]" : ""
                   }`}
                 >
                   Careers
@@ -500,7 +500,7 @@ export default function Header() {
                   href="/contact"
                   onClick={() => setIsMenuOpen(false)}
                   className={`flex min-h-11 items-center justify-center rounded-xl bg-white transition-colors hover:text-[#f96706] ${
-                    isActive("/contact") ? "text-[#f96706]" : ""
+                    isActive("/contact") ? "text-[#c24f05]" : ""
                   }`}
                 >
                   Contact Us

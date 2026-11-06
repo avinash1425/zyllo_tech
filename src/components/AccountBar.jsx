@@ -8,7 +8,15 @@ import { useEffect, useState } from "react";
 import { LayoutDashboard, LogOut, ShieldCheck } from "lucide-react";
 import Link from "@/lib/nx/link";
 import { useAuth } from "@/lib/auth";
-import { supabase } from "@/lib/supabase/client";
+import { loadSupabase } from "@/lib/supabase/load";
+
+function hasStoredSession() {
+  try {
+    return Object.keys(window.localStorage).some((key) => /^sb-.+-auth-token/.test(key));
+  } catch {
+    return true; // Storage blocked: unknown, so do not offer Login prematurely.
+  }
+}
 
 function useIsAdmin(user) {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -18,9 +26,11 @@ function useIsAdmin(user) {
       setIsAdmin(false);
       return undefined;
     }
-    supabase.rpc("is_admin").then(({ data }) => {
-      if (active) setIsAdmin(data === true);
-    });
+    loadSupabase()
+      .then((supabase) => supabase.rpc("is_admin"))
+      .then(({ data }) => {
+        if (active) setIsAdmin(data === true);
+      });
     return () => {
       active = false;
     };
@@ -44,7 +54,17 @@ export default function AccountBar({ mobile = false, onNavigate }) {
   const { user, loading, signOut } = useAuth();
   const isAdmin = useIsAdmin(user);
 
-  if (loading) return null;
+  // The session check is deferred on public pages. Without a stored session the
+  // visitor is signed out, so Login can show at once (the branch below). With one,
+  // hold the same box as the Login pill so the top bar does not grow.
+  if (loading && hasStoredSession()) {
+    if (mobile) return null;
+    return (
+      <span aria-hidden="true" className="invisible inline-flex items-center px-3 py-[3px] text-[12px] font-semibold leading-5">
+        Login
+      </span>
+    );
+  }
 
   if (!user) {
     if (mobile) {

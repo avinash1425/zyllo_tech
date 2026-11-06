@@ -8,7 +8,7 @@ export default function FloatingWhatsApp() {
       rel="noopener noreferrer"
       aria-label="Chat with Zyllo Tech on WhatsApp"
       style={{ right: "max(1.25rem, env(safe-area-inset-right))" }}
-      className="group fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_10px_15px_-3px_rgba(0,0,0,0.2)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_25px_-5px_rgba(37,211,102,0.3)] max-sm:[html[data-zt-cookie]_&]:bottom-[calc(7.5rem+env(safe-area-inset-bottom))] sm:right-6 sm:bottom-6"
+      className="group fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_10px_15px_-3px_rgba(0,0,0,0.2)] transition-[translate,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_25px_-5px_rgba(37,211,102,0.3)] max-sm:[html[data-zt-cookie]_&]:-translate-y-[calc(8.5rem+env(safe-area-inset-bottom)-max(1.25rem,env(safe-area-inset-bottom)))] sm:right-6 sm:bottom-6"
     >
       <span
         aria-hidden="true"

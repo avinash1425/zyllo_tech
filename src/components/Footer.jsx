@@ -4,7 +4,7 @@ import { ArrowRight, Mail, MapPin, Phone, Sparkles } from "lucide-react";
 import Image from "@/lib/nx/image";
 import Link from "@/lib/nx/link";
 import { useState } from "react";
-import LegalModal from "@/components/LegalModal";
+import LegalModal from "@/components/LazyLegalModal";
 import {
   PRIVACY_LAST_UPDATED,
   PRIVACY_SECTIONS,
@@ -147,7 +147,7 @@ export default function Footer() {
                 />
                 <button
                   type="submit"
-                  className="flex shrink-0 items-center gap-1.5 bg-[#2f8fe0] px-4 text-[12px] font-bold tracking-wide text-white transition-colors duration-200 hover:bg-[#2478c4]"
+                  className="flex shrink-0 items-center gap-1.5 bg-[#1f6fb8] px-4 text-[12px] font-bold tracking-wide text-white transition-colors duration-200 hover:bg-[#1a5f9f]"
                 >
                   SUBSCRIBE
                   <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />

@@ -2,7 +2,7 @@
 
 import { Cookie, Info } from "lucide-react";
 import { useEffect, useState } from "react";
-import LegalModal from "@/components/LegalModal";
+import LegalModal from "@/components/LazyLegalModal";
 import { PRIVACY_LAST_UPDATED, PRIVACY_SECTIONS } from "@/data/legal-content";
 import { getConsent, OPEN_COOKIE_SETTINGS_EVENT, setConsent } from "@/lib/consent";
 
@@ -57,7 +57,7 @@ export default function CookieConsent() {
               <button
                 type="button"
                 onClick={() => setShowPolicy(true)}
-                className="inline-flex h-7 items-center gap-1 whitespace-nowrap rounded-full px-2.5 text-[11px] font-medium text-[#6c7889] transition-colors duration-200 hover:bg-[#f4f5f7] hover:text-[#1d2735]"
+                className="inline-flex h-7 items-center gap-1 whitespace-nowrap rounded-full px-2.5 text-[11px] font-medium text-[#5f6b7c] transition-colors duration-200 hover:bg-[#f4f5f7] hover:text-[#1d2735]"
               >
                 <Info className="h-3 w-3" aria-hidden="true" />
                 Learn more
@@ -65,7 +65,7 @@ export default function CookieConsent() {
               <button
                 type="button"
                 onClick={() => respond("declined")}
-                className="inline-flex h-7 items-center whitespace-nowrap rounded-full border border-[#e2e5ea] px-3 text-[11px] font-medium text-[#6c7889] transition-colors duration-200 hover:bg-[#f4f5f7] hover:text-[#1d2735]"
+                className="inline-flex h-7 items-center whitespace-nowrap rounded-full border border-[#e2e5ea] px-3 text-[11px] font-medium text-[#5f6b7c] transition-colors duration-200 hover:bg-[#f4f5f7] hover:text-[#1d2735]"
               >
                 Decline
               </button>

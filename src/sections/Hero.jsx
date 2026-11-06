@@ -9,6 +9,7 @@ import { ArrowRight, Check } from "lucide-react";
 // banner (arrows, dots, autoplay interval, hover-pause, swipe, staggered
 // entrance animation, section height) — content and colors are our own.
 const AUTOPLAY_MS = 6500;
+const LATER_SLIDES_DELAY_MS = 3000;
 
 const TRUST_ITEMS = [
   "DPIIT-Recognized — Startup India",
@@ -67,8 +68,17 @@ export default function Hero() {
   const [activeIndex, setActiveIndex] = useState(0);
   const intervalRef = useRef(null);
   const touchStartRef = useRef(null);
+  // Later slides download after the first one has had time to paint, so they
+  // never compete with it. Navigating sooner than that loads them right away.
+  const [laterSlidesReady, setLaterSlidesReady] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLaterSlidesReady(true), LATER_SLIDES_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, []);
 
   function goTo(index) {
+    setLaterSlidesReady(true);
     setActiveIndex(((index % SLIDES.length) + SLIDES.length) % SLIDES.length);
   }
 
@@ -140,16 +150,21 @@ export default function Hero() {
             }`}
             aria-hidden={!isActive}
           >
-            <Image
-              src={slide.image}
-              alt={`${slide.eyebrow} by Zyllo Tech`}
-              fill
-              priority={index === 0}
-              sizes="100vw"
-              className={`zt-hero-slide-img object-cover transition-transform duration-[9000ms] ease-out ${
-                isActive ? "scale-100" : "scale-[1.08]"
-              }`}
-            />
+            {(index === 0 || laterSlidesReady) && (
+              <Image
+                src={slide.image}
+                alt={`${slide.eyebrow} by Zyllo Tech`}
+                fill
+                priority={index === 0}
+                sizes="100vw"
+                // 1.01 rather than 1: the first slide then fills the same clipped
+                // area as the others, so a later slide is not reported as a new,
+                // larger LCP element when it fades in.
+                className={`zt-hero-slide-img object-cover transition-transform duration-[9000ms] ease-out ${
+                  isActive ? "scale-[1.01]" : "scale-[1.08]"
+                }`}
+              />
+            )}
             <div
               aria-hidden="true"
               className="absolute inset-0"
@@ -303,7 +318,7 @@ export default function Hero() {
           {SLIDES.map((slide, index) => (
             <button key={slide.image} type="button" onClick={() => { goTo(index); restartAutoplay(); }}
               aria-label={`Go to slide ${index + 1}`}
-              className="grid h-11 w-5 place-items-center sm:h-6 sm:w-4">
+              className="grid h-11 w-6 place-items-center sm:h-6">
               <span className={`block h-[0.55rem] rounded-full shadow-[0_1px_4px_rgba(0,0,0,0.5)] ring-1 ring-black/20 transition-all duration-200 ${
                   index === activeIndex ? "w-[1.85rem] bg-white" : "w-[0.55rem] bg-white/70"
                 }`} />

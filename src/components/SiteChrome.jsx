@@ -29,8 +29,10 @@ export default function SiteChrome() {
       {!isLogin && <Header user={user} />}
       <main className="flex-1">
         <PageFade>
-          {/* Header/footer stay visible while a page chunk loads; only this area shows the loader. */}
-          <Suspense fallback={<PageLoader />}>
+          {/* Header/footer stay mounted while a page chunk loads; only this area shows the
+              loader. It fills the viewport so the footer waits below the fold instead of
+              being visible and then pushed down when the page arrives (layout shift). */}
+          <Suspense fallback={<PageLoader fullHeight />}>
             <Outlet />
           </Suspense>
         </PageFade>
