@@ -89,12 +89,16 @@ grant execute on function hrms_local.require_single(bigint) to anon, authenticat
 -- Fixture helpers (owner only): act as a user inside a DO block, then return.
 create or replace function hrms_local.act_as(p_email text) returns uuid
 language plpgsql as $$
-declare v uuid;
+declare v uuid; v_sess uuid;
 begin
   select id into v from auth.users where email = p_email;
   if v is null then raise exception 'hrms_local.act_as: no auth user %', p_email; end if;
+  -- A live session, like a real sign-in (migration 202 requires it).
+  select id into v_sess from auth.sessions where user_id = v order by created_at desc, id limit 1;
+  if v_sess is null then insert into auth.sessions (user_id) values (v) returning id into v_sess; end if;
   perform set_config('request.jwt.claims',
-    json_build_object('sub', v, 'role', 'authenticated', 'aud', 'authenticated', 'email', p_email)::text, true);
+    json_build_object('sub', v, 'role', 'authenticated', 'aud', 'authenticated', 'email', p_email, 'session_id', v_sess)::text, true);
+  perform set_config('hr.session_key', '', true);
   perform set_config('role', 'authenticated', true);
   return v;
 end $$;
@@ -103,6 +107,7 @@ create or replace function hrms_local.act_as_service() returns void
 language plpgsql as $$
 begin
   perform set_config('request.jwt.claims', json_build_object('role', 'service_role')::text, true);
+  perform set_config('hr.session_key', '', true);
   perform set_config('role', 'service_role', true);
 end $$;
 
@@ -110,6 +115,7 @@ create or replace function hrms_local.act_as_owner() returns void
 language plpgsql as $$
 begin
   perform set_config('request.jwt.claims', '', true);
+  perform set_config('hr.session_key', '', true);
   perform set_config('role', 'none', true);
 end $$;
 -- Switching back to the owner is called while impersonating, so API roles may

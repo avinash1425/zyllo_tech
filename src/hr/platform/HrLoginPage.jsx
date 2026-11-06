@@ -48,6 +48,7 @@ export default function HrLoginPage() {
         <label className="mt-4 block text-sm font-semibold text-[#173a52]" htmlFor="hr-password">Password</label>
         <input id="hr-password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)}
           className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-[#f96706] focus:outline-none focus:ring-2 focus:ring-[#f96706]/30" />
+        {!error && auth.sessionEnded && <p role="status" data-testid="session-ended" className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">Your session has ended. Please sign in again.</p>}
         {error && <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
         <button type="submit" disabled={busy || auth.loading}
           className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#f7941e] to-[#f96706] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">

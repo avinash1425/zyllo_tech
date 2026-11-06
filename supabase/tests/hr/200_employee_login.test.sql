@@ -164,7 +164,7 @@ select test.eq(test.count_rows('select 1 from public.hr_employees where id = ' |
 
 select pg_temp.as_sess(pg_temp.id('new_user'), pg_temp.id('s2'));
 select test.ok(hr_private.current_employee_id() is null and (public.hr_me() ->> 'revoked')::boolean, 'revoked session (signed out elsewhere): no access');
-select pg_temp.as_k('new');   -- claims without session_id
+select test.as_claims(pg_temp.id('new_user'), null);   -- claims without session_id
 select test.ok(hr_private.current_employee_id() is null, 'JWT without session_id: no access for Employee-ID accounts');
 
 -- =====================================================================
