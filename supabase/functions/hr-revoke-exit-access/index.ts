@@ -1,6 +1,7 @@
 // POST { exit_id: uuid }
 // Exit clearance step "access_revocation": bans the leaver's Supabase Auth
-// account (service role) and records it on the exit case. The caller must
+// account (service role), ends all of their sessions and records it on the
+// exit case (hr_record_auth_access_revoked, migration 201). The caller must
 // hold exit.manage — checked with the caller's JWT via hr_can_revoke_exit_access().
 // HR data access already stops at hr_close_exit (portal_access=false); this
 // additionally blocks sign-in itself.
@@ -38,7 +39,9 @@ Deno.serve(async (req) => {
       await recordFailure(`Could not disable the sign-in account: ${banErr.message}`);
       return json(req, { error: `Could not disable the sign-in account: ${banErr.message}` }, 502);
     }
-    await admin.auth.admin.signOut(target.user_id).catch(() => {});
+    // Sessions are ended by hr_record_auth_access_revoked below (migration 201).
+    // (The Auth admin sign-out API takes the user's access token, not a user
+    // id, so the previous sign-out call here never signed anyone out.)
   }
   const { error: recErr } = await admin.rpc("hr_record_auth_access_revoked", { p_exit: body.exit_id });
   if (recErr) {

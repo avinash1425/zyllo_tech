@@ -4,10 +4,11 @@
 // signed-in user's server-side permissions — no demo users or fake counts.
 import { useEffect, useMemo, useState } from "react";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
-import { Bell, ChevronDown, ExternalLink, Globe, LayoutGrid, LogOut, Menu, Repeat, X } from "lucide-react";
+import { Bell, ChevronDown, ExternalLink, Globe, KeyRound, LayoutGrid, LogOut, Menu, Repeat, X } from "lucide-react";
 import Image from "@/hr/platform/image";
 import Link from "@/hr/platform/link";
 import { useAuth } from "@/hr/platform/auth";
+import { accountLabelFor, canChangeOwnPassword, employeeLoginIdOf } from "@/hr/platform/account";
 import { from, run } from "@/lib/hr/client";
 
 const cx = (...c) => c.filter(Boolean).join(" ");
@@ -60,7 +61,11 @@ export default function AppShell({ portalName, sections, notificationsPath, swit
   }, [visibleSections, location.pathname]);
   const CurrentIcon = current?.icon || LayoutGrid;
 
-  const name = hr?.employee?.display_name || user?.email?.split("@")[0] || "";
+  // Employee ID accounts sign in with an internal login address that
+  // employees never see: show the Employee ID instead (email accounts unchanged).
+  const employeeLoginId = employeeLoginIdOf(hr);
+  const accountLabel = accountLabelFor({ user, hr });
+  const name = hr?.employee?.display_name || employeeLoginId || accountLabel.split("@")[0] || "";
   const initial = (name[0] || "U").toUpperCase();
 
   async function handleSignOut() {
@@ -130,7 +135,7 @@ export default function AppShell({ portalName, sections, notificationsPath, swit
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f7941e] to-[#3089a6] text-sm font-bold">{initial}</span>
             <div className="min-w-0 flex-1">
               <span className="block truncate text-[13.5px] font-bold leading-tight">{name}</span>
-              <span className="mt-0.5 block truncate text-xs text-white/50">{user?.email}</span>
+              <span className="mt-0.5 block truncate text-xs text-white/50" data-testid="account-label-sidebar">{accountLabel}</span>
             </div>
             <button type="button" onClick={handleSignOut} aria-label="Sign out" title="Sign out" className="rounded-lg p-2 text-white/60 hover:bg-white/10 hover:text-red-400"><LogOut className="h-5 w-5" aria-hidden="true" /></button>
           </div>
@@ -165,11 +170,13 @@ export default function AppShell({ portalName, sections, notificationsPath, swit
                   <div role="menu" className="absolute right-0 top-full z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
                     <div className="border-b border-slate-100 bg-slate-50 px-4 py-3">
                       <p className="text-sm font-bold text-[#101a3a]">{name}</p>
-                      <p className="truncate text-xs text-slate-600">{user?.email}</p>
+                      <p className="truncate text-xs text-slate-600" data-testid="account-label-menu">{accountLabel}</p>
                       {hr?.roles?.length > 0 && <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">{hr.roles.join(" · ").replace(/_/g, " ")}</p>}
                     </div>
                     <div className="p-1.5">
                       {switchTo && <Link href={switchTo.href} role="menuitem" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-[#2b303b] hover:bg-slate-50"><Repeat className="h-4 w-4" aria-hidden="true" />{switchTo.label}</Link>}
+                      {/* Employee ID accounts only: email accounts keep their existing sign-in. */}
+                      {canChangeOwnPassword(hr) && <Link href="/employee/set-password" role="menuitem" data-testid="menu-change-password" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-[#2b303b] hover:bg-slate-50"><KeyRound className="h-4 w-4" aria-hidden="true" />Change password</Link>}
                       <button type="button" role="menuitem" onClick={handleSignOut} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50"><LogOut className="h-4 w-4" aria-hidden="true" />Sign out</button>
                     </div>
                   </div>

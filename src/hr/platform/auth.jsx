@@ -5,6 +5,7 @@
 // so the HRMS permission model does not change the website's admin/user login.
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/hr/platform/supabase";
+import { loginEmailFor } from "@/hr/platform/account";
 
 const AuthContext = createContext(null);
 
@@ -13,17 +14,8 @@ const HR_HOME_PERMISSIONS = ["dashboard.view", "dashboard.view_team", "employees
 export const HR_LOGIN_PATH = "/hr/login";
 export const SET_PASSWORD_PATH = "/employee/set-password";
 
-// Employee ID sign-in: Supabase Auth needs an email-shaped identifier, so an
-// Employee ID (ZT-0007) maps to an internal, never-mailed login address
-// (zt-0007@staff.zyllotech.com). Must match hr_private.employee_login_email().
-// Anything containing "@" is used unchanged (Website Admin / HR Admin email login).
-export const EMPLOYEE_LOGIN_DOMAIN = "staff.zyllotech.com";
-const EMPLOYEE_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
-export function loginEmailFor(identifier) {
-  const s = String(identifier ?? "").trim();
-  if (s.includes("@")) return s;
-  return EMPLOYEE_ID.test(s) ? `${s.toLowerCase()}@${EMPLOYEE_LOGIN_DOMAIN}` : null;
-}
+// Employee ID sign-in mapping (ZT-0007 -> zt-0007@staff.zyllotech.com); see account.js.
+export { EMPLOYEE_LOGIN_DOMAIN, loginEmailFor } from "@/hr/platform/account";
 
 // The HRMS portal an hr_me() payload grants, or null when it grants none.
 // An Employee ID account with a temporary or expired password has no access
