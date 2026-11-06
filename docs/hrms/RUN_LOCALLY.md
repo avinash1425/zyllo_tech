@@ -1,6 +1,16 @@
-# Run the HRMS locally (test accounts, synthetic data)
+# Run the HRMS locally: offline synthetic testing
 
-This starts the HR Operations and Employee Portal on your own computer. It uses a **throwaway local database** and a **local stand-in for Supabase**. Nothing connects to the live Supabase project, no email is sent, and all people in it are fictional.
+This starts the HR Operations and Employee Portal on your own computer. It uses a **throwaway local database** and a **local stand-in for Supabase**. Nothing connects to any hosted Supabase project, no email is sent, and all people in it are fictional.
+
+| | Offline synthetic testing (this guide) | Shared hosted HR development ([`COWORKER_SETUP.md`](COWORKER_SETUP.md)) |
+|---|---|---|
+| Database | Throwaway local PostgreSQL, fresh demo data each start | Hosted HR dev project `whiclllqgxxqhufkduuo`, shared by the team |
+| Accounts | Fictional `…@example.com` test accounts below | Real development accounts (Website Admin, HR Admin, Employee ID) |
+| Changes | Deleted when the harness stops | Persist, and everyone sees them immediately |
+| Start with | `node scripts/hrms-local/start.mjs` | `node scripts/hr-dev/start.mjs` |
+| Use for | Experiments, destructive tests, automated test runs | Working on and reviewing with the team's development data |
+
+Neither ever touches production. Plain `npm run dev` uses the committed `.env`, which points at the **live** project, so don't use it for HRMS work.
 
 For harness internals (options, test scripts, running several harnesses side by side) see [`scripts/hrms-local/README.md`](../../scripts/hrms-local/README.md).
 
@@ -46,7 +56,7 @@ The password for every account is **`Local-Test-Only-2026!`**
 
 Accounts you invite from HR while testing get the password `Local-Invite-Only-2026!`.
 
-**Employee ID sign-in** (e.g. `ZT-0007` instead of an email) is part of the app, but the local harness does not emulate the `hr-employee-login` Edge Function, so use the email accounts above locally. Test Employee ID sign-in against the HR development Supabase project.
+**Employee ID sign-in** (e.g. `ZT-0007` instead of an email) is part of the app, but the local harness does not emulate the `hr-employee-login` Edge Function, so use the email accounts above locally. Test Employee ID sign-in against the HR development Supabase project ([`COWORKER_SETUP.md`](COWORKER_SETUP.md)).
 
 ## 5. Stop
 Press **Ctrl+C** in the start window, or run `node scripts/hrms-local/stop.mjs`.
