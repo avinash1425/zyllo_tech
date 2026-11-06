@@ -33,9 +33,7 @@ function useGate() {
 
 // HR paths that have an Employee Portal equivalent for employees without HR
 // permissions (e.g. notification links sent to interview panel members).
-const EMPLOYEE_EQUIVALENTS = [
-  [/^\/hr\/recruitment\/interviews/, "/employee/interviews"],
-];
+const EMPLOYEE_EQUIVALENTS = [];
 
 /** Requires at least one of `anyOf` permissions (HR Operations area). */
 export function RequireHrAccess({ anyOf, children }) {
