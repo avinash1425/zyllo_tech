@@ -17,7 +17,7 @@ const LIST_COLUMNS = `id, employee_code, first_name, last_name, display_name, co
   legal_entity:hr_legal_entities(id, name, code), grade:hr_grades(id, name), location:hr_locations(id, name),
   department:hr_departments!hr_employees_department_id_fkey(id, name, code),
   designation:hr_designations(id, name),
-  manager:hr_employees!hr_employees_manager_id_fkey(id, employee_code, first_name, last_name, display_name)`;
+  manager:hr_employees!manager_id(id, employee_code, first_name, last_name, display_name)`;
 
 /** Server-side filtered + paginated list. */
 // Status groups used by the HR Dashboard cards (same definitions as hr_dashboard()).
@@ -53,7 +53,7 @@ export async function getEmployee(id) {
     designation:hr_designations(id, name), location:hr_locations(id, name), shift:hr_shifts(id, name, start_time, end_time),
     legal_entity:hr_legal_entities(id, name, code, country), grade:hr_grades(id, name, code),
     source_department:hr_departments!hr_employees_source_department_id_fkey(id, name),
-    manager:hr_employees!hr_employees_manager_id_fkey(id, employee_code, first_name, last_name, display_name)`).eq("id", id).maybeSingle());
+    manager:hr_employees!manager_id(id, employee_code, first_name, last_name, display_name)`).eq("id", id).maybeSingle());
 }
 
 /** PII row; RLS returns nothing unless self or employees.view_sensitive. */
