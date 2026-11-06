@@ -11,11 +11,14 @@ import { spawn } from "node:child_process";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { readHarnessState, outputDir } from "./lib.mjs";
 
 const argv = process.argv.slice(2);
 const arg = (k, d) => (argv.includes(k) ? argv[argv.indexOf(k) + 1] : d);
-const BASE = arg("--base", "http://127.0.0.1:8090");
-const OUT = arg("--out", path.join(tmpdir(), "hrms-crawl"));
+const HARNESS = readHarnessState(); // honours --state / HRMS_LOCAL_INSTANCE
+const BASE = arg("--base", `http://127.0.0.1:${HARNESS?.webPort ?? 8090}`);
+const API_PORT = arg("--api-port", String(HARNESS?.apiPort ?? 54321));
+const OUT = arg("--out", path.join(outputDir("hrms-crawl")));
 const ONLY = arg("--roles", null)?.split(",");
 const MOBILE = argv.includes("--mobile");
 const PASSWORD = "Local-Test-Only-2026!";
@@ -74,7 +77,7 @@ async function run() {
         if (!cur) return;
         if (m.method === "Runtime.exceptionThrown") cur.exceptions.push((p.exceptionDetails.exception?.description || p.exceptionDetails.text).split("\n")[0].slice(0, 200));
         if (m.method === "Runtime.consoleAPICalled" && p.type === "error") cur.consoleErrors.push(p.args.map((a) => a.value ?? a.description ?? "").join(" ").split("\n")[0].slice(0, 200));
-        if (m.method === "Network.responseReceived" && p.response.url.includes(":54321") && p.response.status >= 400) cur.apiErrors.push(`${p.response.status} ${p.response.url.replace(/^https?:\/\/[^/]+/, "").split("?")[0]}`);
+        if (m.method === "Network.responseReceived" && p.response.url.includes(`:${API_PORT}`) && p.response.status >= 400) cur.apiErrors.push(`${p.response.status} ${p.response.url.replace(/^https?:\/\/[^/]+/, "").split("?")[0]}`);
       });
       await b.send("Page.enable"); await b.send("Runtime.enable"); await b.send("Network.enable");
       await b.send("Fetch.enable", { patterns: [{ urlPattern: "*" }] });

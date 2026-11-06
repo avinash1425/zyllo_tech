@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // LOCAL TEST HARNESS ONLY — stops what start.mjs started (Vite on the test
 // port, the API server, the throwaway PostgreSQL cluster) and deletes the
-// cluster directory. Reads %TEMP%/zyllo-hrms-local.json. Never touches
+// cluster directory. Reads %TEMP%/zyllo-hrms-local[-<HRMS_LOCAL_INSTANCE>].json. Never touches
 // anything it did not start (e.g. the live-site dev server on :8080).
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, rmSync, unlinkSync } from "node:fs";

@@ -45,6 +45,28 @@ Then open <http://127.0.0.1:8090/login>. The live-site dev server on port 8080 i
 `stop.mjs` stops Vite, the API and PostgreSQL, deletes the cluster directory and the state file,
 and reports whether the ports are free.
 
+## Several harnesses side by side (parallel sessions)
+
+Give every harness its own instance name and ports. The name selects the state file
+(`%TEMP%\zyllo-hrms-local-<name>.json`) and API log; every script then targets that instance:
+
+```bash
+HRMS_LOCAL_INSTANCE=alice node scripts/hrms-local/start.mjs --port-api 54500 --port-web 8500
+HRMS_LOCAL_INSTANCE=alice node scripts/hrms-local/browser-flows-assets.mjs   # drives alice only
+HRMS_LOCAL_INSTANCE=alice node scripts/hrms-local/stop.mjs
+```
+
+- All flow scripts and `browser-crawl.mjs` resolve their harness through `lib.mjs`
+  (`resolveStateFile()` / `readHarnessState()`): an explicit `--state <file>` wins, otherwise
+  `HRMS_LOCAL_INSTANCE`, otherwise the default instance. `--base` and the crawl's API port default
+  to the resolved instance's ports.
+- Each script prints `[hrms-local] target harness: …` with the instance, state file and ports
+  before doing anything. Check it.
+- If `HRMS_LOCAL_INSTANCE` is set **and** `--state` names a different instance's file, the script
+  refuses to run (exit 2), so it can never drive another session's database by accident.
+- Run one mutating flow per database at a time: several flows act on the same seeded records
+  (for example `browser-flows-m4.mjs` and `browser-flows-assets.mjs` both use Demo Engineer 05's exit).
+
 ## Sign-in accounts
 
 Password for all: `Local-Test-Only-2026!` (bcrypt hashes in `hrms_local.passwords`).

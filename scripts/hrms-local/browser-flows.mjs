@@ -6,11 +6,13 @@ import { spawn } from "node:child_process";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { readHarnessState, outputDir } from "./lib.mjs";
 
 const argv = process.argv.slice(2);
 const arg = (k, d) => (argv.includes(k) ? argv[argv.indexOf(k) + 1] : d);
-const BASE = arg("--base", "http://127.0.0.1:8090");
-const OUT = arg("--out", path.join(tmpdir(), "hrms-flows"));
+const HARNESS = readHarnessState(); // honours --state / HRMS_LOCAL_INSTANCE
+const BASE = arg("--base", `http://127.0.0.1:${HARNESS?.webPort ?? 8090}`);
+const OUT = arg("--out", path.join(outputDir("hrms-flows")));
 mkdirSync(path.join(OUT, "shots"), { recursive: true });
 const PASSWORD = "Local-Test-Only-2026!";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

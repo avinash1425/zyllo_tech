@@ -8,15 +8,15 @@ import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { STATE_FILE } from "./lib.mjs";
+import { resolveStateFile, outputDir } from "./lib.mjs";
 import { syntheticPdf } from "./fixture-files.mjs";
 
 const argv = process.argv.slice(2);
 const arg = (k, d) => (argv.includes(k) ? argv[argv.indexOf(k) + 1] : d);
-const STATE = JSON.parse(readFileSync(arg("--state", STATE_FILE), "utf8"));
+const STATE = JSON.parse(readFileSync(resolveStateFile(), "utf8"));
 const API = `http://127.0.0.1:${STATE.apiPort}`;
 const BASE = arg("--base", `http://127.0.0.1:${STATE.webPort}`);
-const OUT = arg("--out", path.join(tmpdir(), "hrms-flows-m10"));
+const OUT = arg("--out", path.join(outputDir("hrms-flows-m10")));
 const SHOTS = path.join(OUT, "shots");
 mkdirSync(SHOTS, { recursive: true });
 const PASSWORD = "Local-Test-Only-2026!";

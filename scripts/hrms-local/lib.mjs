@@ -2,7 +2,7 @@
 // Never imported by anything under src/, never part of a Vite build.
 import { spawn, spawnSync } from "node:child_process";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import net from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -14,6 +14,44 @@ export const ROOT = path.resolve(HARNESS_DIR, "..", "..");
 // sessions): each gets its own state + log file. Default is unchanged.
 const INSTANCE = /^[a-z0-9-]{1,20}$/i.test(process.env.HRMS_LOCAL_INSTANCE ?? "") ? `-${process.env.HRMS_LOCAL_INSTANCE}` : "";
 export const STATE_FILE = path.join(tmpdir(), `zyllo-hrms-local${INSTANCE}.json`);
+export const INSTANCE_NAME = INSTANCE ? INSTANCE.slice(1) : "default";
+
+let RESOLVED_STATE_FILE = null;
+
+// Default output folder for a script's results/screenshots, kept separate per
+// harness instance: "<tmp>/<name>-<instance>" (instance taken from the state
+// file resolved below, else HRMS_LOCAL_INSTANCE). The default instance keeps
+// the original "<tmp>/<name>". An explicit --out/--shots still wins.
+export function outputDir(name) {
+  const fromState = RESOLVED_STATE_FILE && /zyllo-hrms-local-([a-z0-9-]{1,20})\.json$/i.exec(path.basename(RESOLVED_STATE_FILE));
+  const instance = fromState ? fromState[1] : INSTANCE ? INSTANCE_NAME : null;
+  return path.join(tmpdir(), instance ? `${name}-${instance}` : name);
+}
+
+// Which harness a test script drives. An explicit `--state <file>` wins;
+// otherwise this process's HRMS_LOCAL_INSTANCE (STATE_FILE above). When both
+// are given and disagree the script refuses to run, so it can never silently
+// drive another session's harness and database. Prints the target once.
+export function resolveStateFile(argv = process.argv.slice(2)) {
+  const i = argv.indexOf("--state");
+  const explicit = i >= 0 && argv[i + 1] ? path.resolve(argv[i + 1]) : null;
+  if (explicit && INSTANCE && explicit !== path.resolve(STATE_FILE)) {
+    console.error(`REFUSING: HRMS_LOCAL_INSTANCE=${INSTANCE_NAME} selects ${STATE_FILE}, but --state is ${explicit}. Drop one or make them match.`);
+    process.exit(2);
+  }
+  const file = explicit ?? STATE_FILE;
+  RESOLVED_STATE_FILE = file;
+  let ports = "no state file";
+  try { const s = JSON.parse(readFileSync(file, "utf8")); ports = `web ${s.webPort}, api ${s.apiPort}, pg ${s.pgPort}`; } catch { /* reported by caller */ }
+  console.log(`[hrms-local] target harness: ${explicit ? "--state" : `instance "${INSTANCE_NAME}"`} ${file} (${ports})`);
+  return file;
+}
+
+// The resolved harness state, or null when there is none (scripts that also
+// accept an explicit --base use it only for their defaults).
+export function readHarnessState(file = resolveStateFile()) {
+  try { return JSON.parse(readFileSync(file, "utf8")); } catch { return null; }
+}
 export const API_LOG_FILE = path.join(tmpdir(), `zyllo-hrms-local${INSTANCE}-api.log`);
 export const PG_USER = "hrms_local";
 export const TEST_PASSWORD = "Local-Test-Only-2026!";

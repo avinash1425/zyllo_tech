@@ -283,9 +283,9 @@ try {
   check("public: increment_blog_post_views RPC callable", views.status === 204 || views.status === 200, views.json);
 
   // ---------------------------------------------------------------- CORS
-  const pre = await fetch(`${BASE}/rest/v1/hr_employees`, { method: "OPTIONS", headers: { Origin: "http://127.0.0.1:8090", "Access-Control-Request-Method": "GET", "Access-Control-Request-Headers": "authorization,apikey,x-client-info" } });
+  const pre = await fetch(`${BASE}/rest/v1/hr_employees`, { method: "OPTIONS", headers: { Origin: `http://127.0.0.1:${state.webPort ?? 8090}`, "Access-Control-Request-Method": "GET", "Access-Control-Request-Headers": "authorization,apikey,x-client-info" } });
   const preBad = await fetch(`${BASE}/rest/v1/hr_employees`, { method: "OPTIONS", headers: { Origin: "https://evil.example.com", "Access-Control-Request-Method": "GET" } });
-  check("CORS: test origin allowed, other origins not", pre.status === 204 && pre.headers.get("access-control-allow-origin") === "http://127.0.0.1:8090" && /content-range/.test(pre.headers.get("access-control-expose-headers") || "") && !preBad.headers.get("access-control-allow-origin"));
+  check("CORS: test origin allowed, other origins not", pre.status === 204 && pre.headers.get("access-control-allow-origin") === `http://127.0.0.1:${state.webPort ?? 8090}` && /content-range/.test(pre.headers.get("access-control-expose-headers") || "") && !preBad.headers.get("access-control-allow-origin"));
 } catch (e) {
   check("selftest crashed", false, e.stack || e.message);
 }

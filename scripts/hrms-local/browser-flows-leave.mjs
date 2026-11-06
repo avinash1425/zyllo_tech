@@ -14,20 +14,20 @@ import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { findPgBin, makePsql } from "./lib.mjs";
+import { findPgBin, makePsql, resolveStateFile, outputDir } from "./lib.mjs";
 
 // ------------------------------------------------------------------ config
 const argv = process.argv.slice(2);
 const arg = (k, d) => (argv.includes(k) ? argv[argv.indexOf(k) + 1] : d);
-const STATE_FILE = arg("--state", path.join(tmpdir(), "zyllo-hrms-local.json"));
+const STATE_FILE = resolveStateFile();
 if (!existsSync(STATE_FILE)) { console.error(`No harness state at ${STATE_FILE}. Start it with node scripts/hrms-local/start.mjs`); process.exit(2); }
 const STATE = JSON.parse(readFileSync(STATE_FILE, "utf8"));
 const API = `http://127.0.0.1:${STATE.apiPort}`;
 const BASE = arg("--base", `http://127.0.0.1:${STATE.webPort}`);
 const ANON = STATE.anonKey;
-const OUT = arg("--out", path.join(tmpdir(), "hrms-flows6", "results.json"));
+const OUT = arg("--out", path.join(outputDir("hrms-flows6"), "results.json"));
 const ONLY = arg("--only", "").split(",").filter(Boolean);
-const SHOTS = arg("--shots", path.join(tmpdir(), "hrms-flows6", "shots"));
+const SHOTS = arg("--shots", path.join(outputDir("hrms-flows6"), "shots"));
 const PASSWORD = "Local-Test-Only-2026!";
 const RUN = Date.now().toString(36);
 const RUNL = RUN.replace(/\d/g, (d) => "abcdefghij"[d]);          // letters only (role keys)
