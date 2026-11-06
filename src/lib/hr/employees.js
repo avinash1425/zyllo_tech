@@ -12,7 +12,7 @@ export const EMPLOYEE_STATUSES = ["onboarding", "probation", "active", "notice_p
 export const EDITABLE_STATUSES = ["onboarding", "probation", "active", "suspended", "archived"];
 
 const LIST_COLUMNS = `id, employee_code, first_name, last_name, display_name, company_email, status, employment_type,
-  joining_date, probation_end_date, portal_access, user_id, activated_at, manager_id, legal_entity_id, grade_id, work_location_id,
+  joining_date, probation_end_date, portal_access, user_id, activated_at, login_id, password_change_required, manager_id, legal_entity_id, grade_id, work_location_id,
   work_arrangement, deployment_status, deployment_client, deployment_project_code, contract_type, notice_period_days,
   legal_entity:hr_legal_entities(id, name, code), grade:hr_grades(id, name), location:hr_locations(id, name),
   department:hr_departments!hr_employees_department_id_fkey(id, name, code),
@@ -147,6 +147,21 @@ export async function upsertEmployeePrivate(id, values) {
 
 export const inviteEmployee = (employeeId) => invokeFunction("hr-invite-employee", { employee_id: employeeId });
 export const setPortalAccess = (employeeId, enabled) => rpc("hr_set_portal_access", { p_employee: employeeId, p_enabled: enabled });
+// Employee ID sign-in (Edge Function hr-employee-login; needs employees.manage_login).
+// create / reset return { login_id, temporary_password } — show it once, never store it.
+export const manageEmployeeLogin = (employeeId, action) => invokeFunction("hr-employee-login", { employee_id: employeeId, action });
+export const createEmployeeLogin = (employeeId) => manageEmployeeLogin(employeeId, "create");
+export const resetEmployeePassword = (employeeId) => manageEmployeeLogin(employeeId, "reset");
+export const setEmployeeLoginActive = (employeeId, enabled) => manageEmployeeLogin(employeeId, enabled ? "activate" : "deactivate");
+
+/** Portal / sign-in state label for lists and the profile. */
+export function loginState(e) {
+  if (!e?.user_id) return { label: "no login", tone: "slate" };
+  if (!e.portal_access) return { label: "disabled", tone: "red" };
+  if (e.login_id && e.password_change_required) return { label: "temporary password", tone: "amber" };
+  if (e.login_id) return { label: "active", tone: "green" };
+  return { label: e.activated_at ? "active (email)" : "invited (email)", tone: "green" };
+}
 export const assignRole = (userId, role) => rpc("hr_assign_role", { p_user: userId, p_role: role });
 export const revokeRole = (userId, role) => rpc("hr_revoke_role", { p_user: userId, p_role: role });
 export const importEmployees = (rows, dryRun) => rpc("hr_import_employees", { p_rows: rows, p_dry_run: dryRun });

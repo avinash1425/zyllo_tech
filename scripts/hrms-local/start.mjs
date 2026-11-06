@@ -116,7 +116,7 @@ try {
     "supabase/tests/hr/_supabase_local_shim.sql",
     "supabase/schema/000_full_schema.sql",
     "supabase/policies/001_rls_for_browser_app.sql",
-    ...readdirSync(path.join(ROOT, "supabase/migrations")).filter((f) => /^1\d\d_hr_.*\.sql$/.test(f)).sort().map((f) => `supabase/migrations/${f}`),
+    ...readdirSync(path.join(ROOT, "supabase/migrations")).filter((f) => /^[12]\d\d_hr_.*\.sql$/.test(f)).sort().map((f) => `supabase/migrations/${f}`),
     "supabase/seed/hr_dev_seed.sql",
     "supabase/tests/hrms-local/local_harness.sql",
     "supabase/tests/hrms-local/local_fixtures.sql",

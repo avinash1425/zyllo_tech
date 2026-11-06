@@ -95,8 +95,8 @@ try {
     // own (non-HRMS) migrations in filename order.
     ...(existsSync(path.join(root, "supabase/schema/000_full_schema.sql"))
       ? [path.join(root, "supabase/schema/000_full_schema.sql"), path.join(root, "supabase/policies/001_rls_for_browser_app.sql")]
-      : readdirSync(path.join(root, "supabase/migrations")).filter((f) => f.endsWith(".sql") && !/^1\d\d_hr_/.test(f)).sort().map((f) => path.join(root, "supabase/migrations", f))),
-    ...readdirSync(path.join(root, "supabase/migrations")).filter((f) => /^1\d\d_hr_.*\.sql$/.test(f) && (!migrationFilter || migrationFilter.has(f.slice(0, 3)))).sort().map((f) => path.join(root, "supabase/migrations", f)),
+      : readdirSync(path.join(root, "supabase/migrations")).filter((f) => f.endsWith(".sql") && !/^[12]\d\d_hr_/.test(f)).sort().map((f) => path.join(root, "supabase/migrations", f))),
+    ...readdirSync(path.join(root, "supabase/migrations")).filter((f) => /^[12]\d\d_hr_.*\.sql$/.test(f) && (!migrationFilter || migrationFilter.has(f.slice(0, 3)))).sort().map((f) => path.join(root, "supabase/migrations", f)),
     ...(!noSeed && existsSync(path.join(root, "supabase/seed/hr_dev_seed.sql")) ? [path.join(root, "supabase/seed/hr_dev_seed.sql")] : []),
   ];
   for (const s of steps) {
@@ -105,7 +105,7 @@ try {
     // Site (non-HRMS) migrations may not all replay on an empty database (some
     // assume live-only columns): report them and continue. The shim, HRMS
     // migrations and the seed must apply cleanly.
-    const isSiteMigration = /[\\/]supabase[\\/]migrations[\\/]/.test(s) && !/[\\/]1\d\d_hr_[^\\/]*$/.test(s);
+    const isSiteMigration = /[\\/]supabase[\\/]migrations[\\/]/.test(s) && !/[\\/][12]\d\d_hr_[^\\/]*$/.test(s);
     if (!r.ok && isSiteMigration) { console.log(`WARN     ${r.label} (site migration did not replay: ${errLine?.trim()})`); continue; }
     console.log(`${r.ok ? "applied" : "FAILED "}  ${r.label}`);
     if (!r.ok) { console.log(r.out.split(/\r?\n/).filter((l) => /ERROR|FATAL|LINE|CONTEXT|DETAIL|HINT|\^/.test(l)).slice(0, 15).join("\n") || errLine); failed = true; break; }

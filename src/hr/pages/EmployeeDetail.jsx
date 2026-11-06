@@ -6,14 +6,15 @@
 // date and reason. Every tab is permission-gated here AND by RLS.
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Camera, ExternalLink, KeyRound, Mail, Pencil, Plus, Shuffle, TrendingUp, UserCog } from "lucide-react";
+import { ArrowLeft, Camera, Copy, ExternalLink, KeyRound, Pencil, Plus, Shuffle, TrendingUp, UserCog, UserPlus } from "lucide-react";
 import Link from "@/hr/platform/link";
 import { useAuth } from "@/hr/platform/auth";
 import { formatDate, formatDateTime, fullName, useHrQuery } from "@/lib/hr/client";
 import {
   CONTRACT_TYPES, DEPLOYMENT_STATUSES, GENDERS, MARITAL_STATUSES, PAYMENT_MODES, arrangementLabel, assignRole, completeness, getEmployee,
   getEmployeeIdentity, getEmployeePrivate, getEmployeeRemarks, getEmployeeRoles, getExitClearance, getIdentityStatus, getLatestExit, getPayrollIdentifiers,
-  inviteEmployee, labelOf, listBankAccounts, listRoles, revokeRole, saveBankAccount, savePayrollIdentifiers, setPortalAccess,
+  createEmployeeLogin, labelOf, listBankAccounts, listRoles, loginState, resetEmployeePassword, revokeRole, saveBankAccount,
+  savePayrollIdentifiers, setEmployeeLoginActive, setPortalAccess,
 } from "@/lib/hr/employees";
 import { ChangeAssignmentModal, EmployeeDocumentsSection, EmploymentTimeline, LifecycleCard, ReportingSection } from "@/hr/components/EmployeeProfileSections";
 import EmployeeAssetsPanel from "@/hr/components/EmployeeAssetsPanel";
@@ -61,7 +62,8 @@ export default function EmployeeDetail() {
   const org = useOrg();
   const managers = useEmployeeOptions();
   const [tab, setTab] = useState("overview");
-  const [modal, setModal] = useState(null);   // edit | transfer | manager | invite | access | role | photo
+  const [modal, setModal] = useState(null);   // edit | transfer | manager | access | login-create | login-reset | login-toggle | role | photo
+  const [issued, setIssued] = useState(null); // { login_id, temporary_password } — shown once, kept only in memory
 
   const info = useMemo(() => completeness(emp.data, priv.data, identity.data, { sensitive: canSensitive, identityAccess: canIdentity }),
     [emp.data, priv.data, identity.data, canSensitive, canIdentity]);
@@ -72,6 +74,9 @@ export default function EmployeeDetail() {
 
   const e = emp.data;
   const canInvite = hasPermission("employees.invite");
+  const canManageLogin = hasPermission("employees.manage_login");
+  const login = loginState(e);
+  const isOwnRecord = Boolean(e.user_id) && e.user_id === user?.id;
   const canRoles = hasPermission("roles.manage");
   const terminal = ["exited", "archived"].includes(e.status);
   const refreshAll = () => { emp.reload(); history.reload(); roles.reload(); managers.reload(); priv.reload(); identity.reload(); remarks.reload(); };
@@ -199,23 +204,37 @@ export default function EmployeeDetail() {
 
       {tab === "access" && (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <Card title="Portal account">
+          <Card title="Portal sign-in">
             <DescriptionList items={[
-              { label: "Account", value: e.user_id ? <Badge tone="green">linked</Badge> : <Badge>not invited</Badge> },
-              { label: "Portal access", value: e.portal_access ? <Badge tone="green">enabled</Badge> : <Badge tone="red">disabled</Badge> },
-              { label: "Invited", value: formatDateTime(e.invited_at) },
+              { label: "Sign-in", value: e.login_id ? <span>Employee ID <span className="font-mono font-semibold">{e.login_id}</span></span> : e.user_id ? "Email account (invited)" : "No login yet" },
+              { label: "Status", value: <Badge tone={login.tone}>{login.label}</Badge> },
+              ...(e.login_id ? [
+                { label: "Temporary password issued", value: formatDateTime(e.credentials_issued_at) },
+                { label: "Password last changed", value: formatDateTime(e.password_changed_at) },
+              ] : [{ label: "Invited", value: formatDateTime(e.invited_at) }]),
               { label: "Activated", value: formatDateTime(e.activated_at) },
             ]} />
-            {canInvite && !terminal && (
+            {canManageLogin && !isOwnRecord && (
               <div className="mt-4 flex flex-wrap gap-2">
-                {!e.user_id && <Button onClick={() => setModal("invite")} disabled={!e.company_email}><Mail className="h-4 w-4" aria-hidden="true" />Send secure invitation</Button>}
-                {e.user_id && <Button variant={e.portal_access ? "danger" : "success"} onClick={() => setModal("access")}><KeyRound className="h-4 w-4" aria-hidden="true" />{e.portal_access ? "Disable portal access" : "Enable portal access"}</Button>}
+                {!e.user_id && !terminal && <Button onClick={() => setModal("login-create")}><UserPlus className="h-4 w-4" aria-hidden="true" />Create login</Button>}
+                {e.login_id && e.portal_access && !terminal && <Button variant="secondary" onClick={() => setModal("login-reset")}><KeyRound className="h-4 w-4" aria-hidden="true" />Issue new temporary password</Button>}
+                {e.login_id && (e.portal_access || !terminal) && (
+                  <Button variant={e.portal_access ? "danger" : "success"} onClick={() => setModal("login-toggle")}>{e.portal_access ? "Deactivate login" : "Activate login"}</Button>
+                )}
               </div>
             )}
-            {!e.company_email && canInvite && <p className="mt-2 text-xs text-slate-500">Add a company email before inviting.</p>}
+            {/* Accounts created by the earlier email invitation keep their existing controls. */}
+            {canInvite && !terminal && e.user_id && !e.login_id && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button variant={e.portal_access ? "danger" : "success"} onClick={() => setModal("access")}><KeyRound className="h-4 w-4" aria-hidden="true" />{e.portal_access ? "Disable portal access" : "Enable portal access"}</Button>
+              </div>
+            )}
+            {canManageLogin && !e.user_id && !terminal && (
+              <p className="mt-2 text-xs text-slate-500">The employee signs in with Employee ID <span className="font-mono">{e.employee_code}</span> and a one-time temporary password. No email is sent.</p>
+            )}
           </Card>
           <Card title="Roles" actions={canRoles && e.user_id && !terminal && <Button size="sm" variant="secondary" onClick={() => setModal("role")}>Assign role</Button>}>
-            {!e.user_id ? <p className="text-sm text-slate-600">Roles can be assigned after the employee accepts the invitation.</p>
+            {!e.user_id ? <p className="text-sm text-slate-600">Roles can be assigned after a login is created.</p>
               : roles.loading ? <Loading /> : roles.error ? <ErrorState message={roles.error} onRetry={roles.reload} /> : (
                 <ul className="flex flex-col gap-2">
                   {(roles.data ?? []).map((r) => (
@@ -249,10 +268,22 @@ export default function EmployeeDetail() {
           onDone={(label) => { setChange(null); notify(`${label} recorded in the employment history.`); refreshAll(); }} />
       )}
       <PhotoModal open={modal === "photo"} onClose={() => setModal(null)} employee={e} onSaved={() => { setModal(null); emp.reload(); notify("Photo updated."); }} />
-      <ConfirmDialog open={modal === "invite"} onClose={() => setModal(null)} title="Send portal invitation"
-        message={`A secure invitation will be emailed to ${e.company_email}. The employee sets their own password; no password is ever stored or shown here.`}
-        confirmLabel="Send invitation"
-        onConfirm={async () => { const res = await inviteEmployee(e.id); if (!res.error) { notify(`Invitation sent to ${res.data.email}.`); refreshAll(); } return res; }} />
+      <ConfirmDialog open={modal === "login-create"} onClose={() => setModal(null)} title="Create Employee ID login"
+        message={`${fullName(e)} will sign in with Employee ID ${e.employee_code}. A one-time temporary password will be shown to you once; the employee must replace it at first sign-in. No email is sent.`}
+        confirmLabel="Create login"
+        onConfirm={async () => { const res = await createEmployeeLogin(e.id); if (!res.error) { setIssued(res.data); refreshAll(); } return res; }} />
+      <ConfirmDialog open={modal === "login-reset"} onClose={() => setModal(null)} tone="danger" title="Issue new temporary password"
+        message="The current password stops working, the employee is signed out everywhere, and they must choose a new password at next sign-in."
+        confirmLabel="Issue temporary password"
+        onConfirm={async () => { const res = await resetEmployeePassword(e.id); if (!res.error) { setIssued(res.data); refreshAll(); } return res; }} />
+      <ConfirmDialog open={modal === "login-toggle"} onClose={() => setModal(null)} tone={e.portal_access ? "danger" : "success"}
+        title={e.portal_access ? "Deactivate login" : "Activate login"}
+        message={e.portal_access
+          ? "The employee is signed out everywhere immediately, loses access to every HR and Employee Portal record, and cannot sign in until the login is activated again."
+          : "The employee can sign in again with their existing password."}
+        confirmLabel={e.portal_access ? "Deactivate" : "Activate"}
+        onConfirm={async () => { const res = await setEmployeeLoginActive(e.id, !e.portal_access); if (!res.error) { notify(e.portal_access ? "Login deactivated." : "Login activated."); refreshAll(); } return res; }} />
+      <TemporaryPasswordModal issued={issued} onClose={() => setIssued(null)} />
       <ConfirmDialog open={modal === "access"} onClose={() => setModal(null)} tone={e.portal_access ? "danger" : "success"}
         title={e.portal_access ? "Disable portal access" : "Enable portal access"}
         message={e.portal_access ? "The employee will immediately lose access to every HR and Employee Portal record." : "The employee will regain access with their existing account."}
@@ -499,5 +530,37 @@ function RevokeRole({ userId, role, onDone }) {
       <ConfirmDialog open={open} onClose={() => setOpen(false)} tone="danger" title="Revoke role" message={`Remove the ${role.replace(/_/g, " ")} role from this account?`} confirmLabel="Revoke"
         onConfirm={async () => { const res = await revokeRole(userId, role); if (!res.error) { notify("Role revoked."); onDone(); } return res; }} />
     </>
+  );
+}
+
+// One-time display of a temporary password returned by hr-employee-login.
+// Held only in React state; cleared when the dialog closes. Never stored,
+// logged or sent anywhere else.
+function TemporaryPasswordModal({ issued, onClose }) {
+  const [copied, setCopied] = useState(false);
+  const open = Boolean(issued?.temporary_password);
+  async function copy() {
+    try { await navigator.clipboard.writeText(issued.temporary_password); setCopied(true); } catch { setCopied(false); }
+  }
+  function close() { setCopied(false); onClose(); }
+  return (
+    <Modal open={open} onClose={close} title="Temporary password" size="sm"
+      footer={<Button onClick={close}>I have recorded it — close</Button>}>
+      {open && (
+        <div className="flex flex-col gap-3 text-sm text-slate-700">
+          <p>Give these to the employee in person. The password is shown <strong>only once</strong> and must be replaced at first sign-in.</p>
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <p className="text-xs font-semibold uppercase text-slate-500">Employee ID</p>
+            <p className="font-mono text-base font-semibold text-[#101a3a]">{issued.login_id}</p>
+            <p className="mt-2 text-xs font-semibold uppercase text-slate-500">Temporary password</p>
+            <div className="flex items-center justify-between gap-2">
+              <p className="select-all break-all font-mono text-base font-semibold text-[#101a3a]" data-testid="temporary-password">{issued.temporary_password}</p>
+              <Button size="sm" variant="secondary" onClick={copy}><Copy className="h-4 w-4" aria-hidden="true" />{copied ? "Copied" : "Copy"}</Button>
+            </div>
+          </div>
+          <p className="text-xs text-slate-500">Sign-in page: /hr/login. Do not send the password by email or chat.</p>
+        </div>
+      )}
+    </Modal>
   );
 }

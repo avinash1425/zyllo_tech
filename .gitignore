@@ -39,3 +39,6 @@ yarn-error.log*
 /.next/
 /out/
 next-env.d.ts
+
+# Claude Code temporary git worktrees (isolated working copies, never project files)
+/.claude/worktrees/

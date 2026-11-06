@@ -11,9 +11,25 @@ const AuthContext = createContext(null);
 const HR_HOME_PERMISSIONS = ["dashboard.view", "dashboard.view_team", "employees.view", "employees.view_team", "payroll.view", "settings.view", "recruitment.view", "reports.view", "reports.view_team"];
 
 export const HR_LOGIN_PATH = "/hr/login";
+export const SET_PASSWORD_PATH = "/employee/set-password";
+
+// Employee ID sign-in: Supabase Auth needs an email-shaped identifier, so an
+// Employee ID (ZT-0007) maps to an internal, never-mailed login address
+// (zt-0007@staff.zyllotech.com). Must match hr_private.employee_login_email().
+// Anything containing "@" is used unchanged (Website Admin / HR Admin email login).
+export const EMPLOYEE_LOGIN_DOMAIN = "staff.zyllotech.com";
+const EMPLOYEE_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
+export function loginEmailFor(identifier) {
+  const s = String(identifier ?? "").trim();
+  if (s.includes("@")) return s;
+  return EMPLOYEE_ID.test(s) ? `${s.toLowerCase()}@${EMPLOYEE_LOGIN_DOMAIN}` : null;
+}
 
 // The HRMS portal an hr_me() payload grants, or null when it grants none.
+// An Employee ID account with a temporary or expired password has no access
+// until it chooses a new one (enforced in the database too).
 export function hrPortalFor(hr) {
+  if (hr?.login?.password_change_required) return SET_PASSWORD_PATH;
   const perms = hr?.permissions ?? [];
   if (perms.some((p) => HR_HOME_PERMISSIONS.includes(p))) return "/hr";
   if (hr?.employee) return "/employee";
@@ -41,6 +57,7 @@ export function destinationFor({ user, hr, isSiteAdmin }) {
 // user would land on a "No employee profile" / "Not authorised" dead end.
 export function usableNext(next, hr) {
   if (!next) return null;
+  if (hr?.login?.password_change_required) return null; // must choose a password first
   if (/^\/employee(\/|$|\?)/.test(next)) return hr?.employee ? next : null;
   if (/^\/hr(\/|$|\?)/.test(next)) return hrPortalFor(hr) === "/hr" ? next : null;
   return next;
@@ -96,19 +113,28 @@ export function HrAuthProvider({ children }) {
     destination: destinationFor({ user, hr, isSiteAdmin }),
     hasPermission: (key) => Boolean(hr?.permissions?.includes(key)),
     refreshProfile: () => loadProfile(user),
-    signIn: async (email, password) => {
-      const res = await supabase.auth.signInWithPassword({ email: String(email || "").trim(), password });
+    // `identifier` is an Employee ID (Employee Portal) or an email address
+    // (Website Admin / HR Admin, unchanged).
+    signIn: async (identifier, password) => {
+      const email = loginEmailFor(identifier);
+      const generic = { data: null, error: { message: "Incorrect Employee ID / email or password, or the account is not active." } };
+      if (!email) return generic;
+      const res = await supabase.auth.signInWithPassword({ email, password });
       if (res.error) {
-        return { data: null, error: { message: "Incorrect email or password, or the account is not active." } };
+        // 429 = Auth rate limit; the lockout hook rejects with its own message.
+        if (res.error.status === 429 || /too many sign-in attempts/i.test(res.error.message ?? "")) {
+          return { data: null, error: { message: "Too many sign-in attempts. Wait a few minutes and try again, or contact HR." } };
+        }
+        return generic;
       }
       const profile = await loadProfile(res.data.user);
       return { ...res, hr: profile.hr, destination: destinationFor({ user: res.data.user, ...profile }) };
     },
-    // Self-registration is disabled for the HRMS: HR invites employees
-    // (Edge Function hr-invite-employee).
+    // Self-registration is disabled for the HRMS: HR creates Employee ID
+    // logins (Edge Function hr-employee-login).
     signUp: async () => ({
       data: null,
-      error: { message: "Accounts are created by Zyllo Tech HR. Please use the invitation link sent to your company email." },
+      error: { message: "Accounts are created by Zyllo Tech HR. Ask HR for your Employee ID and temporary password." },
     }),
     signOut: async () => {
       await supabase.auth.signOut().catch(() => {});

@@ -60,7 +60,7 @@ function runSql(sqlOrFile, { file = false, quiet = true, tuplesOnly = false } = 
 
 const files = [];
 if (args.includes("--with-base")) files.push("supabase/schema/000_full_schema.sql", "supabase/policies/001_rls_for_browser_app.sql");
-files.push(...readdirSync(path.join(root, "supabase/migrations")).filter((f) => /^1\d\d_hr_.*\.sql$/.test(f)).sort().map((f) => `supabase/migrations/${f}`));
+files.push(...readdirSync(path.join(root, "supabase/migrations")).filter((f) => /^[12]\d\d_hr_.*\.sql$/.test(f)).sort().map((f) => `supabase/migrations/${f}`));
 if (args.includes("--seed")) files.push("supabase/seed/hr_dev_seed.sql");
 
 if (args.includes("--dry-run")) { console.log("Would apply (if not yet applied):\n" + files.join("\n")); process.exit(0); }
