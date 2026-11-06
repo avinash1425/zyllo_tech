@@ -6,7 +6,7 @@ import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { Loader2, LogIn } from "lucide-react";
 import Seo from "@/hr/platform/Seo";
 import Link from "@/hr/platform/link";
-import { useAuth } from "@/hr/platform/auth";
+import { useAuth, usableNext } from "@/hr/platform/auth";
 
 const SAFE_NEXT = /^\/(hr|employee|account-pending)(\/|$|\?)/;
 
@@ -23,7 +23,7 @@ export default function HrLoginPage() {
 
   useEffect(() => { setError(""); }, [email, password]);
 
-  if (!auth.loading && auth.user) return <Navigate to={safeNext ?? auth.destination} replace />;
+  if (!auth.loading && auth.user) return <Navigate to={usableNext(safeNext, auth.hr) ?? auth.destination} replace />;
 
   async function submit(e) {
     e.preventDefault();
@@ -32,7 +32,7 @@ export default function HrLoginPage() {
     const res = await auth.signIn(email, password);
     setBusy(false);
     if (res.error) { setError(res.error.message); return; }
-    navigate(safeNext ?? res.destination, { replace: true });
+    navigate(usableNext(safeNext, res.hr) ?? res.destination, { replace: true });
   }
 
   return (

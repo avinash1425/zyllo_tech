@@ -37,9 +37,19 @@ export function destinationFor({ user, hr, isSiteAdmin }) {
   return "/account-pending";
 }
 
-async function loadSiteAdmin(userId) {
-  // Website admin = public.has_role(uid, 'admin') in this project.
-  const { data, error } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+// Honour a ?next= HRMS path only when this account can open it; otherwise the
+// user would land on a "No employee profile" / "Not authorised" dead end.
+export function usableNext(next, hr) {
+  if (!next) return null;
+  if (/^\/employee(\/|$|\?)/.test(next)) return hr?.employee ? next : null;
+  if (/^\/hr(\/|$|\?)/.test(next)) return hrPortalFor(hr) === "/hr" ? next : null;
+  return next;
+}
+
+async function loadSiteAdmin() {
+  // Website admin = public.is_admin() (admin_users), the same check the
+  // /admin route guard uses. (There is no public.has_role in this schema.)
+  const { data, error } = await supabase.rpc("is_admin");
   return !error && data === true;
 }
 
@@ -53,7 +63,7 @@ export function HrAuthProvider({ children }) {
     if (!sessionUser) { setHr(null); setIsSiteAdmin(false); return { hr: null, isSiteAdmin: false }; }
     const [{ data: me }, admin] = await Promise.all([
       supabase.rpc("hr_me").then((r) => r, () => ({ data: null })),
-      loadSiteAdmin(sessionUser.id).catch(() => false),
+      loadSiteAdmin().catch(() => false),
     ]);
     setHr(me ?? null);
     setIsSiteAdmin(admin);
@@ -92,7 +102,7 @@ export function HrAuthProvider({ children }) {
         return { data: null, error: { message: "Incorrect email or password, or the account is not active." } };
       }
       const profile = await loadProfile(res.data.user);
-      return { ...res, destination: destinationFor({ user: res.data.user, ...profile }) };
+      return { ...res, hr: profile.hr, destination: destinationFor({ user: res.data.user, ...profile }) };
     },
     // Self-registration is disabled for the HRMS: HR invites employees
     // (Edge Function hr-invite-employee).
