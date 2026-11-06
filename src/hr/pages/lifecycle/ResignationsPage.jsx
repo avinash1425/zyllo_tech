@@ -36,7 +36,7 @@ export default function ResignationsPage() {
         <div className="flex flex-1 sm:justify-end"><SearchInput value={search} onChange={setSearch} placeholder="Search employee…" /></div>
       </Toolbar>
       <DataTable caption="Resignations" rows={rows} loading={q.loading} error={q.error} onRetry={q.reload}
-        emptyTitle="No resignations" emptyDescription="Employees submit resignations from the Employee Portal (My Resignation)."
+        emptyTitle="No resignations" emptyDescription="Employees submit resignations from the Employee Portal (My HR Requests → Resignation)."
         onRowClick={(x) => navigate(`/hr/exits/${x.id}`)}
         columns={[
           { key: "employee", header: "Employee", render: (x) => <div className="min-w-[9rem]"><p className="font-semibold text-[#101a3a]">{fullName(x.employee)}</p><p className="font-mono text-xs text-slate-500">{x.employee?.employee_code}</p></div> },

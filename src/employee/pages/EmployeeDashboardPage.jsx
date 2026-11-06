@@ -2,7 +2,8 @@
 // Seven blocks, each loading independently from the employee's own records
 // (RLS restricts every query to the caller): attendance status, working
 // hours, leave balance, assigned tasks, announcements, pending requests and
-// upcoming holidays.
+// upcoming holidays. While onboarding is open, a Joining checklist card is
+// shown above them.
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertTriangle, CalendarCheck, CalendarDays, Clock, HeartHandshake, KanbanSquare, Megaphone, Timer } from "lucide-react";
@@ -10,6 +11,8 @@ import { useAuth } from "@/hr/platform/auth";
 import { formatDate, formatDateTime, from, minutesToHm, rpc, run, useHrQuery } from "@/lib/hr/client";
 import { addDays, businessToday, getCalendar, getHolidayCalendar, getMyToday, useBusinessTimezone } from "@/lib/hr/attendance";
 import { listMyTasks } from "@/lib/hr/dailyReports";
+import { myLifecycle } from "@/lib/hr/lifecycle";
+import { JoiningChecklistCard } from "@/employee/components/OnboardingParts";
 import { listMyRequests as listMyLeaveRequests } from "@/lib/hr/leave";
 import { ACTIVE_REQUEST_STATUSES, listMyRequests as listMyHrRequests } from "@/lib/hr/requests";
 import { Badge, Button, Card, EmptyState, ErrorState, KpiCard, Loading, PageHeader, StatusBadge } from "@/hr/ui";
@@ -58,6 +61,7 @@ export default function EmployeeDashboardPage() {
     .eq("status", "published").order("published_at", { ascending: false }).limit(20)), []);
   const leaveReqs = useHrQuery(() => listMyLeaveRequests(me?.id), [me?.id]);
   const hrReqs = useHrQuery(() => listMyHrRequests(me?.id), [me?.id]);
+  const lifecycle = useHrQuery(() => myLifecycle(), []);
   const holidays = useHrQuery(() => getHolidayCalendar({ from: todayIso, to: addDays(todayIso, HOLIDAY_WINDOW_DAYS) }), [todayIso]);
 
   const t = today.data;
@@ -106,6 +110,8 @@ export default function EmployeeDashboardPage() {
         <KpiCard label="Leave available" value={balances.data ? `${totalAvailable} days` : undefined} icon={CalendarCheck} tone="green" loading={balances.loading && !balances.data} onClick={() => navigate("/employee/leave")} />
         <KpiCard label="Open tasks" value={tasks.data ? openTasks.length : undefined} hint={overdueTasks ? `${overdueTasks} overdue` : undefined} icon={KanbanSquare} tone={overdueTasks ? "red" : "navy"} loading={tasks.loading && !tasks.data} onClick={() => navigate("/employee/tasks")} />
       </div>
+
+      <JoiningChecklistCard query={lifecycle} />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
         {/* 1 + 2. Attendance status and working hours */}

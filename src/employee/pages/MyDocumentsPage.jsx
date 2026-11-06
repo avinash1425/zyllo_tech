@@ -7,7 +7,8 @@
 //   * Company documents — published policies addressed to me;
 //   * My uploads — required-document checklist, my uploads (status,
 //     rejection reason, new version) and the profile photo;
-//   * Acknowledgements and Expiring (renewals).
+//   * Acknowledgements (documents, policies and, while onboarding is open,
+//     onboarding items HR is waiting on) and Expiring (renewals).
 // The server (RLS + RPCs) limits everything to my own documents and to
 // published policies for my audience; nothing here grants access.
 import { useState } from "react";
@@ -16,6 +17,8 @@ import {
   Award, Building2, Camera, CheckCircle2, Download, Eye, FilePlus2, FileSignature, FileText, History, Trash2, Upload, UploadCloud, UserRound,
 } from "lucide-react";
 import { useAuth } from "@/hr/platform/auth";
+import { myLifecycle } from "@/lib/hr/lifecycle";
+import { OnboardingAckCard, pendingOnboardingAcks } from "@/employee/components/OnboardingParts";
 import { formatDate, formatDateTime, useHrQuery } from "@/lib/hr/client";
 import {
   AVATAR_ACCEPT, checkAvatarFile, documentChecklist, formatBytes, getAvatarUrl, latestVersion, listDocumentCategories, listEmployeeDocuments,
@@ -67,6 +70,7 @@ export default function MyDocumentsPage() {
   const checklist = useHrQuery(() => documentChecklist(me), [me]);
   const cats = useHrQuery(() => listDocumentCategories({ activeOnly: true }), []);
   const pending = useHrQuery(() => (me ? myPendingAcknowledgements() : Promise.resolve({ data: [] })), [me]);
+  const lifecycle = useHrQuery(() => (me ? myLifecycle() : Promise.resolve({ data: null })), [me]);
 
   // Modals shared by every section.
   const [uploading, setUploading] = useState(null);   // { category?, groups? }
@@ -74,7 +78,7 @@ export default function MyDocumentsPage() {
   const [historyFor, setHistoryFor] = useState(null);
   const [ackFor, setAckFor] = useState(null);
   const [rev, setRev] = useState(0);   // bumps the Expiring tab's own queries
-  const refresh = () => { docs.reload(); checklist.reload(); pending.reload(); setRev((n) => n + 1); };
+  const refresh = () => { docs.reload(); checklist.reload(); pending.reload(); lifecycle.reload(); setRev((n) => n + 1); };
 
   if (!me) return <ErrorState message="Your account is not linked to an employee record." />;
 
@@ -82,7 +86,7 @@ export default function MyDocumentsPage() {
   const current = all.filter((d) => !isSuperseded(d));
   const employmentCount = current.filter((d) => EMPLOYMENT_GROUPS.has(groupOf(d))).length;
   const certificateCount = current.filter((d) => groupOf(d) === "certificate").length;
-  const pendingCount = pending.data?.length ?? 0;
+  const pendingCount = (pending.data?.length ?? 0) + pendingOnboardingAcks(lifecycle.data).length;
   const missing = (checklist.data ?? []).filter((c) => !c.is_complete && !c.document_id && c.employee_can_upload).length;
   const ackPending = (d) => (pending.data ?? []).some((p) => p.subject_type === "document" && p.item_id === d.id);
 
@@ -119,7 +123,12 @@ export default function MyDocumentsPage() {
             onUpload={setUploading} onNewVersion={setVersionFor} />}
         </>}
       {tab === "policies" && <PoliciesSection pending={pending} />}
-      {tab === "acknowledgements" && <AcknowledgementsSection pending={pending} onChanged={refresh} goPolicies={() => setTab("policies")} />}
+      {tab === "acknowledgements" && (
+        <div className="flex flex-col gap-4">
+          <OnboardingAckCard query={lifecycle} onChanged={lifecycle.reload} />
+          <AcknowledgementsSection pending={pending} onChanged={refresh} goPolicies={() => setTab("policies")} />
+        </div>
+      )}
       {tab === "expiring" && <ExpiringSection me={me} rev={rev} docs={all} cats={cats.data} onNewVersion={setVersionFor} />}
 
       {uploading && <UploadDocumentModal open mode="self" employeeId={me} categories={cats.data}

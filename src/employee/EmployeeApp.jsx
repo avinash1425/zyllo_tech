@@ -4,7 +4,7 @@
 import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import {
-  Bell, CalendarCheck, ClipboardList, Clock, FileText, HeartHandshake, KanbanSquare, LayoutDashboard, LifeBuoy, Megaphone, User, Wallet,
+  Bell, CalendarCheck, ClipboardList, Clock, FileText, HeartHandshake, KanbanSquare, LayoutDashboard, LifeBuoy, Megaphone, Package, User, Wallet,
 } from "lucide-react";
 import Seo from "@/hr/platform/Seo";
 import AppShell from "@/hr/AppShell";
@@ -21,6 +21,7 @@ export const EMPLOYEE_PAGES = [
   { path: "leave", label: "My Leave", icon: CalendarCheck, section: "Work", page: lazy(() => import("./pages/MyLeavePage.jsx")) },
   { path: "payslips", label: "My Payroll & Payslips", icon: Wallet, section: "Records", page: lazy(() => import("./pages/MyPayslipsPage.jsx")) },
   { path: "documents", label: "My Documents", icon: FileText, section: "Records", page: lazy(() => import("./pages/MyDocumentsPage.jsx")) },
+  { path: "assets", label: "My Assets", icon: Package, section: "Records", page: lazy(() => import("./pages/MyAssetsPage.jsx")) },
   { path: "helpdesk", label: "Helpdesk & Support", icon: LifeBuoy, section: "Company", page: lazy(() => import("./pages/MyHelpdeskPage.jsx")) },
   { path: "requests", label: "My HR Requests", icon: HeartHandshake, section: "Company", page: lazy(() => import("./pages/MyHrRequestsPage.jsx")) },
   { path: "announcements", label: "Announcements & Policies", icon: Megaphone, section: "Company", page: lazy(() => import("./pages/MyAnnouncementsPage.jsx")) },
@@ -52,6 +53,10 @@ export default function EmployeeApp() {
                 return p.path ? <Route key={p.path} path={`${p.path}/*`} element={<Page />} /> : <Route key="index" index element={<Page />} />;
               })}
               {/* Notification links that map to other pages */}
+              <Route path="exit" element={<Navigate to="/employee/requests?tab=resignation" replace />} />
+              <Route path="resignation" element={<Navigate to="/employee/requests?tab=resignation" replace />} />
+              {/* Onboarding / probation notifications: the Joining checklist is on My Dashboard. */}
+              <Route path="onboarding" element={<Navigate to="/employee" replace />} />
               <Route path="team/exits" element={<Navigate to="/hr/exits" replace />} />
               <Route path="*" element={<Navigate to={`/employee${first?.path ? `/${first.path}` : ""}`} replace />} />
             </Routes>

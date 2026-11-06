@@ -3,8 +3,9 @@
 // and employee information change (Module 10 workflows: status, approvals,
 // files, issued letters, payments). One list covers all of them, with status
 // tabs and a type filter. HR questions are raised in Helpdesk & Support; older
-// HR questions and salary advances still open here. Resignation has its own
-// page (My Resignation). Mounted at /employee/requests/*.
+// HR questions and salary advances still open here. Resignation is its own
+// tab (?tab=resignation; /employee/exit links redirect there). Mounted at
+// /employee/requests/*.
 import { useMemo, useState } from "react";
 import { Link, Navigate, Route, Routes, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Lock, Plus, Send } from "lucide-react";
@@ -19,6 +20,7 @@ import {
   availableRequestTypes,
 } from "@/employee/requests/NewRequestForms";
 import MyWorkflowDetail from "@/employee/requests/MyWorkflowDetail";
+import ResignationSection from "@/employee/components/ResignationSection";
 import {
   REQUEST_PRIORITIES, REOPEN_WINDOW_DAYS, canReopen, cancelRequest, closeRequest, commentRequest, createRequest, getRequest,
   listMyRequests, listRequestCategories, listRequestComments, reopenRequest,
@@ -196,6 +198,8 @@ function MyRequestList() {
   const presetLetter = LETTER_TYPES.some((t) => t.value === params.get("letter") && t.value !== "salary_certificate") ? params.get("letter") : "";
   const presetCategory = params.get("category") || "";
   const [tab, setTab] = useState("all");
+  const section = params.get("tab") === "resignation" ? "resignation" : "requests";
+  const setSection = (v) => setParams((p) => { const n = new URLSearchParams(p); if (v === "resignation") n.set("tab", v); else n.delete("tab"); return n; }, { replace: true });
   const [kind, setKind] = useState("");
   const [openCorrection, setOpenCorrection] = useState(null);
 
@@ -210,7 +214,7 @@ function MyRequestList() {
   }, [list.data, corrections.data]);
 
   if (!me) return <ErrorState message="Your account is not linked to an employee record." />;
-  const close = () => { setCreating(null); if (params.has("new")) setParams({}, { replace: true }); };
+  const close = () => { setCreating(null); if (params.has("new")) setParams((p) => { const n = new URLSearchParams(p); ["new", "letter", "category"].forEach((k) => n.delete(k)); return n; }, { replace: true }); };
   const created = (id) => { close(); list.reload(); if (id) navigate(`/employee/requests/${id}`); };
   const reloadAll = () => { list.reload(); corrections.reload(); };
 
@@ -226,8 +230,12 @@ function MyRequestList() {
     <>
       <PageHeader title="My HR Requests"
         description="Attendance corrections, reimbursements, salary certificates, document requests and changes to your employee information. Each request shows who approves it and where it is now."
-        actions={<Button className="whitespace-nowrap" onClick={() => setCreating("choose")}><Plus className="h-4 w-4" aria-hidden="true" />New request</Button>} />
+        actions={section === "requests" && <Button className="whitespace-nowrap" onClick={() => setCreating("choose")}><Plus className="h-4 w-4" aria-hidden="true" />New request</Button>} />
 
+      <Tabs label="My HR Requests sections" value={section} onChange={setSection}
+        tabs={[{ value: "requests", label: "Requests" }, { value: "resignation", label: "Resignation" }]} />
+
+      {section === "resignation" ? <ResignationSection /> : <>
       <Card title="Start a request" className="mb-6">
         <RequestTypeGrid types={availableRequestTypes(cats.data)} onPick={setCreating} className="sm:grid-cols-2 xl:grid-cols-5" />
         <p className="mt-3 text-xs text-slate-500">Something else? <Link to="/employee/helpdesk?new=1" className="font-semibold text-[#1f4693] hover:underline">Ask HR a question</Link> in Helpdesk &amp; Support.</p>
@@ -264,6 +272,7 @@ function MyRequestList() {
           { key: "created_at", header: "Submitted", sortable: true, render: (x) => formatDateTime(x.created_at) },
           { key: "updated_at", header: "Last update", sortable: true, render: (x) => formatDateTime(x.updated_at) },
         ]} />
+      </>}
 
       {creating === "choose" && <RequestTypeChooser categories={cats.data} onClose={close} onPick={setCreating} />}
       {/* HR questions and support tickets are raised in Helpdesk & Support (181). */}
