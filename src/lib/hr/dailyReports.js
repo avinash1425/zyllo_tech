@@ -5,6 +5,7 @@
 // Status changes only happen through the submit / review / reopen RPCs;
 // blockers are written only through their RPCs.
 import { from, rpc, run } from "./client";
+export { derivePendingTasks, feedbackAttention } from "./dailyReportInsights.js";
 
 export const REPORT_STATUSES = ["draft", "submitted", "under_review", "reviewed", "revision_requested"];
 export const EDITABLE_REPORT_STATUSES = ["draft", "revision_requested"];
@@ -288,6 +289,31 @@ export async function listReviews(reportId) {
     .select(`id, report_id, actor_employee_id, action, from_status, to_status, comment, created_at,
       actor:hr_employees!hr_daily_report_reviews_actor_employee_id_fkey(id, employee_code, first_name, last_name, display_name)`)
     .eq("report_id", reportId).order("created_at"));
+}
+
+// ------------------------------------------------------------ my pending tasks / my feedback
+/** All of the employee's report items (any report status) whose report date is in range. */
+export async function listMyReportItems(employeeId, { from: f, to } = {}) {
+  if (!employeeId) return { data: [], error: null };
+  let q = from("hr_daily_report_items")
+    .select(`${ITEM_COLS}, report:hr_daily_reports!inner(id, report_date, status, employee_id)`)
+    .eq("report.employee_id", employeeId);
+  if (f) q = q.gte("report.report_date", f);
+  if (to) q = q.lte("report.report_date", to);
+  return run(q.limit(3000));
+}
+
+/** Review activity on the employee's own reports (report date in range), oldest first. */
+export async function listMyFeedback(employeeId, { from: f, to } = {}) {
+  if (!employeeId) return { data: [], error: null };
+  let q = from("hr_daily_report_reviews")
+    .select(`id, report_id, actor_employee_id, action, from_status, to_status, comment, created_at,
+      actor:hr_employees!hr_daily_report_reviews_actor_employee_id_fkey(id, employee_code, first_name, last_name, display_name),
+      report:hr_daily_reports!inner(id, report_date, status, employee_id)`)
+    .eq("report.employee_id", employeeId).neq("action", "submitted");
+  if (f) q = q.gte("report.report_date", f);
+  if (to) q = q.lte("report.report_date", to);
+  return run(q.order("created_at", { ascending: true }).limit(2000));
 }
 
 export async function listVersions(reportId) {

@@ -6,17 +6,17 @@
 // re-validated by the database.
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { AlertTriangle, Plus, Save, Send, Trash2 } from "lucide-react";
+import { AlertTriangle, CalendarClock, CheckCircle2, ListTodo, MessageSquareReply, MessageSquareWarning, Plus, Save, Send, Trash2 } from "lucide-react";
 import { useAuth } from "@/hr/platform/auth";
 import { formatDate, formatDateTime, fullName, useHrQuery } from "@/lib/hr/client";
 import { addDays, businessToday, useBusinessTimezone } from "@/lib/hr/attendance";
 import {
   BLOCKER_SEVERITIES, EDITABLE_REPORT_STATUSES, MAX_DAY_HOURS, REVIEW_ACTION_LABEL, WORK_STATUSES, WORK_STATUS_LABEL, allocatedOn, completedWork,
-  deleteMyDraft, getMyReport, listBlockers, listMyProjects, listMyReports, listMyTasks, listReportBlockers, listReviews, replyReport, saveBlocker,
+  deleteMyDraft, derivePendingTasks, feedbackAttention, getMyReport, listBlockers, listMyFeedback, listMyReportItems, listMyProjects, listMyReports, listMyTasks, listReportBlockers, listReviews, replyReport, saveBlocker,
   saveMyReport, submitReport, validateReport,
 } from "@/lib/hr/dailyReports";
 import {
-  Badge, Button, Card, ConfirmDialog, DataTable, ErrorState, Field, InlineError, Input, Loading, Modal, PageHeader, Select, Tabs, Textarea, Toolbar, useToast,
+  Badge, Button, Card, Checkbox, ConfirmDialog, DataTable, ErrorState, Field, InlineError, Input, KpiCard, Loading, Modal, PageHeader, Select, Tabs, Textarea, Toolbar, useToast,
 } from "@/hr/ui";
 import {
   AttendanceComparison, BlockerStatusBadge, BlockerTable, HoursSummary, RangeFields, ReportStatusBadge, SeverityBadge, WorkStatusBadge, hrs,
@@ -40,8 +40,8 @@ const TEXTS = [
   { key: "tomorrow_plan", label: "Plan for tomorrow" },
 ];
 const TABS = [
-  { value: "report", label: "Daily report" }, { value: "blockers", label: "My blockers" },
-  { value: "hours", label: "My hours" }, { value: "completed", label: "Completed work" },
+  { value: "report", label: "Daily report" }, { value: "pending", label: "Pending tasks" }, { value: "blockers", label: "My blockers" },
+  { value: "hours", label: "My hours" }, { value: "completed", label: "Completed work" }, { value: "feedback", label: "Manager feedback" },
 ];
 
 export default function MyDailyReportsPage() {
@@ -54,6 +54,7 @@ export default function MyDailyReportsPage() {
   const [date, setDate] = useState(today);
   const report = useHrQuery(() => getMyReport(me, date), [me, date]);
   const history = useHrQuery(() => listMyReports(me, { from: addDays(today, -90), to: today }), [me, today]);
+  const openReport = (d) => { setDate(d); setParams({ tab: "report" }, { replace: true }); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
   return (
     <>
@@ -88,6 +89,8 @@ export default function MyDailyReportsPage() {
       {tab === "blockers" && <MyBlockers me={me} />}
       {tab === "hours" && <MyHours me={me} today={today} />}
       {tab === "completed" && <MyCompletedWork me={me} today={today} />}
+      {tab === "pending" && <MyPendingTasks me={me} today={today} onOpen={openReport} />}
+      {tab === "feedback" && <MyFeedback me={me} today={today} onOpen={openReport} />}
     </>
   );
 }
@@ -399,5 +402,152 @@ function MyCompletedWork({ me, today }) {
           { key: "work_status", header: <span className="sr-only">Task status</span>, render: (x) => <WorkStatusBadge status={x.work_status} /> },
         ]} />
     </Card>
+  );
+}
+
+const PRIORITY_TONE = { low: "slate", medium: "blue", high: "orange", urgent: "red" };
+const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+function MyPendingTasks({ me, today, onOpen }) {
+  const [r, setR] = useState({ from: addDays(today, -59), to: today });
+  const [project, setProject] = useState("");
+  const [status, setStatus] = useState("");
+  const [overdueOnly, setOverdueOnly] = useState(false);
+  const invalid = !r.from || !r.to || r.to < r.from;
+  const items = useHrQuery(() => (invalid ? Promise.resolve({ data: [], error: null }) : listMyReportItems(me, r)), [me, r.from, r.to, invalid]);
+  const tasks = useHrQuery(() => listMyTasks(me), [me]);
+  const all = useMemo(() => derivePendingTasks(items.data ?? [], tasks.data ?? [], today), [items.data, tasks.data, today]);
+  const projectOptions = useMemo(() => {
+    const m = new Map();
+    for (const p of all) if (p.project) m.set(p.project.id, `${p.project.code} · ${p.project.name}`);
+    return [{ value: "none", label: "General / internal work" }, ...[...m].map(([value, label]) => ({ value, label }))];
+  }, [all]);
+  const rows = all.filter((p) => (!project || (project === "none" ? !p.project : p.project?.id === project))
+    && (!status || p.work_status === status) && (!overdueOnly || p.overdue));
+  const count = (f) => all.filter(f).length;
+  const loading = items.loading || tasks.loading;
+  const pick = (s, o = false) => { setStatus(s); setOverdueOnly(o); };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard label="Pending tasks" value={all.length} icon={ListTodo} tone="navy" loading={loading} onClick={() => pick("")} />
+        <KpiCard label="In progress" value={count((p) => p.work_status === "in_progress")} icon={CalendarClock} tone="teal" loading={loading} onClick={() => pick("in_progress")} />
+        <KpiCard label="Blocked" value={count((p) => p.work_status === "blocked")} icon={AlertTriangle} tone="red" loading={loading} onClick={() => pick("blocked")} />
+        <KpiCard label="Overdue" value={count((p) => p.overdue)} hint="Past the task due date" icon={AlertTriangle} tone="orange" loading={loading} onClick={() => pick("", true)} />
+      </div>
+      <Card title="Pending tasks" padded={false}>
+        <div className="px-4 pt-4">
+          <Toolbar>
+            <RangeFields value={r} onChange={setR} max={today} />
+            <Field label="Project" className="sm:w-56"><Select placeholder="All projects" value={project} onChange={(e) => setProject(e.target.value)} options={projectOptions} /></Field>
+            <Field label="Status" className="sm:w-44"><Select placeholder="All open" value={status} onChange={(e) => setStatus(e.target.value)}
+              options={WORK_STATUSES.filter((s) => s !== "completed").map((s) => ({ value: s, label: WORK_STATUS_LABEL[s] }))} /></Field>
+            <div className="flex items-end pb-2"><Checkbox label="Overdue only" checked={overdueOnly} onChange={(e) => setOverdueOnly(e.target.checked)} /></div>
+          </Toolbar>
+          <p className="mb-3 text-xs text-slate-500">
+            Tasks whose latest entry in your reports is not Completed, plus tasks assigned to you that you have not reported yet.
+            Mark a task Completed in a daily report to clear it from this list.
+          </p>
+          {tasks.error && <div className="mb-3"><InlineError message={`Could not load your assigned tasks: ${tasks.error}`} /></div>}
+        </div>
+        <DataTable caption="Pending tasks" rows={rows} loading={loading} error={items.error} onRetry={() => { items.reload(); tasks.reload(); }} rowKey="key" pageSize={25}
+          emptyTitle="No pending tasks" emptyDescription="Everything you reported in this period is completed."
+          onRowClick={(p) => onOpen(p.last_date ?? today)}
+          columns={[
+            { key: "activity", header: "Task", sortable: true, render: (p) => (
+              <span>
+                <span className="font-semibold text-[#101a3a]">{p.activity}</span>
+                <span className="block text-xs text-slate-500">{p.project ? `${p.project.code} · ${p.project.name}` : "General / internal"}{p.task && p.task.title !== p.activity ? ` · ${p.task.title}` : ""}</span>
+                {p.source === "assigned" && <Badge tone="blue" className="mt-1">Assigned · not reported yet</Badge>}
+              </span>) },
+            { key: "work_status", header: "Status", sortable: true, render: (p) => <WorkStatusBadge status={p.work_status} /> },
+            { key: "progress_pct", header: "Progress", sortable: true, sortValue: (p) => p.progress_pct ?? -1, render: (p) => (p.progress_pct == null ? "—" : (
+              <span className="flex items-center gap-2">
+                <span className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-200" aria-hidden="true"><span className="block h-full bg-[#3089a6]" style={{ width: `${p.progress_pct}%` }} /></span>
+                {p.progress_pct}%
+              </span>)) },
+            { key: "hours", header: "Hours so far", sortable: true, render: (p) => (p.hours ? <span>{hrs(p.hours)}<span className="block text-xs text-slate-500">{plural(p.days, "day")}</span></span> : "—") },
+            { key: "last_date", header: "Last reported", sortable: true, sortValue: (p) => p.last_date ?? "", render: (p) => (p.last_date ? (
+              <span>{formatDate(p.last_date)}{p.age_days > 0 && <span className="block text-xs text-slate-500">open {plural(p.age_days, "day")}</span>}</span>) : "—") },
+            { key: "due_date", header: "Due", sortable: true, sortValue: (p) => p.due_date ?? "9999", render: (p) => (p.due_date ? (
+              <span className={p.overdue ? "font-semibold text-red-600" : undefined}>{formatDate(p.due_date)}{p.overdue && <span className="block text-xs">Overdue</span>}</span>) : "—") },
+            { key: "priority", header: "Priority", render: (p) => (p.priority ? <Badge tone={PRIORITY_TONE[p.priority] ?? "slate"}>{p.priority}</Badge> : "—") },
+            { key: "_open", header: <span className="sr-only">Open</span>, render: (p) => (
+              <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); onOpen(p.source === "assigned" ? today : p.last_date); }}>
+                {p.source === "assigned" ? "Report today" : "Open report"}
+              </Button>) },
+          ]} />
+      </Card>
+    </div>
+  );
+}
+
+const FEEDBACK_FILTERS = [
+  { value: "attention", label: "Needs my attention" },
+  { value: "revision_requested", label: "Changes requested" },
+  { value: "clarification", label: "Clarification requested" },
+  { value: "reviewed", label: "Approved" },
+  { value: "comment", label: "Comments" },
+  { value: "under_review", label: "Marked under review" },
+  { value: "reopened", label: "Reopened" },
+];
+const FEEDBACK_TONE = { revision_requested: "orange", clarification: "orange", reopened: "orange", reviewed: "green", under_review: "blue" };
+
+function MyFeedback({ me, today, onOpen }) {
+  const [r, setR] = useState({ from: addDays(today, -59), to: today });
+  const [show, setShow] = useState("");
+  const [mine, setMine] = useState(false);
+  const invalid = !r.from || !r.to || r.to < r.from;
+  const q = useHrQuery(() => (invalid ? Promise.resolve({ data: [], error: null }) : listMyFeedback(me, r)), [me, r.from, r.to, invalid]);
+  const all = useMemo(() => q.data ?? [], [q.data]);
+  const { changes, awaiting } = useMemo(() => feedbackAttention(all, me), [all, me]);
+  const fromReviewers = all.filter((x) => x.actor_employee_id !== me);
+  const rows = all
+    .filter((x) => mine || x.actor_employee_id !== me)
+    .filter((x) => !show || (show === "attention"
+      ? (changes.has(x.report_id) || awaiting.has(x.report_id)) && x.actor_employee_id !== me
+      : x.action === show))
+    .reverse();
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard label="Changes requested" value={changes.size} hint="Reports to update and resubmit" icon={MessageSquareWarning} tone="orange" loading={q.loading} onClick={() => setShow("revision_requested")} />
+        <KpiCard label="Awaiting your reply" value={awaiting.size} hint="Clarifications asked" icon={MessageSquareReply} tone="red" loading={q.loading} onClick={() => setShow("clarification")} />
+        <KpiCard label="Approved" value={new Set(fromReviewers.filter((x) => x.action === "reviewed").map((x) => x.report_id)).size} hint="Reports approved" icon={CheckCircle2} tone="green" loading={q.loading} onClick={() => setShow("reviewed")} />
+        <KpiCard label="Reviewer comments" value={fromReviewers.filter((x) => x.comment).length} icon={MessageSquareReply} tone="navy" loading={q.loading} onClick={() => setShow("")} />
+      </div>
+      <Card title="Manager feedback" padded={false}>
+        <div className="px-4 pt-4">
+          <Toolbar>
+            <RangeFields value={r} onChange={setR} max={today} />
+            <Field label="Show" className="sm:w-56"><Select placeholder="All feedback" value={show} onChange={(e) => setShow(e.target.value)} options={FEEDBACK_FILTERS} /></Field>
+            <div className="flex items-end pb-2"><Checkbox label="Include my replies" checked={mine} onChange={(e) => setMine(e.target.checked)} /></div>
+          </Toolbar>
+          <p className="mb-3 text-xs text-slate-500">Feedback on your reports for the dates above, newest first. Open a report to update it or reply to your reviewer.</p>
+        </div>
+        <DataTable caption="Manager feedback" rows={rows} loading={q.loading} error={q.error} onRetry={q.reload} pageSize={25}
+          emptyTitle={show === "attention" ? "Nothing needs your attention" : "No feedback yet"}
+          emptyDescription="Comments and review decisions from your manager appear here."
+          onRowClick={(x) => onOpen(x.report.report_date)}
+          columns={[
+            { key: "created_at", header: "When", sortable: true, render: (x) => formatDateTime(x.created_at) },
+            { key: "report_date", header: "Report", sortable: true, sortValue: (x) => x.report.report_date, render: (x) => (
+              <span>{formatDate(x.report.report_date, { weekday: "short", day: "2-digit", month: "short" })}<span className="mt-1 block"><ReportStatusBadge status={x.report.status} /></span></span>) },
+            { key: "actor", header: "From", render: (x) => (x.actor_employee_id === me ? <span className="text-slate-500">You</span> : x.actor ? fullName(x.actor) : "Someone") },
+            { key: "action", header: "Type", render: (x) => <Badge tone={FEEDBACK_TONE[x.action] ?? "slate"}>{x.actor_employee_id === me && x.action === "comment" ? "Your reply" : REVIEW_ACTION_LABEL[x.action] ?? x.action}</Badge> },
+            { key: "comment", header: "Feedback", render: (x) => (
+              <span className="block max-w-md">
+                <span className="whitespace-pre-wrap text-slate-700">{x.comment || <span className="text-slate-400">No comment</span>}</span>
+                {awaiting.has(x.report_id) && x.action === "clarification" && x.actor_employee_id !== me && <span className="mt-1 block text-xs font-semibold text-red-600">Awaiting your reply</span>}
+              </span>) },
+            { key: "_open", header: <span className="sr-only">Open</span>, render: (x) => (
+              <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); onOpen(x.report.report_date); }}>
+                {changes.has(x.report_id) ? "Update report" : awaiting.has(x.report_id) ? "Reply" : "Open report"}
+              </Button>) },
+          ]} />
+      </Card>
+    </div>
   );
 }
