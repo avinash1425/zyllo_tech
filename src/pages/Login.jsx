@@ -28,15 +28,28 @@ const HIGHLIGHTS = [
   { icon: ShieldCheck, label: "Permissioned access" },
 ];
 
-// Only allow same-site relative redirects (no open redirect).
+// Only allow same-site relative redirects (no open redirect). Returns null
+// when no usable ?next= was given, so sign-in picks the destination by role.
 function safeNext(value) {
-  return typeof value === "string" && value.startsWith("/") && !value.startsWith("//") ? value : "/admin";
+  return typeof value === "string" && value.startsWith("/") && !value.startsWith("//") ? value : null;
 }
 
 function NextRedirectField() {
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") || "/admin";
+  const next = searchParams.get("next") || "";
   return <input type="hidden" name="next" value={next} />;
+}
+
+// One login page for everyone: HR staff go to HR Operations, employees to the
+// Employee Portal, everyone else to the website admin (whose own guard still
+// checks is_admin()). The HRMS module is loaded only after a successful sign-in.
+async function destinationByRole() {
+  try {
+    const { loadHrPortal } = await import("@/hr/platform/auth");
+    return (await loadHrPortal()) ?? "/admin";
+  } catch {
+    return "/admin";
+  }
 }
 
 export default function LoginPage() {
@@ -46,11 +59,13 @@ export default function LoginPage() {
   const router = useRouter();
 
   // Replaces the old server action: sign in with supabase-js, then
-  // navigate to the ?next= target (default /admin).
+  // navigate to the ?next= target, or by role when none was given.
   async function signInAction(prevState, formData) {
     const email = formData.get("email")?.toString().trim();
     const password = formData.get("password")?.toString();
-    const next = safeNext(formData.get("next")?.toString() || "/admin");
+    // A bare /admin (the old default) is not a real preference: route by role.
+    const rawNext = safeNext(formData.get("next")?.toString());
+    const requestedNext = rawNext === "/admin" || rawNext === "/admin/" ? null : rawNext;
 
     if (!email || !password) {
       return { status: "error", message: "Please enter your email and password." };
@@ -61,7 +76,7 @@ export default function LoginPage() {
       return { status: "error", message: "Invalid email or password." };
     }
 
-    router.replace(next);
+    router.replace(requestedNext ?? (await destinationByRole()));
     return { status: "success", message: "" };
   }
 
@@ -180,7 +195,7 @@ export default function LoginPage() {
                   </p>
 
                   <form action={formAction} className="mt-6 flex flex-col gap-3.5">
-                    <Suspense fallback={<input type="hidden" name="next" value="/admin" />}>
+                    <Suspense fallback={<input type="hidden" name="next" value="" />}>
                       <NextRedirectField />
                     </Suspense>
 

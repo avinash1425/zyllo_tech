@@ -12,11 +12,27 @@ const HR_HOME_PERMISSIONS = ["dashboard.view", "dashboard.view_team", "employees
 
 export const HR_LOGIN_PATH = "/hr/login";
 
-export function destinationFor({ user, hr, isSiteAdmin }) {
-  if (!user) return HR_LOGIN_PATH;
+// The HRMS portal an hr_me() payload grants, or null when it grants none.
+export function hrPortalFor(hr) {
   const perms = hr?.permissions ?? [];
   if (perms.some((p) => HR_HOME_PERMISSIONS.includes(p))) return "/hr";
   if (hr?.employee) return "/employee";
+  return null;
+}
+
+// Used by the website's shared /login page: send the signed-in user to their
+// HRMS portal if they have one. Returns null when hr_me() is missing (e.g. a
+// project without the HRMS schema) or grants nothing, so the caller keeps its
+// default (/admin).
+export async function loadHrPortal() {
+  const { data, error } = await supabase.rpc("hr_me");
+  return error ? null : hrPortalFor(data);
+}
+
+export function destinationFor({ user, hr, isSiteAdmin }) {
+  if (!user) return HR_LOGIN_PATH;
+  const portal = hrPortalFor(hr);
+  if (portal) return portal;
   if (isSiteAdmin) return "/admin";
   return "/account-pending";
 }
