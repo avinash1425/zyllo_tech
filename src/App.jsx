@@ -31,6 +31,7 @@ const HrLoginPage = lazy(() => import("./hr/platform/HrLoginPage"));
 const HrApp = lazy(() => import("./hr/HrApp"));
 const EmployeeApp = lazy(() => import("./employee/EmployeeApp"));
 const ActivatePage = lazy(() => import("./employee/pages/ActivatePage"));
+const SetPasswordPage = lazy(() => import("./employee/pages/SetPasswordPage"));
 const AccountPending = lazy(() => import("./hr/platform/AccountPending"));
 
 export default function App() {
@@ -48,6 +49,7 @@ export default function App() {
           <Route path="/hr/*" element={<HrAuthProvider><HrApp /></HrAuthProvider>} />
           <Route path="/employee/login" element={<Navigate to="/hr/login?next=/employee" replace />} />
           <Route path="/employee/activate" element={<HrAuthProvider><ActivatePage /></HrAuthProvider>} />
+          <Route path="/employee/set-password" element={<HrAuthProvider><SetPasswordPage /></HrAuthProvider>} />
           <Route path="/employee/*" element={<HrAuthProvider><EmployeeApp /></HrAuthProvider>} />
           <Route path="/account-pending" element={<HrAuthProvider><AccountPending /></HrAuthProvider>} />
           <Route element={<SiteChrome />}>

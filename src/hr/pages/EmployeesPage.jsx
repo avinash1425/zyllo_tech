@@ -7,7 +7,7 @@ import { Route, Routes, useNavigate, useSearchParams } from "react-router-dom";
 import { Download, Hourglass, Plus, Upload, UserCheck, UserMinus, UserPlus, UserX, X } from "lucide-react";
 import { useAuth } from "@/hr/platform/auth";
 import { exportCsv, formatDate, fullName, parseCsv, useHrQuery } from "@/lib/hr/client";
-import { EMPLOYEE_STATUSES, arrangementLabel, getEmployeeSummary, importEmployees, listEmployees } from "@/lib/hr/employees";
+import { EMPLOYEE_STATUSES, arrangementLabel, getEmployeeSummary, importEmployees, listEmployees, loginState } from "@/lib/hr/employees";
 import { toOptions, useEmployeeOptions, useOrg } from "@/lib/hr/org";
 import { Badge, Button, DataTable, ErrorState, InlineError, KpiCard, Loading, Modal, PageHeader, SearchInput, Select, StatusBadge, Toolbar, useToast } from "@/hr/ui";
 import EmployeeForm, { saveEmployeeAll } from "@/hr/components/EmployeeForm";
@@ -75,7 +75,7 @@ function EmployeeList() {
     { key: "employment_type", header: "Type", render: (r) => <Badge tone={r.employment_type === "intern" ? "violet" : "slate"}>{r.employment_type.replace(/_/g, " ")}</Badge> },
     { key: "joining_date", header: "Joined", render: (r) => formatDate(r.joining_date) },
     { key: "status", header: "Status", render: (r) => <StatusBadge status={r.status} /> },
-    { key: "portal", header: "Portal", render: (r) => (r.portal_access ? <Badge tone="green">{r.activated_at ? "active" : "invited"}</Badge> : <Badge>{r.user_id ? "disabled" : "not invited"}</Badge>) },
+    { key: "portal", header: "Portal", render: (r) => { const s = loginState(r); return <Badge tone={s.tone}>{s.label}</Badge>; } },
   ];
 
   return (

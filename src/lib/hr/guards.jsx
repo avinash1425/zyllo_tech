@@ -27,6 +27,8 @@ function useGate() {
   const location = useLocation();
   if (auth.loading) return { el: <div className="min-h-screen bg-[#f6f7fb]"><Loading label="Checking your access…" /></div> };
   if (!auth.user) return { el: <Navigate to={`/hr/login?next=${encodeURIComponent(location.pathname + location.search)}`} replace /> };
+  // Employee ID account with a temporary / expired password (the set-password route is outside this gate).
+  if (auth.hr?.login?.password_change_required) return { el: <Navigate to="/employee/set-password" replace /> };
   if (auth.hr?.revoked) return { el: <Blocked title="Access disabled" message="Your portal access has been disabled. Contact HR if you believe this is a mistake." /> };
   return { auth };
 }
@@ -53,7 +55,7 @@ export function RequireEmployee({ children }) {
   const { el, auth } = useGate();
   if (el) return el;
   if (!auth.hr?.employee) {
-    return <Blocked title="No employee profile" message="This account is not linked to an active employee record. Use the invitation link from HR, or contact HR." />;
+    return <Blocked title="No employee profile" message="This account is not linked to an active employee record. Sign in with your Employee ID, or contact HR." />;
   }
   return children;
 }

@@ -27,7 +27,7 @@ export default function HrLoginPage() {
 
   async function submit(e) {
     e.preventDefault();
-    if (!email || !password) { setError("Enter your email and password."); return; }
+    if (!email || !password) { setError("Enter your Employee ID or email, and your password."); return; }
     setBusy(true);
     const res = await auth.signIn(email, password);
     setBusy(false);
@@ -41,8 +41,9 @@ export default function HrLoginPage() {
       <form onSubmit={submit} className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 shadow-sm" noValidate>
         <h1 className="text-xl font-extrabold text-[#101a3a]">Zyllo Tech HRMS</h1>
         <p className="mt-1 text-sm text-slate-600">Sign in to HR Operations or the Employee Portal.</p>
-        <label className="mt-6 block text-sm font-semibold text-[#173a52]" htmlFor="hr-email">Work email</label>
-        <input id="hr-email" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)}
+        <label className="mt-6 block text-sm font-semibold text-[#173a52]" htmlFor="hr-email">Employee ID or work email</label>
+        <input id="hr-email" type="text" inputMode="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} autoComplete="username"
+          placeholder="ZT-0007 or name@zyllotech.com" value={email} onChange={(e) => setEmail(e.target.value)}
           className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-[#f96706] focus:outline-none focus:ring-2 focus:ring-[#f96706]/30" />
         <label className="mt-4 block text-sm font-semibold text-[#173a52]" htmlFor="hr-password">Password</label>
         <input id="hr-password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)}
@@ -54,7 +55,8 @@ export default function HrLoginPage() {
           Sign in
         </button>
         <p className="mt-5 text-center text-xs text-slate-500">
-          New employee? Use the invitation link from HR to <Link href="/employee/activate" className="font-semibold text-[#173a52] underline">activate your account</Link>.
+          Employees: sign in with your Employee ID and the temporary password from HR. You will choose your own password next.
+          Forgot it? Ask HR to issue a new temporary password.
         </p>
         <p className="mt-2 text-center text-xs text-slate-500"><Link href="/" className="underline">Back to the website</Link></p>
       </form>

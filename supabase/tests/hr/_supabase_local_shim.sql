@@ -37,6 +37,18 @@ create table if not exists auth.users (
 );
 grant select on auth.users to service_role;
 
+-- Sessions (subset of Supabase's auth.sessions) for the session_id checks in
+-- migration 200, and the role Supabase Auth runs hooks as.
+create table if not exists auth.sessions (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  not_after  timestamptz
+);
+do $$ begin create role supabase_auth_admin nologin noinherit; exception when duplicate_object then null; end $$;
+grant usage on schema auth to supabase_auth_admin;
+grant select on auth.users to supabase_auth_admin;
+
 create or replace function auth.uid() returns uuid
 language sql stable as $$
   select nullif(nullif(current_setting('request.jwt.claims', true), '')::json ->> 'sub', '')::uuid
