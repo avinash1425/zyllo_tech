@@ -106,7 +106,9 @@ How the sign-in page routes you (`src/hr/platform/account.js`):
 - **Change password.** It signs out the other person, who then needs the new password.
 - **HR → Employee → Login & Access (create, reset, deactivate).** These change a real login. A reset gives the employee a new temporary password.
 
-These two features also need the HR development Edge Functions to be deployed (see [`EDGE_FUNCTION_DEPLOYMENT.md`](EDGE_FUNCTION_DEPLOYMENT.md)). Until then they show an error. Signing in, including with an Employee ID, works without them.
+These two features use the HR development Edge Functions `hr-employee-login` and `hr-change-my-password`, which were deployed to HR development on 2026-11-07 (see [`EDGE_FUNCTION_DEPLOYMENT.md`](EDGE_FUNCTION_DEPLOYMENT.md)). Signing in, including with an Employee ID, doesn't depend on them.
+
+**Tip for one browser profile:** sessions are stored per address, so you can keep three roles signed in side by side on `http://127.0.0.1:8080`, `http://localhost:8080` and `http://127.0.0.1:3000` (a second launcher with `--port 3000`). All three are accepted by the Edge Functions.
 
 ## 6. How the data is shared
 
@@ -139,6 +141,7 @@ You never need, and should never receive, the **production** project's keys or d
 | `REFUSING TO START: … PRODUCTION …` | Your file mentions `zfjeflpvwizlteflypsx` (the live site). Use only the HR dev values. |
 | `REFUSING TO START: … SECRET key` | You pasted an `sb_secret_…` key. Delete it from the file and use the publishable key. Tell the owner, so the leaked key can be rotated. |
 | `Dependencies are not installed` | Run `npm ci` in the project folder. |
+| `npm warn install-scripts esbuild@… (postinstall: node install.js)` during `npm ci` | Harmless with npm 11: esbuild's platform binary is installed anyway, and the app starts and builds normally (checked 2026-11-07). No action needed. |
 | `Node.js … is too old` | Install Node.js 22 or 24 LTS, then open a new terminal. |
 | `Port 8080 is already in use` | Close the other program, or `node scripts/hr-dev/start.mjs --port 3000`. |
 | `STOPPED: the browser configuration is NOT the HR development project` | Something overrides the Vite settings (for example a `VITE_SUPABASE_URL` in a custom `.env.development.local`). Remove it and start again. |

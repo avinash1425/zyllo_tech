@@ -5,7 +5,7 @@
 
 This deploys the two Edge Functions that the Employee ID workflows need. It changes no database records, policies, migrations, users, passwords or project settings. It only adds two functions to the HR development project.
 
-> Status: **prepared, not deployed.** Deployment needs the owner's explicit approval.
+> Status: **deployed to HR development on 2026-11-07**, with the owner's approval. `hr-employee-login` v1 and `hr-change-my-password` v1, `verify_jwt=false`, from commit `9afe73d`. Verified: CORS for `http://127.0.0.1:8080`, `http://localhost:8080` and `http://127.0.0.1:3000`; 401 without or with an invalid token; 400 on invalid input for a signed-in HR Admin and Employee (no data changed). `ALLOWED_ORIGINS` isn't set, so the default list applies. The website functions already on HR dev (`ai-search`, `search-console`, `seo-audit`, `sitemap`) were left unchanged.
 
 ## 1. Which functions, and why
 
@@ -67,7 +67,7 @@ Both functions share code in `supabase/functions/_shared/`: `cors.ts`, `hr.ts`, 
    ```powershell
    npx supabase secrets list --remote=whiclllqgxxqhufkduuo
    ```
-   If `ALLOWED_ORIGINS` is listed, it must include `http://127.0.0.1:8080`. Otherwise Login & Access and Change password fail with a CORS error. Changing secrets is a separate, approved step.
+   If `ALLOWED_ORIGINS` is listed, it must include `http://127.0.0.1:8080`. Otherwise Login & Access and Change password fail with a CORS error. Changing secrets is a separate, approved step. (On 2026-11-07 it wasn't set.)
 
 ## 3. Deploy (only after approval)
 
@@ -82,6 +82,7 @@ git log -1 --format="%h %s"   # note the commit being deployed
 
 npx supabase functions deploy hr-employee-login     --remote=$ref --no-verify-jwt --use-api
 npx supabase functions deploy hr-change-my-password --remote=$ref --no-verify-jwt --use-api
+# In a non-interactive shell the CLI asks for --yes; check that its confirmation line names whiclllqgxxqhufkduuo.
 ```
 
 Rules:
