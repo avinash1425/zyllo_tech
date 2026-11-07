@@ -39,7 +39,45 @@ export function daysUntil(date, today) {
 
 export const isOpen = (a) => ["assigned", "in_progress"].includes(a?.status);
 export const isPendingVerification = (a) => a?.status === "completed" && !a?.verified_at;
-export const isOverdueOn = (a, today) => Boolean(isOpen(a) && a?.due_date && a.due_date < today);
+
+const day = (v) => (v && DATE_RE.test(String(v).slice(0, 10)) ? String(v).slice(0, 10) : null);
+
+/** Date (YYYY-MM-DD) the assignment was made: assigned_at, else created_at. */
+export const assignedDate = (a) => day(a?.assigned_at) ?? day(a?.created_at);
+
+/**
+ * True when the stored due date is earlier than the date the assignment was
+ * made (e.g. an onboarding-linked induction inheriting an old onboarding task
+ * due date). Presentation only: stored data is not changed.
+ */
+export function dueBeforeAssigned(a) {
+  const due = day(a?.due_date), assigned = assignedDate(a);
+  return Boolean(due && assigned && due < assigned);
+}
+
+/** Due date used for overdue maths: the assigned date when the stored due date predates it. */
+export function effectiveDueDate(a) {
+  const due = day(a?.due_date);
+  if (!due) return null;
+  return dueBeforeAssigned(a) ? assignedDate(a) : due;
+}
+
+export const isOverdueOn = (a, today) => {
+  const due = effectiveDueDate(a);
+  return Boolean(isOpen(a) && due && due < today);
+};
+
+/**
+ * Due-date presentation for an assignment: the stored due date, whether it
+ * predates the assignment, and days left (negative = overdue) counted from the
+ * effective due date. `days` is null when there is no due date.
+ */
+export function dueInfo(a, today) {
+  const due = day(a?.due_date);
+  if (!due) return { due: null, beforeAssigned: false, effectiveDue: null, days: null };
+  const effectiveDue = effectiveDueDate(a);
+  return { due, beforeAssigned: dueBeforeAssigned(a), effectiveDue, days: daysUntil(effectiveDue, today) };
+}
 
 /**
  * Display state of an assignment: overdue / pending_verification / the

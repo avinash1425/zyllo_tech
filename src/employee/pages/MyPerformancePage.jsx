@@ -19,7 +19,7 @@ import { MeetingDetail } from "@/hr/performance/MeetingsTab";
 
 const TABS = ["goals", "self", "reviews", "feedback", "meetings", "plans", "history"];
 
-function SelfAssessmentForm({ review, goals, onDone }) {
+function SelfAssessmentForm({ review, goals, hasManager, onDone }) {
   const { notify } = useToast();
   const [text, setText] = useState("");
   const [rating, setRating] = useState("");
@@ -47,9 +47,9 @@ function SelfAssessmentForm({ review, goals, onDone }) {
           onSubmit={async () => {
             const res = await submitSelfAssessment(review.id, text, rating);
             if (res.error) return res;
-            notify("Self-assessment submitted to your manager."); setConfirm(false); onDone(); return {};
+            notify(`Self-assessment submitted to ${hasManager ? "your manager" : "HR"}.`); setConfirm(false); onDone(); return {};
           }}>
-          <p className="text-sm text-slate-700">After submitting you cannot change it. Your manager is notified and writes their assessment next; HR then calibrates and finalizes the review.</p>
+          <p className="text-sm text-slate-700">After submitting you cannot change it. {hasManager ? "Your manager is notified and writes their assessment next; HR then calibrates and finalizes the review." : "You have no reporting manager, so HR takes the next step and finalizes the review."}</p>
         </ActionModal>
       )}
     </Card>
@@ -162,7 +162,7 @@ export default function MyPerformancePage() {
         <Card><EmptyState icon={PenLine} title="No self-assessment due" description="When a review cycle opens, your self-assessment appears here. Submitted assessments are under My reviews." /></Card>
       ) : (
         <div className="flex flex-col gap-4">
-          {pendingSelf.map((r) => <SelfAssessmentForm key={r.id} review={r} goals={(goals.data ?? []).filter((g) => g.cycle_id === r.cycle_id)} onDone={reload} />)}
+          {pendingSelf.map((r) => <SelfAssessmentForm key={r.id} review={r} hasManager={Boolean(hr?.employee?.manager_id)} goals={(goals.data ?? []).filter((g) => g.cycle_id === r.cycle_id)} onDone={reload} />)}
         </div>
       ))}
 

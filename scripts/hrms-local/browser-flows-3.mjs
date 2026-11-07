@@ -1019,7 +1019,7 @@ async function wfSettings() {
   const HOL = `WF3 Holiday ${RUN}`, LTC = `W3${UP}`.replace(/[^A-Z0-9_]/g, "").slice(0, 16), LTN = `WF3 Leave ${RUN}`, TK = `wf3.test_${RUN}`;
   const settingVal = async (k) => (await q1(`select value from hr_settings where key = ${lit(k)}`)).value;
   const origAtt = await settingVal("attendance"), origDr = await settingVal("daily_reports"), origLeave = await settingVal("leave"), origEid = await settingVal("employee_id");
-  async function addRow(s, tab, fill, okToast) {
+  async function addRow(s, tab, fill) {
     await h(s, `tab(${J(tab)})`); await sleep(1800);
     await h(s, "click('Add')"); await waitDialog(s); await sleep(500);
     for (const step of fill) await h(s, step);
@@ -1090,7 +1090,7 @@ async function wfSettings() {
   // ---------- holidays (+ effect on the leave day count)
   const year = today.slice(0, 4);
   const taken = new Set((await q("select holiday_date::text d from hr_holidays")).map((x) => x.d));
-  const lvOcc = await q(`select start_date::text s, end_date::text e from hr_leave_requests where status in ('pending_approval','approved')`);
+  await q(`select start_date::text s, end_date::text e from hr_leave_requests where status in ('pending_approval','approved')`);
   let HD = null; for (let d = addD(today, 20); d.slice(0, 4) === year; d = addD(d, 1)) if (isoDow(d) === 3 && !taken.has(d)) { HD = d; break; }
   const mon = HD && addD(HD, -2), fri = HD && addD(HD, 2);
   const cl = (await q1("select id from hr_leave_types where code = 'CL'")).id;

@@ -6,7 +6,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
-  addMonths, allowedActions, certificateExpiry, certificateState, daysUntil, displayStatus, enrollmentOutcome, latestCompletions, seatInfo, sessionWhen, summarize,
+  addMonths, allowedActions, assignedDate, certificateExpiry, certificateState, daysUntil, displayStatus, dueBeforeAssigned, dueInfo, effectiveDueDate, enrollmentOutcome,
+  isOverdueOn, latestCompletions, seatInfo, sessionWhen, summarize,
 } from "../src/lib/hr/trainingRules.js";
 
 const read = (p) => readFileSync(new URL(`../${p}`, import.meta.url), "utf8");
@@ -130,4 +131,34 @@ test("migration 207: idempotent, keeps 115 data, no blanket hr_private grant", (
     assert.match(m[0], /security definer set search_path = ''/, `${m[1]} is SECURITY DEFINER with an empty search_path`);
   }
   assert.ok(!/206_|208_/.test(sql), "does not depend on 206 / 208");
+});
+
+test("due date earlier than the assignment: overdue counts from the assigned date", () => {
+  // Onboarding-linked induction: inherited the task due date (29 Sep 2025), assigned 07 Nov 2026.
+  const inherited = { status: "assigned", due_date: "2025-09-29", assigned_at: "2026-11-07T09:30:00+00:00" };
+  assert.equal(assignedDate(inherited), "2026-11-07");
+  assert.equal(dueBeforeAssigned(inherited), true);
+  assert.equal(effectiveDueDate(inherited), "2026-11-07");
+  assert.equal(isOverdueOn(inherited, T), false);
+  assert.equal(displayStatus(inherited, T), "assigned");
+  assert.deepEqual(dueInfo(inherited, T), { due: "2025-09-29", beforeAssigned: true, effectiveDue: "2026-11-07", days: 0 });
+  assert.equal(dueInfo(inherited, "2026-11-10").days, -3);
+  assert.equal(isOverdueOn(inherited, "2026-11-10"), true);
+  assert.equal(summarize([inherited], T).overdue, 0);
+});
+
+test("normal due dates are unchanged by the assigned-date rule", () => {
+  const late = { status: "in_progress", due_date: "2026-11-01", assigned_at: "2026-10-01T00:00:00Z" };
+  assert.equal(dueBeforeAssigned(late), false);
+  assert.equal(effectiveDueDate(late), "2026-11-01");
+  assert.equal(isOverdueOn(late, T), true);
+  assert.equal(dueInfo(late, T).days, -6);
+  // created_at is the fallback when assigned_at is missing; neither -> stored due date.
+  assert.equal(effectiveDueDate({ due_date: "2026-01-01", created_at: "2026-02-01T00:00:00Z" }), "2026-02-01");
+  assert.equal(effectiveDueDate({ due_date: "2026-01-01" }), "2026-01-01");
+  assert.equal(dueBeforeAssigned({ due_date: "2026-01-01" }), false);
+  assert.deepEqual(dueInfo({ status: "assigned" }, T), { due: null, beforeAssigned: false, effectiveDue: null, days: null });
+  // Same-day due date is not "before" the assignment.
+  assert.equal(dueBeforeAssigned({ due_date: "2026-11-07", assigned_at: "2026-11-07T23:00:00Z" }), false);
+  assert.equal(isOverdueOn({ status: "completed", due_date: "2025-01-01", assigned_at: "2026-01-01" }, T), false);
 });

@@ -293,7 +293,7 @@ export default function EmployeeForm({ initial = {}, org, managers, isNew, canSe
               rule.national_id_required && "national ID required", rule.passport_required && "passport required",
               isForeign && rule.work_permit_required_foreign && "work permit required (foreign national)", isForeign && rule.visa_required_foreign && "visa required (foreign national)",
             ].filter(Boolean).join(", ") || "no mandatory identity documents"}.{rule.notes ? ` ${rule.notes}` : ""}</> : "No identity rules are configured for this company's country."}
-            <span className="mt-1 block text-xs">Attach scanned copies in Visa &amp; Documents (categories Passport, Work permit, Visa, National ID). Numbers are masked in audit logs.</span>
+            <span className="mt-1 block text-xs">Attach scanned copies in Employee Documents (categories Passport, Work permit, Visa, National ID). Numbers are masked in audit logs.</span>
           </div>
           <Field label="National ID type" error={errors.national_id_type}><Select placeholder="— None —" value={v.national_id_type ?? ""} onChange={set("national_id_type")}
             options={[...new Set([...(rule?.national_id_types ?? []), ...(v.national_id_type ? [v.national_id_type] : [])])].map((t) => ({ value: t, label: t }))} /></Field>

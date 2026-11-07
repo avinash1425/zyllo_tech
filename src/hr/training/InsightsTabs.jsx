@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { AlertTriangle, Award, CalendarClock, CheckCircle2, ClipboardList, Download, Hourglass, RefreshCcw, ShieldCheck, Timer } from "lucide-react";
 import { exportCsv, formatDate, useHrQuery } from "@/lib/hr/client";
 import { generateRenewals, listEnrollments, listSessions } from "@/lib/hr/training";
-import { EXPIRING_DAYS, certificateState, daysUntil, displayStatus, isOverdueOn, latestCompletions, seatInfo, sessionWhen, summarize } from "@/lib/hr/trainingRules";
+import { EXPIRING_DAYS, certificateState, daysUntil, displayStatus, effectiveDueDate, isOverdueOn, latestCompletions, seatInfo, sessionWhen, summarize } from "@/lib/hr/trainingRules";
 import { Button, Card, DataTable, Field, Input, KpiCard, Select, Toolbar, useToast } from "@/hr/ui";
 import { AssignmentModalsHost } from "./AssignmentsTab";
 import { ActionModal, CertificateBadge, DocButton, TBadge, courseText, empText, today } from "./shared";
@@ -170,7 +170,7 @@ export function ReportsTab({ assignments, courses }) {
       return { rows, cols: [{ key: "course", label: "Course" }, { key: "mandatory", label: "Mandatory" }, { key: "open", label: "Open" }, { key: "completed", label: "Completed" }, { key: "passed", label: "Passed" }, { key: "failed", label: "Failed" }, { key: "overdue", label: "Overdue" }, { key: "completion_pct", label: "Completion %" }] };
     }
     if (rep === "overdue") {
-      const rows = base.filter((a) => isOverdueOn(a, t)).map((a) => ({ employee: emp(a), course: courseText(a.course), status: a.status, due_date: a.due_date, days_overdue: -daysUntil(a.due_date, t), mandatory: a.course?.is_mandatory ? "yes" : "no" }));
+      const rows = base.filter((a) => isOverdueOn(a, t)).map((a) => ({ employee: emp(a), course: courseText(a.course), status: a.status, due_date: a.due_date, days_overdue: -daysUntil(effectiveDueDate(a), t), mandatory: a.course?.is_mandatory ? "yes" : "no" }));
       return { rows, cols: [{ key: "employee", label: "Employee" }, { key: "course", label: "Course" }, { key: "mandatory", label: "Mandatory" }, { key: "status", label: "Status" }, { key: "due_date", label: "Due" }, { key: "days_overdue", label: "Days overdue" }] };
     }
     if (rep === "certificates") {

@@ -12,7 +12,7 @@ import { myBankAccounts } from "@/lib/hr/payroll";
 import { businessToday, addDays, zonedIso } from "@/lib/hr/attendance";
 import {
   LETTER_TYPES, PROFILE_FIELDS, REIMBURSEMENT_CATEGORIES, REQUEST_FILE_ACCEPT, checkRequestFile, createWorkflowRequest,
-  listProjectOptions, requestAttendanceCorrection, requestPolicies, salaryAdvanceEligibility, submitWorkflowRequest,
+  getRequestDetail, listProjectOptions, requestAttendanceCorrection, requestPolicies, salaryAdvanceEligibility, submitWorkflowRequest,
   updateWorkflowRequest, uploadRequestFile,
 } from "@/lib/hr/requestWorkflows";
 import { Button, ErrorState, Field, InlineError, Input, Loading, Modal, Select, Textarea, useToast } from "@/hr/ui";
@@ -39,6 +39,17 @@ async function saveAndSubmit({ mode, requestId, category, details, sensitive, fi
   const s = await submitWorkflowRequest(id);
   if (s.error) return { id, error: `${s.error}${mode === "edit" ? "" : " Your request was saved as a draft."}` };
   return { id };
+}
+
+const STAGE_TARGET = { manager: "your manager", hr: "HR", payroll: "Payroll", finance: "Finance" };
+
+/** Who the request now waits on, read from the server's pending approval
+ *  stage (a request without a manager is routed to HR). Null if unknown. */
+async function pendingApprover(id) {
+  if (!id) return null;
+  const d = await getRequestDetail(id);
+  const stage = (d.data?.stages ?? []).find((s) => s.status === "pending");
+  return stage ? STAGE_TARGET[stage.stage_role] ?? null : null;
 }
 
 function FormModal({ title, onClose, busy, onSubmit, submitLabel = "Submit", children, error }) {
@@ -163,7 +174,8 @@ export function ReimbursementForm({ mode = "new", request, onClose, onDone }) {
       if (res.id && mode !== "edit") { notify(res.error, "error"); onDone(res.id, true); } else setError(res.error);
       return;
     }
-    notify(mode === "edit" ? "Claim resubmitted." : "Claim submitted to your manager.");
+    const approver = await pendingApprover(res.id);
+    notify(`${mode === "edit" ? "Claim resubmitted" : "Claim submitted"}${approver ? ` to ${approver}` : ""}.`);
     onDone(res.id);
   }
   return (
@@ -182,7 +194,7 @@ export function ReimbursementForm({ mode = "new", request, onClose, onDone }) {
       </Field>
       <FilePicker label={hasReceipt ? "Add another receipt" : "Receipt"} required={!hasReceipt} files={files} setFiles={setFiles} />
       {errors.receipt && <p className="text-xs font-medium text-red-600" role="alert">{errors.receipt}</p>}
-      <p className="text-xs text-slate-500">Route: your manager, then Finance. Approved claims are paid with payroll; duplicate claims are refused.</p>
+      <p className="text-xs text-slate-500">Route: your manager (HR if you have no reporting manager), then Finance. Approved claims are paid with payroll; duplicate claims are refused.</p>
     </FormModal>
   );
 }

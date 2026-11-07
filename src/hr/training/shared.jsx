@@ -6,7 +6,7 @@ import { FileText, Upload } from "lucide-react";
 import { formatDate } from "@/lib/hr/client";
 import { DOC_ACCEPT, getDocumentUrl, latestVersion, uploadDocument } from "@/lib/hr/documents";
 import { CERT_CATEGORY } from "@/lib/hr/training";
-import { certificateState, daysUntil, displayStatus, sessionWhen } from "@/lib/hr/trainingRules";
+import { certificateState, daysUntil, displayStatus, dueInfo, isOpen, sessionWhen } from "@/lib/hr/trainingRules";
 import { Badge, Button, Field, useToast } from "@/hr/ui";
 import { ActionModal, empText, label, opts, today } from "@/hr/components/assets/shared";
 
@@ -39,13 +39,21 @@ export function CertificateBadge({ row }) {
 export const courseText = (c) => (c ? `${c.code} · ${c.title}` : "—");
 export const sessionText = (s) => (s ? `${s.course_title ?? ""} — ${sessionWhen(s)}` : "—");
 
-export function dueText(due, open = true) {
-  if (!due) return "—";
-  if (!open) return formatDate(due);
-  const d = daysUntil(due, today());
+/**
+ * Due date of a training assignment. When the stored due date predates the
+ * assignment (onboarding inheritance), it is shown with a note and "overdue"
+ * is counted from the assigned date instead (see trainingRules.dueInfo).
+ */
+export function assignmentDueText(row) {
+  const info = dueInfo(row, today());
+  if (!info.due) return "—";
+  const note = info.beforeAssigned ? <span className="text-xs text-slate-500">due before it was assigned (onboarding)</span> : null;
+  if (!isOpen(row)) return note ? <span className="flex flex-col"><span>{formatDate(info.due)}</span>{note}</span> : formatDate(info.due);
+  const d = info.days;
   return (
     <span className="flex flex-col">
-      <span>{formatDate(due)}</span>
+      <span>{formatDate(info.due)}</span>
+      {note}
       {d != null && <span className={d < 0 ? "text-xs font-semibold text-rose-700" : d <= 7 ? "text-xs text-amber-700" : "text-xs text-slate-500"}>{d < 0 ? `${-d}d overdue` : d === 0 ? "due today" : `in ${d}d`}</span>}
     </span>
   );

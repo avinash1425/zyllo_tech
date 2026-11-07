@@ -353,7 +353,7 @@ function IdentityTab({ employee, identity, canEdit, onEdit }) {
         {status.error ? <InlineError message={status.error} /> : missing.length
           ? <p className="text-sm text-amber-800">Rules for <strong>{status.data?.country}</strong>: missing or expired — {missing.join(", ")}.</p>
           : <p className="text-sm text-emerald-700">Meets the identity requirements for {status.data?.country ?? "the company's country"}.</p>}
-        <p className="mt-2 text-xs text-slate-500">Numbers are shown masked. Scans are kept in <Link href="/hr/documents" className="font-semibold text-[#1f4693] hover:underline">Visa &amp; Documents <ExternalLink className="inline h-3 w-3" aria-hidden="true" /></Link>.</p>
+        <p className="mt-2 text-xs text-slate-500">Numbers are shown masked. Scans are kept in <Link href="/hr/documents" className="font-semibold text-[#1f4693] hover:underline">Employee Documents <ExternalLink className="inline h-3 w-3" aria-hidden="true" /></Link>.</p>
       </Card>
       {!identity.data ? <EmptyState title="No identification recorded" description={canEdit ? "Use Edit → Identification to record documents." : undefined} /> : (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

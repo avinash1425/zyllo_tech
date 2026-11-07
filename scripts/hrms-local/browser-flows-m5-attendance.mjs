@@ -60,7 +60,7 @@ async function session(viewport = { w: 1440, h: 900, m: false }) {
   const go = async (p, wait = 3000) => {
     await send("Page.navigate", { url: BASE + p }); await sleep(Math.min(wait, 1500));
     for (let i = 0; i < 80; i++) {
-      const ready = await js("Boolean(document.querySelector('main h1, form input[name=\"email\"]')) && !/^\s*Loading/.test(document.querySelector('main')?.innerText || '')").catch(() => false);
+      const ready = await js("Boolean(document.querySelector('main h1, form input[name=\"email\"]')) && !/^\\s*Loading/.test(document.querySelector('main')?.innerText || '')").catch(() => false);
       if (ready) break; await sleep(500);
     }
     await sleep(Math.max(wait - 1500, 1000));

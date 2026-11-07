@@ -2,7 +2,7 @@
 // (confirm / extend / end early through an Exit case) and history. Every
 // decision is permission-checked and audited on the server, and the employee
 // record is updated by the same RPC (Employee Management stays in sync).
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { BellRing, Plus } from "lucide-react";
 import { useAuth } from "@/hr/platform/auth";
@@ -101,6 +101,10 @@ function ReviewModal({ review: listed, onClose, onChanged }) {
   const fresh = useHrQuery(() => getProbationReview(listed.id), [listed.id]);
   const review = fresh.data ?? listed;
   const syncing = fresh.loading && !fresh.data;
+  // Once the dialog has the fresh row, refresh the list too so its row no
+  // longer shows the old status (the review may have changed elsewhere).
+  const freshData = fresh.data;
+  useEffect(() => { if (freshData) onChanged(); }, [freshData]); // eslint-disable-line react-hooks/exhaustive-deps
   const events = useHrQuery(() => getProbationEvents(review.id), [review.id]);
   const [dialog, setDialog] = useState(null);
   const [exitId, setExitId] = useState(null);
@@ -178,6 +182,13 @@ export default function ProbationPage() {
   const employees = useHrQuery(() => (scope === "employees" ? listProbationEmployees() : Promise.resolve({ data: [], error: null })), [scope]);
   const [opening, setOpening] = useState(null);
   const canDecide = hasPermission("probation.decide");
+  // Reviews change in other sessions (manager feedback, HR decisions): re-read on focus.
+  const reloadReviews = reviews.reload;
+  useEffect(() => {
+    const onFocus = () => reloadReviews();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [reloadReviews]);
   return (
     <>
       <Toolbar>

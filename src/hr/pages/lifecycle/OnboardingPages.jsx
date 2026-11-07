@@ -285,7 +285,7 @@ function LinkTaskModal({ task, employeeId, onClose, onDone }) {
     <Modal open onClose={onClose} title={isAsset ? "Link assigned equipment" : "Link induction training"} size="sm"
       footer={<><Button variant="secondary" onClick={onClose} disabled={busy}>Cancel</Button><Button loading={busy} onClick={submit}>Link</Button></>}>
       <div className="flex flex-col gap-3">
-        <p className="text-sm text-slate-600">{isAsset ? "Assign the equipment in Assets first; it then appears here." : "The course is assigned to the employee in Training. The task completes automatically when the training is completed."}</p>
+        <p className="text-sm text-slate-600">{isAsset ? "Assign the equipment in Assets first; it then appears here." : "The course is assigned to the employee in Training. The task completes automatically once HR or the employee's manager verifies the training completion."}</p>
         <Field label={isAsset ? "Asset assignment" : "Training course"}><Select placeholder={(assets.loading || courses.loading) ? "Loading…" : "Choose…"} value={value} onChange={(e) => setValue(e.target.value)} options={options} /></Field>
         {isAsset && !assets.loading && !options.length && <p className="text-xs text-amber-800"><Link className="font-semibold underline" to="/hr/assets">Open Assets</Link> to assign equipment to this employee.</p>}
         <InlineError message={error || assets.error || courses.error} />
@@ -320,7 +320,7 @@ function TaskRow({ task, c, canManage, canComplete, onAction }) {
           {task.waived_reason && <p className="mt-1 text-sm text-slate-700"><span className="font-semibold">Waived:</span> {task.waived_reason}</p>}
           {task.task_kind === "acknowledgement" && !task.acknowledged_at && !closed && <p className="mt-1 text-xs text-violet-700">Waiting for the employee to acknowledge in the Employee Portal.</p>}
           {task.acknowledged_at && <p className="mt-1 text-xs text-emerald-700">Acknowledged by the employee {formatDateTime(task.acknowledged_at)}.</p>}
-          {(task.asset_assignment_id || task.training_assignment_id) && <p className="mt-1 text-xs text-slate-500">{task.asset_assignment_id ? "Equipment linked from Assets. Can be completed once the joiner acknowledges the handover in My Assets." : "Training linked; completes with the training."}</p>}
+          {(task.asset_assignment_id || task.training_assignment_id) && <p className="mt-1 text-xs text-slate-500">{task.asset_assignment_id ? "Equipment linked from Assets. Can be completed once the joiner acknowledges the handover in My Assets." : "Training linked; completes when HR or the manager verifies the training completion."}</p>}
         </div>
         {open && (
           <span className="flex flex-wrap gap-1">

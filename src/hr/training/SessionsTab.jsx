@@ -138,6 +138,10 @@ export default function SessionsTab({ canManage, canAssign, courses, trainers, e
     return when === "past" ? data.reverse() : data;
   }, [list.data, courses, when]);
   const done = () => { setModal(null); list.reload(); };
+  // The roster header reads the session's seat / waitlist counts from the
+  // latest list data, so a withdraw (which may promote a waitlisted employee)
+  // shows the new counts once the list reloads.
+  const rosterSession = modal?.type === "roster" ? (list.data ?? []).find((s) => s.id === modal.session.id) ?? modal.session : null;
   return (
     <>
       <Toolbar>
@@ -165,7 +169,7 @@ export default function SessionsTab({ canManage, canAssign, courses, trainers, e
         ]} />
       {modal?.type === "edit" && <SessionModal session={modal.session} courses={courses} trainers={trainers} onClose={() => setModal(null)} onDone={done} />}
       {modal?.type === "enroll" && <EnrollModal session={modal.session} employees={employees} myEmployeeId={myEmployeeId} onClose={() => setModal(null)} onDone={done} />}
-      {modal?.type === "roster" && <RosterModal session={modal.session} canManage={canManage} canAssign={canAssign} myEmployeeId={myEmployeeId} onClose={() => setModal(null)} onChanged={list.reload} />}
+      {rosterSession && <RosterModal session={rosterSession} canManage={canManage} canAssign={canAssign} myEmployeeId={myEmployeeId} onClose={done} onChanged={list.reload} />}
       <ConfirmDialog open={modal?.type === "close"} onClose={() => setModal(null)} tone="success" title="Close session" confirmLabel="Mark completed"
         message="Mark this session as held. Attendance can still be corrected afterwards."
         onConfirm={async () => { const res = await setSessionStatus(modal.session.id, "completed"); if (!res.error) { notify("Session closed."); done(); } return res; }} />

@@ -3,7 +3,7 @@
 // returns for their role (e.g. bank values for payroll only, advance limits
 // for payroll / finance only) and act through the approval RPCs.
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, History, Lock, MessageSquare, Paperclip, Send, ShieldCheck } from "lucide-react";
 import { formatDate, formatDateTime, fullName, useHrQuery } from "@/lib/hr/client";
 import { commentRequest, listRequestComments } from "@/lib/hr/requests";
@@ -48,9 +48,9 @@ function IssueLetterModal({ request, preselect, onClose, onDone }) {
       <div className="flex flex-col gap-3">
         {salary ? (
           <p className="flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900"><Lock className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-            Salary certificates contain compensation: issue a compensation-restricted document (Visa &amp; Documents) or upload the signed certificate on this request. Either is visible only to the employee and staff authorised for compensation.</p>
+            Salary certificates contain compensation: issue a compensation-restricted document (Employee Documents) or upload the signed certificate on this request. Either is visible only to the employee and staff authorised for compensation.</p>
         ) : (
-          <p className="text-sm text-slate-600">Generate or upload the letter in <a className="font-semibold text-[#1f4693] underline" href="/hr/documents">Visa &amp; Documents</a> (category “HR letter”), then choose it here — or upload the signed letter on this request.</p>
+          <p className="text-sm text-slate-600">Generate or upload the letter in <Link className="font-semibold text-[#1f4693] underline" to="/hr/documents">Employee Documents</Link> (category “HR letter”), then choose it here — or upload the signed letter on this request.</p>
         )}
         {docs.loading && !docs.data ? <Loading /> : (
           <Field label="Letter" required>

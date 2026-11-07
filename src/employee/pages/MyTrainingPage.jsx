@@ -8,9 +8,9 @@ import { Award, BookOpen, CalendarClock, CheckCircle2, ExternalLink, PlayCircle,
 import { useAuth } from "@/hr/platform/auth";
 import { formatDate, formatDateTime, useHrQuery } from "@/lib/hr/client";
 import { RESULTS, listMyAssignments, listSessions, selfEnroll, startTraining, submitCompletion, withdrawEnrollment } from "@/lib/hr/training";
-import { allowedActions, certificateExpiry, isOpen, isPendingVerification, latestCompletions, seatInfo, sessionWhen } from "@/lib/hr/trainingRules";
+import { allowedActions, certificateExpiry, isOpen, isOverdueOn, isPendingVerification, latestCompletions, seatInfo, sessionWhen } from "@/lib/hr/trainingRules";
 import { Badge, Button, Card, ConfirmDialog, DataTable, EmptyState, ErrorState, Field, Input, Loading, PageHeader, Select, Tabs, Textarea, useToast } from "@/hr/ui";
-import { ActionModal, AssignmentStatus, CertificateBadge, DocButton, FileField, TBadge, dueText, label, opts, today, uploadTrainingFile } from "@/hr/training/shared";
+import { ActionModal, AssignmentStatus, CertificateBadge, DocButton, FileField, TBadge, assignmentDueText, label, opts, today, uploadTrainingFile } from "@/hr/training/shared";
 
 function SubmitModal({ row, me, onClose, onDone }) {
   const { notify } = useToast();
@@ -68,7 +68,7 @@ function CourseCard({ row, onAction }) {
         </div>
         {c.description && <p className="line-clamp-3 text-sm text-slate-600">{c.description}</p>}
         <div className="grid grid-cols-2 gap-2 text-sm">
-          <div><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Due</p>{dueText(row.due_date, isOpen(row))}</div>
+          <div><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Due</p>{assignmentDueText(row)}</div>
           <div><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Assigned</p>{formatDate(row.assigned_at)}</div>
         </div>
         {returned && <p className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900"><strong>Returned:</strong> {row.review_note}</p>}
@@ -115,7 +115,7 @@ export default function MyTrainingPage() {
   }
 
   if (!me) return <ErrorState message="Your account is not linked to an employee record." />;
-  const overdue = current.filter((a) => isOpen(a) && a.due_date && a.due_date < t).length;
+  const overdue = current.filter((a) => isOverdueOn(a, t)).length;
 
   return (
     <>

@@ -5,9 +5,9 @@ import { useMemo, useState } from "react";
 import { Award, CheckCircle2, Plus, RefreshCcw, ShieldCheck, XCircle } from "lucide-react";
 import { formatDate, useHrQuery } from "@/lib/hr/client";
 import { SOURCES, listAssignments } from "@/lib/hr/training";
-import { allowedActions, displayStatus } from "@/lib/hr/trainingRules";
+import { allowedActions, displayStatus, isOverdueOn } from "@/lib/hr/trainingRules";
 import { Button, DataTable, SearchInput, Select, Toolbar } from "@/hr/ui";
-import { AssignmentStatus, CertificateBadge, DocButton, TBadge, courseText, dueText, empText, opts, today } from "./shared";
+import { AssignmentStatus, CertificateBadge, DocButton, TBadge, assignmentDueText, courseText, empText, opts, today } from "./shared";
 import { AssignModal, CancelDialog, CertificateModal, CompleteModal, RenewModal, ReviewModal } from "./AssignmentModals";
 
 const STATUS_FILTERS = [
@@ -49,9 +49,14 @@ export default function AssignmentsTab({ mode = "all", initialStatus, canAssign,
   const list = useHrQuery(() => listAssignments({ status: verification ? "unverified" : f.status, course: f.course, employee: f.employee }), [verification, f.status, f.course, f.employee]);
   const rows = useMemo(() => {
     const q = f.q.trim().toLowerCase();
+    // "Overdue" is fetched by stored due date; drop rows whose due date only
+    // predates their assignment and that are not overdue from the assigned date.
+    const overdueOnly = !verification && f.status === "overdue";
+    const t = today();
     return (list.data ?? []).filter((r) => (!f.source || r.source === f.source)
+      && (!overdueOnly || isOverdueOn(r, t))
       && (!q || `${empText(r.employee)} ${courseText(r.course)}`.toLowerCase().includes(q)));
-  }, [list.data, f.source, f.q]);
+  }, [list.data, f.source, f.q, f.status, verification]);
   const done = () => { setModal(null); list.reload(); onChanged?.(); };
   const set = (k) => (e) => setF((s) => ({ ...s, [k]: e.target.value }));
   return (
@@ -80,7 +85,7 @@ export default function AssignmentsTab({ mode = "all", initialStatus, canAssign,
                 {r.evidence && <DocButton doc={r.evidence}>Evidence file</DocButton>} {r.certificate && <DocButton doc={r.certificate}>Certificate</DocButton>}</div>) },
           ] : [
             { key: "assigned_at", header: "Assigned", sortable: true, render: (r) => formatDate(r.assigned_at) },
-            { key: "due_date", header: "Due", sortable: true, render: (r) => dueText(r.due_date, ["assigned", "in_progress"].includes(r.status)) },
+            { key: "due_date", header: "Due", sortable: true, render: (r) => assignmentDueText(r) },
           ]),
           { key: "status", header: "Status", sortable: true, sortValue: (r) => displayStatus(r, today()), render: (r) => <AssignmentStatus row={r} /> },
           { key: "result", header: "Result", render: (r) => (r.result ? <span className="flex flex-col gap-0.5"><TBadge value={r.result} />{r.score != null && <span className="text-xs text-slate-500">{r.score}%</span>}</span> : "—") },

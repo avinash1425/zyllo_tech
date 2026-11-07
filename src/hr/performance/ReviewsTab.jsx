@@ -49,6 +49,12 @@ function ReviewDetail({ ctx, review, cycle, onClose, onChanged }) {
   const [reason, setReason] = useState("");
   const total = weightTotal(goals.data);
   const done = (msg) => { notify(msg); setMode(null); onChanged(); };
+  // HR returned the review (hr_return_performance_review sets returned_at +
+  // return_reason): the manager must see why before re-assessing.
+  // Hidden again once the manager has re-submitted after the return.
+  const returnNotice = review.status === "manager_review" && review.return_reason
+    && !(review.manager_submitted_at && review.returned_at && review.manager_submitted_at > review.returned_at)
+    ? `Returned by HR${review.returned_at ? ` on ${formatDate(review.returned_at)}` : ""}: ${review.return_reason}` : null;
 
   return (
     <Modal open onClose={onClose} size="xl" title={`Review · ${empText(review.employee)}`}
@@ -60,6 +66,7 @@ function ReviewDetail({ ctx, review, cycle, onClose, onChanged }) {
         {actions.finalize && <Button onClick={() => setMode("finalize")}><Scale className="h-4 w-4" aria-hidden="true" />Calibrate & finalize</Button>}
       </>}>
       <div className="flex flex-col gap-4">
+        {returnNotice && <p role="status" className="whitespace-pre-line rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">{returnNotice}</p>}
         <DescriptionList items={[
           { label: "Cycle", value: cycle?.name ?? review.cycle?.name },
           { label: "Status", value: <PerfBadge value={review.status} /> },
@@ -102,6 +109,7 @@ function ReviewDetail({ ctx, review, cycle, onClose, onChanged }) {
             if (res.error) return res;
             done("Manager assessment submitted for HR calibration."); return {};
           }}>
+          {returnNotice && <p className="whitespace-pre-line rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">{returnNotice}</p>}
           {!review.self_submitted_at && <p className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">The self-assessment was not submitted by its due date; you may assess without it.</p>}
           <Field label="Rating" required hint={goalScore != null ? `Weighted goal score ${goalScore} suggests ${scoreToRating(goalScore)}.` : undefined}><RatingSelect value={assess.rating} onChange={(r) => setAssess({ ...assess, rating: r })} /></Field>
           <Field label="Assessment" required hint="Strengths, achievements against goals, areas to develop."><Textarea rows={7} value={assess.text} maxLength={10000} onChange={(e) => setAssess({ ...assess, text: e.target.value })} /></Field>

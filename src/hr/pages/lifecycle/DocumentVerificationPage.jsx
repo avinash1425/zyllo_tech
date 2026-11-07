@@ -1,6 +1,6 @@
 // Document verification for joiners. Reuses the secure employee document
 // store (hr_documents, private bucket, signed URLs, hr_verify_document) —
-// no second file store. HR uploads on someone's behalf stay in Visa & Documents.
+// no second file store. HR uploads on someone's behalf stay in Employee Documents.
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { CheckCircle2, Circle, Eye, FileWarning } from "lucide-react";
@@ -39,7 +39,7 @@ function EmployeeDocuments({ row, canVerify, onChanged }) {
             ))}
           </ul>
         )}
-        <p className="mt-3 text-xs text-slate-500">Employees upload from <span className="font-semibold">My Documents</span> in the Employee Portal; HR is notified of every upload. HR uploads are made in <Link className="font-semibold text-[#1f4693] hover:underline" to="/hr/documents">Visa &amp; Documents</Link>.</p>
+        <p className="mt-3 text-xs text-slate-500">Employees upload from <span className="font-semibold">My Documents</span> in the Employee Portal; HR is notified of every upload. HR uploads are made in <Link className="font-semibold text-[#1f4693] hover:underline" to="/hr/documents">Employee Documents</Link>.</p>
       </Card>
       <Card className="lg:col-span-3" title="Uploaded documents">
         <InlineError message={error} />

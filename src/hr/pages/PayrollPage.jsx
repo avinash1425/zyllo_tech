@@ -478,15 +478,16 @@ function PaidModal({ run, onClose, onDone }) {
   );
 }
 
+const Section = ({ title, list, render }) => (
+  <section>
+    <h3 className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">{title}</h3>
+    {list?.length ? <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200">{list.map((x, i) => <li key={i} className="flex justify-between gap-2 px-3 py-1.5 text-sm">{render(x)}</li>)}</ul> : <p className="text-sm text-slate-500">None</p>}
+  </section>
+);
+
 function BreakdownModal({ item, run, onClose, onPreview }) {
   const b = item.breakdown ?? {};
   const cur = item.currency;
-  const Section = ({ title, list, render }) => (
-    <section>
-      <h3 className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">{title}</h3>
-      {list?.length ? <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200">{list.map((x, i) => <li key={i} className="flex justify-between gap-2 px-3 py-1.5 text-sm">{render(x)}</li>)}</ul> : <p className="text-sm text-slate-500">None</p>}
-    </section>
-  );
   const applied = (b.statutory ?? []).filter((s) => s.applied);
   const notApplied = (b.statutory ?? []).filter((s) => !s.applied);
   return (
