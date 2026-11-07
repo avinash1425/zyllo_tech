@@ -198,6 +198,9 @@ function Section({ section }) {
   );
 }
 
+// Definitions the server hint does not spell out (kept in sync with the HR Dashboard wording).
+const CARD_NOTES = { total_employees: "Excludes onboarding (joining pending) records; the HR Dashboard total includes them." };
+
 function KpiCardLite({ card, tone, currency }) {
   const tones = { orange: "border-l-[#f96706]", teal: "border-l-[#1f6f8a]", navy: "border-l-[#101a3a]", green: "border-l-emerald-600", slate: "border-l-slate-500" };
   const value = card.value === null || card.value === undefined ? "—"
@@ -207,6 +210,7 @@ function KpiCardLite({ card, tone, currency }) {
       <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">{card.label}{card.category ? <Badge className="ml-2 normal-case">{card.category}</Badge> : null}</div>
       <div className="mt-1 text-2xl font-extrabold tabular-nums text-[#101a3a]">{value}</div>
       {card.hint && <div className="mt-0.5 text-xs text-slate-500">{card.hint}</div>}
+      {CARD_NOTES[card.key] && <div className="mt-0.5 text-xs text-slate-500">{CARD_NOTES[card.key]}</div>}
     </div>
   );
 }

@@ -251,7 +251,7 @@ export function FileUploadButton({ requestId, kind, label: text = "Attach file",
     const res = await uploadRequestFile(requestId, kind, file);
     setBusy(false);
     if (res.error) notify(res.error, "error"); else notify("File attached.");
-    onUploaded?.(res.data);
+    onUploaded?.(res.data, res.error ?? null);
   }
   return (
     <>

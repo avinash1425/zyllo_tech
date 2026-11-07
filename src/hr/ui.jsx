@@ -128,7 +128,7 @@ const BADGE_TONES = {
   violet: "bg-violet-50 text-violet-700 ring-violet-200",
 };
 const STATUS_TONE = {
-  active: "green", approved: "green", present: "green", completed: "green", verified: "green", reviewed: "green", published: "green",
+  active: "green", approved: "green", present: "green", completed: "green", verified: "green", acknowledged: "green", reviewed: "green", published: "green",
   finalized: "green", paid: "green", resolved: "green", returned: "green", achieved: "green", joined: "green", accepted: "green", done: "green", sent: "green", closed: "slate",
   pending: "amber", pending_approval: "amber", submitted: "amber", under_review: "amber", in_progress: "blue", probation: "blue", onboarding: "blue",
   draft: "slate", scheduled: "violet", calculated: "violet", open: "blue", queued: "violet", interview: "violet", shortlisted: "violet", screening: "blue",

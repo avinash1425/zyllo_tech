@@ -35,7 +35,7 @@ async function session(viewport = { w: 1440, h: 900, m: false }) {
     try {
       port ??= Number(readFileSync(path.join(profile, "DevToolsActivePort"), "utf8").split(/\r?\n/)[0]) || undefined;
       if (port) target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page" && t.url === "about:blank");
-    } catch {}
+    } catch { /* ignore: best-effort */ }
   }
   if (!target) { proc.kill(); throw new Error("Could not attach to the headless Chrome launched by this script."); }
   const ws = new WebSocket(target.webSocketDebuggerUrl); await new Promise((r) => (ws.onopen = r));
@@ -66,7 +66,7 @@ async function session(viewport = { w: 1440, h: 900, m: false }) {
     await sleep(Math.max(wait - 1500, 1000));
   };
   const shot = async (name) => { const s = await send("Page.captureScreenshot", { format: "jpeg", quality: 60 }); writeFileSync(path.join(OUT, "shots", name), Buffer.from(s.data, "base64")); };
-  const close = async () => { ws.close(); proc.kill(); await sleep(500); try { rmSync(profile, { recursive: true, force: true }); } catch {} };
+  const close = async () => { ws.close(); proc.kill(); await sleep(500); try { rmSync(profile, { recursive: true, force: true }); } catch { /* ignore: best-effort */ } };
   return { send, js, go, shot, close };
 }
 

@@ -135,7 +135,7 @@ export function makePsql({ bin, port, user = PG_USER, db = "postgres" }) {
         windowsHide: true,
       });
       const out = [], err = [];
-      const timer = setTimeout(() => { try { child.kill(); } catch {} }, timeoutMs);
+      const timer = setTimeout(() => { try { child.kill(); } catch { /* ignore: best-effort */ } }, timeoutMs);
       child.stdout.on("data", (d) => out.push(d));
       child.stderr.on("data", (d) => err.push(d));
       child.on("error", (e) => { clearTimeout(timer); resolve({ ok: false, stdout: "", stderr: String(e.message), status: -1 }); });

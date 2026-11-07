@@ -73,7 +73,6 @@ export function buildCatalog(raw) {
 }
 
 // ------------------------------------------------------------------ helpers
-const IDENT_RE = /^[A-Za-z_][A-Za-z0-9_$]*$/;
 const TYPE_RE = /^[A-Za-z_][A-Za-z0-9_ ]*(\[\])?$/;
 
 function splitTopLevel(s, sep = ",") {

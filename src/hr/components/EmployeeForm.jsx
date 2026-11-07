@@ -199,7 +199,7 @@ export default function EmployeeForm({ initial = {}, org, managers, isNew, canSe
         {canSensitive ? (<>
           <Field label="Gender" hint="Record only where legitimately required."><Select placeholder="— Not recorded —" value={v.gender ?? ""} onChange={set("gender")} options={GENDERS} /></Field>
           <Field label="Date of birth" error={errors.date_of_birth}><Input type="date" max={today()} value={v.date_of_birth ?? ""} onChange={set("date_of_birth")} /></Field>
-          <Field label="Nationality" error={errors.nationality} hint="Two-letter country code, e.g. IN, AE."><Input maxLength={2} value={v.nationality ?? ""} onChange={set("nationality", upper)} /></Field>
+          <Field label="Nationality" error={errors.nationality} hint="Two-letter country code, e.g. IN, AE."><Input maxLength={2} placeholder="IN" value={v.nationality ?? ""} onChange={set("nationality", upper)} /></Field>
           <Field label="Marital status"><Select placeholder="— Not recorded —" value={v.marital_status ?? ""} onChange={set("marital_status")} options={MARITAL_STATUSES} /></Field>
         </>) : <p className="text-sm text-slate-500 sm:col-span-2">Personal details (date of birth, gender, nationality, marital status) need personal-data access.</p>}
         <p className="text-xs text-slate-500 sm:col-span-2">The employee photograph is managed on the profile page (or by the employee in My Documents).</p>
@@ -301,7 +301,7 @@ export default function EmployeeForm({ initial = {}, org, managers, isNew, canSe
           <Field label="National ID expiry"><Input type="date" value={v.national_id_expiry ?? ""} onChange={set("national_id_expiry")} /></Field>
           <div />
           <Field label="Passport number" error={errors.passport_number}><Input autoComplete="off" value={v.passport_number ?? ""} onChange={set("passport_number", upper)} /></Field>
-          <Field label="Passport issuing country" error={errors.passport_country}><Input maxLength={2} value={v.passport_country ?? ""} onChange={set("passport_country", upper)} /></Field>
+          <Field label="Passport issuing country" error={errors.passport_country} hint="Two-letter country code, e.g. IN, AE."><Input maxLength={2} placeholder="IN" value={v.passport_country ?? ""} onChange={set("passport_country", upper)} /></Field>
           <Field label="Passport issue date"><Input type="date" value={v.passport_issue_date ?? ""} onChange={set("passport_issue_date")} /></Field>
           <Field label="Passport expiry" error={errors.passport_expiry}><Input type="date" value={v.passport_expiry ?? ""} onChange={set("passport_expiry")} /></Field>
           <Field label="Work permit / labour card type"><Input value={v.work_permit_type ?? ""} onChange={set("work_permit_type")} /></Field>

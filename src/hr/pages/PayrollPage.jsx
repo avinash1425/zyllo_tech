@@ -10,12 +10,13 @@ import { Link, Route, Routes, useNavigate, useParams, useSearchParams } from "re
 import { AlertTriangle, ArrowLeft, Calculator, Check, Download, Eye, EyeOff, PauseCircle, Plus, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/hr/platform/auth";
 import { exportCsv, formatDate, formatDateTime, formatMoney, fullName, useHrQuery } from "@/lib/hr/client";
-import { toOptions, useEmployeeOptions, useOrg } from "@/lib/hr/org";
+import { toOptions, useOrg } from "@/lib/hr/org";
 import { businessToday, useBusinessTimezone } from "@/lib/hr/attendance";
 import {
   ACCOUNT_NO, IFSC, MONEY, REIMBURSEMENT_STATUSES, RUN_STEPS, RUN_STEP_LABELS, addAdjustment, approveRun, calculateRun, createCorrection, createRun,
   decideAdjustment, decideReimbursement, finalizeRun, getRun, listBankAccounts, listComponents, listCorrectionsFromRun, listPayments, listReimbursements,
-  listRunAdjustments, listRunHolds, listRunItems, listRuns, logExport, markRunPaid, maskAccount, returnRun, reviewRun, saveBankAccount, setHold, verifyBankAccount,
+  listRunAdjustments, listRunHolds, listRunItems, listRuns, logExport, markRunPaid, maskAccount, returnRun, reviewRun, saveBankAccount, setHold, usePayrollEmployeeOptions,
+  verifyBankAccount,
 } from "@/lib/hr/payroll";
 import {
   Badge, Button, Card, Checkbox, ConfirmDialog, DataTable, ErrorState, Field, InlineError, Input, KpiCard, Modal, PageHeader,
@@ -23,6 +24,7 @@ import {
 } from "@/hr/ui";
 import { PayslipModal } from "@/employee/pages/MyPayslipsPage";
 import SalaryComponentsSettings from "@/hr/settings/SalaryComponentsSettings";
+import { prefillEmployee } from "@/lib/hr/payrollHelpers";
 import { EmpCell, PaymentBadge, RunBadge, SelfNote, friendly, label, period } from "./payroll/shared";
 import OverviewTab from "./payroll/OverviewTab";
 import StructuresTab from "./payroll/StructuresTab";
@@ -390,7 +392,7 @@ function RunDetail() {
 function HoldsModal({ run, holds, onClose, onChanged }) {
   const { hr } = useAuth();
   const { notify } = useToast();
-  const employees = useEmployeeOptions();
+  const employees = usePayrollEmployeeOptions();
   const [v, setV] = useState({ employee: "", reason: "" });
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -514,11 +516,12 @@ function BreakdownModal({ item, run, onClose, onPreview }) {
             <h3 className="mb-1 flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-slate-500"><ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />Statutory calculation basis</h3>
             <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200 text-sm">
               {applied.map((s, i) => (
-                <li key={`a${i}`} className="px-3 py-1.5"><strong>{s.code}</strong>{s.state_code ? ` (${s.state_code})` : ""} · {formatDate(s.segment_from)}–{formatDate(s.segment_to)} · {label(s.method)} · base {formatMoney(s.contribution_base, cur)}
+                <li key={`a${i}`} className="px-3 py-1.5"><strong>{s.code}</strong>{s.state_code ? ` (${s.state_code}${s.employee_state_source ? ` via ${label(s.employee_state_source)}` : ""})` : ""} · {formatDate(s.segment_from)}–{formatDate(s.segment_to)} · {label(s.method)} · base {formatMoney(s.contribution_base, cur)}
                   {s.ceiling != null ? ` (ceiling ${formatMoney(s.ceiling, cur)})` : ""}{s.employee_rate != null ? ` · ${s.employee_rate}% / ${s.employer_rate ?? 0}%` : ""} → employee {formatMoney(s.employee_amount, cur)}, employer {formatMoney(s.employer_amount, cur)} · {s.rounding}
                   <span className="block text-xs text-slate-500">Validated: {s.validation_reference}</span></li>
               ))}
-              {notApplied.map((s, i) => <li key={`n${i}`} className="px-3 py-1.5 text-slate-600">{s.code}: not applied ({label(s.reason)})</li>)}
+              {notApplied.map((s, i) => <li key={`n${i}`} className="px-3 py-1.5 text-slate-600">{s.code}{s.state_code ? ` (${s.state_code})` : ""}: not applied ({label(s.reason)})
+                {s.reason === "jurisdiction_mismatch" ? ` — employee state ${s.employee_state ?? "not set (no enrolment, work-location or company state code)"}${s.employee_state_source ? ` from ${label(s.employee_state_source)}` : ""}` : ""}</li>)}
               {(b.statutory_pending ?? []).map((c) => <li key={`p${c}`} className="px-3 py-1.5 text-amber-800">{c}: pending professional validation — not applied</li>)}
             </ul>
           </section>
@@ -535,7 +538,7 @@ function BreakdownModal({ item, run, onClose, onPreview }) {
 
 function AdjustmentModal({ run, items, onClose, onSaved }) {
   const { hr } = useAuth();
-  const employees = useEmployeeOptions();
+  const employees = usePayrollEmployeeOptions();
   const components = useHrQuery(() => listComponents({ activeOnly: true }), []);
   const [v, setV] = useState({ employee: "", direction: "earning", amount: "", label: "", component: "", reason: "" });
   const [errors, setErrors] = useState({});
@@ -619,7 +622,7 @@ function CorrectionModal({ run, items, onClose, onSaved }) {
 function BankAccounts() {
   const { hr, user, hasPermission } = useAuth();
   const { notify } = useToast();
-  const employees = useEmployeeOptions({ includeInactive: true });
+  const employees = usePayrollEmployeeOptions({ includeInactive: true });
   const [employee, setEmployee] = useState("");
   const q = useHrQuery(() => listBankAccounts(employee), [employee]);
   const [revealed, setRevealed] = useState(() => new Set());
@@ -634,7 +637,7 @@ function BankAccounts() {
       <Toolbar>
         <Field label="Employee" className="sm:w-72"><Select placeholder="All employees" value={employee} onChange={(e) => setEmployee(e.target.value)} options={employees.data ?? []} /></Field>
         <div className="flex-1" />
-        {canManage && <Button className="self-end" onClick={() => setEditing({ employee_id: employee !== me ? employee : "", is_primary: true, active: true })}><Plus className="h-4 w-4" aria-hidden="true" />Add account</Button>}
+        {canManage && <Button className="self-end" onClick={() => setEditing({ employee_id: prefillEmployee(employee, me), is_primary: true, active: true })}><Plus className="h-4 w-4" aria-hidden="true" />Add account</Button>}
       </Toolbar>
       <DataTable caption="Employee bank accounts" rows={q.data} loading={q.loading} error={q.error} onRetry={q.reload} emptyTitle="No bank accounts"
         columns={[
@@ -658,7 +661,7 @@ function BankAccounts() {
       {editing && <BankModal row={editing} employees={(employees.data ?? []).filter((o) => o.value !== me)} onClose={() => setEditing(null)} onSaved={(isNew) => { setEditing(null); q.reload(); notify(`Bank account ${isNew ? "added" : "updated"}. It needs verification by another payroll approver.`); }} />}
       <ConfirmDialog open={Boolean(verifying)} onClose={() => setVerifying(null)} title="Verify bank account?" confirmLabel="Mark verified" tone="success"
         message={verifying ? `${fullName(verifying.employee)} · ${verifying.bank_name} · ${maskAccount(verifying.account_number)}. Confirm you checked the account against evidence.` : ""}
-        reasonLabel="Evidence checked (optional)"
+        requireReason={false} reasonLabel="Evidence checked (optional)"
         onConfirm={async (note) => {
           const res = await verifyBankAccount(verifying.id, note);
           if (res.error) return { error: friendly(res.error) };

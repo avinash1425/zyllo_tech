@@ -20,12 +20,13 @@ import { ChangeAssignmentModal, EmployeeDocumentsSection, EmploymentTimeline, Li
 import EmployeeAssetsPanel from "@/hr/components/EmployeeAssetsPanel";
 import { checkAvatarFile, getAvatarUrl } from "@/lib/hr/documents";
 import { rpc, supabase } from "@/lib/hr/client";
-import { toOptions, useEmployeeOptions, useOrg } from "@/lib/hr/org";
+import { useEmployeeOptions, useOrg } from "@/lib/hr/org";
 import {
   Badge, Button, Card, Checkbox, ConfirmDialog, DataTable, DescriptionList, EmptyState, ErrorState, Field, InlineError, Input,
   Loading, Modal, PageHeader, Select, StatusBadge, Tabs, useToast,
 } from "@/hr/ui";
 import EmployeeForm, { saveEmployeeAll } from "@/hr/components/EmployeeForm";
+import { personLabel } from "@/lib/hr/displayLabels";
 
 const mask = (v) => (v ? `•••• ${String(v).slice(-4)}` : null);
 const daysLeft = (d) => (d ? Math.round((new Date(`${d}T00:00:00`) - new Date(new Date().toLocaleDateString("en-CA") + "T00:00:00")) / 86400000) : null);
@@ -126,7 +127,7 @@ export default function EmployeeDetail() {
                 { label: "Source department", value: e.source_department?.name },
                 { label: "Designation", value: e.designation?.name },
                 { label: "Grade / band", value: e.grade?.name },
-                { label: "Reporting manager", value: e.manager ? `${fullName(e.manager)} (${e.manager.employee_code})` : null },
+                { label: "Reporting manager", value: personLabel(e.manager) },
                 { label: "Employment type", value: e.employment_type.replace(/_/g, " ") },
                 { label: "Work location", value: e.location?.name },
                 { label: "Work arrangement", value: arrangementLabel(e.work_arrangement) },

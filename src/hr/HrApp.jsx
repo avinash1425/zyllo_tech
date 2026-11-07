@@ -12,6 +12,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import {
   BarChart3, CalendarCheck, ClipboardList, Clock, FileText, Gauge, HeartHandshake,
   LifeBuoy, LogOut, Megaphone, Package, Settings, UserCheck, UserPlus, Users, Wallet,
+  Target, GraduationCap, HeartPulse,
 } from "lucide-react";
 import Seo from "@/hr/platform/Seo";
 import AppShell from "@/hr/AppShell";
@@ -40,6 +41,9 @@ export const HR_MODULES = [
   { path: "requests", label: "Requests & Approvals", icon: HeartHandshake, section: "HR Modules", permissions: ["hr_requests.view", "hr_requests.manage", "hr_requests.payroll", "hr_requests.finance", "hr_requests.approve_team"], page: lazy(() => import("./pages/HrRequestsPage.jsx")) },
   // Helpdesk & Support (181): HR / IT / workplace tickets. IT Admins (helpdesk.it) see only IT tickets.
   { path: "helpdesk", label: "Helpdesk & Support", icon: LifeBuoy, section: "HR Modules", permissions: ["hr_requests.view", "hr_requests.manage", "hr_requests.payroll", "helpdesk.it"], page: lazy(() => import("./pages/HelpdeskPage.jsx")) },
+  { path: "performance", label: "Performance & KPI", icon: Target, section: "HR Modules", permissions: ["performance.view", "performance.view_team", "performance.review_team", "performance.manage"], page: lazy(() => import("./pages/PerformancePage.jsx")) },
+  { path: "training", label: "Training", icon: GraduationCap, section: "HR Modules", permissions: ["training.view", "training.view_team", "training.manage", "training.assign_team"], page: lazy(() => import("./pages/TrainingPage.jsx")) },
+  { path: "benefits", label: "Benefits", icon: HeartPulse, section: "HR Modules", permissions: ["benefits.view", "benefits.manage"], page: lazy(() => import("./pages/BenefitsPage.jsx")) },
   { path: "assets", label: "Asset Allocation", icon: Package, section: "HR Modules", permissions: ["assets.view", "assets.manage"], page: lazy(() => import("./pages/AssetsPage.jsx")) },
   { path: "reports", label: "Reports & Analytics", icon: BarChart3, section: "HR Modules", permissions: ["reports.view", "reports.view_team"], page: lazy(() => import("./pages/ReportsPage.jsx")) },
   // Module 13: announcements (announcements.*) and policies / handbook (documents.*), tabs gated per permission.

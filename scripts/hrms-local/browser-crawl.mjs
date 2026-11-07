@@ -48,13 +48,13 @@ async function browser() {
   const profile = mkdtempSync(path.join(tmpdir(), "hrms-crawl-"));
   const proc = spawn("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", ["--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check", `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, "about:blank"], { stdio: "ignore" });
   let target;
-  for (let i = 0; i < 60 && !target; i++) { await sleep(250); try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page"); } catch {} }
+  for (let i = 0; i < 60 && !target; i++) { await sleep(250); try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page"); } catch { /* ignore: best-effort */ } }
   const ws = new WebSocket(target.webSocketDebuggerUrl);
   await new Promise((r) => (ws.onopen = r));
   let id = 0; const pending = new Map(); const listeners = [];
   ws.onmessage = (ev) => { const m = JSON.parse(ev.data); if (m.id && pending.has(m.id)) { const p = pending.get(m.id); pending.delete(m.id); m.error ? p.rej(new Error(m.error.message)) : p.res(m.result); } else listeners.forEach((l) => l(m)); };
   const send = (method, params = {}) => new Promise((res, rej) => { const i = ++id; pending.set(i, { res, rej }); ws.send(JSON.stringify({ id: i, method, params })); });
-  const close = async () => { ws.close(); proc.kill(); await sleep(600); try { rmSync(profile, { recursive: true, force: true }); } catch {} };
+  const close = async () => { ws.close(); proc.kill(); await sleep(600); try { rmSync(profile, { recursive: true, force: true }); } catch { /* ignore: best-effort */ } };
   return { send, on: (f) => listeners.push(f), close };
 }
 

@@ -103,7 +103,7 @@ async function session(viewport = { w: 1440, h: 900, m: false }) {
   const proc = spawn("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", ["--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check",
     `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, "about:blank"], { stdio: "ignore" });
   let target;
-  for (let i = 0; i < 80 && !target; i++) { await sleep(250); try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page"); } catch {} }
+  for (let i = 0; i < 80 && !target; i++) { await sleep(250); try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page"); } catch { /* ignore: best-effort */ } }
   if (!target) throw new Error("Chrome did not start");
   const ws = new WebSocket(target.webSocketDebuggerUrl); await new Promise((r) => (ws.onopen = r));
   let id = 0; const pend = new Map();
@@ -137,7 +137,7 @@ async function session(viewport = { w: 1440, h: 900, m: false }) {
     if (!nodeId) throw new Error(`file input not found: ${selector}`);
     await send("DOM.setFileInputFiles", { files: [file], nodeId });
   };
-  const close = async () => { try { ws.close(); } catch {} proc.kill(); await sleep(600); try { rmSync(profile, { recursive: true, force: true }); } catch {} };
+  const close = async () => { try { ws.close(); } catch { /* ignore: best-effort */ } proc.kill(); await sleep(600); try { rmSync(profile, { recursive: true, force: true }); } catch { /* ignore: best-effort */ } };
   return { send, js, go, reload, shot, setFile, close };
 }
 
@@ -183,7 +183,6 @@ async function waitFor(s, expr, timeout = 10000, every = 300) {
   while (Date.now() - t0 < timeout) { if (await h(s, expr)) return true; await sleep(every); }
   return false;
 }
-const waitText = (s, re, timeout = 10000) => waitFor(s, `text().match(${re})`, timeout);
 const waitDialog = (s, timeout = 6000) => waitFor(s, "dialogOpen() > 0", timeout);
 const waitNoDialog = (s, timeout = 8000) => waitFor(s, "dialogOpen() === 0", timeout);
 let lastToast = "";
@@ -994,7 +993,7 @@ try {
   for (const c of checks) { const w = (summary[c.workflow] ??= {}); const a = (w[c.aspect] ??= { pass: 0, fail: 0 }); c.ok ? a.pass++ : a.fail++; }
   writeFileSync(OUT, JSON.stringify({ harness: { api: API, web: BASE, state: STATE_FILE }, run: RUN, started, finished: new Date().toISOString(), summary, checks,
     screenshots: shots, blockedRequests: { count: blocked.length, urls: blocked }, pageExceptions: pageErrors }, null, 2));
-  try { rmSync(WORK, { recursive: true, force: true }); } catch {}
+  try { rmSync(WORK, { recursive: true, force: true }); } catch { /* ignore: best-effort */ }
   const failed = checks.filter((c) => !c.ok).length;
   console.log(`\n${checks.length - failed} passed, ${failed} failed; external requests blocked: ${blocked.length}; page exceptions: ${pageErrors.length}; results: ${OUT}`);
   process.exitCode = failed ? 1 : 0;

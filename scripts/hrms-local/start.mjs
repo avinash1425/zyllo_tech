@@ -36,12 +36,12 @@ function fail(msg) { console.error(`\n[hrms-local] ${msg}`); process.exitCode = 
 if (RESERVED.has(API_PORT) || RESERVED.has(WEB_PORT)) { fail("Port 8080 is reserved for the live-site dev server."); process.exit(1); }
 if (existsSync(STATE_FILE)) {
   let prev = null;
-  try { prev = JSON.parse(readFileSync(STATE_FILE, "utf8")); } catch {}
+  try { prev = JSON.parse(readFileSync(STATE_FILE, "utf8")); } catch { /* ignore: best-effort */ }
   if (prev && [prev.supervisorPid, prev.apiPid, prev.pgPid].some(pidAlive)) {
     fail(`A harness is already running (state: ${STATE_FILE}). Stop it with: node scripts/hrms-local/stop.mjs`);
     process.exit(1);
   }
-  try { unlinkSync(STATE_FILE); } catch {}
+  try { unlinkSync(STATE_FILE); } catch { /* ignore: best-effort */ }
 }
 if (!opts.dbOnly && !(await portIsFree(API_PORT))) { fail(`Port ${API_PORT} is in use.`); process.exit(1); }
 if (WITH_WEB && !(await portIsFree(WEB_PORT))) { fail(`Port ${WEB_PORT} is in use.`); process.exit(1); }
@@ -81,14 +81,14 @@ function shutdown(code = 0) {
   if (children.web) killTree(children.web.pid);
   if (children.api) killTree(children.api.pid);
   spawnSync(bin("pg_ctl"), ["-D", dataDir, "-m", "fast", "-w", "-t", "20", "stop"], { stdio: "ignore", windowsHide: true });
-  if (children.pg) { try { children.pg.kill(); } catch {} }
+  if (children.pg) { try { children.pg.kill(); } catch { /* ignore: best-effort */ } }
   for (let i = 0; i < 40; i++) {
     try { rmSync(root, { recursive: true, force: true }); break; } catch { spawnSync(process.execPath, ["-e", "setTimeout(()=>{},250)"]); }
   }
   try {
     const s = JSON.parse(readFileSync(STATE_FILE, "utf8"));
     if (s.supervisorPid === process.pid) unlinkSync(STATE_FILE);
-  } catch {}
+  } catch { /* ignore: best-effort */ }
   console.log(`[hrms-local] stopped; cluster directory ${existsSync(root) ? "STILL PRESENT: " + root : "deleted"}.`);
   process.exit(code);
 }
@@ -96,7 +96,7 @@ for (const sig of ["SIGINT", "SIGTERM", "SIGBREAK", "SIGHUP"]) process.on(sig, (
 
 async function waitFor(fn, { tries = 120, delay = 250, what = "service" } = {}) {
   for (let i = 0; i < tries; i++) {
-    try { if (await fn()) return; } catch {}
+    try { if (await fn()) return; } catch { /* ignore: best-effort */ }
     await sleep(delay);
   }
   throw new Error(`${what} did not become ready`);

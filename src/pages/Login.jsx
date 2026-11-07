@@ -6,7 +6,8 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useActionState } from "react";
 import { useSearchParams, useRouter } from "@/lib/nx/navigation";
 import { useAuth } from "@/lib/auth";
-import { loginEmailFor, safeNext } from "@/hr/platform/account";
+import { SIGN_IN_MESSAGES, isHrBackendMissing, loginEmailFor, safeNext, signInFailureMessage } from "@/hr/platform/account";
+import { loadSupabase } from "@/lib/supabase/load";
 import Seo from "@/components/Seo";
 import {
   ArrowLeft,
@@ -50,7 +51,19 @@ async function destinationAfterSignIn(next) {
   }
 }
 
-const GENERIC_ERROR = "Incorrect email / Employee ID or password, or the account is not active.";
+const GENERIC_ERROR = SIGN_IN_MESSAGES.generic;
+
+// After a failed sign-in: is the HRMS installed on the configured Supabase
+// project? Signed out, hr_me() answers 401 when it exists and 404 (PGRST202)
+// when it does not. Says nothing about any account.
+async function hrBackendMissing() {
+  try {
+    const { error } = await (await loadSupabase()).rpc("hr_me");
+    return isHrBackendMissing(error);
+  } catch {
+    return false;
+  }
+}
 
 export default function LoginPage() {
   const [mode, setMode] = useState("signin"); // "signin" | "signup"
@@ -89,11 +102,15 @@ export default function LoginPage() {
     const { error } = await signIn(email, password);
     if (error) {
       redirecting.current = false;
-      // 429 = Auth rate limit; the lockout hook rejects with its own message.
-      if (error.status === 429 || /too many sign-in attempts/i.test(error.message ?? "")) {
-        return { status: "error", message: "Too many sign-in attempts. Wait a few minutes and try again, or contact HR." };
+      const missing = error.status === 400 ? await hrBackendMissing() : false;
+      if (import.meta.env.DEV) {
+        // Safe diagnostics only: status / error code, never credentials.
+        console.warn("[login] sign-in failed", { status: error.status, code: error.code ?? error.name, hrBackendMissing: missing });
       }
-      return { status: "error", message: GENERIC_ERROR };
+      return {
+        status: "error",
+        message: signInFailureMessage({ authError: error, hrBackendMissing: missing, identifier, dev: import.meta.env.DEV }),
+      };
     }
 
     const result = await destinationAfterSignIn(next);

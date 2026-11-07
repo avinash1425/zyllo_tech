@@ -24,14 +24,15 @@ export const LEDGER_LABELS = {
 export const LEAVE_DOC_CATEGORY = "leave_supporting";
 
 const EMP = "id, employee_code, first_name, last_name, display_name, department_id, manager_id";
-const TYPE_COLS = "id, code, name, description, paid, annual_entitlement, accrual, carry_forward_max, carry_forward_expiry_months, allow_half_day, requires_document_after_days, allow_during_probation, allow_negative, max_negative, counts_weekends, counts_holidays, active, sort_order, eligible_employment_types, min_days_per_request, max_days_per_request, min_notice_days, effective_from, effective_to, policy_version";
 const REQ_COLS = `id, employee_id, leave_type_id, start_date, end_date, start_half, end_half, days, year, reason, document_path, status,
   current_level, manager_approved_at, decided_at, decision_note, cancelled_at, created_at, updated_at, document_id, policy_version,
   holiday_review_required, cancellation_status, cancellation_reason, cancellation_requested_at, cancellation_decided_at,
   cancellation_decision_note`;
 
+// "*" so the optional eligible_gender column (migration 203) is read when present
+// without breaking the page on a database where 203 is not applied yet.
 export async function listLeaveTypes({ activeOnly = false } = {}) {
-  let q = from("hr_leave_types").select(TYPE_COLS).order("sort_order").order("code");
+  let q = from("hr_leave_types").select("*").order("sort_order").order("code");
   if (activeOnly) q = q.eq("active", true);
   return run(q);
 }
@@ -153,7 +154,7 @@ export async function listLedger({ employee, year, type = "" }) {
 export const POLICY_FIELDS = ["name", "description", "paid", "annual_entitlement", "accrual", "carry_forward_max", "carry_forward_expiry_months",
   "allow_half_day", "requires_document_after_days", "allow_during_probation", "allow_negative", "max_negative", "counts_weekends",
   "counts_holidays", "active", "sort_order", "eligible_employment_types", "min_days_per_request", "max_days_per_request", "min_notice_days",
-  "effective_from", "effective_to"];
+  "effective_from", "effective_to", "eligible_gender"];   // eligible_gender: migration 203
 
 export const proposePolicy = ({ leaveType = null, changes, reason, effectiveFrom = null }) =>
   rpc("hr_propose_leave_policy", { p_leave_type: leaveType, p_changes: changes, p_reason: reason?.trim(), p_effective_from: effectiveFrom || null });

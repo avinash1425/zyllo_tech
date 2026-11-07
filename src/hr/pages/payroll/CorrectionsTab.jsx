@@ -5,10 +5,9 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useAuth } from "@/hr/platform/auth";
 import { formatDate, formatDateTime, formatMoney, fullName, useHrQuery } from "@/lib/hr/client";
-import { useEmployeeOptions } from "@/lib/hr/org";
 import {
   CORRECTION_CATEGORIES, CORRECTION_STATUSES, MONEY, createCorrectionRequest, listCorrectionRequests, listRunItems, listRuns, listSettlementCoverage,
-  prepareCorrection, recordSettlementCoverage, voidSettlementCoverage,
+  prepareCorrection, recordSettlementCoverage, usePayrollEmployeeOptions, voidSettlementCoverage,
 } from "@/lib/hr/payroll";
 import { Badge, Button, Card, ConfirmDialog, DataTable, Field, InlineError, Input, Modal, Select, StatusBadge, Tabs, Textarea, Toolbar, useToast } from "@/hr/ui";
 import { EmpCell, friendly, label, period } from "./shared";
@@ -158,7 +157,7 @@ function Settlements() {
 
 function CoverageModal({ onClose, onDone }) {
   const { hr } = useAuth();
-  const employees = useEmployeeOptions({ includeInactive: true });
+  const employees = usePayrollEmployeeOptions({ includeInactive: true });
   const [v, setV] = useState({ employee: "", coveredThrough: "", reference: "", note: "" });
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);

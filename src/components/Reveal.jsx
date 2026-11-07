@@ -20,7 +20,6 @@ export default function Reveal({ children, delay = 0, className = "" }) {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        const scrollingDown = window.scrollY > lastY;
         lastY = window.scrollY;
 
         if (entry.isIntersecting) {

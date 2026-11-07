@@ -60,7 +60,7 @@ async function session(viewport = { w: 1440, h: 900, m: false }) {
   const port = 9300 + Math.floor(Math.random() * 250);
   const profile = mkdtempSync(path.join(tmpdir(), "hrms-m7-"));
   const proc = spawn("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", ["--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check", `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, "about:blank"], { stdio: "ignore" });
-  let target; for (let i = 0; i < 80 && !target; i++) { await sleep(250); try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page"); } catch {} }
+  let target; for (let i = 0; i < 80 && !target; i++) { await sleep(250); try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page"); } catch { /* ignore: best-effort */ } }
   if (!target) throw new Error("Chrome did not start");
   const ws = new WebSocket(target.webSocketDebuggerUrl); await new Promise((r) => (ws.onopen = r));
   let id = 0; const pend = new Map();
@@ -78,7 +78,7 @@ async function session(viewport = { w: 1440, h: 900, m: false }) {
   const go = async (p, wait = 3500) => { await send("Page.navigate", { url: BASE + p }); await sleep(wait); };
   const reload = async (wait = 4500) => { await send("Page.reload", { ignoreCache: true }); await sleep(wait); };
   const shot = async (name) => { const s = await send("Page.captureScreenshot", { format: "jpeg", quality: 60 }); const f = `m7-${name}.jpg`; writeFileSync(path.join(SHOTS, f), Buffer.from(s.data, "base64")); shots.push(f); };
-  const close = async () => { try { ws.close(); } catch {} proc.kill(); await sleep(600); try { rmSync(profile, { recursive: true, force: true }); } catch {} };
+  const close = async () => { try { ws.close(); } catch { /* ignore: best-effort */ } proc.kill(); await sleep(600); try { rmSync(profile, { recursive: true, force: true }); } catch { /* ignore: best-effort */ } };
   return { js, go, reload, shot, close };
 }
 const H = `window.__h = {
@@ -107,7 +107,6 @@ const h = (s, expr) => s.js(`(() => { ${H}; return window.__h.${expr}; })()`);
 const J = JSON.stringify;
 async function waitFor(s, expr, timeout = 30000) { const t0 = Date.now(); while (Date.now() - t0 < timeout) { if (await h(s, expr)) return true; await sleep(300); } return false; }
 async function clickW(s, text, timeout = 45000) { const ok = await waitFor(s, `ready(${J(text)})`, timeout); return ok && h(s, `click(${J(text)})`); }
-const confirmW = async (s, label) => { await waitFor(s, "dialogOpen() > 0", 20000); return h(s, `confirm(${J(label)})`); };
 const waitIncl = (s, str, timeout) => waitFor(s, `text().includes(${J(str)})`, timeout);
 const waitText = (s, re, timeout) => waitFor(s, `text().match(${re}i)`, timeout);
 async function login(s, email) {

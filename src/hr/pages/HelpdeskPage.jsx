@@ -208,6 +208,9 @@ function AssignModal({ ticket, onClose, onDone }) {
               options={(opts.data ?? []).map((o) => ({ value: o.id, label: `${o.name}${o.employee_code ? ` (${o.employee_code})` : ""}` }))} />
           </Field>
         )}
+        {!opts.loading && !opts.error && opts.data && !opts.data.length && (
+          <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">Nobody can be assigned yet. Tickets are assigned to employees whose role handles this desk (HR requests manage; payroll or IT desk permission for those tickets). Admin accounts without an employee record cannot be assignees. Give such a role to an employee under Employees → Access &amp; roles.</p>
+        )}
         <InlineError message={error} />
       </div>
     </Modal>

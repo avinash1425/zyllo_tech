@@ -32,7 +32,6 @@ const ONLY = arg("--only", "").split(",").filter(Boolean);
 const SHOTS = path.join(ROOT, "docs", "hrms", "local-test-screenshots");
 const PASSWORD = "Local-Test-Only-2026!";
 const RUN = Date.now().toString(36);
-const RUNL = RUN.replace(/\d/g, (d) => "abcdefghij"[d]);          // letters only (role keys)
 for (const u of [API, BASE]) {
   const x = new URL(u);
   if (!["127.0.0.1", "localhost"].includes(x.hostname) || x.port === "8080") { console.error(`Refusing non-harness target ${u}`); process.exit(2); }
@@ -88,7 +87,6 @@ const rpc = async (email, fn, args = {}) => api("POST", `/rest/v1/rpc/${fn}`, { 
 const sel = async (email, p) => api("GET", `/rest/v1/${p}`, { token: await tok(email) });
 const patch = async (email, p, body) => api("PATCH", `/rest/v1/${p}`, { token: await tok(email), body, headers: { Prefer: "return=representation" } });
 const post = async (email, p, body) => api("POST", `/rest/v1/${p}`, { token: await tok(email), body, headers: { Prefer: "return=representation" } });
-const del = async (email, p) => api("DELETE", `/rest/v1/${p}`, { token: await tok(email), headers: { Prefer: "return=representation" } });
 const emsg = (r) => (r.body && (r.body.message || r.body.error_description || r.body.msg || r.body.error)) || `HTTP ${r.status}`;
 const refused = (r) => r.status >= 400;
 /** A write that RLS filtered away (0 rows) or the server refused. */
@@ -107,7 +105,7 @@ async function session(viewport = { w: 1440, h: 900, m: false }) {
     `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, "about:blank"], { stdio: "ignore" });
   chromes.add(proc);
   let target;
-  for (let i = 0; i < 80 && !target; i++) { await sleep(250); try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page"); } catch {} }
+  for (let i = 0; i < 80 && !target; i++) { await sleep(250); try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page"); } catch { /* ignore: best-effort */ } }
   if (!target) { proc.kill(); throw new Error("Chrome did not start"); }
   const ws = new WebSocket(target.webSocketDebuggerUrl); await new Promise((r) => (ws.onopen = r));
   let id = 0; const pend = new Map();
@@ -141,7 +139,7 @@ async function session(viewport = { w: 1440, h: 900, m: false }) {
     if (!nodeId) throw new Error(`file input not found: ${selector}`);
     await send("DOM.setFileInputFiles", { files: [file], nodeId });
   };
-  const close = async () => { try { ws.close(); } catch {} proc.kill(); chromes.delete(proc); await sleep(600); try { rmSync(profile, { recursive: true, force: true }); } catch {} };
+  const close = async () => { try { ws.close(); } catch { /* ignore: best-effort */ } proc.kill(); chromes.delete(proc); await sleep(600); try { rmSync(profile, { recursive: true, force: true }); } catch { /* ignore: best-effort */ } };
   return { send, js, go, reload, shot, setFile, close };
 }
 
@@ -200,15 +198,6 @@ async function waitFor(s, expr, timeout = 10000, every = 300) {
 const waitText = (s, re, timeout = 10000) => waitFor(s, `text().match(${re})`, timeout);
 const waitDialog = (s, timeout = 6000) => waitFor(s, "dialogOpen() > 0", timeout);
 const waitNoDialog = (s, timeout = 8000) => waitFor(s, "dialogOpen() === 0", timeout);
-async function toastText(s, timeout = 6000) {
-  const t0 = Date.now();
-  while (Date.now() - t0 < timeout) {
-    const t = await s.js("(() => { const n = [...document.querySelectorAll('[aria-live=polite] [role=status]:not([data-wf3-seen])')]; n.forEach((x) => x.setAttribute('data-wf3-seen', '1')); return n.map((x) => x.textContent.trim()); })()") ?? [];
-    if (t.length) return t.join(" | ");
-    await sleep(200);
-  }
-  return "";
-}
 // Waits for the sign-in form (the dev server may still be compiling) and retries.
 async function login(s, email, password = PASSWORD) {
   for (let attempt = 0; attempt < 3; attempt++) {
@@ -219,7 +208,6 @@ async function login(s, email, password = PASSWORD) {
   }
   throw new Error(`sign-in did not complete for ${email}`);
 }
-const itemIdx = async (s, activity) => s.js(`(() => { ${H}; const ls = [...document.querySelectorAll('label')].filter((x) => __h.lab(x) === 'Activity'); return ls.findIndex((l) => __h.inputOf(l).value === ${JSON.stringify(activity)}); })()`);
 async function as(email, fn) {
   const s = await session();
   try { await login(s, email); return await fn(s); } finally { await s.close(); }
@@ -588,8 +576,8 @@ try {
     try { await fn(); } catch (e) { check(k, "crash", "workflow completed", false, e.stack?.split("\n").slice(0, 3).join(" | ")); }
   }
 } finally {
-  for (const p of chromes) { try { p.kill(); } catch {} }
-  try { rmSync(FIX, { recursive: true, force: true }); } catch {}
+  for (const p of chromes) { try { p.kill(); } catch { /* ignore: best-effort */ } }
+  try { rmSync(FIX, { recursive: true, force: true }); } catch { /* ignore: best-effort */ }
 }
 check("global", "network", "no non-local requests left the browser", blocked.length === 0, blocked.slice(0, 3).join(" "));
 check("global", "errors", "no uncaught page errors", pageErrors.length === 0, [...new Set(pageErrors)].slice(0, 3).join(" | "));

@@ -5,6 +5,7 @@ import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import {
   Bell, CalendarCheck, ClipboardList, Clock, FileText, HeartHandshake, KanbanSquare, LayoutDashboard, LifeBuoy, Megaphone, Package, User, Wallet,
+  Target, GraduationCap, HeartPulse,
 } from "lucide-react";
 import Seo from "@/hr/platform/Seo";
 import AppShell from "@/hr/AppShell";
@@ -18,9 +19,12 @@ export const EMPLOYEE_PAGES = [
   { path: "attendance", label: "My Attendance", icon: Clock, section: "Work", page: lazy(() => import("./pages/MyAttendancePage.jsx")) },
   { path: "daily-reports", label: "My Daily Reports", icon: ClipboardList, section: "Work", page: lazy(() => import("./pages/MyDailyReportsPage.jsx")) },
   { path: "tasks", label: "My Tasks & Projects", icon: KanbanSquare, section: "Work", page: lazy(() => import("./pages/MyTasksPage.jsx")) },
+  { path: "performance", label: "My Performance", icon: Target, section: "Work", page: lazy(() => import("./pages/MyPerformancePage.jsx")) },
+  { path: "training", label: "My Training", icon: GraduationCap, section: "Work", page: lazy(() => import("./pages/MyTrainingPage.jsx")) },
   { path: "leave", label: "My Leave", icon: CalendarCheck, section: "Work", page: lazy(() => import("./pages/MyLeavePage.jsx")) },
   { path: "payslips", label: "My Payroll & Payslips", icon: Wallet, section: "Records", page: lazy(() => import("./pages/MyPayslipsPage.jsx")) },
   { path: "documents", label: "My Documents", icon: FileText, section: "Records", page: lazy(() => import("./pages/MyDocumentsPage.jsx")) },
+  { path: "benefits", label: "My Benefits", icon: HeartPulse, section: "Records", page: lazy(() => import("./pages/MyBenefitsPage.jsx")) },
   { path: "assets", label: "My Assets", icon: Package, section: "Records", page: lazy(() => import("./pages/MyAssetsPage.jsx")) },
   { path: "helpdesk", label: "Helpdesk & Support", icon: LifeBuoy, section: "Company", page: lazy(() => import("./pages/MyHelpdeskPage.jsx")) },
   { path: "requests", label: "My HR Requests", icon: HeartHandshake, section: "Company", page: lazy(() => import("./pages/MyHrRequestsPage.jsx")) },

@@ -1,12 +1,15 @@
-// Single browser Supabase client (publishable key + user session in
-// localStorage). All access control is enforced by Row Level Security —
-// see supabase/policies/*.sql. The service/secret key is never used here.
-import { createClient } from "@supabase/supabase-js";
-import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "@/lib/env";
+// The app's ONE browser Supabase client (publishable key + user session).
+// All access control is enforced by Row Level Security — see
+// supabase/policies/*.sql. The service/secret key is never used here.
+//
+// It re-exports the Lovable-generated client instead of calling createClient
+// again: two clients on the same project share one localStorage session key,
+// which triggers "Multiple GoTrueClient instances detected" and lets both
+// refresh the same refresh token (the loser's session is revoked). The website
+// (/login, /admin) and the HRMS must use the same instance.
+import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
-});
+export { supabase };
 
 export function createBrowserSupabaseClient() {
   return supabase;

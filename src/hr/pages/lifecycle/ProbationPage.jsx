@@ -8,7 +8,7 @@ import { BellRing, Plus } from "lucide-react";
 import { useAuth } from "@/hr/platform/auth";
 import { formatDate, formatDateTime, fullName, useHrQuery } from "@/lib/hr/client";
 import {
-  cancelProbationReview, decideProbation, generateProbationReviews, getProbationEvents, listProbationEmployees, listProbationReviews,
+  cancelProbationReview, decideProbation, generateProbationReviews, getProbationEvents, getProbationReview, listProbationEmployees, listProbationReviews,
   openProbationReview, submitProbationFeedback,
 } from "@/lib/hr/lifecycle";
 import {
@@ -93,9 +93,14 @@ function DecideModal({ review, canExit, onClose, onDone }) {
   );
 }
 
-function ReviewModal({ review, onClose, onChanged }) {
+function ReviewModal({ review: listed, onClose, onChanged }) {
   const { hasPermission, hr } = useAuth();
   const { notify } = useToast();
+  // The list row can be stale (feedback submitted from another session), so the
+  // dialog always re-reads the review and acts on the fresh status.
+  const fresh = useHrQuery(() => getProbationReview(listed.id), [listed.id]);
+  const review = fresh.data ?? listed;
+  const syncing = fresh.loading && !fresh.data;
   const events = useHrQuery(() => getProbationEvents(review.id), [review.id]);
   const [dialog, setDialog] = useState(null);
   const [exitId, setExitId] = useState(null);
@@ -109,7 +114,7 @@ function ReviewModal({ review, onClose, onChanged }) {
       footer={<div className="flex w-full flex-wrap justify-end gap-2">
         {open && canDecide && <Button variant="ghost" onClick={() => setDialog("cancel")}>Cancel review</Button>}
         {canFeedback && <Button variant="secondary" onClick={() => setDialog("feedback")}>{review.manager_submitted_at ? "Update feedback" : "Give feedback"}</Button>}
-        {open && canDecide && <Button onClick={() => setDialog("decide")} disabled={review.status !== "pending_hr"} title={review.status !== "pending_hr" ? "Waiting for manager feedback" : undefined}>Decide</Button>}
+        {open && canDecide && <Button onClick={() => setDialog("decide")} disabled={syncing || review.status !== "pending_hr"} title={review.status !== "pending_hr" ? "Waiting for manager feedback" : undefined}>Decide</Button>}
         <Button variant="secondary" onClick={onClose}>Close</Button>
       </div>}>
       <div className="flex flex-col gap-4">
@@ -132,7 +137,7 @@ function ReviewModal({ review, onClose, onChanged }) {
         <div><h4 className="mb-2 text-sm font-bold text-[#101a3a]">History</h4>{events.loading && !events.data ? <Loading /> : <EventList events={events.data} />}</div>
       </div>
       {dialog === "feedback" && <FeedbackModal review={review} onBehalf={!isManager} onClose={() => setDialog(null)} onDone={() => { setDialog(null); onChanged(); onClose(); }} />}
-      {dialog === "decide" && <DecideModal review={review} canExit={hasPermission("exit.manage")} onClose={() => setDialog(null)} onDone={(exit) => { setDialog(null); onChanged(); events.reload(); if (exit) setExitId(exit); else onClose(); }} />}
+      {dialog === "decide" && <DecideModal review={review} canExit={hasPermission("exit.manage")} onClose={() => setDialog(null)} onDone={(exit) => { setDialog(null); onChanged(); fresh.reload(); events.reload(); if (exit) setExitId(exit); else onClose(); }} />}
       <ConfirmDialog open={dialog === "cancel"} onClose={() => setDialog(null)} title="Cancel probation review" message="The review is kept as history." confirmLabel="Cancel review" requireReason reasonLabel="Reason"
         onConfirm={async (reason) => { const res = await cancelProbationReview(review.id, reason); if (!res.error) { notify("Review cancelled."); onChanged(); onClose(); } return res; }} />
     </Modal>
@@ -202,7 +207,7 @@ export default function ProbationPage() {
             { key: "status", header: "Status", render: (r) => (r.decision ? <Badge tone={r.decision === "confirmed" ? "green" : r.decision === "extended" ? "orange" : "red"}>{r.decision}</Badge> : <Badge tone="amber">{STATUS_LABEL[r.status]}</Badge>) },
           ]} />
       )}
-      {selected && <ReviewModal review={selected} onClose={() => setSelected(null)} onChanged={reviews.reload} />}
+      {selected && <ReviewModal review={selected} onClose={() => { setSelected(null); reviews.reload(); }} onChanged={reviews.reload} />}
       {reminders && <RemindersModal onClose={() => setReminders(false)} onDone={() => { setReminders(false); reviews.reload(); }} />}
       <ConfirmDialog open={Boolean(opening)} onClose={() => setOpening(null)} title={`Open probation review: ${opening ? fullName(opening) : ""}`}
         message="The reporting manager is asked for feedback; HR then decides." confirmLabel="Open review"

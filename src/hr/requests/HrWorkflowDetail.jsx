@@ -21,12 +21,12 @@ import {
 
 const today = () => new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
 
-function IssueLetterModal({ request, onClose, onDone }) {
+function IssueLetterModal({ request, preselect, onClose, onDone }) {
   const { notify } = useToast();
   const salary = request.details?.letter_type === "salary_certificate";
   // Eligible documents / uploaded files come from the server (salary certificates: compensation-restricted only).
   const docs = useHrQuery(() => letterIssueOptions(request.id), [request.id]);
-  const [choice, setChoice] = useState("");
+  const [choice, setChoice] = useState(preselect ? `att:${preselect}` : "");
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
@@ -211,9 +211,13 @@ export default function HrWorkflowDetail({ id }) {
           {adv && <AdvancePanel advance={adv} />}
           <PaymentPanel payment={r.payment} />
           <SectionCard title="Files" icon={Paperclip} actions={<>
-            {r.pending_action === "issue_letter" && <FileUploadButton requestId={r.id} kind="issued_letter" label={salaryCert ? "Upload certificate" : "Upload letter"} onUploaded={q.reload} />}
+            {r.pending_action === "issue_letter" && <FileUploadButton requestId={r.id} kind="issued_letter" label={salaryCert ? "Upload certificate" : "Upload letter"}
+              onUploaded={(d, err) => { q.reload(); if (!err && d?.attachment_id) setModal({ issue: d.attachment_id }); }} />}
             {r.pending_action === "record_disbursement" && <FileUploadButton requestId={r.id} kind="payment_evidence" label="Upload payment evidence" onUploaded={q.reload} />}
           </>}>
+            {r.pending_action === "issue_letter" && (r.attachments ?? []).some((a) => a.kind === "issued_letter" && a.uploaded) && (
+              <p className="mb-2 rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-800">Uploading the file does not complete the request. Use <strong>Issue letter</strong> to release it to the employee and mark the request completed.</p>
+            )}
             <AttachmentList attachments={r.attachments} removable onChanged={q.reload} />
           </SectionCard>
           <Comments request={r} />
@@ -237,7 +241,7 @@ export default function HrWorkflowDetail({ id }) {
       </div>
       {modal?.decide && <DecisionModal stage={modal.decide} request={r} onClose={() => setModal(null)} onDone={done} />}
       {modal?.delegate && <DelegateModal stage={modal.delegate} onClose={() => setModal(null)} onDone={done} />}
-      {modal === "issue" && <IssueLetterModal request={r} onClose={() => setModal(null)} onDone={done} />}
+      {(modal === "issue" || modal?.issue) && <IssueLetterModal request={r} preselect={modal?.issue} onClose={() => setModal(null)} onDone={done} />}
       {modal === "disburse" && <DisbursementModal request={r} onClose={() => setModal(null)} onDone={done} />}
       {modal === "repay" && <RepaymentModal request={r} onClose={() => setModal(null)} onDone={done} />}
     </>

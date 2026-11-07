@@ -3,15 +3,15 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertTriangle } from "lucide-react";
 import { formatMoney, useHrQuery } from "@/lib/hr/client";
-import { toOptions, useEmployeeOptions, useOrg } from "@/lib/hr/org";
-import { PAYMENT_STATUSES, RUN_STEPS, payrollOverview } from "@/lib/hr/payroll";
+import { toOptions, useOrg } from "@/lib/hr/org";
+import { PAYMENT_STATUSES, RUN_STEPS, payrollOverview, usePayrollEmployeeOptions } from "@/lib/hr/payroll";
 import { Card, DataTable, ErrorState, Field, Input, KpiCard, Select, Toolbar } from "@/hr/ui";
 import { PaymentBadge, RunBadge, label, period } from "./shared";
 
 export default function OverviewTab({ onOpenTab }) {
   const navigate = useNavigate();
   const org = useOrg();
-  const employees = useEmployeeOptions({ includeInactive: true });
+  const employees = usePayrollEmployeeOptions({ includeInactive: true });
   const [f, setF] = useState({ month: "", legalEntity: "", department: "", employee: "", status: "" });
   const q = useHrQuery(() => payrollOverview({ ...f, month: f.month ? `${f.month}-01` : null }), [f.month, f.legalEntity, f.department, f.employee, f.status]);
   const d = q.data;

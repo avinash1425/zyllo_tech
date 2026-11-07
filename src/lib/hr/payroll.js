@@ -5,7 +5,9 @@
 // (RLS + SECURITY DEFINER RPCs) — the UI only mirrors those rules.
 // Payment RPCs only RECORD what happened outside the system; nothing here
 // initiates any payment.
-import { from, rpc, run } from "./client";
+import { from, rpc, run, useHrQuery } from "./client";
+import { loadEmployeeOptions } from "./org";
+import { identityOptions, mergeEmployeeIdentities, mergeOptions, missingEmployeeIds } from "./payrollHelpers";
 
 export const RUN_STEPS = ["draft", "calculated", "reviewed", "approved", "finalized", "paid"];
 /** Business labels for the stored run states (Draft → Submitted → Approved → Finalized → Payment pending → Paid). */
@@ -33,6 +35,32 @@ const RUN_COLS = `id, period_start, period_end, status, created_by, created_at, 
   approved_by, approved_at, finalized_by, finalized_at, paid_by, paid_at, payment_reference, notes, updated_at,
   legal_entity_id, returned_by, returned_at, return_reason, payment_status, validation`;
 
+// ------------------------------------------------------------ employee identity
+// Payroll users without employees.view cannot read other employees through
+// hr_employees RLS, so the embedded `employee` comes back null. Fill it from
+// hr_payroll_employee_identities (migration 204: name + code only, payroll.view
+// only, employees in payroll data only). Before 204 is applied the RPC is
+// missing and rows are returned unchanged.
+async function withEmployees(query) {
+  const res = await run(query);
+  if (res.error || !Array.isArray(res.data)) return res;
+  const ids = missingEmployeeIds(res.data);
+  if (!ids.length) return res;
+  const who = await rpc("hr_payroll_employee_identities", { p_ids: ids });
+  if (who.error || !Array.isArray(who.data)) return res;
+  return { ...res, data: mergeEmployeeIdentities(res.data, who.data) };
+}
+
+/** Employee picker for payroll screens: what hr_employees RLS shows plus payroll identities (204). */
+export async function loadPayrollEmployeeOptions({ includeInactive = false } = {}) {
+  const [own, who] = await Promise.all([loadEmployeeOptions({ includeInactive }), rpc("hr_payroll_employee_identities", { p_ids: null })]);
+  if (who.error || !Array.isArray(who.data)) return own;
+  return { data: mergeOptions(own.data ?? [], identityOptions(who.data, { includeInactive })), error: null };
+}
+export function usePayrollEmployeeOptions(opts) {
+  return useHrQuery(() => loadPayrollEmployeeOptions(opts), [opts?.includeInactive]);
+}
+
 // ------------------------------------------------------------ components
 export async function listComponents({ activeOnly = false } = {}) {
   let q = from("hr_salary_components").select("*").order("sort_order").order("code");
@@ -49,7 +77,7 @@ export async function listStructures(employeeId, { status = "" } = {}) {
       employee:hr_employees!hr_salary_structures_employee_id_fkey(${EMP})`);
   if (employeeId) q = q.eq("employee_id", employeeId);
   if (status) q = q.eq("status", status);
-  return run(q.order("effective_from", { ascending: false }).limit(2000));
+  return withEmployees(q.order("effective_from", { ascending: false }).limit(2000));
 }
 
 /** Creates/edits a DRAFT structure. Activation goes through submit → approve. */
@@ -96,7 +124,7 @@ export async function listBankAccounts(employeeId) {
     .select(`id, employee_id, bank_name, account_holder, account_number, ifsc, is_primary, verified, verified_at, active, created_at, created_by,
       employee:hr_employees!hr_employee_bank_accounts_employee_id_fkey(${EMP})`);
   if (employeeId) q = q.eq("employee_id", employeeId);
-  return run(q.order("created_at", { ascending: false }).limit(2000));
+  return withEmployees(q.order("created_at", { ascending: false }).limit(2000));
 }
 
 export async function saveBankAccount(row) {
@@ -119,14 +147,14 @@ export const listRuns = () => run(from("hr_payroll_runs").select(RUN_COLS).order
 export const getRun = (id) => run(from("hr_payroll_runs").select(RUN_COLS).eq("id", id).maybeSingle());
 
 export async function listRunItems(runId) {
-  return run(from("hr_payroll_items")
+  return withEmployees(from("hr_payroll_items")
     .select(`id, run_id, employee_id, structure_id, currency, working_days, payable_days, lop_days, gross, total_deductions,
       employer_contributions, reimbursements, net, breakdown, created_at, employee:hr_employees!hr_payroll_items_employee_id_fkey(${EMP})`)
     .eq("run_id", runId).limit(5000));
 }
 
 export async function listRunAdjustments(runId) {
-  return run(from("hr_payroll_adjustments")
+  return withEmployees(from("hr_payroll_adjustments")
     .select(`id, run_id, employee_id, component_id, label, amount, reason, source, source_run_id, created_at, created_by,
       status, decided_by, decided_at, decision_note, correction_request_id,
       employee:hr_employees!hr_payroll_adjustments_employee_id_fkey(${EMP})`)
@@ -135,7 +163,7 @@ export async function listRunAdjustments(runId) {
 
 /** Variable-pay / recovery entries waiting for a separate approver (all runs). */
 export async function listPendingAdjustments() {
-  return run(from("hr_payroll_adjustments")
+  return withEmployees(from("hr_payroll_adjustments")
     .select(`id, run_id, employee_id, label, amount, reason, created_at, created_by, status,
       employee:hr_employees!hr_payroll_adjustments_employee_id_fkey(${EMP}), run:hr_payroll_runs!hr_payroll_adjustments_run_id_fkey(id, period_start, period_end, status)`)
     .eq("status", "pending").order("created_at").limit(500));
@@ -143,13 +171,13 @@ export async function listPendingAdjustments() {
 export const decideAdjustment = (id, approve, note) => rpc("hr_decide_payroll_adjustment", { p_id: id, p_approve: approve, p_note: note?.trim() || null });
 
 export async function listRunHolds(runId) {
-  return run(from("hr_payroll_run_holds").select(`run_id, employee_id, reason, created_at, employee:hr_employees!hr_payroll_run_holds_employee_id_fkey(${EMP})`).eq("run_id", runId));
+  return withEmployees(from("hr_payroll_run_holds").select(`run_id, employee_id, reason, created_at, employee:hr_employees!hr_payroll_run_holds_employee_id_fkey(${EMP})`).eq("run_id", runId));
 }
 export const setHold = ({ runId, employee, hold, reason }) => rpc("hr_set_payroll_hold", { p_run: runId, p_employee: employee, p_hold: hold, p_reason: reason?.trim() || null });
 
 /** Corrections recorded against this (finalized) run, wherever they landed. */
 export async function listCorrectionsFromRun(runId) {
-  return run(from("hr_payroll_adjustments")
+  return withEmployees(from("hr_payroll_adjustments")
     .select(`id, run_id, employee_id, label, amount, reason, source, source_run_id, created_at,
       employee:hr_employees!hr_payroll_adjustments_employee_id_fkey(${EMP})`)
     .eq("source_run_id", runId).order("created_at"));
@@ -182,7 +210,7 @@ export async function listPayments({ runId = "", status = "" } = {}) {
       employee:hr_employees!hr_payroll_payments_employee_id_fkey(${EMP}), run:hr_payroll_runs!hr_payroll_payments_run_id_fkey(id, period_start, period_end, status, payment_status)`);
   if (runId) q = q.eq("run_id", runId);
   if (status) q = q.eq("status", status);
-  return run(q.order("updated_at", { ascending: false }).limit(5000));
+  return withEmployees(q.order("updated_at", { ascending: false }).limit(5000));
 }
 export const listPaymentEvents = (paymentId) =>
   run(from("hr_payroll_payment_events").select("id, from_status, to_status, amount_paid, method, reference, payment_date, note, actor_user_id, created_at")
@@ -226,7 +254,7 @@ export async function listStatutoryEnrollments(ruleCode = "") {
     .select(`id, employee_id, rule_code, enrolled, state_code, declared_monthly_amount, effective_from, effective_to, note, updated_at,
       employee:hr_employees!hr_payroll_statutory_enrollments_employee_id_fkey(${EMP})`);
   if (ruleCode) q = q.eq("rule_code", ruleCode);
-  return run(q.order("effective_from", { ascending: false }).limit(5000));
+  return withEmployees(q.order("effective_from", { ascending: false }).limit(5000));
 }
 export async function saveStatutoryEnrollment(row) {
   const body = {
@@ -246,7 +274,7 @@ export async function listCorrectionRequests({ status = "" } = {}) {
       prepared_by, prepared_at, preparation_note, decided_by, decided_at, decision_note, adjustment_id, created_at,
       employee:hr_employees!hr_payroll_correction_requests_employee_id_fkey(${EMP}), run:hr_payroll_runs!hr_payroll_correction_requests_run_id_fkey(id, period_start, period_end)`);
   if (status) q = q.eq("status", status);
-  return run(q.order("created_at", { ascending: false }).limit(2000));
+  return withEmployees(q.order("created_at", { ascending: false }).limit(2000));
 }
 export const createCorrectionRequest = ({ runId, employee, category, description, evidence }) =>
   rpc("hr_create_payroll_correction_request", { p_run: runId, p_employee: employee, p_category: category, p_description: description?.trim(), p_evidence: evidence?.trim() || null });
@@ -255,7 +283,7 @@ export const decideCorrection = (id, approve, note) => rpc("hr_decide_payroll_co
 
 // ------------------------------------------------------------ settlements, overview, reports
 export async function listSettlementCoverage() {
-  return run(from("hr_payroll_settlement_coverage")
+  return withEmployees(from("hr_payroll_settlement_coverage")
     .select(`id, employee_id, exit_id, covered_through, settlement_reference, note, status, recorded_by, created_at, voided_at, void_reason,
       employee:hr_employees!hr_payroll_settlement_coverage_employee_id_fkey(${EMP})`)
     .order("created_at", { ascending: false }).limit(1000));
@@ -289,7 +317,7 @@ export async function listReimbursements({ status = "" } = {}) {
     .select(`id, employee_id, claim_date, category, amount, description, receipt_path, status, payroll_run_id, decided_at, decision_note, created_at,
       employee:hr_employees!hr_reimbursements_employee_id_fkey(${EMP})`);
   if (status) q = q.eq("status", status);
-  return run(q.order("created_at", { ascending: status === "submitted" }).limit(2000));
+  return withEmployees(q.order("created_at", { ascending: status === "submitted" }).limit(2000));
 }
 export const decideReimbursement = (id, approve, note) => rpc("hr_decide_reimbursement", { p_id: id, p_approve: approve, p_note: note?.trim() || null });
 

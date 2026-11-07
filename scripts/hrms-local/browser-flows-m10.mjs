@@ -40,7 +40,7 @@ async function session(viewport = { w: 1440, h: 900, m: false }) {
   const profile = mkdtempSync(path.join(tmpdir(), "hrms-flow-m10-"));
   const proc = spawn("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", ["--headless=new", "--disable-gpu", "--no-first-run", `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, "about:blank"], { stdio: "ignore" });
   let target;
-  for (let i = 0; i < 80 && !target; i++) { await sleep(250); try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page"); } catch {} }
+  for (let i = 0; i < 80 && !target; i++) { await sleep(250); try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page"); } catch { /* ignore: best-effort */ } }
   const ws = new WebSocket(target.webSocketDebuggerUrl); await new Promise((r) => (ws.onopen = r));
   let id = 0; const pend = new Map();
   const send = (m, p = {}) => new Promise((res, rej) => { const i = ++id; pend.set(i, { res, rej }); ws.send(JSON.stringify({ id: i, method: m, params: p })); });
@@ -83,7 +83,7 @@ async function session(viewport = { w: 1440, h: 900, m: false }) {
     if (!nodeId) throw new Error(`file input not found: ${selector}`);
     await send("DOM.setFileInputFiles", { files: [file], nodeId });
   };
-  const close = async () => { try { ws.close(); } catch {} proc.kill(); await sleep(600); try { rmSync(profile, { recursive: true, force: true }); } catch {} };
+  const close = async () => { try { ws.close(); } catch { /* ignore: best-effort */ } proc.kill(); await sleep(600); try { rmSync(profile, { recursive: true, force: true }); } catch { /* ignore: best-effort */ } };
   return { send, js, go, reload, shot, setFile, close };
 }
 

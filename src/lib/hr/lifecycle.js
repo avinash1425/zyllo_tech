@@ -136,14 +136,17 @@ export const cancelOnboarding = (id, reason) => rpc("hr_cancel_onboarding", { p_
 export const onboardingDocumentQueue = () => rpc("hr_onboarding_document_queue");
 
 // -------------------------------------------------------------- probation
+const PROBATION_SELECT = `*, employee:hr_employees!hr_probation_reviews_employee_id_fkey(${EMP}),
+             manager:hr_employees!hr_probation_reviews_manager_id_fkey(id, employee_code, first_name, last_name, display_name)`;
 export async function listProbationReviews({ scope = "open" } = {}) {
-  let q = from("hr_probation_reviews")
-    .select(`*, employee:hr_employees!hr_probation_reviews_employee_id_fkey(${EMP}),
-             manager:hr_employees!hr_probation_reviews_manager_id_fkey(id, employee_code, first_name, last_name, display_name)`)
-    .order("due_date").limit(500);
+  let q = from("hr_probation_reviews").select(PROBATION_SELECT).order("due_date").limit(500);
   if (scope === "open") q = q.in("status", ["pending_manager", "pending_hr"]);
   else if (scope === "decided") q = q.in("status", ["decided", "cancelled"]);
   return run(q);
+}
+/** One review, re-read from the database (a manager may have submitted feedback from another session). */
+export async function getProbationReview(reviewId) {
+  return run(from("hr_probation_reviews").select(PROBATION_SELECT).eq("id", reviewId).maybeSingle());
 }
 export async function getProbationEvents(reviewId) {
   return run(from("hr_probation_events").select("id, event_type, note, created_at").eq("review_id", reviewId).order("created_at"));

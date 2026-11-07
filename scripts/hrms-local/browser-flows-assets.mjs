@@ -74,7 +74,7 @@ async function session(viewport = { w: 1440, h: 900, m: false }) {
   const proc = spawn("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", ["--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check",
     `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, "about:blank"], { stdio: "ignore" });
   let target;
-  for (let i = 0; i < 80 && !target; i++) { await sleep(250); try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page"); } catch {} }
+  for (let i = 0; i < 80 && !target; i++) { await sleep(250); try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page"); } catch { /* ignore: best-effort */ } }
   if (!target) throw new Error("Chrome did not start");
   const ws = new WebSocket(target.webSocketDebuggerUrl); await new Promise((r) => (ws.onopen = r));
   let id = 0; const pend = new Map();
@@ -104,7 +104,7 @@ async function session(viewport = { w: 1440, h: 900, m: false }) {
     if (!nodeId) throw new Error(`file input not found: ${selector}`);
     await send("DOM.setFileInputFiles", { files: [file], nodeId });
   };
-  const close = async () => { try { ws.close(); } catch {} proc.kill(); await sleep(600); try { rmSync(profile, { recursive: true, force: true }); } catch {} };
+  const close = async () => { try { ws.close(); } catch { /* ignore: best-effort */ } proc.kill(); await sleep(600); try { rmSync(profile, { recursive: true, force: true }); } catch { /* ignore: best-effort */ } };
   return { js, go, reload, shot, setFile, close };
 }
 
@@ -399,7 +399,7 @@ try { await main(); } catch (e) { check("fatal", "flow crashed", false, e.stack)
 check("guard", "No non-local browser requests", blocked.length === 0, blocked.slice(0, 3).join(" "));
 check("ui", "No uncaught page errors", pageErrors.length === 0, pageErrors.slice(0, 3).join(" | "));
 writeFileSync(OUT, JSON.stringify({ run: RUN, checks, blocked, pageErrors }, null, 2));
-try { rmSync(WORK, { recursive: true, force: true }); } catch {}
+try { rmSync(WORK, { recursive: true, force: true }); } catch { /* ignore: best-effort */ }
 const failed = checks.filter((c) => !c.ok).length;
 console.log(`\n${checks.length - failed}/${checks.length} checks passed. Results: ${OUT}  Screenshots: ${SHOTS}`);
 process.exit(failed ? 1 : 0);

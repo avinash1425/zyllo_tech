@@ -18,7 +18,7 @@ const W_BOLD = [278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,
 export function toPdfText(value) {
   return String(value ?? "")
     .replace(/[–—]/g, "-").replace(/[‘’]/g, "'").replace(/[“”]/g, '"')
-    .replace(/•/g, "*").replace(/₹/g, "INR ").replace(/ /g, " ")
+    .replace(/•/g, "*").replace(/₹/g, "INR ").replace(/\u00A0/g, " ")
     .normalize("NFKD").replace(/[^\x20-\x7E]/g, "");
 }
 

@@ -76,7 +76,7 @@ async function session(viewport = { w: 1440, h: 900, m: false }) {
     `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, "about:blank"], { stdio: "ignore" });
   chromes.add(proc);
   let target;
-  for (let i = 0; i < 80 && !target; i++) { await sleep(250); try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page"); } catch {} }
+  for (let i = 0; i < 80 && !target; i++) { await sleep(250); try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page"); } catch { /* ignore: best-effort */ } }
   if (!target) { proc.kill(); throw new Error("Chrome did not start"); }
   const ws = new WebSocket(target.webSocketDebuggerUrl); await new Promise((r) => (ws.onopen = r));
   let id = 0; const pend = new Map();
@@ -98,7 +98,7 @@ async function session(viewport = { w: 1440, h: 900, m: false }) {
   const go = async (p) => { await send("Page.navigate", { url: BASE + p }); await sleep(800); };
   const reload = async () => { await send("Page.reload", { ignoreCache: true }); await sleep(800); };
   const shot = async (name) => { const s = await send("Page.captureScreenshot", { format: "jpeg", quality: 60 }); writeFileSync(path.join(SHOTS, `m8-${name}.jpg`), Buffer.from(s.data, "base64")); };
-  const close = async () => { try { ws.close(); } catch {} proc.kill(); chromes.delete(proc); await sleep(500); try { rmSync(profile, { recursive: true, force: true }); } catch {} };
+  const close = async () => { try { ws.close(); } catch { /* ignore: best-effort */ } proc.kill(); chromes.delete(proc); await sleep(500); try { rmSync(profile, { recursive: true, force: true }); } catch { /* ignore: best-effort */ } };
   return { js, go, reload, shot, close };
 }
 
@@ -389,7 +389,7 @@ async function main() {
 
 try { await main(); } catch (e) { check("runner", "flow crashed", false, e.stack?.split("\n").slice(0, 3).join(" ")); }
 finally {
-  for (const p of chromes) { try { p.kill(); } catch {} }
+  for (const p of chromes) { try { p.kill(); } catch { /* ignore: best-effort */ } }
   writeFileSync(OUT, JSON.stringify({ run: RUN, checks, blocked, pageErrors }, null, 2));
   const failed = checks.filter((c) => !c.ok).length;
   console.log(`\n${checks.length - failed} passed, ${failed} failed; external requests blocked: ${blocked.length}; page exceptions: ${pageErrors.length}; results: ${OUT}`);

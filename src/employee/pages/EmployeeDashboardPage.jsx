@@ -14,6 +14,7 @@ import { listMyTasks } from "@/lib/hr/dailyReports";
 import { myLifecycle } from "@/lib/hr/lifecycle";
 import { JoiningChecklistCard } from "@/employee/components/OnboardingParts";
 import { listMyRequests as listMyLeaveRequests } from "@/lib/hr/leave";
+import { generalLeaveAvailable } from "@/lib/hr/leaveRules";
 import { ACTIVE_REQUEST_STATUSES, listMyRequests as listMyHrRequests } from "@/lib/hr/requests";
 import { Badge, Button, Card, EmptyState, ErrorState, KpiCard, Loading, PageHeader, StatusBadge } from "@/hr/ui";
 
@@ -93,7 +94,8 @@ export default function EmployeeDashboardPage() {
     reload: () => { leaveReqs.reload(); hrReqs.reload(); },
   };
 
-  const totalAvailable = (balances.data ?? []).reduce((s, b) => s + Number(b.available ?? 0), 0);
+  // Regular paid leave only: maternity / paternity and unpaid types are not a yearly allowance (see leaveRules).
+  const totalAvailable = generalLeaveAvailable(balances.data);
   const upcomingHolidays = (holidays.data ?? []).slice(0, 5);
 
   return (
@@ -107,7 +109,7 @@ export default function EmployeeDashboardPage() {
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <KpiCard label="Attendance today" value={attendanceLabel(t)} icon={Clock} tone="orange" loading={today.loading && !t} onClick={() => navigate("/employee/attendance")} />
         <KpiCard label="Hours today" value={minutesToHm(t?.record?.worked_minutes ?? 0)} hint={week ? `This week ${minutesToHm(week.totals?.worked_minutes ?? 0)}` : undefined} icon={Timer} tone="teal" loading={today.loading && !t} />
-        <KpiCard label="Leave available" value={balances.data ? `${totalAvailable} days` : undefined} icon={CalendarCheck} tone="green" loading={balances.loading && !balances.data} onClick={() => navigate("/employee/leave")} />
+        <KpiCard label="Leave available" value={balances.data ? `${totalAvailable} days` : undefined} hint="Paid leave, excl. maternity / paternity" icon={CalendarCheck} tone="green" loading={balances.loading && !balances.data} onClick={() => navigate("/employee/leave")} />
         <KpiCard label="Open tasks" value={tasks.data ? openTasks.length : undefined} hint={overdueTasks ? `${overdueTasks} overdue` : undefined} icon={KanbanSquare} tone={overdueTasks ? "red" : "navy"} loading={tasks.loading && !tasks.data} onClick={() => navigate("/employee/tasks")} />
       </div>
 

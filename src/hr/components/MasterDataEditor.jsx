@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { from, run, useHrQuery } from "@/lib/hr/client";
 import { Badge, Button, Checkbox, DataTable, Field, InlineError, Input, Modal, Select, Textarea, useToast } from "@/hr/ui";
+import { optionalColumnKeys, withOptionalColumns } from "@/lib/hr/optionalColumns";
 
 /**
  * config: {
@@ -12,10 +13,18 @@ import { Badge, Button, Checkbox, DataTable, Field, InlineError, Input, Modal, S
  *   columns: [{ key, header, render? }],
  *   fields: [{ key, label, type: text|number|time|date|select|textarea|checkbox|days, required?, options?, createOnly?, hint?, pattern?, min?, max? }],
  *   defaults?: {}, transform?(values) => values
+ *   (a field / column with optionalColumn: true is used only when its column exists)
  * }
+ * onChanged(): called after a create / update, so the page can refresh shared
+ * lookups (e.g. the org data feeding other tabs' dropdowns).
  */
-export default function MasterDataEditor({ config, canEdit }) {
+export default function MasterDataEditor({ config: baseConfig, canEdit, onChanged }) {
   const { notify } = useToast();
+  // Fields marked optionalColumn appear only once their column exists (probe
+  // query; PostgREST errors on an unknown column, e.g. before migration 204).
+  const optional = optionalColumnKeys(baseConfig).join(",");
+  const probe = useHrQuery(() => (optional ? run(from(baseConfig.table).select(optional).limit(1)) : Promise.resolve({ data: [], error: null })), [baseConfig.table, optional]);
+  const config = withOptionalColumns(baseConfig, !probe.loading && !probe.error);
   const q = useHrQuery(() => run(from(config.table).select(config.select ?? "*").order(config.orderBy ?? "name")), [config.table]);
   const [editing, setEditing] = useState(null);   // row or {} for new
   const keyField = config.keyField ?? "id";
@@ -35,7 +44,7 @@ export default function MasterDataEditor({ config, canEdit }) {
       <DataTable caption={config.title} columns={columns} rows={q.data} loading={q.loading} error={q.error} onRetry={q.reload} rowKey={keyField} emptyTitle={`No ${config.title.toLowerCase()} yet`} />
       {editing && (
         <EditModal config={config} row={editing} onClose={() => setEditing(null)}
-          onSaved={(isNew) => { setEditing(null); q.reload(); notify(`${config.singular ?? "Record"} ${isNew ? "created" : "updated"}.`); }} />
+          onSaved={(isNew) => { setEditing(null); q.reload(); onChanged?.(); notify(`${config.singular ?? "Record"} ${isNew ? "created" : "updated"}.`); }} />
       )}
     </div>
   );

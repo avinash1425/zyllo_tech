@@ -86,7 +86,7 @@ class PsqlWorker {
     if (this.dead) this.start();
     return new Promise((resolve, reject) => {
       const marker = `__HRMS_LOCAL_${randomBytes(6).toString("hex")}__`;
-      const timer = setTimeout(() => { this.pending = null; try { this.proc.kill(); } catch {} reject(new Error("database statement timed out")); }, timeoutMs);
+      const timer = setTimeout(() => { this.pending = null; try { this.proc.kill(); } catch { /* ignore: best-effort */ } reject(new Error("database statement timed out")); }, timeoutMs);
       this.pending = { marker, resolve, reject, timer };
       this.err = "";
       this.proc.stdin.write(`${sqlLine}\nselect '${marker}';\n`);
@@ -108,7 +108,7 @@ class Pool {
       w.run(job.sqlLine).then(job.resolve, job.reject).finally(() => { w.busy = false; this.pump(); });
     }
   }
-  close() { for (const w of this.workers) try { w.proc.kill(); } catch {} }
+  close() { for (const w of this.workers) try { w.proc.kill(); } catch { /* ignore: best-effort */ } }
 }
 
 const pool = new Pool("authenticator", 8);
@@ -610,7 +610,7 @@ async function handleStorage(ctx, sub) {
     if (!bucket) return storageErr(ctx, 400, 404, "Bucket not found", "Bucket not found");
     const limit = Number(bucket.file_size_limit) || 50 * 1024 * 1024;
     let raw;
-    try { raw = await readBody(req, limit + 64 * 1024); } catch (e) {
+    try { raw = await readBody(req, limit + 64 * 1024); } catch {
       return storageErr(ctx, 413, 413, "Payload too large", "The object exceeded the maximum allowed size");
     }
     let bytes = raw, mime = req.headers["content-type"] || "application/octet-stream";
@@ -642,13 +642,13 @@ async function handleStorage(ctx, sub) {
     }
     const r = await execAs(a.role, claims, sql);
     if (r.error || !r.data) {
-      try { unlinkSync(tmp); } catch {}
+      try { unlinkSync(tmp); } catch { /* ignore: best-effort */ }
       if (r.error?.code === "23505") return storageErr(ctx, 409, 409, "Duplicate", "The resource already exists");
       if (r.error?.code === "42501") return storageErr(ctx, 403, 403, "Unauthorized", "new row violates row-level security policy");
       if (!r.error) return storageErr(ctx, 400, 404, "not_found", "Object not found");
       return storageErr(ctx, 400, 400, "DatabaseError", r.error.message);
     }
-    try { renameSync(tmp, op.file); } catch (e) {
+    try { renameSync(tmp, op.file); } catch {
       try { unlinkSync(op.file); renameSync(tmp, op.file); } catch { return storageErr(ctx, 500, 500, "InternalError", "Could not store the file"); }
     }
     return send(ctx, 200, { Id: id, Key: `${op.bucket}/${op.name}` });
@@ -667,7 +667,7 @@ async function handleStorage(ctx, sub) {
     if (r.error) return storageErr(ctx, 400, 400, "DatabaseError", r.error.message);
     for (const o of r.data) {
       const op = objectPath(`${encodeURIComponent(o.bucket_id)}/${encodePath(o.name)}`);
-      if (op) try { unlinkSync(op.file); } catch {}
+      if (op) try { unlinkSync(op.file); } catch { /* ignore: best-effort */ }
     }
     return send(ctx, 200, r.data);
   }
@@ -817,7 +817,7 @@ const server = http.createServer(async (req, res) => {
   } catch (e) {
     log(`ERROR ${req.method} ${url.pathname}: ${e.stack || e.message}`);
     if (!res.headersSent) send(ctx, 500, { code: "HRMSLOCAL500", message: `Local harness error: ${e.message}`, details: null, hint: null });
-    else try { res.end(); } catch {}
+    else try { res.end(); } catch { /* ignore: best-effort */ }
   }
 });
 

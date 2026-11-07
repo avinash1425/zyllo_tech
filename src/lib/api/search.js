@@ -95,7 +95,7 @@ export async function searchSite(rawQuery) {
   }
 
   // Strip characters that would break the PostgREST or() filter syntax.
-  const safe = query.replace(/[%,()*\]/g, " ").trim();
+  const safe = query.replace(/[%,()*\\]/g, " ").trim();
   const like = `%${safe}%`;
 
   const [blogRes, jobsRes] = await Promise.all([

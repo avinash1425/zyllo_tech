@@ -76,7 +76,7 @@ async function start() {
 function stop() {
   if (keep) return;
   run(bin("pg_ctl"), ["-D", dataDir, "-m", "immediate", "stop"], { stdio: "ignore" });
-  try { server?.kill(); } catch {}
+  try { server?.kill(); } catch { /* ignore: best-effort */ }
   for (let i = 0; i < 20; i++) { try { rmSync(dataDir, { recursive: true, force: true }); break; } catch { spawnSync(process.execPath, ["-e", "setTimeout(()=>{},250)"]); } }
 }
 

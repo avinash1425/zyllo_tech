@@ -108,7 +108,6 @@ export default function Hero() {
   useEffect(() => {
     startAutoplay();
     return stopAutoplay;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function handleTouchStart(event) {

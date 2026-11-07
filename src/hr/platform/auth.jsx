@@ -5,7 +5,9 @@
 // so the HRMS permission model does not change the website's admin/user login.
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/hr/platform/supabase";
-import { destinationFor, hrPortalFor, loginEmailFor, signInDestination } from "@/hr/platform/account";
+import {
+  SIGN_IN_MESSAGES, destinationFor, hrPortalFor, isHrBackendMissing, loginEmailFor, signInDestination, signInFailureMessage,
+} from "@/hr/platform/account";
 
 const AuthContext = createContext(null);
 
@@ -28,6 +30,9 @@ export async function resolveSignIn(next) {
     loadSiteAdmin().catch(() => false),
   ]);
   const hr = error ? null : me;
+  if (import.meta.env.DEV && isHrBackendMissing(error)) {
+    console.warn("[login] signed in, but this Supabase project has no HRMS (hr_me not found). Use `npm run dev:hr` for HR Admin / Employee sign-in.");
+  }
   if (hr?.session_ended) {
     await supabase.auth.signOut({ scope: "local" }).catch(() => {});
     return { sessionEnded: true, destination: null };
@@ -106,15 +111,13 @@ export function HrAuthProvider({ children }) {
     // (Website Admin / HR Admin, unchanged).
     signIn: async (identifier, password) => {
       const email = loginEmailFor(identifier);
-      const generic = { data: null, error: { message: "Incorrect Employee ID / email or password, or the account is not active." } };
+      const generic = { data: null, error: { message: SIGN_IN_MESSAGES.generic } };
       if (!email) return generic;
       const res = await supabase.auth.signInWithPassword({ email, password });
       if (res.error) {
-        // 429 = Auth rate limit; the lockout hook rejects with its own message.
-        if (res.error.status === 429 || /too many sign-in attempts/i.test(res.error.message ?? "")) {
-          return { data: null, error: { message: "Too many sign-in attempts. Wait a few minutes and try again, or contact HR." } };
-        }
-        return generic;
+        // Rate limit / network get their own message; wrong password, unknown
+        // and inactive accounts stay indistinguishable (see account.js).
+        return { data: null, error: { message: signInFailureMessage({ authError: res.error, identifier }) } };
       }
       setSessionEnded(false);
       const profile = await loadProfile(res.data.user);

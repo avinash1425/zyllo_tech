@@ -97,7 +97,7 @@ export default function HrDashboardPage() {
         {/* 1. Employee count */}
         <Section title="Employee count" icon={Users} link={href("/hr/employees", { status: "current", ...empFilters })} linkLabel="Employee Master">
           <div className={`${KPI_GRID} lg:grid-cols-4`}>
-            <KpiCard label="Total employees" value={k.total_employees} icon={Users} tone="navy" loading={loading} hint="Current records (not exited)"
+            <KpiCard label="Total employees" value={k.total_employees} icon={Users} tone="navy" loading={loading} hint="Not exited, incl. onboarding (joining pending), which Reports headcount excludes"
               onClick={go(href("/hr/employees", { status: "current", ...empFilters }))} />
             <KpiCard label="Active" value={k.active_employees} icon={UserCheck} tone="green" loading={loading} hint="Incl. probation & notice period"
               onClick={go(href("/hr/employees", { status: "working", ...empFilters }))} />

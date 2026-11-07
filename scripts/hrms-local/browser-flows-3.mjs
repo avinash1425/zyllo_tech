@@ -110,7 +110,7 @@ async function session(viewport = { w: 1440, h: 900, m: false }) {
     `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, "about:blank"], { stdio: "ignore" });
   chromes.add(proc);
   let target;
-  for (let i = 0; i < 80 && !target; i++) { await sleep(250); try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page"); } catch {} }
+  for (let i = 0; i < 80 && !target; i++) { await sleep(250); try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page"); } catch { /* ignore: best-effort */ } }
   if (!target) { proc.kill(); throw new Error("Chrome did not start"); }
   const ws = new WebSocket(target.webSocketDebuggerUrl); await new Promise((r) => (ws.onopen = r));
   let id = 0; const pend = new Map();
@@ -138,7 +138,7 @@ async function session(viewport = { w: 1440, h: 900, m: false }) {
     const file = `wf3-${name}.jpg`;
     writeFileSync(path.join(SHOTS, file), Buffer.from(s.data, "base64")); shots.push(file);
   };
-  const close = async () => { try { ws.close(); } catch {} proc.kill(); chromes.delete(proc); await sleep(600); try { rmSync(profile, { recursive: true, force: true }); } catch {} };
+  const close = async () => { try { ws.close(); } catch { /* ignore: best-effort */ } proc.kill(); chromes.delete(proc); await sleep(600); try { rmSync(profile, { recursive: true, force: true }); } catch { /* ignore: best-effort */ } };
   return { send, js, go, reload, shot, close };
 }
 
@@ -194,7 +194,6 @@ async function waitFor(s, expr, timeout = 10000, every = 300) {
   while (Date.now() - t0 < timeout) { if (await h(s, expr)) return true; await sleep(every); }
   return false;
 }
-const waitText = (s, re, timeout = 10000) => waitFor(s, `text().match(${re})`, timeout);
 const waitDialog = (s, timeout = 6000) => waitFor(s, "dialogOpen() > 0", timeout);
 const waitNoDialog = (s, timeout = 8000) => waitFor(s, "dialogOpen() === 0", timeout);
 async function toastText(s, timeout = 6000) {
@@ -225,7 +224,6 @@ const TODAY = async () => (await q1("select hr_private.business_today()::text d"
 const addD = (d, n) => { const x = new Date(`${d}T00:00:00Z`); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
 const isoDow = (d) => { const w = new Date(`${d}T00:00:00Z`).getUTCDay(); return w === 0 ? 7 : w; };
 const fmtD = (d) => { const x = new Date(`${d}T00:00:00Z`); return `${String(x.getUTCDate()).padStart(2, "0")} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][x.getUTCMonth()]} ${x.getUTCFullYear()}`; };
-const num = (v) => (v == null ? null : Number(v));
 const notifs = async (email, type, entity) => q(`select type, title, body, created_at from hr_notifications where recipient_user_id = ${lit(await userId(email))} and type = ${lit(type)}${entity ? ` and entity_id = ${lit(entity)}` : ""} order by created_at desc`);
 
 const EMP = "employee@example.com", EMP2 = "employee2@example.com", MGR = "manager@example.com", HR = "hr.admin@example.com", SA = "superadmin@example.com";
@@ -1264,7 +1262,7 @@ try {
     try { await fn(); } catch (e) { check(k, "crash", `workflow ${k} threw`, false, e.stack?.split("\n").slice(0, 3).join(" | ")); }
   }
 } finally {
-  for (const p of chromes) { try { p.kill(); } catch {} }
+  for (const p of chromes) { try { p.kill(); } catch { /* ignore: best-effort */ } }
   const summary = {};
   for (const c of checks) { const w = (summary[c.workflow] ??= {}); const a = (w[c.aspect] ??= { pass: 0, fail: 0 }); c.ok ? a.pass++ : a.fail++; }
   writeFileSync(OUT, JSON.stringify({ harness: { api: API, web: BASE, state: STATE_FILE }, run: RUN, started, finished: new Date().toISOString(), summary, checks,

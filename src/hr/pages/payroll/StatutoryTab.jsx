@@ -5,12 +5,13 @@ import { useMemo, useState } from "react";
 import { AlertTriangle, Plus, Trash2 } from "lucide-react";
 import { useAuth } from "@/hr/platform/auth";
 import { formatDate, formatDateTime, formatMoney, useHrQuery } from "@/lib/hr/client";
-import { toOptions, useEmployeeOptions, useOrg } from "@/lib/hr/org";
+import { toOptions, useOrg } from "@/lib/hr/org";
 import {
   STATUTORY_METHODS, STATUTORY_SCHEMES, approveStatutoryRule, endStatutoryRule, listComponents, listStatutoryEnrollments, listStatutoryRules,
-  retireStatutoryRule, returnStatutoryRule, saveStatutoryEnrollment, saveStatutoryRule, submitStatutoryRule,
+  retireStatutoryRule, returnStatutoryRule, saveStatutoryEnrollment, saveStatutoryRule, submitStatutoryRule, usePayrollEmployeeOptions,
 } from "@/lib/hr/payroll";
-import { Badge, Button, Checkbox, ConfirmDialog, DataTable, Field, InlineError, Input, Modal, Select, Tabs, Textarea, Toolbar, useToast } from "@/hr/ui";
+import { validateStatutoryRule } from "@/lib/hr/payrollHelpers";
+import { Badge, Button, Checkbox, ConfirmDialog, DataTable, ErrorState, Field, InlineError, Input, Loading, Modal, Select, Tabs, Textarea, Toolbar, useToast } from "@/hr/ui";
 import { EmpCell, friendly, label } from "./shared";
 
 const STATUS_TONE = { draft: "slate", pending_validation: "amber", approved: "green", retired: "slate" };
@@ -50,7 +51,12 @@ function Rules() {
   return (
     <>
       <Toolbar>
-        <p className="flex-1 self-center text-sm text-slate-600">One row per rule version (code + state + company + effective dates). Approved versions are immutable — end-date them and add a new version.</p>
+        <div className="flex-1 self-center text-sm text-slate-600">
+          <p>One row per rule version (code + state + company + effective dates). Approved versions are immutable — end-date them and add a new version.</p>
+          <p className="mt-1 text-xs">State-specific rules (for example PT for AP) apply to an employee whose state is the rule's state. The employee's state is taken from their
+            <strong> statutory enrolment</strong> for that rule; if it has none, from their <strong>work location's state code</strong>; if that is blank, from their <strong>company's state code</strong>.
+            "All unless opted out" rules therefore need no enrolment once the location or company has a state code; "Enrolled employees only" rules still need one.</p>
+        </div>
         {canManage && <Button className="self-end" onClick={() => setEditing({ scheme: "other", calc_method: "percent_of_wage", country: "IN", applies_to: "enrolled", rounding_mode: "half_up", rounding_precision: 2, eligibility_basis: "wage_base", wage_base_components: [], slabs: [] })}>
           <Plus className="h-4 w-4" aria-hidden="true" />New rule / version</Button>}
       </Toolbar>
@@ -116,12 +122,16 @@ function RuleModal({ row, onClose, onSaved }) {
   const employer = (comps.data ?? []).filter((c) => c.kind === "employer_contribution");
   const toggleBase = (code) => setV((s) => ({ ...s, wage_base_components: s.wage_base_components.includes(code) ? s.wage_base_components.filter((x) => x !== code) : [...s.wage_base_components, code] }));
   const setSlab = (i, k, val) => setV((s) => ({ ...s, slabs: s.slabs.map((x, j) => (j === i ? { ...x, [k]: val === "" ? null : Number(val) } : x)) }));
+  // The form needs the salary components (wage-base checkboxes, component selects) and the
+  // companies before it can be edited; rendering it earlier showed an empty wage base and no
+  // company option, and a save from that state dropped the wage base.
+  const ready = Boolean(comps.data && org.data);
+  const loadError = comps.error || org.error;
+  const companies = (org.data?.legalEntities ?? []).filter((e) => e.active !== false || e.id === v.legal_entity_id);
   async function save() {
-    if (!/^[A-Za-z][A-Za-z0-9_]{1,29}$/.test(v.code ?? "")) { setError("Code: 2–30 letters, digits or _."); return; }
-    if ((v.name ?? "").trim().length < 2) { setError("Enter a name."); return; }
-    if (!v.effective_from) { setError("Choose the effective-from date."); return; }
-    if (v.effective_to && v.effective_to < v.effective_from) { setError("Effective-to must be after effective-from."); return; }
-    if (v.slabs.some((s) => s.from == null)) { setError("Every slab needs a 'from' amount."); return; }
+    if (!ready) return;
+    const problem = validateStatutoryRule(v);
+    if (problem) { setError(problem); return; }
     setBusy(true); setError(null);
     const res = await saveStatutoryRule(v);
     setBusy(false);
@@ -129,13 +139,14 @@ function RuleModal({ row, onClose, onSaved }) {
   }
   return (
     <Modal open onClose={onClose} size="lg" title={row.id ? `Edit ${row.code} (draft)` : "New statutory rule version (draft)"}
-      footer={<><Button variant="secondary" onClick={onClose}>Cancel</Button><Button loading={busy} onClick={save}>Save draft</Button></>}>
+      footer={<><Button variant="secondary" onClick={onClose}>Cancel</Button><Button loading={busy} disabled={!ready} onClick={save}>Save draft</Button></>}>
+      {loadError ? <ErrorState message={loadError} onRetry={() => { comps.reload(); org.reload(); }} /> : !ready ? <Loading /> : <>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Field label="Code" required><Input value={v.code ?? ""} disabled={Boolean(row.id)} onChange={(e) => setV({ ...v, code: e.target.value.toUpperCase() })} /></Field>
         <Field label="Name" required className="sm:col-span-2"><Input maxLength={160} value={v.name ?? ""} onChange={set("name")} /></Field>
         <Field label="Scheme"><Select value={v.scheme} onChange={set("scheme")} options={STATUTORY_SCHEMES.map((s) => ({ value: s, label: label(s) }))} /></Field>
-        <Field label="State / jurisdiction code" hint="Blank = all. Employees match via their enrolment."><Input maxLength={3} value={v.state_code ?? ""} onChange={(e) => setV({ ...v, state_code: e.target.value.toUpperCase() })} /></Field>
-        <Field label="Company"><Select placeholder="All companies" value={v.legal_entity_id ?? ""} onChange={set("legal_entity_id")} options={toOptions(org.data?.legalEntities)} /></Field>
+        <Field label="State / jurisdiction code" hint="Blank = all states. Employee's state: enrolment, else work location, else company."><Input maxLength={3} value={v.state_code ?? ""} onChange={(e) => setV({ ...v, state_code: e.target.value.toUpperCase() })} /></Field>
+        <Field label="Company"><Select placeholder="All companies" value={v.legal_entity_id ?? ""} onChange={set("legal_entity_id")} options={toOptions(companies, "name", "id", { activeOnly: false })} /></Field>
         <Field label="Effective from" required><Input type="date" value={v.effective_from ?? ""} onChange={set("effective_from")} /></Field>
         <Field label="Effective to"><Input type="date" value={v.effective_to ?? ""} onChange={set("effective_to")} /></Field>
         <Field label="Applies to"><Select value={v.applies_to} onChange={set("applies_to")} options={[{ value: "enrolled", label: "Enrolled employees only" }, { value: "all", label: "All unless opted out" }]} /></Field>
@@ -145,7 +156,8 @@ function RuleModal({ row, onClose, onSaved }) {
       </div>
       <fieldset className="mt-3 rounded-xl border border-slate-200 p-3">
         <legend className="px-1 text-xs font-bold uppercase tracking-wide text-slate-500">Wage base (earning components summed)</legend>
-        <div className="flex flex-wrap gap-3">{earnings.map((c) => <Checkbox key={c.code} label={`${c.code}`} checked={v.wage_base_components.includes(c.code)} onChange={() => toggleBase(c.code)} />)}</div>
+        <div className="flex flex-wrap gap-3">{earnings.map((c) => <Checkbox key={c.code} label={`${c.code}`} checked={v.wage_base_components.includes(c.code)} onChange={() => toggleBase(c.code)} />)}
+          {!earnings.length && <p className="text-sm text-slate-500">No earning components are set up yet (Allowances &amp; deductions).</p>}</div>
       </fieldset>
       <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
         {v.calc_method === "percent_of_wage" && <>
@@ -183,6 +195,7 @@ function RuleModal({ row, onClose, onSaved }) {
         <Field label="Notes"><Textarea maxLength={2000} value={v.notes ?? ""} onChange={set("notes")} /></Field>
       </div>
       <p className="mt-2 text-xs text-slate-500">Saving keeps the rule as a draft. Submit it for validation; a different approver records the professional validation reference.</p>
+      </>}
       <div className="mt-3"><InlineError message={error} /></div>
     </Modal>
   );
@@ -205,7 +218,7 @@ function Enrollments() {
         {canManage && <Button className="self-end" onClick={() => setEditing({ rule_code: code || codes[0] || "", enrolled: true })}><Plus className="h-4 w-4" aria-hidden="true" />Add enrolment</Button>}
       </Toolbar>
       <DataTable caption="Statutory enrolments" rows={q.data} loading={q.loading} error={q.error} onRetry={q.reload} emptyTitle="No enrolments"
-        emptyDescription="Rules set to 'enrolled employees only' apply to employees listed here."
+        emptyDescription="Rules set to 'enrolled employees only' apply to employees listed here. Add a row with 'opted out' to exclude someone from an 'all' rule, or with a state to override their location / company state."
         columns={[
           { key: "employee", header: "Employee", render: (r) => <EmpCell e={r.employee} /> },
           { key: "rule_code", header: "Rule", render: (r) => <span className="font-mono text-xs font-bold">{r.rule_code}</span> },
@@ -222,7 +235,7 @@ function Enrollments() {
 
 function EnrollmentModal({ row, codes, onClose, onSaved }) {
   const { hr } = useAuth();
-  const employees = useEmployeeOptions({ includeInactive: true });
+  const employees = usePayrollEmployeeOptions({ includeInactive: true });
   const [v, setV] = useState({ employee_id: "", effective_from: "", effective_to: "", state_code: "", declared_monthly_amount: "", note: "", ...row });
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -240,7 +253,7 @@ function EnrollmentModal({ row, codes, onClose, onSaved }) {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field label="Employee" required className="sm:col-span-2"><Select placeholder="Choose" disabled={Boolean(row.id)} value={v.employee_id} onChange={set("employee_id")} options={(employees.data ?? []).filter((o) => o.value !== hr?.employee?.id)} /></Field>
           <Field label="Rule" required><Select value={v.rule_code} disabled={Boolean(row.id)} onChange={set("rule_code")} options={codes.map((c) => ({ value: c, label: c }))} /></Field>
-          <Field label="State / jurisdiction"><Input maxLength={3} value={v.state_code ?? ""} onChange={(e) => setV({ ...v, state_code: e.target.value.toUpperCase() })} /></Field>
+          <Field label="State / jurisdiction" hint="Blank = use the work location's, else the company's state."><Input maxLength={3} value={v.state_code ?? ""} onChange={(e) => setV({ ...v, state_code: e.target.value.toUpperCase() })} /></Field>
           <Field label="Effective from" required><Input type="date" value={v.effective_from} onChange={set("effective_from")} /></Field>
           <Field label="Effective to"><Input type="date" value={v.effective_to ?? ""} onChange={set("effective_to")} /></Field>
           <Field label="Declared monthly amount" hint="For employee-declared rules such as TDS."><Input type="number" min="0" step="0.01" value={v.declared_monthly_amount ?? ""} onChange={set("declared_monthly_amount")} /></Field>

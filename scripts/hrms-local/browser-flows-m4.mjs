@@ -77,9 +77,7 @@ async function tok(email) {
 }
 const rpc = async (email, fn, args = {}) => api("POST", `/rest/v1/rpc/${fn}`, { token: await tok(email), body: args });
 const sel = async (email, p) => api("GET", `/rest/v1/${p}`, { token: await tok(email) });
-const patch = async (email, p, body) => api("PATCH", `/rest/v1/${p}`, { token: await tok(email), body, headers: { Prefer: "return=representation" } });
 const post = async (email, p, body) => api("POST", `/rest/v1/${p}`, { token: await tok(email), body, headers: { Prefer: "return=representation" } });
-const del = async (email, p) => api("DELETE", `/rest/v1/${p}`, { token: await tok(email), headers: { Prefer: "return=representation" } });
 const emsg = (r) => (r.body && (r.body.message || r.body.error_description || r.body.msg || r.body.error)) || `HTTP ${r.status}`;
 const refused = (r) => r.status >= 400;
 /** A write that RLS filtered away (0 rows) or the server refused. */
@@ -100,9 +98,9 @@ async function session(viewport = { w: 1440, h: 900, m: false }) {
     "--remote-debugging-port=0", `--user-data-dir=${profile}`, "about:blank"], { stdio: "ignore" });
   chromes.add(proc);
   let port;
-  for (let i = 0; i < 80 && !port; i++) { await sleep(250); try { port = Number(readFileSync(path.join(profile, "DevToolsActivePort"), "utf8").split(/\r?\n/)[0]) || undefined; } catch {} }
+  for (let i = 0; i < 80 && !port; i++) { await sleep(250); try { port = Number(readFileSync(path.join(profile, "DevToolsActivePort"), "utf8").split(/\r?\n/)[0]) || undefined; } catch { /* ignore: best-effort */ } }
   let target;
-  for (let i = 0; i < 80 && port && !target; i++) { try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page"); } catch {} if (!target) await sleep(250); }
+  for (let i = 0; i < 80 && port && !target; i++) { try { target = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page"); } catch { /* ignore: best-effort */ } if (!target) await sleep(250); }
   if (!target) { proc.kill(); throw new Error("Chrome did not start"); }
   const ws = new WebSocket(target.webSocketDebuggerUrl); await new Promise((r) => (ws.onopen = r));
   let id = 0; const pend = new Map();
@@ -130,7 +128,7 @@ async function session(viewport = { w: 1440, h: 900, m: false }) {
     const file = `m4-${name}.jpg`;
     writeFileSync(path.join(SHOTS, file), Buffer.from(s.data, "base64")); shots.push(file);
   };
-  const close = async () => { try { ws.close(); } catch {} proc.kill(); chromes.delete(proc); await sleep(600); try { rmSync(profile, { recursive: true, force: true }); } catch {} };
+  const close = async () => { try { ws.close(); } catch { /* ignore: best-effort */ } proc.kill(); chromes.delete(proc); await sleep(600); try { rmSync(profile, { recursive: true, force: true }); } catch { /* ignore: best-effort */ } };
   return { send, js, go, reload, shot, close };
 }
 
@@ -391,7 +389,7 @@ if (ONLY.includes("debug")) {
   for (const [who, paths] of [[HR, ["/hr/onboarding-exit", "/hr/onboarding-exit/onboarding"]], [PAY1, ["/hr/onboarding-exit/settlement"]]]) {
     await as(who, async (s) => { for (const p of paths) { await s.go(p, 6000); console.log(`--- ${who} ${p} -> ${await s.js("location.pathname")}\n${String(await h(s, "text()")).slice(0, 700)}`); } });
   }
-  for (const p of chromes) { try { p.kill(); } catch {} }
+  for (const p of chromes) { try { p.kill(); } catch { /* ignore: best-effort */ } }
   console.log("page exceptions:", pageErrors);
   process.exit(0);
 }
@@ -404,7 +402,7 @@ try {
   }
   if (!ONLY.length || ONLY.includes("probation")) { console.log("\n=== probation & mobile ==="); try { await wfProbationMobile(); } catch (e) { check("probation_mobile", "crash", "threw", false, e.stack); } }
 } finally {
-  for (const p of chromes) { try { p.kill(); } catch {} }
+  for (const p of chromes) { try { p.kill(); } catch { /* ignore: best-effort */ } }
   writeFileSync(OUT, JSON.stringify({ harness: { api: API, web: BASE }, run: RUN, started, finished: new Date().toISOString(), checks, screenshots: shots,
     blockedRequests: { count: blocked.length, urls: blocked }, pageExceptions: pageErrors }, null, 2));
   const failed = checks.filter((c) => !c.ok).length;

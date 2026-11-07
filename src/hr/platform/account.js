@@ -68,6 +68,52 @@ export function loginEmailFor(identifier) {
   return EMPLOYEE_ID.test(s) ? `${s.toLowerCase()}@${EMPLOYEE_LOGIN_DOMAIN}` : null;
 }
 
+// ------------------------------------------------------------ sign-in errors
+// Wrong password, unknown account and inactive (banned) account deliberately
+// share ONE message, so the login form cannot be used to find out which
+// emails / Employee IDs exist or are active. Only failures that say nothing
+// about an account get their own message: rate limit, network, and a site
+// whose Supabase project has no HRMS (public.hr_me missing, PostgREST
+// PGRST202) — e.g. the dev server started without `--mode hr`.
+export const SIGN_IN_MESSAGES = {
+  generic: "Incorrect email / Employee ID or password, or the account is not active.",
+  rateLimited: "Too many sign-in attempts. Wait a few minutes and try again, or contact HR.",
+  network: "Can't reach the sign-in service. Check your connection and try again.",
+  hrUnavailable: "Employee ID sign-in is not available on this site right now. Please contact Zyllo Tech HR.",
+  devHrMissing: " [Dev: this Supabase project has no HRMS (hr_me not found). Start the HRMS dev server with `npm run dev:hr`.]",
+};
+
+/** Is this the PostgREST "function not found" error (HRMS not installed)? */
+export function isHrBackendMissing(error) {
+  return error?.code === "PGRST202" || (error?.status === 404 && /hr_me/.test(error?.message ?? ""));
+}
+
+/**
+ * Message for a failed sign-in.
+ * authError: supabase-js AuthError ({ status, code, name, message }).
+ * hrBackendMissing: hr_me() is not deployed on the configured project.
+ * identifier: what the user typed (only used to tell Employee ID from email).
+ * dev: import.meta.env.DEV — adds a developer hint, never in production.
+ */
+export function signInFailureMessage({ authError, hrBackendMissing = false, identifier = "", dev = false }) {
+  const status = authError?.status;
+  if (status === 429 || authError?.code === "over_request_rate_limit" || /too many sign-in attempts/i.test(authError?.message ?? "")) {
+    return SIGN_IN_MESSAGES.rateLimited;
+  }
+  if (authError?.name === "AuthRetryableFetchError" || status === 0 || (typeof status === "number" && status >= 500)) {
+    return SIGN_IN_MESSAGES.network;
+  }
+  if (hrBackendMissing) {
+    // Employee ID accounts only exist where the HRMS is installed, so this is
+    // a configuration problem, not a credential one. Email sign-in stays
+    // generic: Website Admins legitimately sign in on a project without HRMS.
+    const isEmployeeId = !String(identifier).includes("@");
+    const base = isEmployeeId ? SIGN_IN_MESSAGES.hrUnavailable : SIGN_IN_MESSAGES.generic;
+    return dev ? base + SIGN_IN_MESSAGES.devHrMissing : base;
+  }
+  return SIGN_IN_MESSAGES.generic;
+}
+
 /** Employee ID of an Employee-ID account (hr_me().login), else null. */
 export function employeeLoginIdOf(hr) {
   return hr?.login?.login_id || null;

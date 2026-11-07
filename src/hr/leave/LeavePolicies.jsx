@@ -9,6 +9,8 @@ import { History, Plus } from "lucide-react";
 import { useAuth } from "@/hr/platform/auth";
 import { formatDate, formatDateTime, useHrQuery } from "@/lib/hr/client";
 import { useOrg } from "@/lib/hr/org";
+import { businessToday, useBusinessTimezone } from "@/lib/hr/attendance";
+import { GENDER_ELIGIBILITY_OPTIONS, genderEligibilityLabel } from "@/lib/hr/leaveRules";
 import { ACCRUAL_LABELS, POLICY_FIELDS, decidePolicy, listLeaveTypes, listPolicyChanges, listPolicyVersions, proposePolicy, withdrawPolicy } from "@/lib/hr/leave";
 import { Badge, Button, Card, Checkbox, ConfirmDialog, DataTable, Field, InlineError, Input, Loading, ErrorState, Modal, Select, Textarea, useToast } from "@/hr/ui";
 
@@ -21,12 +23,14 @@ export const POLICY_LABELS = {
   allow_negative: "Negative balance allowed", max_negative: "Max negative", counts_weekends: "Weekends count", counts_holidays: "Holidays count",
   active: "Active", sort_order: "Sort order", eligible_employment_types: "Eligible employment types", min_days_per_request: "Min days / request",
   max_days_per_request: "Max days / request", min_notice_days: "Advance notice (days)", effective_from: "Effective from", effective_to: "Effective to",
+  eligible_gender: "Eligible gender",
 };
 
 function fmtValue(k, v) {
   if (v == null || v === "") return "—";
   if (Array.isArray(v)) return v.length ? v.join(", ") : "all";
   if (typeof v === "boolean") return v ? "yes" : "no";
+  if (k === "eligible_gender") return genderEligibilityLabel(v);
   if (k === "accrual") return v;
   return String(v);
 }
@@ -44,6 +48,8 @@ export default function LeavePolicies({ canEdit }) {
   const typeName = (id) => (types.data ?? []).find((t) => t.id === id)?.name;
   const pending = useMemo(() => (changes.data ?? []).filter((c) => c.status === "pending"), [changes.data]);
   const pendingFor = (id) => pending.find((c) => c.leave_type_id === id);
+  // The gender setting exists once migration 203 is applied (the column is then in every row).
+  const genderSupported = (types.data ?? []).some((t) => Object.prototype.hasOwnProperty.call(t, "eligible_gender"));
   const reload = () => { types.reload(); changes.reload(); };
 
   return (
@@ -66,7 +72,9 @@ export default function LeavePolicies({ canEdit }) {
                   r.max_days_per_request ? `max ${n(r.max_days_per_request)}` : null, r.allow_half_day ? "half days" : "full days",
                   r.requires_document_after_days != null ? `doc > ${n(r.requires_document_after_days)}d` : null].filter(Boolean).join(" · ")}
               </span>) },
-            { key: "eligible", header: "Eligible", render: (r) => (r.eligible_employment_types?.length ? r.eligible_employment_types.join(", ") : "all") },
+            { key: "eligible", header: "Eligible", render: (r) => (
+              <span>{r.eligible_employment_types?.length ? r.eligible_employment_types.join(", ") : "all"}
+                {r.eligible_gender && <span className="block text-xs text-slate-500">{genderEligibilityLabel(r.eligible_gender)}</span>}</span>) },
             { key: "active", header: "Status", render: (r) => (
               <span className="flex flex-col gap-1">{r.active ? <Badge tone="green">active</Badge> : <Badge>inactive</Badge>}
                 {pendingFor(r.id) && <Badge tone="orange">change pending</Badge>}<span className="text-xs text-slate-500">v{r.policy_version}</span></span>) },
@@ -104,7 +112,7 @@ export default function LeavePolicies({ canEdit }) {
           ]} />
       </Card>
 
-      {editing && <PolicyModal row={editing} empTypes={empTypes} onClose={() => setEditing(null)}
+      {editing && <PolicyModal row={editing} empTypes={empTypes} genderSupported={genderSupported} onClose={() => setEditing(null)}
         onSaved={(c) => { setEditing(null); reload(); notify(c?.status === "approved" ? "Policy change applied." : "Policy change submitted for approval."); }} />}
       {history && <HistoryModal type={history} onClose={() => setHistory(null)} />}
       <ConfirmDialog open={Boolean(deciding)} onClose={() => setDeciding(null)}
@@ -127,8 +135,9 @@ const NUM = { annual_entitlement: [0, 366, 0.5], carry_forward_max: [0, 366, 0.5
   max_negative: [0, 366, 0.5], sort_order: [0, 1000, 1], min_days_per_request: [0.5, 366, 0.5], max_days_per_request: [0.5, 366, 0.5], min_notice_days: [0, 365, 1] };
 const BOOL = ["paid", "allow_half_day", "allow_during_probation", "allow_negative", "counts_weekends", "counts_holidays", "active"];
 
-function PolicyModal({ row, empTypes, onClose, onSaved }) {
+function PolicyModal({ row, empTypes, genderSupported, onClose, onSaved }) {
   const isNew = !row.id;
+  const today = businessToday(useBusinessTimezone());   // business-timezone date, not UTC (matches the server check)
   const initial = useMemo(() => {
     const base = isNew ? { code: "", name: "", description: "", paid: true, annual_entitlement: 0, accrual: "annual", carry_forward_max: 0, allow_half_day: true,
       allow_during_probation: true, allow_negative: false, counts_weekends: false, counts_holidays: false, active: true, sort_order: 10, eligible_employment_types: [] } : row;
@@ -148,7 +157,7 @@ function PolicyModal({ row, empTypes, onClose, onSaved }) {
     if (NUM[k]) return val === "" || val == null ? null : Number(val);
     if (BOOL.includes(k)) return Boolean(val);
     if (k === "eligible_employment_types") return val?.length ? val : null;
-    if (k === "effective_from" || k === "effective_to" || k === "description") return val || null;
+    if (k === "effective_from" || k === "effective_to" || k === "description" || k === "eligible_gender") return val || null;
     return typeof val === "string" ? val.trim() : val;
   }
 
@@ -165,7 +174,7 @@ function PolicyModal({ row, empTypes, onClose, onSaved }) {
         && Number(v.max_days_per_request) < Number(v.min_days_per_request)) errs.max_days_per_request = "Must be at least the minimum.";
     if (v.effective_from && v.effective_to && v.effective_to < v.effective_from) errs.effective_to = "Must be on or after the start.";
     if (reason.trim().length < 3) errs.reason = "Explain why (at least 3 characters).";
-    if (effective && effective > new Date().toISOString().slice(0, 10)) errs.effective = "Future-dated changes are not supported; approved changes apply immediately.";
+    if (effective && effective > today) errs.effective = "Future-dated changes are not supported; approved changes apply immediately.";
     setErrors(errs);
     if (Object.keys(errs).length) return;
     const changes = {};
@@ -175,6 +184,7 @@ function PolicyModal({ row, empTypes, onClose, onSaved }) {
       if (isNew || JSON.stringify(next) !== JSON.stringify(prev)) changes[k] = next;
     }
     if (!v.allow_negative) delete changes.max_negative;   // the server clears it when negative balances are off
+    if (changes.eligible_gender == null && (isNew || !genderSupported)) delete changes.eligible_gender;   // default "every employee"; unknown field before 203
     if (isNew) changes.code = v.code.trim().toUpperCase();
     if (!Object.keys(changes).length) { setError("Nothing has changed."); return; }
     setBusy(true); setError(null);
@@ -212,6 +222,11 @@ function PolicyModal({ row, empTypes, onClose, onSaved }) {
           </div>
           <p className="mt-1 text-xs text-slate-500">None ticked = every employment type.</p>
         </fieldset>
+        {genderSupported && (
+          <Field label="Gender" hint="Employees with no recorded gender (or another value) stay eligible. Use for event-based leave such as maternity / paternity.">
+            <Select value={v.eligible_gender ?? ""} onChange={set("eligible_gender")} options={GENDER_ELIGIBILITY_OPTIONS} />
+          </Field>
+        )}
         <div className="sm:col-span-2"><Checkbox label="Allowed during probation" checked={Boolean(v.allow_during_probation)} onChange={(e) => setV((s) => ({ ...s, allow_during_probation: e.target.checked }))} /></div>
 
         <h3 className="text-sm font-bold text-[#101a3a] sm:col-span-2">Requests</h3>
@@ -237,7 +252,7 @@ function PolicyModal({ row, empTypes, onClose, onSaved }) {
         <Field label="Reason for the change" required error={errors.reason} className="sm:col-span-2"><Textarea value={reason} onChange={(e) => setReason(e.target.value)} maxLength={1000} /></Field>
         <Field label="Decision date (optional, today or earlier)" error={errors.effective}
           hint="Recorded on the policy version. An approved change applies to new requests immediately; future-dated changes are not supported. To start a type later, use “Leave can be taken from”.">
-          <Input type="date" max={new Date().toISOString().slice(0, 10)} value={effective} onChange={(e) => setEffective(e.target.value)} /></Field>
+          <Input type="date" max={today} value={effective} onChange={(e) => setEffective(e.target.value)} /></Field>
       </div>
       <div className="mt-3"><InlineError message={error} /></div>
     </Modal>
@@ -252,7 +267,7 @@ function HistoryModal({ type, onClose }) {
         <ol className="flex flex-col gap-2">
           {(q.data ?? []).map((ver, i, all) => {
             const prev = all[i + 1]?.snapshot;
-            const diff = prev ? Object.keys(POLICY_LABELS).filter((k) => JSON.stringify(ver.snapshot?.[k]) !== JSON.stringify(prev?.[k])) : [];
+            const diff = prev ? Object.keys(POLICY_LABELS).filter((k) => JSON.stringify(ver.snapshot?.[k] ?? null) !== JSON.stringify(prev?.[k] ?? null)) : [];   // ?? null: fields added later (e.g. eligible_gender) are absent from old snapshots
             return (
               <li key={ver.id} className="rounded-lg border border-slate-100 bg-slate-50 p-2.5 text-sm">
                 <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500"><Badge tone="blue">v{ver.version}</Badge><span>{formatDateTime(ver.created_at)}</span>{ver.effective_from && <span>effective {formatDate(ver.effective_from)}</span>}{ver.change_id ? <Badge tone="green">approved change</Badge> : <Badge>system</Badge>}</div>

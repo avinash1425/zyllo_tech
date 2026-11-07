@@ -36,7 +36,7 @@ if (s.supervisorPid && s.supervisorPid !== process.pid && pidAlive(s.supervisorP
 for (let i = 0; i < 40 && existsSync(root); i++) {
   try { rmSync(root, { recursive: true, force: true }); } catch { await sleep(250); }
 }
-try { unlinkSync(STATE_FILE); } catch {}
+try { unlinkSync(STATE_FILE); } catch { /* ignore: best-effort */ }
 
 const ports = [s.apiPort, s.webPort, s.pgPort].filter(Boolean);
 const busy = [];

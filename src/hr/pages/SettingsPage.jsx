@@ -35,7 +35,11 @@ export default function SettingsPage() {
     ...(hasPermission("roles.manage") ? [{ value: "roles", label: "Roles & permissions" }] : []),
     ...(hasPermission("audit.view") ? [{ value: "audit", label: "Audit log" }] : []),
   ], [hasPermission, canManage]);
-  const [tab, setTab] = useState(tabs[0]?.value);
+  const [tab, setTabState] = useState(tabs[0]?.value);
+  // Org lookups feed the dropdowns of other tabs (Departments → company / parent,
+  // Designations → department…): refresh them when switching tabs and after
+  // every master-data save, so new items appear without a page reload.
+  const setTab = (t) => { setTabState(t); if (t !== tab) org.reload(); };
 
   const configs = {
     legal_entities: { table: "hr_legal_entities", title: "Legal entities", singular: "legal entity",
@@ -44,6 +48,7 @@ export default function SettingsPage() {
       fields: [{ key: "code", label: "Code", required: true, uppercase: true, pattern: "^[A-Za-z0-9_-]{2,20}$", patternMessage: "2–20 letters, digits, _ or -." },
         { key: "name", label: "Name", required: true }, { key: "legal_name", label: "Registered legal name", wide: true },
         { key: "country", label: "Country (ISO code)", required: true, uppercase: true, pattern: "^[A-Za-z]{2}$", patternMessage: "Two-letter country code, e.g. IN or AE." },
+        { key: "state_code", label: "State code (e.g. AP)", optionalColumn: true, uppercase: true, pattern: "^[A-Za-z0-9]{2,3}$", patternMessage: "2–3 letters or digits, e.g. AP.", hint: "Optional. Used for state-specific statutory rules (e.g. Professional Tax)." },
         { key: "registration_number", label: "Registration number" }, { key: "tax_number", label: "Tax number" }, { key: "address", label: "Address", type: "textarea", wide: true }],
       defaults: { country: "IN" } },
     grades: { table: "hr_grades", title: "Grades & bands", singular: "grade", orderBy: "level",
@@ -81,9 +86,11 @@ export default function SettingsPage() {
     designations: { table: "hr_designations", title: "Designations", singular: "designation", select: "id, name, department_id, level, active",
       columns: [{ key: "name", header: "Name" }, { key: "department_id", header: "Department", render: (r) => org.data?.departments.find((d) => d.id === r.department_id)?.name ?? "Any" }, { key: "level", header: "Level" }],
       fields: [{ key: "name", label: "Name", required: true }, { key: "department_id", label: "Department", type: "select", placeholder: "Any department", options: toOptions(org.data?.departments) }, { key: "level", label: "Level (1–20)", type: "number", min: 1, max: 20 }] },
-    locations: { table: "hr_locations", title: "Office locations", singular: "location", select: "id, name, city, address, timezone, active",
-      columns: [{ key: "name", header: "Name" }, { key: "city", header: "City" }, { key: "timezone", header: "Timezone" }],
-      fields: [{ key: "name", label: "Name", required: true }, { key: "city", label: "City" }, { key: "address", label: "Address", type: "textarea", wide: true },
+    locations: { table: "hr_locations", title: "Office locations", singular: "location", select: "*",
+      columns: [{ key: "name", header: "Name" }, { key: "city", header: "City" }, { key: "state_code", header: "State", optionalColumn: true, render: (r) => r.state_code ?? "—" }, { key: "timezone", header: "Timezone" }],
+      fields: [{ key: "name", label: "Name", required: true }, { key: "city", label: "City" },
+        { key: "state_code", label: "State code (e.g. AP)", optionalColumn: true, uppercase: true, pattern: "^[A-Za-z0-9]{2,3}$", patternMessage: "2–3 letters or digits, e.g. AP.", hint: "Optional. Used for state-specific statutory rules (e.g. Professional Tax)." },
+        { key: "address", label: "Address", type: "textarea", wide: true },
         { key: "timezone", label: "Timezone", type: "select", placeholder: undefined, required: true, options: TIMEZONES.map((t) => ({ value: t, label: t })) }],
       defaults: { timezone: "Asia/Kolkata" } },
     shifts: { table: "hr_shifts", title: "Shifts", singular: "shift", select: "*",
@@ -130,7 +137,7 @@ export default function SettingsPage() {
       </div>
       {tab === "company" && <CompanySettings canEdit={canManage} />}
       {tab === "employee_id" && <EmployeeIdSettings canEdit={canManage} />}
-      {configs[tab] && (org.loading ? <Loading /> : <Card><MasterDataEditor key={tab} config={configs[tab]} canEdit={canManage} /></Card>)}
+      {configs[tab] && (org.loading && !org.data ? <Loading /> : <Card><MasterDataEditor key={tab} config={configs[tab]} canEdit={canManage} onChanged={org.reload} /></Card>)}
       {tab === "templates" && <Card><MasterDataEditor config={{
         table: "hr_notification_templates", title: "Notification templates", singular: "template", keyField: "key", orderBy: "key",
         description: "Copy used for in-app notifications and optional emails. Placeholders like {{employee_name}} are filled by the sending module.",
@@ -187,7 +194,7 @@ function CompanySettings({ canEdit }) {
   async function save() {
     if (!val.name?.trim() || !val.legal_name?.trim()) { setError("Company name and legal name are required."); return; }
     if (!days.length) { setError("Choose at least one working day."); return; }
-    setBusy(true); const res = await saveSetting("company", { ...val, fiscal_year_start_month: Number(val.fiscal_year_start_month) || 4 }); setBusy(false);
+    setBusy(true); const res = await saveSetting("company", { ...val, name: val.name.trim(), legal_name: val.legal_name.trim(), fiscal_year_start_month: Number(val.fiscal_year_start_month) || 4 }); setBusy(false);
     if (res.error) setError(res.error); else { setError(null); setV(null); s.reload(); notify("Company settings saved."); }
   }
   return (

@@ -37,6 +37,7 @@ import {
   Badge, Button, Card, Checkbox, ConfirmDialog, DataTable, DescriptionList, EmptyState, ErrorState, Field, InlineError, Input, Loading,
   Modal, PageHeader, SearchInput, Select, StatusBadge, Tabs, Textarea, Toolbar, useToast,
 } from "@/hr/ui";
+import { offerResponseBadge } from "@/lib/hr/displayLabels";
 
 const BASE = "/hr/recruitment";
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
@@ -101,7 +102,7 @@ function RecruitmentHome() {
       {tab === "overview" && <OverviewTab org={org.data} employees={employees.data} base={BASE} />}
       {tab === "openings" && <OpeningsTab org={org} employees={employees} onViewPipeline={(id) => { setPipelineOpening(id); navigate(`${BASE}/pipeline`); }} />}
       {tab === "pipeline" && <PipelineTab key={pipelineOpening} initialOpening={pipelineOpening} employees={employees.data} />}
-      {tab === "candidates" && <CandidatesTab />}
+      {tab === "candidates" && <CandidatesTab employees={employees.data} />}
       {tab === "interviews" && <InterviewsTab />}
       {tab === "offers" && <OffersTab base={BASE} />}
       {tab === "interns" && <InternsTab org={org} employees={employees} />}
@@ -605,6 +606,7 @@ function ApplicationDetail() {
   const offerList = offers.data ?? [];
   const activeOffer = offerList.find((o) => ["draft", "sent", "accepted"].includes(o.status));
   const acceptedOffer = offerList.find((o) => o.status === "accepted");
+  const offerBadge = offerResponseBadge(a.stage, offerList);
   const refresh = () => { app.reload(); events.reload(); interviews.reload(); offers.reload(); };
   const assignedRecruiter = Boolean(p.me) && (a.recruiter_id === p.me || a.opening?.recruiter_id === p.me);
   const canMove = p.manage && NEXT_STAGES[a.stage]?.length;
@@ -618,7 +620,7 @@ function ApplicationDetail() {
         <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Applications
       </button>
       <PageHeader title={c.full_name ?? "Candidate"}
-        description={<span className="flex flex-wrap items-center gap-2"><span>{a.opening?.title}</span><StageBadge stage={a.stage} />{a.on_hold && <Badge tone="amber">on hold</Badge>}<span className="text-xs">since {formatDateTime(a.stage_changed_at)}</span></span>}
+        description={<span className="flex flex-wrap items-center gap-2"><span>{a.opening?.title}</span><StageBadge stage={a.stage} />{offerBadge && <Badge tone={offerBadge.tone}>{offerBadge.label}</Badge>}{a.on_hold && <Badge tone="amber">on hold</Badge>}<span className="text-xs">since {formatDateTime(a.stage_changed_at)}</span></span>}
         actions={<>
           <ResumeButton path={c.resume_path} size="md" />
           {canMove && <Button variant="secondary" onClick={() => setModal("move")}>Move stage</Button>}
@@ -876,7 +878,7 @@ function ConvertCandidateModal({ application, offer, org, employees, onClose, on
 // =====================================================================
 // Candidates
 // =====================================================================
-function CandidatesTab() {
+function CandidatesTab({ employees }) {
   const p = usePerms();
   const navigate = useNavigate();
   const { notify } = useToast();
@@ -904,7 +906,7 @@ function CandidatesTab() {
       <DataTable caption="Candidates" columns={columns} rows={q.data} loading={q.loading} error={q.error} onRetry={q.reload} onRowClick={setDetail} emptyTitle="No candidates found" />
       {detail && <CandidateModal candidate={detail} canEdit={p.manage} onClose={() => setDetail(null)} onOpenApplication={(id) => navigate(`${BASE}/applications/${id}`)}
         onSaved={() => { setDetail(null); q.reload(); notify("Candidate updated."); }} />}
-      {adding && <AddCandidateModal openings={openings.data} canSalary={p.manage} onClose={() => setAdding(false)}
+      {adding && <AddCandidateModal openings={openings.data} employees={employees} canSalary={p.manage} onClose={() => setAdding(false)}
         onSaved={(appId, warning) => { setAdding(false); q.reload(); notify(warning ?? "Application added.", warning ? "error" : undefined); if (appId) navigate(`${BASE}/applications/${appId}`); }} />}
     </>
   );

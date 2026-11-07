@@ -5,11 +5,11 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useAuth } from "@/hr/platform/auth";
 import { formatDate, formatDateTime, formatMoney, fullName, useHrQuery } from "@/lib/hr/client";
-import { useEmployeeOptions } from "@/lib/hr/org";
 import {
   MONEY, STRUCTURE_STATUSES, approveStructure, archiveStructure, deleteStructureItem, endStructure, listComponents, listStructureItems, listStructures,
-  previewStructure, rejectStructure, reviseStructure, saveStructure, saveStructureItem, submitStructure,
+  previewStructure, rejectStructure, reviseStructure, saveStructure, saveStructureItem, submitStructure, usePayrollEmployeeOptions,
 } from "@/lib/hr/payroll";
+import { prefillEmployee } from "@/lib/hr/payrollHelpers";
 import { Badge, Button, ConfirmDialog, DataTable, Field, InlineError, Input, Loading, Modal, Select, Textarea, Toolbar, useToast } from "@/hr/ui";
 import { StatutoryWarning } from "@/hr/settings/SalaryComponentsSettings";
 import { EmpCell, SelfNote, StructureBadge, friendly, label } from "./shared";
@@ -17,7 +17,7 @@ import { EmpCell, SelfNote, StructureBadge, friendly, label } from "./shared";
 export default function StructuresTab() {
   const { hr, user, hasPermission } = useAuth();
   const { notify } = useToast();
-  const employees = useEmployeeOptions({ includeInactive: true });
+  const employees = usePayrollEmployeeOptions({ includeInactive: true });
   const [employee, setEmployee] = useState("");
   const [status, setStatus] = useState("");
   const q = useHrQuery(() => listStructures(employee, { status }), [employee, status]);
@@ -30,8 +30,8 @@ export default function StructuresTab() {
   const isMine = (r) => me && r.employee_id === me;
 
   const ACTIONS = {
-    submit: { title: "Submit for approval?", confirm: "Submit", reasonLabel: "Note for the approver (optional)", run: (r, note) => submitStructure(r.id, note), done: "Submitted for approval." },
-    approve: { title: "Approve salary structure?", confirm: "Approve", tone: "success", reasonLabel: "Approval note (optional)",
+    submit: { title: "Submit for approval?", confirm: "Submit", requireReason: false, reasonLabel: "Note for the approver (optional)", run: (r, note) => submitStructure(r.id, note), done: "Submitted for approval." },
+    approve: { title: "Approve salary structure?", confirm: "Approve", tone: "success", requireReason: false, reasonLabel: "Approval note (optional)",
       message: "It becomes active from its effective date. Any earlier approved structure is end-dated the day before.", run: (r, note) => approveStructure(r.id, note),
       done: (d) => `Approved.${d?.ended_structures?.length ? " The previous structure was end-dated." : ""}${d?.retroactive ? " It is retroactive to an approved payroll period — raise a correction for any arrears." : ""}` },
     reject: { title: "Return for correction?", confirm: "Return", tone: "danger", requireReason: true, reasonLabel: "Reason", run: (r, note) => rejectStructure(r.id, note), done: "Returned to the preparer." },
@@ -45,7 +45,7 @@ export default function StructuresTab() {
         <Field label="Employee" className="sm:w-72"><Select placeholder="All employees" value={employee} onChange={(e) => setEmployee(e.target.value)} options={employees.data ?? []} /></Field>
         <Field label="Status" className="sm:w-48"><Select placeholder="Any" value={status} onChange={(e) => setStatus(e.target.value)} options={STRUCTURE_STATUSES.map((s) => ({ value: s, label: s === "rejected" ? "returned" : label(s) }))} /></Field>
         <div className="flex-1" />
-        {canManage && <Button className="self-end" onClick={() => setEditing({ employee_id: employee, currency: "INR" })}><Plus className="h-4 w-4" aria-hidden="true" />New structure</Button>}
+        {canManage && <Button className="self-end" onClick={() => setEditing({ employee_id: prefillEmployee(employee, me), currency: "INR" })}><Plus className="h-4 w-4" aria-hidden="true" />New structure</Button>}
       </Toolbar>
       <DataTable caption="Salary structures" rows={q.data} loading={q.loading} error={q.error} onRetry={q.reload} onRowClick={setOpen}
         emptyTitle="No salary structures" emptyDescription="Employees are only paid when they have an approved structure for the period."
