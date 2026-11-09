@@ -15,6 +15,7 @@ export default function ApprovalsTab() {
   const { notify } = useToast();
   const navigate = useNavigate();
   const canApprove = hasPermission("payroll.approve");
+  const canFinalize = hasPermission("payroll.finalize");
   const me = hr?.employee?.id;
   const runs = useHrQuery(() => listRuns(), []);
   const structures = useHrQuery(() => listStructures("", { status: "pending_approval" }), []);
@@ -48,7 +49,7 @@ export default function ApprovalsTab() {
             { key: "status", header: "Stage", render: (r) => <RunBadge status={r.status} /> },
             { key: "reviewed_at", header: "Submitted", render: (r) => formatDateTime(r.reviewed_at) },
             { key: "checks", header: "Checks", render: (r) => `${r.validation?.employees ?? "—"} employees · ${r.validation?.items_with_warnings ?? 0} with warnings` },
-            { key: "_a", header: <span className="sr-only">Open</span>, render: (r) => <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); navigate(`/hr/payroll/runs/${r.id}`); }}>{r.status === "reviewed" ? "Review & approve" : "Finalize"}</Button> },
+            { key: "_a", header: <span className="sr-only">Open</span>, render: (r) => <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); navigate(`/hr/payroll/runs/${r.id}`); }}>{r.status === "reviewed" ? "Review & approve" : canFinalize ? "Finalize" : "Open"}</Button> },
           ]} />
       </Card>
       <Card title={`Salary structures (${structures.data?.length ?? 0})`} padded={false}>

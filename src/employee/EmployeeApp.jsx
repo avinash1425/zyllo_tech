@@ -33,7 +33,8 @@ export const EMPLOYEE_PAGES = [
 ];
 const SECTIONS = ["Me", "Work", "Records", "Company"];
 
-const HR_ENTRY = ["dashboard.view", "dashboard.view_team", "employees.view", "employees.view_team", "settings.view", "payroll.view", "recruitment.view", "reports.view", "reports.view_team"];
+// Support-desk staff (helpdesk.it / helpdesk.hr) land on their own portal but need the switch to reach /hr/helpdesk.
+const HR_ENTRY = ["dashboard.view", "dashboard.view_team", "employees.view", "employees.view_team", "settings.view", "payroll.view", "recruitment.view", "reports.view", "reports.view_team", "helpdesk.it", "helpdesk.hr"];
 
 export default function EmployeeApp() {
   const { hasPermission, hr } = useAuth();

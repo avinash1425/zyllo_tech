@@ -123,7 +123,7 @@ function Settlements() {
   const q = useHrQuery(() => listSettlementCoverage(), []);
   const [adding, setAdding] = useState(false);
   const [voiding, setVoiding] = useState(null);
-  const canRecord = hasPermission("payroll.approve");
+  const canRecord = hasPermission("payroll.settlement_pay"); // 209: settlement payment duty
   return (
     <>
       <Card className="mb-3">

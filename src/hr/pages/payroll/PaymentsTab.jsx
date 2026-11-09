@@ -37,28 +37,31 @@ export default function PaymentsTab({ runId: fixedRun }) {
 export function PaymentsTable({ rows, query, showRun }) {
   const { hr, user, hasPermission } = useAuth();
   const { notify } = useToast();
-  const canRecord = hasPermission("payroll.approve");
+  // 209: recording and reconciling are separate duties (server-enforced).
+  const canRecord = hasPermission("payroll.payments_record");
+  const canReconcile = hasPermission("payroll.payments_reconcile");
+  const canAct = canRecord || canReconcile;
   const me = hr?.employee?.id;
   const [selected, setSelected] = useState(() => new Set());
   const [modal, setModal] = useState(null);
   const [history, setHistory] = useState(null);
-  const selectable = (p) => canRecord && p.employee_id !== me && !["reconciled"].includes(p.status);
+  const selectable = (p) => canAct && p.employee_id !== me && !["reconciled"].includes(p.status);
   const sel = rows.filter((p) => selected.has(p.id));
   const toggle = (id) => setSelected((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   const totals = rows.reduce((t, p) => ({ due: t.due + Number(p.amount), paid: t.paid + Number(p.amount_paid) }), { due: 0, paid: 0 });
   return (
     <>
-      {canRecord && (
+      {canAct && (
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span className="text-sm text-slate-600">{sel.length} selected</span>
-          <Button size="sm" disabled={!sel.length || sel.some((p) => p.status === "paid")} onClick={() => setModal({ mode: "record" })}>Record status…</Button>
-          <Button size="sm" variant="secondary" disabled={!sel.length || sel.some((p) => p.status !== "paid" || p.recorded_by === user?.id)} onClick={() => setModal({ mode: "reconcile" })}>Reconcile…</Button>
+          {canRecord && <Button size="sm" disabled={!sel.length || sel.some((p) => p.status === "paid")} onClick={() => setModal({ mode: "record" })}>Record status…</Button>}
+          {canReconcile && <Button size="sm" variant="secondary" disabled={!sel.length || sel.some((p) => p.status !== "paid" || p.recorded_by === user?.id)} onClick={() => setModal({ mode: "reconcile" })}>Reconcile…</Button>}
           <span className="ml-auto text-xs text-slate-500">Due {formatMoney(totals.due)} · recorded paid {formatMoney(totals.paid)}</span>
         </div>
       )}
       <DataTable caption="Salary payments" rows={rows} loading={query.loading} error={query.error} onRetry={query.reload} pageSize={50} emptyTitle="No payments" emptyDescription="Payments are created when a payroll run is finalized."
         columns={[
-          ...(canRecord ? [{ key: "_s", header: <span className="sr-only">Select</span>, render: (p) => (selectable(p)
+          ...(canAct ? [{ key: "_s", header: <span className="sr-only">Select</span>, render: (p) => (selectable(p)
             ? <Checkbox label={<span className="sr-only">Select payment</span>} checked={selected.has(p.id)} onChange={() => toggle(p.id)} />
             : p.employee_id === me ? <span className="text-[11px] text-slate-400" title="Your own pay is recorded by another person">own</span> : null) }] : []),
           { key: "employee", header: "Employee", render: (p) => <EmpCell e={p.employee} /> },

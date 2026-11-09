@@ -192,6 +192,9 @@ function RunDetail() {
   const [onlyFlags, setOnlyFlags] = useState(false);
   const canManage = hasPermission("payroll.manage");
   const canApprove = hasPermission("payroll.approve");
+  // 209: steps after approval are separate duties (the server enforces the same keys).
+  const canFinalize = hasPermission("payroll.finalize");
+  const canRecordPay = hasPermission("payroll.payments_record");
   const me = hr?.employee?.id;
   const reloadAll = () => { runQ.reload(); items.reload(); adjustments.reload(); corrections.reload(); holds.reload(); payments.reload(); };
 
@@ -256,12 +259,13 @@ function RunDetail() {
           {(canManage || canApprove) && run.status === "calculated" && <Button variant="secondary" disabled={totals.errors > 0 || pendingAdj > 0} onClick={() => setAction("review")}>Submit for approval</Button>}
           {canApprove && run.status === "reviewed" && <Button variant="success" disabled={preparedByMe || myAdjustment} onClick={() => setAction("approve")}>Approve</Button>}
           {canApprove && ["reviewed", "approved"].includes(run.status) && <Button variant="secondary" onClick={() => setAction("return")}>Return for correction</Button>}
-          {canApprove && run.status === "approved" && <Button variant="danger" disabled={preparedByMe || myAdjustment} onClick={() => setAction("finalize")}>Finalize &amp; publish payslips</Button>}
-          {canApprove && run.status === "finalized" && <Button variant="secondary" onClick={() => setAction("paid")}>Record whole run as paid</Button>}
+          {canFinalize && run.status === "approved" && <Button variant="danger" disabled={preparedByMe || myAdjustment} onClick={() => setAction("finalize")}>Finalize &amp; publish payslips</Button>}
+          {canRecordPay && run.status === "finalized" && <Button variant="secondary" onClick={() => setAction("paid")}>Record whole run as paid</Button>}
           {canManage && open && <Button variant="secondary" onClick={() => setAdding(true)}><Plus className="h-4 w-4" aria-hidden="true" />Add adjustment</Button>}
           {canManage && ["draft", "calculated"].includes(run.status) && <Button variant="ghost" onClick={() => setHolding(true)}><PauseCircle className="h-4 w-4" aria-hidden="true" />Holds ({holds.data?.length ?? 0})</Button>}
           {canManage && finalized && <Button variant="secondary" onClick={() => setCorrecting(true)}>Post-finalization correction</Button>}
-          {!canManage && !canApprove && <p className="text-sm text-slate-500">Read-only access.</p>}
+          {!canManage && !canApprove && !canFinalize && !canRecordPay && <p className="text-sm text-slate-500">Read-only access.</p>}
+          {canApprove && !canFinalize && run.status === "approved" && <p className="text-sm text-slate-500">Approved. Finalizing is done by a user with the Finalize payroll permission.</p>}
         </div>
         <dl className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-600 sm:grid-cols-6">
           <div><dt className="font-semibold">Created</dt><dd>{formatDateTime(run.created_at)}</dd></div>
@@ -272,7 +276,7 @@ function RunDetail() {
           <div><dt className="font-semibold">Payment</dt><dd>{finalized ? <PaymentBadge status={run.payment_status} /> : "—"}</dd></div>
         </dl>
         {run.return_reason && run.status === "calculated" && <p className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-900"><strong>Returned {formatDateTime(run.returned_at)}:</strong> {run.return_reason}</p>}
-        {canApprove && (preparedByMe || myAdjustment) && ["reviewed", "approved"].includes(run.status) && (
+        {(canApprove || canFinalize) && (preparedByMe || myAdjustment) && ["reviewed", "approved"].includes(run.status) && (
           <p className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900"><AlertTriangle className="h-4 w-4 shrink-0" aria-hidden="true" />
             {preparedByMe ? "You created or calculated this run." : "You created an adjustment in this run, or one changes your own pay."} Another payroll approver must approve and finalize it; the server refuses otherwise.</p>
         )}

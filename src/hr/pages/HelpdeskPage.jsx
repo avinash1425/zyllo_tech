@@ -5,7 +5,8 @@
 // and the full resolution history.
 // The server scopes everything (migration 181): hr_requests.manage handles all
 // tickets, hr_requests.view reads non-confidential ones, payroll handles
-// payroll queries and helpdesk.it (IT Admin) only non-confidential IT tickets.
+// payroll queries, helpdesk.it (IT Admin) only non-confidential IT tickets and
+// helpdesk.hr (HR desk, 210) only non-confidential HR / workplace tickets.
 import { useMemo, useState } from "react";
 import { Route, Routes, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
@@ -27,7 +28,7 @@ import {
   PageHeader, SearchInput, Select, Tabs, Textarea, Toolbar, useToast,
 } from "@/hr/ui";
 
-const DESK_PERMS = ["hr_requests.manage", "hr_requests.payroll", "helpdesk.it"];
+const DESK_PERMS = ["hr_requests.manage", "hr_requests.payroll", "helpdesk.it", "helpdesk.hr"];
 const isoDay = (d) => d.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
 const daysAgo = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return isoDay(d); };
 
@@ -368,7 +369,8 @@ function HelpdeskHome() {
   const area = SUPPORT_AREAS.some((a) => a.value === params.get("area")) ? params.get("area") : "";
   const desk = DESK_PERMS.some((p) => hasPermission(p));
   const view = VIEWS.some((v) => v.value === params.get("view")) ? params.get("view") : desk ? "mine" : "active";
-  const itOnly = hasPermission("helpdesk.it") && !["hr_requests.manage", "hr_requests.view", "hr_requests.payroll"].some((p) => hasPermission(p));
+  const itOnly = hasPermission("helpdesk.it") && !["hr_requests.manage", "hr_requests.view", "hr_requests.payroll", "helpdesk.hr"].some((p) => hasPermission(p));
+  const hrDeskOnly = hasPermission("helpdesk.hr") && !["hr_requests.manage", "hr_requests.view", "hr_requests.payroll", "helpdesk.it"].some((p) => hasPermission(p));
   const go = (next) => setParams((p) => {
     const n = new URLSearchParams(p);
     for (const [k, v] of Object.entries(next)) if (v) n.set(k, v); else n.delete(k);
@@ -380,7 +382,9 @@ function HelpdeskHome() {
       <PageHeader title="Helpdesk & Support"
         description={itOnly
           ? "IT support tickets raised by employees: hardware, software, network, email and access. HR and confidential tickets are not shown to the IT desk."
-          : "HR support, IT support and workplace issue tickets raised by employees. You see only tickets routed to your desk."} />
+          : hrDeskOnly
+            ? "HR and workplace support tickets raised by employees. Confidential tickets (grievances, misconduct), payroll queries and IT tickets are not shown to the HR desk."
+            : "HR support, IT support and workplace issue tickets raised by employees. You see only tickets routed to your desk."} />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Tabs label="Helpdesk" value={tab} onChange={(t) => go({ tab: t === "overview" ? "" : t })}
           tabs={[{ value: "overview", label: "Overview" }, { value: "tickets", label: "Tickets" }]} />

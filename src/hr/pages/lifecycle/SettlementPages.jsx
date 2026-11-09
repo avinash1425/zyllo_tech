@@ -1,6 +1,7 @@
 // Full & final settlement (payroll only). Preparation (payroll.manage) is
 // separate from approval (payroll.approve, by a different person who did not
-// prepare or edit it, never the leaver). Payment is recorded only — nothing
+// prepare or edit it, never the leaver). Recording the payment needs
+// payroll.settlement_pay (209). Payment is recorded only — nothing
 // here moves money. Prefilled lines come from existing payroll, reimbursement
 // and leave records; amounts that depend on company policy start at zero.
 import { useMemo, useState } from "react";
@@ -151,7 +152,7 @@ function Detail() {
           {canEdit && <Button onClick={() => setDialog("submit")} disabled={!lines.data?.length}>Submit for approval</Button>}
           {canApprove && <Button variant="secondary" onClick={() => setDialog("return")}>Return for changes</Button>}
           {canApprove && <Button variant="success" onClick={() => setDialog("approve")} disabled={Boolean(involved)} title={involved ? "You prepared or edited this settlement; a different approver must approve it" : undefined}>Approve</Button>}
-          {hasPermission("payroll.approve") && x.status === "approved" && !own && <Button onClick={() => setDialog("paid")}>Record payment</Button>}
+          {hasPermission("payroll.settlement_pay") && x.status === "approved" && !own && <Button onClick={() => setDialog("paid")}>Record payment</Button>}
         </div>
       </div>
       {own && <p className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">This is your own settlement; other payroll staff must handle it.</p>}

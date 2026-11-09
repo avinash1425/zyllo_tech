@@ -34,13 +34,14 @@ export const HR_MODULES = [
   { path: "onboarding-exit", label: "Onboarding & Exit", icon: UserCheck, section: "HR Modules", permissions: LIFECYCLE_PERMISSIONS, page: lazy(() => import("./pages/lifecycle/OnboardingExitPage.jsx")) },
   { path: "attendance", label: "Attendance & Time", icon: Clock, section: "HR Modules", permissions: ["attendance.view", "attendance.view_team"], page: lazy(() => import("./pages/AttendancePage.jsx")) },
   { path: "leave", label: "Leave Management", icon: CalendarCheck, section: "HR Modules", permissions: ["leave.view", "leave.view_team", "leave.manage"], page: lazy(() => import("./pages/LeavePage.jsx")) },
-  { path: "payroll", label: "Payroll & Salary", icon: Wallet, section: "HR Modules", permissions: ["payroll.view", "payroll.manage", "payroll.approve"], page: lazy(() => import("./pages/PayrollPage.jsx")) },
+  { path: "payroll", label: "Payroll & Salary", icon: Wallet, section: "HR Modules", permissions: ["payroll.view", "payroll.manage", "payroll.approve", "payroll.finalize", "payroll.payments_record", "payroll.payments_reconcile", "payroll.settlement_pay"], page: lazy(() => import("./pages/PayrollPage.jsx")) },
   { path: "daily-reports", label: "Daily Work Reports", icon: ClipboardList, section: "HR Modules", permissions: ["daily_reports.view", "daily_reports.view_team", "daily_reports.manage"], page: lazy(() => import("./pages/DailyReportsPage.jsx")) },
   { path: "documents", label: "Employee Documents", icon: FileText, section: "HR Modules", permissions: ["documents.view", "documents.view_team", "documents.manage"], page: lazy(() => import("./pages/DocumentsPage.jsx")) },
   // Module 10: scoped approvers (payroll / finance / managers) reach the inbox without hr_requests.manage.
   { path: "requests", label: "Requests & Approvals", icon: HeartHandshake, section: "HR Modules", permissions: ["hr_requests.view", "hr_requests.manage", "hr_requests.payroll", "hr_requests.finance", "hr_requests.approve_team"], page: lazy(() => import("./pages/HrRequestsPage.jsx")) },
-  // Helpdesk & Support (181): HR / IT / workplace tickets. IT Admins (helpdesk.it) see only IT tickets.
-  { path: "helpdesk", label: "Helpdesk & Support", icon: LifeBuoy, section: "HR Modules", permissions: ["hr_requests.view", "hr_requests.manage", "hr_requests.payroll", "helpdesk.it"], page: lazy(() => import("./pages/HelpdeskPage.jsx")) },
+  // Helpdesk & Support (181): HR / IT / workplace tickets. IT Admins (helpdesk.it) see only IT tickets;
+  // the HR desk (helpdesk.hr, 210) only non-confidential HR / workplace tickets.
+  { path: "helpdesk", label: "Helpdesk & Support", icon: LifeBuoy, section: "HR Modules", permissions: ["hr_requests.view", "hr_requests.manage", "hr_requests.payroll", "helpdesk.it", "helpdesk.hr"], page: lazy(() => import("./pages/HelpdeskPage.jsx")) },
   { path: "performance", label: "Performance & KPI", icon: Target, section: "HR Modules", permissions: ["performance.view", "performance.view_team", "performance.review_team", "performance.manage"], page: lazy(() => import("./pages/PerformancePage.jsx")) },
   { path: "training", label: "Training", icon: GraduationCap, section: "HR Modules", permissions: ["training.view", "training.view_team", "training.manage", "training.assign_team"], page: lazy(() => import("./pages/TrainingPage.jsx")) },
   { path: "benefits", label: "Benefits", icon: HeartPulse, section: "HR Modules", permissions: ["benefits.view", "benefits.manage"], page: lazy(() => import("./pages/BenefitsPage.jsx")) },
