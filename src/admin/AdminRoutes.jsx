@@ -14,7 +14,6 @@ import JobApplicationsPage from "./pages/JobApplicationsPage";
 import PortfolioPage from "./pages/PortfolioPage";
 import SearchConsolePage from "./pages/SearchConsolePage";
 import SeoPage from "./pages/SeoPage";
-import IndexCoveragePage from "./pages/IndexCoveragePage";
 
 function Spinner() {
   return (
@@ -90,7 +89,10 @@ export default function AdminRoutes() {
           <Route path="portfolio" element={<PortfolioPage />} />
           <Route path="search-console" element={<SearchConsolePage />} />
           <Route path="seo" element={<SeoPage />} />
-          <Route path="index-coverage" element={<IndexCoveragePage />} />
+          {/* Index Coverage is hidden for now; old links go to Search Console. The page
+              (pages/IndexCoveragePage.jsx) is kept. To bring it back, import it, render it
+              here and re-add its "Growth" item in AdminShell.jsx. */}
+          <Route path="index-coverage" element={<Navigate to="/admin/search-console" replace />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Routes>
       </AdminShell>

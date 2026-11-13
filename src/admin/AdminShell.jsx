@@ -11,7 +11,6 @@ import {
   FolderKanban,
   Search,
   BarChart3,
-  Globe,
   Menu,
   X,
   LogOut,
@@ -47,7 +46,6 @@ const NAV_SECTIONS = [
     items: [
       { href: "/admin/seo", label: "SEO", icon: Search },
       { href: "/admin/search-console", label: "Search Console", icon: BarChart3 },
-      { href: "/admin/index-coverage", label: "Index Coverage", icon: Globe },
     ],
   },
 ];
