@@ -27,8 +27,10 @@ const env = Object.fromEntries(
     .map((m) => [m[1], m[2]]),
 );
 const SITE = (env.VITE_SITE_URL || "https://zyllotech.com").replace(/\/+$/, "");
-const SUPABASE_URL = env.VITE_SUPABASE_URL;
-const SUPABASE_KEY = env.VITE_SUPABASE_PUBLISHABLE_KEY;
+// Same rule as src/lib/env.js: the website's own pair wins only when both are set.
+const USE_SITE_SUPABASE = Boolean(env.VITE_SITE_SUPABASE_URL && env.VITE_SITE_SUPABASE_PUBLISHABLE_KEY);
+const SUPABASE_URL = USE_SITE_SUPABASE ? env.VITE_SITE_SUPABASE_URL : env.VITE_SUPABASE_URL;
+const SUPABASE_KEY = USE_SITE_SUPABASE ? env.VITE_SITE_SUPABASE_PUBLISHABLE_KEY : env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 // Keep equal to src/lib/seo/public-routes.js.
 const PAGES = [
