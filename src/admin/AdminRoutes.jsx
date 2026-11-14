@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/lib/auth";
@@ -14,6 +14,9 @@ import JobApplicationsPage from "./pages/JobApplicationsPage";
 import PortfolioPage from "./pages/PortfolioPage";
 import SearchConsolePage from "./pages/SearchConsolePage";
 import SeoPage from "./pages/SeoPage";
+
+// Project Tracker is loaded on demand so it adds nothing to the other admin pages.
+const ProjectTrackerRoutes = lazy(() => import("./project-tracker/ProjectTrackerRoutes"));
 
 function Spinner() {
   return (
@@ -89,6 +92,14 @@ export default function AdminRoutes() {
           <Route path="portfolio" element={<PortfolioPage />} />
           <Route path="search-console" element={<SearchConsolePage />} />
           <Route path="seo" element={<SeoPage />} />
+          <Route
+            path="project-tracker/*"
+            element={
+              <Suspense fallback={<AdminLoading label="Opening Project Tracker…" />}>
+                <ProjectTrackerRoutes />
+              </Suspense>
+            }
+          />
           {/* Index Coverage is hidden for now; old links go to Search Console. The page
               (pages/IndexCoveragePage.jsx) is kept. To bring it back, import it, render it
               here and re-add its "Growth" item in AdminShell.jsx. */}

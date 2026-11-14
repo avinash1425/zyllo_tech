@@ -17,6 +17,15 @@ import {
   Home,
   ChevronDown,
   ExternalLink,
+  LayoutGrid,
+  FolderOpen,
+  Server,
+  AtSign,
+  DatabaseBackup,
+  CalendarClock,
+  Handshake,
+  FileChartColumn,
+  Building2,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import AdminSearch from "./AdminSearch";
@@ -46,6 +55,20 @@ const NAV_SECTIONS = [
     items: [
       { href: "/admin/seo", label: "SEO", icon: Search },
       { href: "/admin/search-console", label: "Search Console", icon: BarChart3 },
+    ],
+  },
+  {
+    label: "Project Tracker",
+    items: [
+      { href: "/admin/project-tracker", label: "Project Overview", icon: LayoutGrid, exact: true },
+      { href: "/admin/project-tracker/companies", label: "Companies", icon: Building2 },
+      { href: "/admin/project-tracker/projects", label: "All Projects", icon: FolderOpen },
+      { href: "/admin/project-tracker/hosting", label: "Hosting & Domains", icon: Server },
+      { href: "/admin/project-tracker/emails", label: "Emails & Accounts", icon: AtSign },
+      { href: "/admin/project-tracker/backups", label: "Backups", icon: DatabaseBackup },
+      { href: "/admin/project-tracker/renewals", label: "AMC & Renewals", icon: CalendarClock },
+      { href: "/admin/project-tracker/handover", label: "Handover Records", icon: Handshake },
+      { href: "/admin/project-tracker/reports", label: "Reports", icon: FileChartColumn },
     ],
   },
 ];
