@@ -35,7 +35,7 @@ const ADMIN_SIM = argv.includes("--admin-sim");
 const UPSTREAM_MODE = argv.includes("--upstream");
 const AUTH_MODE = argv.includes("--auth") ? (argv[argv.indexOf("--auth") + 1] || "main") : null; // main | before-restart | after-restart
 const AUTH_PROFILE = path.join(tmpdir(), "zyllo-pt-auth-profile");
-const OUT = argv.includes("--out") ? argv[argv.indexOf("--out") + 1] : path.join(tmpdir(), "zyllo-pt-flows");
+const OUT = path.resolve(argv.includes("--out") ? argv[argv.indexOf("--out") + 1] : path.join(tmpdir(), "zyllo-pt-flows")); // absolute: Chrome needs absolute upload paths
 const DL = path.join(OUT, "downloads");
 mkdirSync(path.join(OUT, "shots"), { recursive: true });
 rmSync(DL, { recursive: true, force: true });
