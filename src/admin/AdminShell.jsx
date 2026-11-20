@@ -61,7 +61,7 @@ const NAV_SECTIONS = [
         exact: true,
         also: ["/admin/project-tracker/projects/"],
       },
-      { href: "/admin/project-tracker/companies", label: "Client Companies", icon: Building2 },
+      { href: "/admin/project-tracker/companies", label: "Clients", icon: Building2 },
       { href: "/admin/project-tracker/access", label: "Access & Logins", icon: KeyRound },
     ],
   },

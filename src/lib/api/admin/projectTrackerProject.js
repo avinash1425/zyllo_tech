@@ -1,6 +1,9 @@
 import { supabase } from "@/lib/supabase/client";
 import { fetchCompanies, fetchCompany } from "./projectTracker";
 
+const LOGO_BUCKET = "pt-company-logos";
+const LOGO_TTL = 60 * 60;
+
 // One project's page: Access & Logins, Documents, Backups.
 // Row Level Security limits every table to website admins (public.is_admin()).
 // Passwords never travel through these tables: they are saved, revealed and
@@ -119,12 +122,23 @@ function fail(error, fallback, log) {
 export async function fetchProjectPage(projectId) {
   const { data, error } = await supabase
     .from("pt_projects")
-    .select("*, company:pt_companies(id, name)")
+    .select("*, company:pt_companies(id, name, logo_path)")
     .eq("id", projectId)
     .maybeSingle();
   if (error) {
     console.error("Failed to load project:", error.message);
     throw new Error(friendly(error, "Could not load the project."));
+  }
+  if (!data) return data;
+  // Resolve company logo path → signed URL (non-fatal if storage call fails)
+  if (data.company?.logo_path) {
+    const { data: signed } = await supabase.storage
+      .from(LOGO_BUCKET)
+      .createSignedUrls([data.company.logo_path], LOGO_TTL);
+    const url = signed?.[0]?.signedUrl ?? null;
+    data.company = { ...data.company, logo_url: url };
+  } else if (data.company) {
+    data.company = { ...data.company, logo_url: null };
   }
   return data;
 }

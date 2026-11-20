@@ -192,24 +192,35 @@ export default function AccessProjectPage() {
   const { project } = data;
 
   return (
-    <div className="flex flex-col gap-6">
-      <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-sm font-medium text-[#676b7a]">
-        <Link href="/admin/project-tracker/access" className="hover:text-[#c24f05]">All companies</Link>
-        <span aria-hidden="true">/</span>
-        <Link href={companyHref} className="hover:text-[#c24f05]">{project.company?.name}</Link>
-        <span aria-hidden="true">/</span>
-        <span className="text-[#2b303b]">{project.name}</span>
-      </nav>
+    <div className="flex flex-col gap-5">
+      {/* Back button + breadcrumb */}
+      <div className="flex flex-col gap-2">
+        <Link
+          href={companyHref}
+          className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-[#e7e9ee] bg-white px-3 py-1.5 text-[13px] font-semibold text-[#4a5068] shadow-sm hover:border-[#1f4693]/30 hover:text-[#1f4693]"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+          Back to {project.company?.name ?? "Company"}
+        </Link>
+        <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-[12.5px] font-medium text-[#9aa0ad]">
+          <Link href="/admin/project-tracker/access" className="hover:text-[#c24f05]">All companies</Link>
+          <span aria-hidden="true">/</span>
+          <Link href={companyHref} className="hover:text-[#c24f05]">{project.company?.name}</Link>
+          <span aria-hidden="true">/</span>
+          <span className="text-[#4a5068]">{project.name}</span>
+        </nav>
+      </div>
 
-      <section className="flex flex-col gap-3 rounded-2xl border border-[#e7e9ee] bg-white p-5 shadow-sm sm:flex-row sm:items-center">
+      {/* Project header card */}
+      <section className="flex flex-col gap-3 rounded-xl border border-[#e7e9ee] bg-white px-5 py-4 shadow-sm sm:flex-row sm:items-center">
         <div className="min-w-0 flex-1">
-          <p className="font-mono text-xs font-semibold text-[#1f4693]">{project.project_code}</p>
-          <h1 className="break-words text-2xl font-bold tracking-tight text-[#2b303b]">{project.name}</h1>
+          <p className="font-mono text-[11px] font-bold text-[#1f4693]">{project.project_code}</p>
+          <h1 className="break-words text-xl font-bold tracking-tight text-[#1a2340]">{project.name}</h1>
           <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[#676b7a]">
             <StatusBadge status={project.status} />
             {project.live_url ? <ExtLink href={project.live_url}>{shortUrl(project.live_url)}</ExtLink> : <span>No live site yet</span>}
-            <Link href={`/admin/project-tracker/projects/${project.id}`} className="text-xs font-semibold text-[#1f4693] hover:underline">
-              Open full project page →
+            <Link href={`/admin/project-tracker/projects/${project.id}`} className="text-[12px] font-semibold text-[#1f4693] hover:underline">
+              Open full project →
             </Link>
           </p>
         </div>

@@ -4,18 +4,18 @@ import { progressStyle, snapProgress } from "./styles";
 const PILL = "inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold";
 
 const STATUS_STYLE = {
-  planning: "bg-sky-50 text-sky-700",
-  in_progress: "bg-amber-50 text-amber-800",
-  live: "bg-emerald-50 text-emerald-700",
-  on_hold: "bg-[#f1f2f5] text-[#676b7a]",
-  completed: "bg-indigo-50 text-indigo-700",
-  cancelled: "bg-red-50 text-red-700",
+  planning:    "bg-[#1e40af] text-white",
+  in_progress: "bg-[#f7941e] text-white",
+  live:        "bg-emerald-600 text-white",
+  on_hold:     "bg-slate-500 text-white",
+  completed:   "bg-[#1f4693] text-white",
+  cancelled:   "bg-red-600 text-white",
 };
 
 const PRIORITY_STYLE = {
-  high: "bg-red-50 text-red-700",
-  medium: "bg-amber-50 text-amber-800",
-  low: "bg-[#f1f2f5] text-[#676b7a]",
+  high:   "bg-red-600 text-white",
+  medium: "bg-amber-500 text-white",
+  low:    "bg-slate-400 text-white",
 };
 
 const HEALTH_DOT = {
