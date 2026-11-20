@@ -14,6 +14,13 @@ import JobApplicationsPage from "./pages/JobApplicationsPage";
 import PortfolioPage from "./pages/PortfolioPage";
 import SearchConsolePage from "./pages/SearchConsolePage";
 import SeoPage from "./pages/SeoPage";
+import ProjectTrackerDashboardPage from "./pages/ProjectTrackerDashboardPage";
+import ProjectTrackerCompaniesPage from "./pages/ProjectTrackerCompaniesPage";
+import ProjectTrackerCompanyPage from "./pages/ProjectTrackerCompanyPage";
+import ProjectTrackerProjectPage from "./pages/ProjectTrackerProjectPage";
+import AccessCompaniesPage from "./pages/AccessCompaniesPage";
+import AccessCompanyPage from "./pages/AccessCompanyPage";
+import AccessProjectPage from "./pages/AccessProjectPage";
 
 function Spinner() {
   return (
@@ -93,6 +100,13 @@ export default function AdminRoutes() {
               (pages/IndexCoveragePage.jsx) is kept. To bring it back, import it, render it
               here and re-add its "Growth" item in AdminShell.jsx. */}
           <Route path="index-coverage" element={<Navigate to="/admin/search-console" replace />} />
+          <Route path="project-tracker" element={<ProjectTrackerDashboardPage />} />
+          <Route path="project-tracker/companies" element={<ProjectTrackerCompaniesPage />} />
+          <Route path="project-tracker/companies/:companyId" element={<ProjectTrackerCompanyPage />} />
+          <Route path="project-tracker/projects/:projectId" element={<ProjectTrackerProjectPage />} />
+          <Route path="project-tracker/access" element={<AccessCompaniesPage />} />
+          <Route path="project-tracker/access/:companyId" element={<AccessCompanyPage />} />
+          <Route path="project-tracker/access/:companyId/:projectId" element={<AccessProjectPage />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Routes>
       </AdminShell>
