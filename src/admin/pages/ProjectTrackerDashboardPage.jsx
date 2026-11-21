@@ -82,6 +82,23 @@ const COLUMNS = [
   { label: "Actions",         show: "" },
 ];
 
+// Dashboard table columns, in order, with fixed widths (px). Total > screen width = side scroll.
+const TABLE_COLUMNS = [
+  { label: "Project ID",     width: 130 },
+  { label: "Project Name",   width: 220 },
+  { label: "Client",         width: 130 },
+  { label: "Status",         width: 130 },
+  { label: "Priority",       width: 110 },
+  { label: "Progress %",     width: 160 },
+  { label: "Health",         width: 130 },
+  { label: "Start Date",     width: 130 },
+  { label: "End Date",       width: 140 },
+  { label: "Completed Date", width: 150 },
+  { label: "Next Action",    width: 220 },
+  { label: "Actions",        width: 120 },
+];
+const TABLE_WIDTH = TABLE_COLUMNS.reduce((sum, c) => sum + c.width, 0);
+
 const showCls = { "": "", lg: "hidden lg:table-cell", xl: "hidden xl:table-cell", "2xl": "hidden 2xl:table-cell" };
 
 const STATUS_BORDER = {
@@ -111,6 +128,62 @@ function SafeLink({ href, children }) {
       <span className="truncate">{children}</span>
       <ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />
     </a>
+  );
+}
+
+// Whole days from date string a to b ("YYYY-MM-DD"); positive = b is later.
+const daysBetween = (a, b) => {
+  const [ay, am, ad] = a.split("-").map(Number);
+  const [by, bm, bd] = b.split("-").map(Number);
+  return Math.round((Date.UTC(by, bm - 1, bd) - Date.UTC(ay, am - 1, ad)) / 86400000);
+};
+const todayIso = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
+function DateText({ value }) {
+  const text = formatDate(value);
+  return text ? <span className="whitespace-nowrap tabular-nums">{text}</span> : <Dash />;
+}
+
+/** End date promised to the client; flags it when it has passed and the project is not finished. */
+function EndDateCell({ project }) {
+  const { end_date: end, completed_date: done, status } = project;
+  if (!end) return <Dash />;
+  const late = !done && !["completed", "live", "cancelled"].includes(status) ? daysBetween(end, todayIso()) : 0;
+  return (
+    <span className="flex flex-col gap-0.5">
+      <DateText value={end} />
+      {late > 0 && (
+        <span className="w-fit rounded bg-[#fee2e2] px-1.5 text-[10.5px] font-semibold text-[#b91c1c]">
+          Overdue {late} {late === 1 ? "day" : "days"}
+        </span>
+      )}
+    </span>
+  );
+}
+
+/** Actual completion date, compared with the promised end date. */
+function CompletedCell({ project }) {
+  const { end_date: end, completed_date: done } = project;
+  if (!done) return <Dash />;
+  const delay = end ? daysBetween(end, done) : null;
+  return (
+    <span className="flex flex-col gap-0.5">
+      <DateText value={done} />
+      {delay != null && (
+        delay > 0 ? (
+          <span className="w-fit rounded bg-[#fee2e2] px-1.5 text-[10.5px] font-semibold text-[#b91c1c]">
+            Delayed {delay} {delay === 1 ? "day" : "days"}
+          </span>
+        ) : (
+          <span className="w-fit rounded bg-[#dcfce7] px-1.5 text-[10.5px] font-semibold text-[#15803d]">
+            {delay === 0 ? "On time" : `Early ${-delay} ${delay === -1 ? "day" : "days"}`}
+          </span>
+        )
+      )}
+    </span>
   );
 }
 
@@ -322,28 +395,26 @@ export default function ProjectTrackerDashboardPage() {
             ) : rows.length === 0 ? (
               <p className="px-4 py-10 text-center text-sm text-[#676b7a]">No projects match this filter.</p>
             ) : (
-              /* table-layout:fixed + w-full = columns share available width, never overflow */
-              <table className="w-full border-collapse text-left text-[13px]" style={{ tableLayout: "fixed" }}>
-                {/* 9 cols — must sum to exactly 100% */}
+              /* Fixed column widths wider than the screen: the table scrolls sideways
+                 (scroll bar below it) and the Actions column stays pinned on the right. */
+              <div className="overflow-x-auto">
+              <table
+                className="border-collapse text-left text-[13px]"
+                style={{ tableLayout: "fixed", width: TABLE_WIDTH, minWidth: "100%" }}
+              >
                 <colgroup>
-                  <col style={{ width: "9%" }} />   {/* Project ID   */}
-                  <col style={{ width: "17%" }} />  {/* Project Name */}
-                  <col style={{ width: "9%" }} />   {/* Client       */}
-                  <col style={{ width: "11%" }} />  {/* Status       */}
-                  <col style={{ width: "10%" }} />  {/* Priority     */}
-                  <col style={{ width: "12%" }} />  {/* Progress %   */}
-                  <col style={{ width: "11%" }} />  {/* Health       */}
-                  <col style={{ width: "13%" }} />  {/* Next Action  */}
-                  <col style={{ width: "8%" }} />   {/* Actions      */}
+                  {TABLE_COLUMNS.map((c) => <col key={c.label} style={{ width: c.width }} />)}
                 </colgroup>
                 <thead>
                   <tr>
-                    {["Project ID","Project Name","Client","Status","Priority","Progress %","Health","Next Action","Actions"].map((label, i) => (
+                    {TABLE_COLUMNS.map(({ label }, i) => (
                       <th
                         key={label}
                         scope="col"
                         style={{ borderColor: BD_HD }}
-                        className={`border bg-[#1f4693] px-3 py-2.5 text-[10px] font-bold uppercase tracking-[.12em] text-white/85 ${i === 8 ? "text-center" : ""}`}
+                        className={`border bg-[#1f4693] px-3 py-2.5 text-[10px] font-bold uppercase tracking-[.12em] text-white/85 ${
+                          i === TABLE_COLUMNS.length - 1 ? "sticky right-0 z-10 text-center shadow-[-4px_0_6px_-4px_rgba(13,22,49,.35)]" : ""
+                        }`}
                       >
                         <span className="block truncate">{label}</span>
                       </th>
@@ -404,13 +475,22 @@ export default function ProjectTrackerDashboardPage() {
                         {/* Health */}
                         <td className={td} style={tdStyle} data-bg={rowBg}><HealthBadge health={p.health} /></td>
 
+                        {/* Start / End (promised to client) / Completed (actual) */}
+                        <td className={td} style={tdStyle} data-bg={rowBg}><DateText value={p.start_date} /></td>
+                        <td className={td} style={tdStyle} data-bg={rowBg}><EndDateCell project={p} /></td>
+                        <td className={td} style={tdStyle} data-bg={rowBg}><CompletedCell project={p} /></td>
+
                         {/* Next Action */}
                         <td className={td} style={tdStyle} data-bg={rowBg}>
                           <span className="block truncate" title={p.next_action || undefined}>{p.next_action || <Dash />}</span>
                         </td>
 
                         {/* Actions */}
-                        <td className="border px-1.5 py-2.5" style={{ borderColor: BD, background: rowBg }} data-bg={rowBg}>
+                        <td
+                          className="sticky right-0 z-[1] border px-1.5 py-2.5 shadow-[-4px_0_6px_-4px_rgba(13,22,49,.18)]"
+                          style={{ borderColor: BD, background: rowBg }}
+                          data-bg={rowBg}
+                        >
                           <div className="flex items-center justify-center gap-0.5">
                             <Link href={`/admin/project-tracker/projects/${p.id}`} title="View project"
                               className="inline-flex h-7 w-7 items-center justify-center rounded text-[#1f4693] hover:bg-[#1f4693]/10">
@@ -431,6 +511,7 @@ export default function ProjectTrackerDashboardPage() {
                   })}
                 </tbody>
               </table>
+              </div>
             )}
           </section>
         </>

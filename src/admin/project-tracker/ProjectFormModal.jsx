@@ -19,6 +19,7 @@ const EMPTY = {
   health: "",
   start_date: "",
   end_date: "",
+  completed_date: "",
   live_url: "",
   repo_source: "",
   next_action: "",
@@ -183,7 +184,8 @@ export default function ProjectFormModal({ companyId, companyName, project, onCl
 
         {divider("Timeline")}
         {text("start_date", "Start date", { type: "date" })}
-        {text("end_date", "Target date", { type: "date" })}
+        {text("end_date", "End date (promised to client)", { type: "date" })}
+        {text("completed_date", "Completed date (actual)", { type: "date" })}
 
         {divider("Links")}
         {text("live_url", "Live URL", { type: "url", placeholder: "https://" })}
