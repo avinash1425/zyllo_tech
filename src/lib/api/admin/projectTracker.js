@@ -64,7 +64,7 @@ function tooLong(values, limits, labels, errors) {
 const COMPANY_FIELDS = ["name", "industry", "contact_person", "email", "phone", "address", "country", "status"];
 const COMPANY_LIMITS = { name: 200, industry: 120, contact_person: 120, email: 254, phone: 40, address: 500 };
 const COMPANY_LABELS = {
-  name: "Company name",
+  name: "Client name",
   industry: "Industry",
   contact_person: "Contact person",
   email: "Email",
@@ -76,7 +76,7 @@ const COMPANY_LABELS = {
 export function validateCompany(input) {
   const values = clean(input, COMPANY_FIELDS);
   const errors = {};
-  if (!values.name) errors.name = "Company name is required.";
+  if (!values.name) errors.name = "Client name is required.";
   values.country = values.country || "India";
   if (!isKnownCountry(values.country)) errors.country = "Pick a country from the list.";
   values.status = values.status === "inactive" ? "inactive" : "active";
@@ -108,7 +108,7 @@ export async function validateLogo(file) {
 function friendlyError(error, fallback) {
   if (!error) return fallback;
   if (error.code === "23505") return "That name is already used.";
-  if (error.code === "23503") return "This company still has projects. Delete its projects first.";
+  if (error.code === "23503") return "This client still has projects. Delete its projects first.";
   if (error.code === "42501") return "You do not have permission to do this.";
   if (error.code === "42P01" || error.code === "PGRST205" || error.code === "42703") {
     return "The Project Tracker database is not up to date yet.";
@@ -153,7 +153,7 @@ export async function fetchCompanies() {
     .order("name", { ascending: true });
   if (error) {
     console.error("Failed to load companies:", error.message);
-    throw new Error(friendlyError(error, "Could not load companies."));
+    throw new Error(friendlyError(error, "Could not load clients."));
   }
   const rows = (data ?? []).map(({ pt_projects: projects, ...c }) => ({
     ...c,
@@ -166,7 +166,7 @@ export async function fetchCompany(id) {
   const { data, error } = await supabase.from("pt_companies").select(COMPANY_COLUMNS).eq("id", id).maybeSingle();
   if (error) {
     console.error("Failed to load company:", error.message);
-    throw new Error(friendlyError(error, "Could not load the company."));
+    throw new Error(friendlyError(error, "Could not load the client."));
   }
   if (!data) return null;
   const [withUrl] = await withLogoUrls([data]);
@@ -188,24 +188,24 @@ export async function createCompany(input, logoFile) {
   const { data, error } = await supabase.from("pt_companies").insert(values).select(COMPANY_COLUMNS).single();
   if (error) {
     console.error("Failed to create company:", error.message);
-    const message = error.code === "23505" ? "A company with this name already exists." : friendlyError(error, "Could not save the company.");
+    const message = error.code === "23505" ? "A client with this name already exists." : friendlyError(error, "Could not save the client.");
     return { status: "error", message };
   }
   if (!logoFile) return { status: "success", company: data };
 
   const upload = await uploadLogo(data.id, logoFile);
-  if (upload.error) return { status: "partial", company: data, message: `Company saved, but ${upload.error.toLowerCase()}` };
+  if (upload.error) return { status: "partial", company: data, message: `Client saved, but ${upload.error.toLowerCase()}` };
   const { error: linkError } = await supabase.from("pt_companies").update({ logo_path: upload.path }).eq("id", data.id);
   if (linkError) {
     await removeLogo(upload.path);
-    return { status: "partial", company: data, message: "Company saved, but the logo could not be attached." };
+    return { status: "partial", company: data, message: "Client saved, but the logo could not be attached." };
   }
   return { status: "success", company: { ...data, logo_path: upload.path } };
 }
 
 /** logo: undefined = keep, a File = replace, null = remove. */
 export async function updateCompany(id, input, logo, currentLogoPath) {
-  if (!id) return { status: "error", message: "Missing company." };
+  if (!id) return { status: "error", message: "Missing client." };
   const { values, errors, ok } = validateCompany(input);
   if (logo instanceof File) {
     const problem = await validateLogo(logo);
@@ -233,10 +233,10 @@ export async function updateCompany(id, input, logo, currentLogoPath) {
     if (newPath) await removeLogo(newPath);
     if (error) console.error("Failed to update company:", error.message);
     const message = !error
-      ? "Company not found."
+      ? "Client not found."
       : error.code === "23505"
-        ? "A company with this name already exists."
-        : friendlyError(error, "Could not update the company.");
+        ? "A client with this name already exists."
+        : friendlyError(error, "Could not update the client.");
     return { status: "error", message };
   }
   if (logo !== undefined && currentLogoPath && currentLogoPath !== data.logo_path) await removeLogo(currentLogoPath);
@@ -244,13 +244,13 @@ export async function updateCompany(id, input, logo, currentLogoPath) {
 }
 
 export async function deleteCompany(id, logoPath) {
-  if (!id) return { status: "error", message: "Missing company." };
+  if (!id) return { status: "error", message: "Missing client." };
   const { data, error } = await supabase.from("pt_companies").delete().eq("id", id).select("id");
   if (error) {
     console.error("Failed to delete company:", error.message);
-    return { status: "error", message: friendlyError(error, "Could not delete the company.") };
+    return { status: "error", message: friendlyError(error, "Could not delete the client.") };
   }
-  if (!data?.length) return { status: "error", message: "Company not found." };
+  if (!data?.length) return { status: "error", message: "Client not found." };
   await removeLogo(logoPath);
   return { status: "success" };
 }
@@ -371,7 +371,7 @@ const isCodeClash = (error) => error?.code === "23505" && /pt_projects_code_key/
 
 function projectError(error, fallback) {
   if (isCodeClash(error)) return "This Project ID is already used by another project.";
-  if (error?.code === "23505") return "This company already has a project with this name.";
+  if (error?.code === "23505") return "This client already has a project with this name.";
   return friendlyError(error, fallback);
 }
 

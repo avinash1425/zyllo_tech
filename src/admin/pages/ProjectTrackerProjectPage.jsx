@@ -79,7 +79,7 @@ export default function ProjectTrackerProjectPage() {
       {/* Breadcrumb */}
       <Link href={companyHref} className="inline-flex items-center gap-1.5 text-sm font-medium text-[#8a90a0] hover:text-[#1f4693]">
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-        {project.company?.name ?? "Company"}
+        {project.company?.name ?? "Client"}
       </Link>
 
       {/* Status Hub card */}

@@ -25,17 +25,17 @@ export default function AccessCompaniesPage() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Access & Logins"
-        subtitle="Every login of every project, by company. Open a company, then a project, to view, edit or download its logins."
+        subtitle="Every login of every project, by client. Open a client, then a project, to view, edit or download its logins."
         icon={KeyRound}
       />
 
       {error ? (
-        <EmptyState bordered icon={KeyRound} title="Could not load companies" message={error.message} />
+        <EmptyState bordered icon={KeyRound} title="Could not load clients" message={error.message} />
       ) : companies.length === 0 ? (
         <EmptyState
           bordered
           icon={KeyRound}
-          title="No companies yet"
+          title="No clients yet"
           message="Add clients and projects in Clients first."
           action={
             <Link href="/admin/project-tracker/companies" className="inline-flex items-center rounded-lg bg-gradient-to-r from-[#f7941e] to-[#f96706] px-4 py-2 text-sm font-semibold text-white">
@@ -52,8 +52,8 @@ export default function AccessCompaniesPage() {
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search companies…"
-                aria-label="Search companies"
+                placeholder="Search clients…"
+                aria-label="Search clients"
                 className={`${INPUT} border-[#e7e9ee] pl-9`}
               />
             </div>
@@ -74,7 +74,7 @@ export default function AccessCompaniesPage() {
               </li>
             ))}
           </ul>
-          {filtered.length === 0 && <p className="py-8 text-center text-sm text-[#676b7a]">No companies match your search.</p>}
+          {filtered.length === 0 && <p className="py-8 text-center text-sm text-[#676b7a]">No clients match your search.</p>}
         </>
       )}
     </div>
