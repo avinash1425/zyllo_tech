@@ -64,7 +64,7 @@ export default function CompanyFormModal({ company, onClose, onSaved }) {
       ? await updateCompany(company.id, form, logo, company.logo_path)
       : await createCompany(form, logo instanceof File ? logo : null);
     setSaving(false);
-    if (result.status === "success") return onSaved(editing ? "Company updated." : "Company added.", "success");
+    if (result.status === "success") return onSaved(editing ? "Company updated." : "Client added.", "success");
     if (result.status === "partial") return onSaved(result.message, "warning");
     setErrors(result.errors ?? {});
     setMessage(result.message ?? "Could not save the company.");
@@ -89,7 +89,7 @@ export default function CompanyFormModal({ company, onClose, onSaved }) {
   );
 
   return (
-    <Modal title={editing ? "Edit company" : "Add company"} titleId="pt-company-dialog-title" onClose={onClose}>
+    <Modal title={editing ? "Edit company" : "Add client"} titleId="pt-company-dialog-title" onClose={onClose}>
       <form onSubmit={onSubmit} noValidate className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <p className="mb-1.5 text-xs font-semibold text-[#2b303b]">Logo</p>
@@ -157,7 +157,7 @@ export default function CompanyFormModal({ company, onClose, onSaved }) {
             Cancel
           </button>
           <button type="submit" disabled={saving} className={BTN_PRIMARY}>
-            {saving ? "Saving…" : editing ? "Save changes" : "Add company"}
+            {saving ? "Saving…" : editing ? "Save changes" : "Add client"}
           </button>
         </div>
       </form>

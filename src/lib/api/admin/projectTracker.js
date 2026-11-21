@@ -306,7 +306,7 @@ export function validateProject(input) {
     const code = String(input.project_code ?? "").trim().toUpperCase();
     if (!code) errors.project_code = "Project ID is required.";
     else if (!/^[A-Z0-9][A-Z0-9._/-]{0,29}$/.test(code)) {
-      errors.project_code = "Use up to 30 letters, numbers, or - _ . / (e.g. ZT-010).";
+      errors.project_code = "Use up to 30 letters, numbers, or - _ . / (e.g. ZT-AIMS-010).";
     }
     values.project_code = code;
   }
@@ -375,22 +375,66 @@ function projectError(error, fallback) {
   return friendlyError(error, fallback);
 }
 
+/**
+ * Client part of a Project ID: the first word of the client's name, letters and
+ * digits only, upper case, at most 10 characters ("STSLEV" -> "STSLEV",
+ * "Aims Global" -> "AIMS"). Empty when the name has no letters or digits.
+ */
+export function clientCode(name) {
+  const first = String(name ?? "").trim().split(/\s+/)[0] ?? "";
+  return first.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
+}
+
+/** "ZT-STSLEV-" for client STSLEV; "ZT-" when the name gives no code. */
+export function projectCodePrefix(clientName) {
+  const code = clientCode(clientName);
+  return code ? `ZT-${code}-` : "ZT-";
+}
+
+/** Next free number after the highest existing "<prefix>###" Project ID. */
+async function nextProjectNumber(prefix) {
+  const { data, error } = await supabase
+    .from("pt_projects")
+    .select("project_code")
+    .ilike("project_code", `${prefix}%`);
+  if (error) throw error;
+  let max = 0;
+  for (const row of data ?? []) {
+    const code = String(row.project_code ?? "").toUpperCase();
+    const rest = code.startsWith(prefix) ? code.slice(prefix.length) : "";
+    if (/^[0-9]+$/.test(rest)) max = Math.max(max, Number(rest));
+  }
+  return max + 1;
+}
+
 export async function createProject(companyId, input) {
   const { project_code: _ignored, ...rest } = input ?? {};
   const { values, errors, ok } = validateProject(rest);
   if (!ok) return { status: "error", errors, message: "Please fix the highlighted fields." };
-  // The database assigns the next ZT-### code. If someone has already taken that
-  // code by editing another project, the insert clashes; each retry draws the
-  // next number, so it simply skips codes that are in use.
+  // Project ID = ZT-<CLIENT>-### numbered per client (ZT-STSLEV-001, ZT-STSLEV-002 …).
+  // If the next code was just taken (another save at the same moment, or an edited
+  // Project ID), the insert clashes and the following number is tried.
   let data;
   let error;
-  for (let attempt = 0; attempt < 25; attempt += 1) {
-    ({ data, error } = await supabase
-      .from("pt_projects")
-      .insert({ ...values, company_id: companyId })
-      .select(PROJECT_COLUMNS)
-      .single());
-    if (!isCodeClash(error)) break;
+  try {
+    const { data: company, error: companyError } = await supabase
+      .from("pt_companies")
+      .select("name")
+      .eq("id", companyId)
+      .single();
+    if (companyError) throw companyError;
+    const prefix = projectCodePrefix(company?.name);
+    let number = await nextProjectNumber(prefix);
+    for (let attempt = 0; attempt < 25; attempt += 1, number += 1) {
+      ({ data, error } = await supabase
+        .from("pt_projects")
+        .insert({ ...values, company_id: companyId, project_code: `${prefix}${String(number).padStart(3, "0")}` })
+        .select(PROJECT_COLUMNS)
+        .single());
+      if (!isCodeClash(error)) break;
+    }
+  } catch (err) {
+    error = err;
   }
   if (error) {
     console.error("Failed to create project:", error.message);

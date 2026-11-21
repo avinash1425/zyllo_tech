@@ -46,7 +46,7 @@ export default function ProjectTrackerCompanyPage() {
       className="inline-flex items-center gap-1.5 text-sm font-medium text-[#676b7a] hover:text-[#c24f05]"
     >
       <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-      All companies
+      All clients
     </Link>
   );
 

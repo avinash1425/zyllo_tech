@@ -36,10 +36,10 @@ export default function AccessCompaniesPage() {
           bordered
           icon={KeyRound}
           title="No companies yet"
-          message="Add client companies and projects in Client Companies first."
+          message="Add clients and projects in Clients first."
           action={
             <Link href="/admin/project-tracker/companies" className="inline-flex items-center rounded-lg bg-gradient-to-r from-[#f7941e] to-[#f96706] px-4 py-2 text-sm font-semibold text-white">
-              Go to Client Companies
+              Go to Clients
             </Link>
           }
         />
