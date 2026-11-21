@@ -67,7 +67,7 @@ export default function AccessCompanyPage() {
   const back = (
     <Link href="/admin/project-tracker/access" className="inline-flex items-center gap-1.5 text-sm font-medium text-[#676b7a] hover:text-[#c24f05]">
       <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-      All companies
+      All clients
     </Link>
   );
 
@@ -104,7 +104,7 @@ export default function AccessCompanyPage() {
       <Notice text={notice?.text} tone={notice?.tone} onClose={() => setNotice(null)} />
 
       {projects.length === 0 ? (
-        <EmptyState bordered icon={FolderOpen} title="No projects yet" message="Add projects to this company in Client Companies." />
+        <EmptyState bordered icon={FolderOpen} title="No projects yet" message="Add projects to this client in Clients." />
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-[#e7e9ee] bg-white shadow-sm">
           <table className="w-full min-w-[640px] text-left text-sm">

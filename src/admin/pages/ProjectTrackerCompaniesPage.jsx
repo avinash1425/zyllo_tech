@@ -38,14 +38,14 @@ export default function ProjectTrackerCompaniesPage() {
   const addButton = (
     <button type="button" onClick={() => setAdding(true)} className={BTN_PRIMARY} disabled={Boolean(error)}>
       <Plus className="h-4 w-4" aria-hidden="true" />
-      Add company
+      Add client
     </button>
   );
 
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title="Client Companies"
+        title="Clients"
         subtitle="Open a company to see and add its projects."
         icon={Building2}
         actions={addButton}
@@ -59,8 +59,8 @@ export default function ProjectTrackerCompaniesPage() {
         <EmptyState
           bordered
           icon={Building2}
-          title="No client companies yet"
-          message="Add your first client company to get started."
+          title="No clients yet"
+          message="Add your first client to get started."
           action={addButton}
         />
       ) : (

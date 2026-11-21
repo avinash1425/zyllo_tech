@@ -114,7 +114,9 @@ const STATUS_BORDER = {
 const BD = "#dde6f5";       // body cell border
 const BD_HD = "#2a4fa0";    // header cell border (on navy bg)
 
-const codeNumber = (code) => Number(String(code ?? "").replace(/\D/g, "")) || 0;
+// Natural order by Project ID: ZT-AIMS-001, ZT-AIMS-002 … ZT-AIMS-010, then ZT-STSLEV-001 …
+const byProjectCode = (a, b) =>
+  String(a.project_code ?? "").localeCompare(String(b.project_code ?? ""), "en", { numeric: true, sensitivity: "base" });
 const Dash = () => <span className="select-none text-[#c8cdd8]">—</span>;
 
 function SafeLink({ href, children }) {
@@ -201,7 +203,7 @@ export default function ProjectTrackerDashboardPage() {
   const [deleting, setDeleting] = useState(false);
 
   const projects = useMemo(
-    () => [...(data?.projects ?? [])].sort((a, b) => codeNumber(a.project_code) - codeNumber(b.project_code)),
+    () => [...(data?.projects ?? [])].sort(byProjectCode),
     [data],
   );
 
@@ -261,7 +263,7 @@ export default function ProjectTrackerDashboardPage() {
     <div className="flex flex-col gap-5">
       <PageHeader
         title="Zyllo Tech — Project Overview"
-        subtitle="Every project across your client companies, one row per project."
+        subtitle="Every project across your clients, one row per project."
         icon={ClipboardList}
       />
 
@@ -333,7 +335,7 @@ export default function ProjectTrackerDashboardPage() {
             <span>
               Add clients under{" "}
               <Link href="/admin/project-tracker/companies" className="font-semibold text-[#1f4693] hover:underline">
-                Client Companies
+                Clients
               </Link>
               , then add projects on each company page. Click a metric above to filter. Use{" "}
               <span className="font-semibold">+ Add</span> in the commercial columns to attach quotations, invoices, or orders.
@@ -382,13 +384,13 @@ export default function ProjectTrackerDashboardPage() {
               <EmptyState
                 icon={ClipboardList}
                 title="No projects yet"
-                message="Open a client company and add its projects — they will be listed here."
+                message="Open a client and add its projects — they will be listed here."
                 action={
                   <Link
                     href="/admin/project-tracker/companies"
                     className="inline-flex items-center rounded-lg bg-gradient-to-r from-[#f7941e] to-[#f96706] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90"
                   >
-                    Go to Client Companies
+                    Go to Clients
                   </Link>
                 }
               />

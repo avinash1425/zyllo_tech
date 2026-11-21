@@ -203,7 +203,7 @@ export default function AccessProjectPage() {
           Back to {project.company?.name ?? "Company"}
         </Link>
         <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-[12.5px] font-medium text-[#9aa0ad]">
-          <Link href="/admin/project-tracker/access" className="hover:text-[#c24f05]">All companies</Link>
+          <Link href="/admin/project-tracker/access" className="hover:text-[#c24f05]">All clients</Link>
           <span aria-hidden="true">/</span>
           <Link href={companyHref} className="hover:text-[#c24f05]">{project.company?.name}</Link>
           <span aria-hidden="true">/</span>

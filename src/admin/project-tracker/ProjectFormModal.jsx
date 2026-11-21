@@ -4,6 +4,7 @@ import {
   PROJECT_PRIORITIES,
   PROJECT_STATUSES,
   createProject,
+  projectCodePrefix,
   updateProject,
 } from "@/lib/api/admin/projectTracker";
 import { ChoiceChips, Field, FormMessage, Modal } from "./ui";
@@ -126,7 +127,8 @@ export default function ProjectFormModal({ companyId, companyName, project, onCl
           <div className="flex items-start gap-3 rounded-xl border border-[#dce6f7] bg-[#f0f4ff] px-4 py-3 sm:col-span-2">
             <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#1f4693]/15 text-[11px] font-black text-[#1f4693]">#</span>
             <p className="text-xs text-[#4a5880]">
-              The <span className="font-bold text-[#1f4693]">Project ID</span> (ZT-001, ZT-002…) is assigned automatically when you save.
+              The <span className="font-bold text-[#1f4693]">Project ID</span> ({projectCodePrefix(companyName)}001,{" "}
+              {projectCodePrefix(companyName)}002…) is assigned automatically when you save.
             </p>
           </div>
         )}
