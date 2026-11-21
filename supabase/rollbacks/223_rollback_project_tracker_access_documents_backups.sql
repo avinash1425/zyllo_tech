@@ -15,7 +15,7 @@ drop table if exists pt_private.credential_secrets;
 delete from vault.secrets where name like 'pt_credential_%';
 
 drop table if exists public.pt_credential_events;
-drop table if exists public.pt_credentials;
+drop table if exists public.pt_credentials cascade; -- cascade: pt_private.log_credential_event uses its row type
 
 drop function if exists public.pt_credential_set_password(uuid, text);
 drop function if exists public.pt_credential_remove_password(uuid);
