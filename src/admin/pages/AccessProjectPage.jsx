@@ -200,7 +200,7 @@ export default function AccessProjectPage() {
           className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-[#e7e9ee] bg-white px-3 py-1.5 text-[13px] font-semibold text-[#4a5068] shadow-sm hover:border-[#1f4693]/30 hover:text-[#1f4693]"
         >
           <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-          Back to {project.company?.name ?? "Company"}
+          Back to {project.company?.name ?? "Client"}
         </Link>
         <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-[12.5px] font-medium text-[#9aa0ad]">
           <Link href="/admin/project-tracker/access" className="hover:text-[#c24f05]">All clients</Link>

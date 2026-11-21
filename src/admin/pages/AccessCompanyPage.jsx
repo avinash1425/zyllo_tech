@@ -75,7 +75,7 @@ export default function AccessCompanyPage() {
     return (
       <div className="flex flex-col gap-6">
         {back}
-        <EmptyState bordered icon={KeyRound} title={error ? "Could not load this company" : "Company not found"} message={error?.message ?? "It may have been deleted."} />
+        <EmptyState bordered icon={KeyRound} title={error ? "Could not load this client" : "Client not found"} message={error?.message ?? "It may have been deleted."} />
       </div>
     );
   }

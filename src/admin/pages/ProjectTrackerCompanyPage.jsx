@@ -57,7 +57,7 @@ export default function ProjectTrackerCompanyPage() {
         <EmptyState
           bordered
           icon={Building2}
-          title={error ? "Could not load this company" : "Company not found"}
+          title={error ? "Could not load this client" : "Client not found"}
           message={error ? error.message : "It may have been deleted."}
         />
       </div>
@@ -234,7 +234,7 @@ export default function ProjectTrackerCompanyPage() {
       )}
       {deletingCompany && (
         <ConfirmDialog
-          title="Delete company?"
+          title="Delete client?"
           onClose={() => setDeletingCompany(false)}
           onConfirm={async () => {
             const result = await deleteCompany(company.id, company.logo_path);

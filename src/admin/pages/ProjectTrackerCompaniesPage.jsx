@@ -46,7 +46,7 @@ export default function ProjectTrackerCompaniesPage() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Clients"
-        subtitle="Open a company to see and add its projects."
+        subtitle="Open a client to see and add its projects."
         icon={Building2}
         actions={addButton}
       />
@@ -54,7 +54,7 @@ export default function ProjectTrackerCompaniesPage() {
       <Notice text={notice?.text} tone={notice?.tone} onClose={() => setNotice(null)} />
 
       {error ? (
-        <EmptyState bordered icon={Building2} title="Could not load companies" message={error.message} />
+        <EmptyState bordered icon={Building2} title="Could not load clients" message={error.message} />
       ) : companies.length === 0 ? (
         <EmptyState
           bordered
@@ -72,15 +72,15 @@ export default function ProjectTrackerCompaniesPage() {
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search companies…"
-                aria-label="Search companies"
+                placeholder="Search clients…"
+                aria-label="Search clients"
                 className={`${INPUT} border-[#e7e9ee] pl-9`}
               />
             </div>
           )}
 
           {filtered.length === 0 ? (
-            <p className="py-10 text-center text-sm text-[#676b7a]">No companies match your search.</p>
+            <p className="py-10 text-center text-sm text-[#676b7a]">No clients match your search.</p>
           ) : (
             <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {filtered.map((c) => (

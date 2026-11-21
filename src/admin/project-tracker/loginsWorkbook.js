@@ -4,7 +4,7 @@
 
 export const LOGIN_COLUMNS = [
   { header: "No.", key: "no", width: 6 },
-  { header: "Company", key: "company", width: 24 },
+  { header: "Client", key: "company", width: 24 },
   { header: "Project ID", key: "project_code", width: 12 },
   { header: "Project", key: "project", width: 26 },
   { header: "Live site", key: "live_url", width: 30 },

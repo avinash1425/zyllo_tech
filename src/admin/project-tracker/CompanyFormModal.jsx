@@ -64,10 +64,10 @@ export default function CompanyFormModal({ company, onClose, onSaved }) {
       ? await updateCompany(company.id, form, logo, company.logo_path)
       : await createCompany(form, logo instanceof File ? logo : null);
     setSaving(false);
-    if (result.status === "success") return onSaved(editing ? "Company updated." : "Client added.", "success");
+    if (result.status === "success") return onSaved(editing ? "Client updated." : "Client added.", "success");
     if (result.status === "partial") return onSaved(result.message, "warning");
     setErrors(result.errors ?? {});
-    setMessage(result.message ?? "Could not save the company.");
+    setMessage(result.message ?? "Could not save the client.");
   }
 
   const shownUrl = logo instanceof File ? preview : logo === null ? null : company?.logo_url;
@@ -89,7 +89,7 @@ export default function CompanyFormModal({ company, onClose, onSaved }) {
   );
 
   return (
-    <Modal title={editing ? "Edit company" : "Add client"} titleId="pt-company-dialog-title" onClose={onClose}>
+    <Modal title={editing ? "Edit client" : "Add client"} titleId="pt-company-dialog-title" onClose={onClose}>
       <form onSubmit={onSubmit} noValidate className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <p className="mb-1.5 text-xs font-semibold text-[#2b303b]">Logo</p>
@@ -118,13 +118,13 @@ export default function CompanyFormModal({ company, onClose, onSaved }) {
               accept="image/png,image/jpeg,image/webp"
               onChange={onPickLogo}
               className="hidden"
-              aria-label="Company logo file"
+              aria-label="Client logo file"
             />
           </div>
           {errors.logo && <p className="mt-1 text-xs text-red-600">{errors.logo}</p>}
         </div>
 
-        {textField("name", "Company name", { required: true, className: "sm:col-span-2" })}
+        {textField("name", "Client name", { required: true, className: "sm:col-span-2" })}
         {textField("industry", "Industry", { placeholder: "e.g. Healthcare" })}
         {textField("contact_person", "Contact person")}
         {textField("email", "Email", { type: "email" })}

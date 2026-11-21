@@ -337,7 +337,7 @@ export default function ProjectTrackerDashboardPage() {
               <Link href="/admin/project-tracker/companies" className="font-semibold text-[#1f4693] hover:underline">
                 Clients
               </Link>
-              , then add projects on each company page. Click a metric above to filter. Use{" "}
+              , then add projects on each client page. Click a metric above to filter. Use{" "}
               <span className="font-semibold">+ Add</span> in the commercial columns to attach quotations, invoices, or orders.
             </span>
           </p>
