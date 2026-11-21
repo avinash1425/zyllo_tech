@@ -18,6 +18,9 @@ import {
   Home,
   ChevronDown,
   ExternalLink,
+  ClipboardList,
+  Building2,
+  KeyRound,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import AdminSearch from "./AdminSearch";
@@ -48,6 +51,20 @@ const NAV_SECTIONS = [
       { href: "/admin/seo", label: "SEO", icon: Search },
       { href: "/admin/search-console", label: "Search Console", icon: BarChart3 },
       { href: "/admin/index-coverage", label: "Index Coverage", icon: Globe },
+    ],
+  },
+  {
+    label: "Projects",
+    items: [
+      {
+        href: "/admin/project-tracker",
+        label: "Project Tracker",
+        icon: ClipboardList,
+        exact: true,
+        also: ["/admin/project-tracker/projects/"],
+      },
+      { href: "/admin/project-tracker/companies", label: "Client Companies", icon: Building2 },
+      { href: "/admin/project-tracker/access", label: "Access & Logins", icon: KeyRound },
     ],
   },
 ];
@@ -147,6 +164,7 @@ export default function AdminShell({ children }) {
   const { user, signOut } = useAuth();
 
   function isActive(item) {
+    if (item.also?.some((prefix) => pathname.startsWith(prefix))) return true;
     if (item.exact) return pathname === item.href;
     return pathname === item.href || pathname.startsWith(`${item.href}/`);
   }
