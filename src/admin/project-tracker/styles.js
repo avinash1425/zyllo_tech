@@ -1,10 +1,10 @@
 // Shared Project Tracker class names and helpers.
 export const INPUT =
-  "w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm text-[#2b303b] outline-none focus:border-[#1f4693]/60";
+  "w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm text-[#2b303b] outline-none transition-colors focus:border-[#1f4693] focus:ring-2 focus:ring-[#1f4693]/10";
 export const BTN_PRIMARY =
-  "inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#f7941e] to-[#f96706] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#f7941e] to-[#f96706] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60";
 export const BTN_SECONDARY =
-  "inline-flex items-center justify-center gap-2 rounded-lg border border-[#e7e9ee] bg-white px-4 py-2 text-sm font-medium text-[#2b303b] transition-colors hover:bg-[#fafbfc] disabled:opacity-60";
+  "inline-flex items-center justify-center gap-2 rounded-lg border border-[#dce6f7] bg-white px-4 py-2.5 text-sm font-semibold text-[#1f4693] transition-colors hover:bg-[#f0f4ff] disabled:opacity-60";
 
 export function inputClass(error) {
   return `${INPUT} ${error ? "border-red-400" : "border-[#e7e9ee]"}`;
@@ -21,11 +21,11 @@ export function formatDate(value) {
 export const PROGRESS_STEPS = [0, 25, 50, 75, 100];
 
 const PROGRESS_COLORS = {
-  0: { color: "#9aa0ad", label: "Not started" },
-  25: { color: "#dc2626", label: "Started" },
-  50: { color: "#f97316", label: "Halfway" },
-  75: { color: "#2563eb", label: "Almost done" },
-  100: { color: "#16a34a", label: "Done" },
+  0:   { color: "#c0c4cd", label: "Not started" },
+  25:  { color: "#7ba3e0", label: "Started"     },
+  50:  { color: "#4a7fd4", label: "Halfway"     },
+  75:  { color: "#2d5fbe", label: "Almost done" },
+  100: { color: "#1f4693", label: "Done"        },
 };
 
 /** Nearest allowed step for any number (older records may hold other values). */

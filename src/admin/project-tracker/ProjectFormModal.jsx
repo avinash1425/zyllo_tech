@@ -92,6 +92,13 @@ export default function ProjectFormModal({ companyId, companyName, project, onCl
     />
   );
 
+  const divider = (label) => (
+    <div className="flex items-center gap-3 sm:col-span-2">
+      <span className="whitespace-nowrap text-[10px] font-bold uppercase tracking-widest text-[#b0b8cc]">{label}</span>
+      <div className="h-px flex-1 bg-[#eef2fb]" />
+    </div>
+  );
+
   return (
     <Modal
       title={editing ? `Edit project ${project.project_code ?? ""}`.trim() : `Add project${companyName ? ` for ${companyName}` : ""}`}
@@ -115,17 +122,21 @@ export default function ProjectFormModal({ companyId, companyName, project, onCl
             )}
           </Field>
         ) : (
-          <p className="rounded-lg bg-[#f6f7fb] px-3.5 py-2.5 text-xs text-[#676b7a] sm:col-span-2">
-            The <span className="font-semibold text-[#2b303b]">Project ID</span> (ZT-001, ZT-002 …) is assigned
-            automatically when you save. You can change it later with the edit button.
-          </p>
+          <div className="flex items-start gap-3 rounded-xl border border-[#dce6f7] bg-[#f0f4ff] px-4 py-3 sm:col-span-2">
+            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#1f4693]/15 text-[11px] font-black text-[#1f4693]">#</span>
+            <p className="text-xs text-[#4a5880]">
+              The <span className="font-bold text-[#1f4693]">Project ID</span> (ZT-001, ZT-002…) is assigned automatically when you save.
+            </p>
+          </div>
         )}
         {editing && <div className="hidden sm:block" />}
         {text("name", "Project name", { required: true, autoFocus: !editing, className: "sm:col-span-2" })}
 
+        {divider("Details")}
         {text("project_type", "Type", { placeholder: "e.g. Website, ERP / Web App, Zoho App" })}
         {text("project_manager", "Project manager")}
 
+        {divider("Status & progress")}
         {select("status", "Status", PROJECT_STATUSES)}
         <Field id={fid("progress")} label="Progress" error={errors.progress}>
           <div className="flex items-center gap-3">
@@ -170,12 +181,15 @@ export default function ProjectFormModal({ companyId, companyName, project, onCl
         {select("priority", "Priority", PROJECT_PRIORITIES)}
         {select("health", "Health", PROJECT_HEALTH, { allowEmpty: true })}
 
+        {divider("Timeline")}
         {text("start_date", "Start date", { type: "date" })}
         {text("end_date", "Target date", { type: "date" })}
 
+        {divider("Links")}
         {text("live_url", "Live URL", { type: "url", placeholder: "https://" })}
         {text("repo_source", "Repo / Source", { placeholder: "e.g. GitHub owner/repo, Supabase, Zoho Creator" })}
 
+        {divider("Notes")}
         {text("next_action", "Next action", { className: "sm:col-span-2" })}
 
         <Field id={fid("description")} label="Description" error={errors.description} className="sm:col-span-2">
@@ -199,7 +213,7 @@ export default function ProjectFormModal({ companyId, companyName, project, onCl
 
         <FormMessage message={message} />
 
-        <div className="flex justify-end gap-3 sm:col-span-2">
+        <div className="flex justify-end gap-3 border-t border-[#f0f4ff] pt-4 sm:col-span-2">
           <button type="button" onClick={onClose} className={BTN_SECONDARY}>
             Cancel
           </button>

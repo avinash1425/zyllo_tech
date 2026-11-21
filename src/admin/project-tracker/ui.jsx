@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Eye, EyeOff, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { AlertCircle, CheckCircle2, Eye, EyeOff, X } from "lucide-react";
 import { BTN_SECONDARY, inputClass } from "./styles";
 
 /** Password field with a show/hide eye. Browsers are told not to autofill it. */
@@ -44,30 +44,36 @@ export function Modal({ title, titleId, onClose, children, size = "max-w-2xl", r
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#0b0e17]/50 px-4 py-8 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#0b0e17]/65 px-4 py-8 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
         role={role}
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`max-h-[90vh] w-full ${size} overflow-y-auto rounded-2xl border border-[#e7e9ee] bg-white p-6 shadow-xl`}
+        className={`flex max-h-[90vh] w-full ${size} flex-col overflow-hidden rounded-2xl border border-[#dce6f7] shadow-2xl`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-5 flex items-center justify-between gap-4">
-          <h2 id={titleId} className="text-lg font-bold text-[#2b303b]">
-            {title}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="rounded-md p-1.5 text-[#676b7a] hover:bg-[#f3f4f7]"
-          >
-            <X className="h-5 w-5" aria-hidden="true" />
-          </button>
+        {/* Gradient header */}
+        <div className="shrink-0 bg-gradient-to-r from-[#1f4693] via-[#2d5fbe] to-[#3089a6] px-6 py-4">
+          <div className="flex items-center justify-between gap-4">
+            <h2 id={titleId} className="text-lg font-bold text-white">
+              {title}
+            </h2>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="rounded-lg p-1.5 text-white/70 transition-colors hover:bg-white/20 hover:text-white"
+            >
+              <X className="h-5 w-5" aria-hidden="true" />
+            </button>
+          </div>
         </div>
-        {children}
+        {/* Scrollable body */}
+        <div className="overflow-y-auto bg-white p-6">
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -77,7 +83,7 @@ export function Modal({ title, titleId, onClose, children, size = "max-w-2xl", r
 export function Field({ id, label, required, error, className = "", children }) {
   return (
     <div className={className}>
-      <label htmlFor={id} className="mb-1.5 block text-xs font-semibold text-[#2b303b]">
+      <label htmlFor={id} className="mb-1.5 block text-[11px] font-bold uppercase tracking-wide text-[#8a90a0]">
         {label}
         {required && <span className="text-[#d9650a]"> *</span>}
       </label>
@@ -134,14 +140,74 @@ export function ConfirmDialog({ title, children, confirmLabel = "Delete", onConf
 }
 
 export function Notice({ text, tone = "success", onClose }) {
+  const timerRef = useRef(null);
+  const [visible, setVisible] = useState(false);
+  const [progress, setProgress] = useState(false);
+
+  useEffect(() => {
+    if (!text) { setVisible(false); setProgress(false); return; }
+    setVisible(true);
+    setProgress(false);
+    // Start progress bar on next frame so CSS transition fires
+    const raf = requestAnimationFrame(() => setProgress(true));
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => { setVisible(false); setTimeout(onClose, 300); }, 4000);
+    return () => { clearTimeout(timerRef.current); cancelAnimationFrame(raf); };
+  }, [text]);
+
   if (!text) return null;
-  const styles = tone === "success" ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-900";
+
+  const isSuccess = tone === "success";
+  const Icon = isSuccess ? CheckCircle2 : AlertCircle;
+  const accent = isSuccess ? "#059669" : "#d97706";
+  const iconBg = isSuccess ? "#ecfdf5" : "#fffbeb";
+
   return (
-    <div role="status" className={`flex items-center justify-between gap-3 rounded-lg px-4 py-2.5 text-sm ${styles}`}>
-      <span>{text}</span>
-      <button type="button" onClick={onClose} aria-label="Dismiss" className="p-1">
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        transform: visible ? "translateY(0)" : "translateY(1.5rem)",
+        opacity: visible ? 1 : 0,
+        transition: "transform 0.25s ease, opacity 0.25s ease",
+      }}
+      className="fixed bottom-6 right-6 z-50 flex w-80 items-start gap-3 rounded-xl border border-[#e5e7eb] bg-white px-4 py-3.5 shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
+    >
+      {/* Icon */}
+      <span
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
+        style={{ background: iconBg }}
+      >
+        <Icon className="h-4 w-4" style={{ color: accent }} aria-hidden="true" />
+      </span>
+
+      {/* Text */}
+      <div className="flex-1 pt-0.5">
+        <p className="text-[13px] font-semibold text-[#111827]">
+          {isSuccess ? "Success" : "Notice"}
+        </p>
+        <p className="mt-0.5 text-[12px] leading-relaxed text-[#6b7280]">{text}</p>
+      </div>
+
+      {/* Close */}
+      <button
+        type="button"
+        onClick={() => { setVisible(false); setTimeout(onClose, 300); }}
+        aria-label="Dismiss"
+        className="shrink-0 rounded p-0.5 text-[#9ca3af] transition-colors hover:bg-[#f3f4f6] hover:text-[#374151]"
+      >
         <X className="h-4 w-4" aria-hidden="true" />
       </button>
+
+      {/* Progress bar — shrinks from 100% → 0% over 4 s */}
+      <span
+        className="absolute bottom-0 left-0 h-[3px] rounded-b-xl"
+        style={{
+          background: accent,
+          width: progress ? "0%" : "100%",
+          transition: progress ? "width 4s linear" : "none",
+        }}
+      />
     </div>
   );
 }
@@ -176,11 +242,11 @@ export function CompanyLogo({ name, url, className = "h-20 w-20", textClass = "t
  * options: [{ value, label }]. With `allowEmpty`, clicking the chosen button again clears it.
  */
 export function ChoiceChips({ id, label, options, value, onChange, allowEmpty = false, error, size = "md" }) {
-  const pad = size === "sm" ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm";
+  const pad = size === "sm" ? "px-3 py-1 text-xs" : "px-4 py-1.5 text-sm";
   return (
     <div>
       {label && (
-        <p id={id} className="mb-1.5 block text-xs font-semibold text-[#2b303b]">
+        <p id={id} className="mb-1.5 block text-[11px] font-bold uppercase tracking-wide text-[#8a90a0]">
           {label}
         </p>
       )}
@@ -194,10 +260,10 @@ export function ChoiceChips({ id, label, options, value, onChange, allowEmpty = 
               role="radio"
               aria-checked={selected}
               onClick={() => onChange(selected && allowEmpty ? "" : o.value)}
-              className={`rounded-lg border font-medium transition-colors ${pad} ${
+              className={`rounded-full border font-semibold transition-all ${pad} ${
                 selected
-                  ? "border-[#f7941e] bg-[#f7941e] text-white"
-                  : "border-[#e7e9ee] bg-white text-[#2b303b] hover:border-[#f7941e]/60 hover:text-[#c24f05]"
+                  ? "border-transparent bg-gradient-to-r from-[#1f4693] to-[#2d5fbe] text-white shadow-sm"
+                  : "border-[#e3e9f5] bg-[#f8faff] text-[#676b7a] hover:border-[#1f4693]/30 hover:bg-[#eef2fb] hover:text-[#1f4693]"
               }`}
             >
               {o.label}

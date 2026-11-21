@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+﻿import { useCallback, useState } from "react";
 import { Check, Copy, DatabaseBackup, ExternalLink, Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
 import useAdminData from "../useAdminData";
 import AdminLoading from "../AdminLoading";
@@ -156,14 +156,6 @@ function BackupPlanModal({ projectId, existing, onClose, onSaved }) {
   );
 }
 
-function Detail({ label, children }) {
-  return (
-    <div className="grid grid-cols-[8.5rem_1fr] gap-2 py-1.5 text-sm">
-      <dt className="text-[#676b7a]">{label}</dt>
-      <dd className="min-w-0 break-words text-[#2b303b]">{children || <span className="text-[#c4c8d0]">—</span>}</dd>
-    </div>
-  );
-}
 
 export default function BackupsTab({ projectId }) {
   const loader = useCallback(() => fetchBackupPlan(projectId), [projectId]);
@@ -188,111 +180,109 @@ export default function BackupsTab({ projectId }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-[#676b7a]">
-          Where the complete code backup is kept, whether daily, weekly and monthly backups are kept, and the login for each.
-        </p>
-        <button type="button" onClick={() => setEditing(true)} className={BTN_PRIMARY}>
-          <Pencil className="h-4 w-4" aria-hidden="true" />
-          {anything ? "Edit backup details" : "Add backup details"}
-        </button>
-      </div>
-
       <Notice text={notice?.text} tone={notice?.tone} onClose={() => setNotice(null)} />
 
-      <ul className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {BACKUP_PLAN.map((p) => {
-          const row = plan[p.key];
-          const cred = row?.credential;
-          const status = !row ? "Not recorded" : row.kept ? (p.askKept ? "Yes — kept" : "Recorded") : "No — not kept";
-          const tone = !row ? "bg-[#f1f2f5] text-[#676b7a]" : row.kept ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-800";
-          const shown = cred ? pw.revealed[cred.id] : null;
-          return (
-            <li key={p.key} className="flex flex-col rounded-2xl border border-[#e7e9ee] bg-white p-4 shadow-sm">
-              <div className="mb-2 flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="font-bold text-[#2b303b]">{p.title}</h3>
-                  <span className={`mt-1 inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${tone}`}>{status}</span>
-                </div>
-                {row && (
-                  <button
-                    type="button"
-                    onClick={() => setRemoving({ row, plan: p })}
-                    aria-label={`Clear ${p.title}`}
-                    title="Clear"
-                    className="rounded-lg p-2 text-[#676b7a] hover:bg-red-50 hover:text-red-600"
-                  >
-                    <Trash2 className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                )}
-              </div>
-              {row?.kept ? (
-                <dl className="divide-y divide-[#f1f2f5]">
-                  <Detail label="Where it is kept">{row.location}</Detail>
-                  <Detail label="Link">
-                    {row.link && (
-                      <a href={row.link} target="_blank" rel="noopener noreferrer" className="inline-flex max-w-full items-center gap-1 text-[#1f4693] hover:underline">
-                        <span className="truncate">{shortUrl(row.link)}</span>
-                        <ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />
-                      </a>
-                    )}
-                  </Detail>
-                  <Detail label="Username / email">
-                    {cred?.account && (
-                      <span className="inline-flex items-center gap-1">
-                        <span className="truncate">{cred.account}</span>
-                        <button
-                          type="button"
-                          onClick={() => copyToClipboard(cred.account).then((ok) => ok && setNotice({ text: "Username copied.", tone: "success" }))}
-                          aria-label={`Copy username for ${p.title}`}
-                          className="rounded p-1 text-[#9aa0ad] hover:bg-[#f3f4f7] hover:text-[#2b303b]"
-                        >
-                          <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+      <div className="overflow-hidden rounded-2xl border border-[#e2e8f0] shadow-lg">
+        {/* Banner */}
+        <div className="flex items-center gap-3 bg-gradient-to-r from-[#1f4693] to-[#2d5fbe] px-5 py-3.5">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/20">
+            <DatabaseBackup className="h-4 w-4 text-white" aria-hidden="true" />
+          </span>
+          <span className="flex-1 text-sm font-bold text-white">Backups</span>
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-white/25 bg-white/15 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-white/25"
+          >
+            <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+            {anything ? "Edit backup details" : "Add backup details"}
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-3 bg-[#f8fafc] p-4">
+          <section className="overflow-hidden rounded-xl border border-[#e3e9f5] bg-white shadow-sm">
+            <div className="flex items-center gap-3 border-b border-[#1a3a7a] bg-gradient-to-r from-[#1f4693] to-[#2d5fbe] px-4 py-3">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white/20">
+                <DatabaseBackup className="h-3.5 w-3.5 text-white" aria-hidden="true" />
+              </span>
+              <h3 className="flex-1 text-sm font-bold text-white">Backup Plan</h3>
+            </div>
+            <ul className="divide-y divide-[#eef0f3]">
+              {BACKUP_PLAN.map((p) => {
+                const row = plan[p.key];
+                const cred = row?.credential;
+                const shown = cred ? pw.revealed[cred.id] : null;
+                const statusLabel = !row ? "Not recorded" : row.kept ? (p.askKept ? "Kept" : "Recorded") : "Not kept";
+                const statusColor = !row ? "text-[#9aa0ad]" : row.kept ? "text-emerald-600" : "text-amber-600";
+                return (
+                  <li key={p.key} className="flex flex-col gap-2 px-4 py-3 transition-colors hover:bg-[#f8faff] sm:flex-row sm:items-start">
+                    <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#1f4693]/8 text-[#1f4693]">
+                      <DatabaseBackup className="h-4 w-4" aria-hidden="true" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="flex flex-wrap items-center gap-2">
+                        <span className="font-semibold text-[#2b303b]">{p.title}</span>
+                        <span className={`text-xs font-semibold ${statusColor}`}>{statusLabel}</span>
+                      </p>
+                      {p.hint && <p className="text-xs text-[#8a90a0]">{p.hint}</p>}
+                      {row?.kept && (
+                        <>
+                          {row.location && (
+                            <p className="mt-1 text-xs text-[#4a5068]">
+                              <span className="font-medium text-[#8a90a0]">Location:</span> {row.location}
+                            </p>
+                          )}
+                          {row.link && (
+                            <a href={row.link} target="_blank" rel="noopener noreferrer" className="mt-0.5 inline-flex max-w-full items-center gap-1 text-xs text-[#1f4693] hover:underline">
+                              <ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />
+                              <span className="truncate">{shortUrl(row.link)}</span>
+                            </a>
+                          )}
+                          {cred?.account && (
+                            <p className="mt-0.5 flex items-center gap-1.5 text-xs text-[#4a5068]">
+                              <span className="font-medium text-[#8a90a0]">User:</span>
+                              <span>{cred.account}</span>
+                              <button type="button" onClick={() => copyToClipboard(cred.account).then((ok) => ok && setNotice({ text: "Username copied.", tone: "success" }))} aria-label={`Copy username for ${p.title}`} className="rounded p-0.5 text-[#9aa0ad] hover:text-[#1f4693]">
+                                <Copy className="h-3 w-3" aria-hidden="true" />
+                              </button>
+                            </p>
+                          )}
+                          {cred?.has_password && (
+                            <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                              <span aria-live="polite" className={`rounded-md px-2 py-0.5 font-mono text-xs ${shown ? "bg-amber-50 text-[#2b303b]" : "bg-[#eef2fb] text-[#8a90a0] tracking-widest"}`}>
+                                {shown ?? "••••••"}
+                              </span>
+                              <button type="button" disabled={pw.busyId === cred.id} onClick={() => (shown ? pw.hide(cred.id) : pw.run(cred, "view"))} aria-label={shown ? `Hide password for ${p.title}` : `Show password for ${p.title}`} title={shown ? "Hide" : `Show for ${SHOW_SECONDS} seconds`} className="rounded p-1 text-[#676b7a] hover:bg-[#f3f4f7] hover:text-[#1f4693] disabled:opacity-50">
+                                {shown ? <EyeOff className="h-3.5 w-3.5" aria-hidden="true" /> : <Eye className="h-3.5 w-3.5" aria-hidden="true" />}
+                              </button>
+                              <button type="button" disabled={pw.busyId === cred.id} onClick={() => pw.run(cred, "copy")} aria-label={`Copy password for ${p.title}`} title="Copy without showing" className="rounded p-1 text-[#676b7a] hover:bg-[#f3f4f7] hover:text-[#1f4693] disabled:opacity-50">
+                                {pw.copiedId === cred.id ? <Check className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" /> : <Copy className="h-3.5 w-3.5" aria-hidden="true" />}
+                              </button>
+                            </div>
+                          )}
+                          {row.backup_date && (
+                            <p className="mt-0.5 text-xs text-[#4a5068]">
+                              <span className="font-medium text-[#8a90a0]">Last backup:</span> {formatDate(row.backup_date)}
+                            </p>
+                          )}
+                          {row.notes && <p className="mt-0.5 line-clamp-2 text-xs text-[#676b7a]">{row.notes}</p>}
+                        </>
+                      )}
+                    </div>
+                    {row && (
+                      <div className="flex shrink-0 gap-1 pl-11 sm:pl-0">
+                        <button type="button" onClick={() => setRemoving({ row, plan: p })} aria-label={`Clear ${p.title}`} title="Clear" className="rounded-lg p-2 text-[#676b7a] hover:bg-red-50 hover:text-red-600">
+                          <Trash2 className="h-4 w-4" aria-hidden="true" />
                         </button>
-                      </span>
+                      </div>
                     )}
-                  </Detail>
-                  <Detail label="Password">
-                    {cred?.has_password && (
-                      <span className="inline-flex items-center gap-1">
-                        <span aria-live="polite" className={`max-w-[12rem] truncate rounded px-1.5 py-0.5 font-mono text-xs ${shown ? "bg-amber-50" : "bg-[#f6f7fb] text-[#676b7a]"}`}>
-                          {shown ?? "••••••••"}
-                        </span>
-                        <button
-                          type="button"
-                          disabled={pw.busyId === cred.id}
-                          onClick={() => (shown ? pw.hide(cred.id) : pw.run(cred, "view"))}
-                          aria-label={shown ? `Hide password for ${p.title}` : `Show password for ${p.title}`}
-                          title={shown ? "Hide" : `Show for ${SHOW_SECONDS} seconds`}
-                          className="rounded p-1 text-[#676b7a] hover:bg-[#f3f4f7] hover:text-[#1f4693] disabled:opacity-50"
-                        >
-                          {shown ? <EyeOff className="h-3.5 w-3.5" aria-hidden="true" /> : <Eye className="h-3.5 w-3.5" aria-hidden="true" />}
-                        </button>
-                        <button
-                          type="button"
-                          disabled={pw.busyId === cred.id}
-                          onClick={() => pw.run(cred, "copy")}
-                          aria-label={`Copy password for ${p.title}`}
-                          title="Copy without showing"
-                          className="rounded p-1 text-[#676b7a] hover:bg-[#f3f4f7] hover:text-[#1f4693] disabled:opacity-50"
-                        >
-                          {pw.copiedId === cred.id ? <Check className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" /> : <Copy className="h-3.5 w-3.5" aria-hidden="true" />}
-                        </button>
-                      </span>
-                    )}
-                  </Detail>
-                  <Detail label="Last backup">{formatDate(row.backup_date)}</Detail>
-                  <Detail label="Notes">{row.notes}</Detail>
-                </dl>
-              ) : (
-                <p className="text-sm text-[#9aa0ad]">
-                  {row ? "Not kept for this project." : "Not filled in yet — use “" + (anything ? "Edit" : "Add") + " backup details”."}
-                </p>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        </div>
+      </div>
 
       {editing && <BackupPlanModal projectId={projectId} existing={plan} onClose={() => setEditing(false)} onSaved={afterSave} />}
       {removing && (

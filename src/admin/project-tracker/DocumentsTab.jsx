@@ -1,15 +1,26 @@
 import { useCallback, useMemo, useState } from "react";
-import { Download, Eye, FileText, Link2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Briefcase, ClipboardList, Download, Eye, FileText, Files, Link2, PackageCheck, Pencil, Plus, Receipt, RotateCcw, Trash2 } from "lucide-react";
 import useAdminData from "../useAdminData";
 import AdminLoading from "../AdminLoading";
 import EmptyState from "../EmptyState";
 import { DOCUMENT_CATEGORIES, deleteDocument, fetchDocuments } from "@/lib/api/admin/projectTrackerProject";
 import { ConfirmDialog, Notice } from "./ui";
-import { BTN_PRIMARY, formatDate } from "./styles";
+import { formatDate } from "./styles";
 import { dateLabel, formatSize, openDocument, refLabel } from "./docActions";
 import { BlockedLink, DocumentFormModal, DocumentViewModal } from "./documentDialogs";
 
 const ICON_BTN = "rounded-lg p-2 text-[#676b7a] hover:bg-[#f3f4f7] hover:text-[#1f4693]";
+
+const SECTION_ICONS = {
+  quotation: Receipt,
+  invoice: FileText,
+  sales_order: Briefcase,
+  purchase_order: Files,
+  handover: PackageCheck,
+  mom: ClipboardList,
+  revision: RotateCcw,
+  other: FileText,
+};
 
 export default function DocumentsTab({ projectId, projectLabel }) {
   const loader = useCallback(() => fetchDocuments(projectId), [projectId]);
@@ -47,34 +58,49 @@ export default function DocumentsTab({ projectId, projectLabel }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-[#676b7a]">
-          Quotations, invoices, sales &amp; purchase orders, handover documents, MOMs and revisions. Upload files (private,
-          up to 25 MB) or save Google Drive / OneDrive links.
-        </p>
-        <button type="button" onClick={() => setEditing({ category: "" })} className={BTN_PRIMARY}>
-          <Plus className="h-4 w-4" aria-hidden="true" />
-          Add document
-        </button>
-      </div>
-
       <Notice text={notice?.text} tone={notice?.tone} onClose={() => setNotice(null)} />
 
+      <div className="overflow-hidden rounded-2xl border border-[#e2e8f0] shadow-lg">
+        {/* Banner */}
+        <div className="flex items-center gap-3 bg-gradient-to-r from-[#1f4693] to-[#2d5fbe] px-5 py-3.5">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/20">
+            <FileText className="h-4 w-4 text-white" aria-hidden="true" />
+          </span>
+          <span className="flex-1 text-sm font-bold text-white">
+            Documents
+            {docs.length > 0 && <span className="ml-2 font-normal text-white/55">{docs.length}</span>}
+          </span>
+          <button
+            type="button"
+            onClick={() => setEditing({ category: "" })}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-white/25 bg-white/15 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-white/25"
+          >
+            <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+            Add document
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-3 bg-[#f8fafc] p-4">
       {DOCUMENT_CATEGORIES.map((section) => {
         const items = docs.filter((d) => d.category === section.value);
+        const SectionIcon = SECTION_ICONS[section.value] ?? FileText;
         const addLabel = section.commercial
           ? `Add ${section.single.toLowerCase()}`
           : `Add${section.prefix ? ` ${section.prefix}-${nextRefs[section.value]}` : ""}`;
         return (
-          <section key={section.value} className="rounded-2xl border border-[#e7e9ee] bg-white shadow-sm">
-            <div className="flex items-center justify-between gap-3 border-b border-[#eef0f3] px-4 py-3">
-              <h3 className="text-sm font-bold text-[#2b303b]">
-                {section.label} <span className="font-medium text-[#9aa0ad]">({items.length})</span>
+          <section key={section.value} className="overflow-hidden rounded-xl border border-[#e3e9f5] bg-white shadow-sm">
+            <div className="flex items-center justify-between gap-3 border-b border-[#1a3a7a] bg-gradient-to-r from-[#1f4693] to-[#2d5fbe] px-4 py-3">
+              <h3 className="flex items-center gap-2 text-sm font-bold text-white">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white/20">
+                  <SectionIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                </span>
+                {section.label}
+                <span className="ml-1 font-medium text-white/60">({items.length})</span>
               </h3>
               <button
                 type="button"
                 onClick={() => setEditing({ category: section.value, lock: true })}
-                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-[#1f4693] hover:bg-[#f3f4f7]"
+                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-white/80 hover:bg-white/20"
               >
                 <Plus className="h-3.5 w-3.5" aria-hidden="true" />
                 {addLabel}
@@ -87,7 +113,7 @@ export default function DocumentsTab({ projectId, projectLabel }) {
                 {items.map((d) => {
                   const ref = refLabel(d);
                   return (
-                    <li key={d.id} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center">
+                    <li key={d.id} className="flex flex-col gap-2 px-4 py-3 transition-colors hover:bg-[#f8faff] sm:flex-row sm:items-center">
                       <div className="flex min-w-0 flex-1 items-start gap-3">
                         <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#1f4693]/8 text-[#1f4693]">
                           {d.external_url ? <Link2 className="h-4 w-4" aria-hidden="true" /> : <FileText className="h-4 w-4" aria-hidden="true" />}
@@ -140,6 +166,8 @@ export default function DocumentsTab({ projectId, projectLabel }) {
           </section>
         );
       })}
+        </div>
+      </div>
 
       {viewing && (
         <DocumentViewModal

@@ -11,7 +11,6 @@ import {
   FolderKanban,
   Search,
   BarChart3,
-  Globe,
   Menu,
   X,
   LogOut,
@@ -50,7 +49,20 @@ const NAV_SECTIONS = [
     items: [
       { href: "/admin/seo", label: "SEO", icon: Search },
       { href: "/admin/search-console", label: "Search Console", icon: BarChart3 },
-      { href: "/admin/index-coverage", label: "Index Coverage", icon: Globe },
+    ],
+  },
+  {
+    label: "Projects",
+    items: [
+      {
+        href: "/admin/project-tracker",
+        label: "Project Tracker",
+        icon: ClipboardList,
+        exact: true,
+        also: ["/admin/project-tracker/projects/"],
+      },
+      { href: "/admin/project-tracker/companies", label: "Clients", icon: Building2 },
+      { href: "/admin/project-tracker/access", label: "Access & Logins", icon: KeyRound },
     ],
   },
   {

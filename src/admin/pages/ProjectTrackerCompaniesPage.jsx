@@ -87,10 +87,10 @@ export default function ProjectTrackerCompaniesPage() {
                 <li key={c.id}>
                   <Link
                     href={`/admin/project-tracker/companies/${c.id}`}
-                    className="group flex h-full flex-col items-center gap-3 rounded-2xl border border-[#e7e9ee] bg-white p-5 text-center shadow-sm transition-all hover:-translate-y-0.5 hover:border-[#f7941e]/50 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f7941e]"
+                    className="group flex h-full flex-col items-center gap-3 rounded-2xl border border-[#e7e9ee] bg-white p-5 text-center shadow-sm transition-all hover:-translate-y-0.5 hover:border-[#1f4693]/30 hover:bg-[#f7f9ff] hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f4693]"
                   >
                     <CompanyLogo name={c.name} url={c.logo_url} className="h-20 w-20 border border-[#eef0f3]" />
-                    <span className="line-clamp-2 break-words text-sm font-semibold text-[#2b303b] group-hover:text-[#c24f05]">
+                    <span className="line-clamp-2 break-words text-sm font-semibold text-[#2b303b] group-hover:text-[#1f4693]">
                       {c.name}
                     </span>
                     <span className="mt-auto text-xs text-[#676b7a]">
