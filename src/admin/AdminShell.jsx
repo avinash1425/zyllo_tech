@@ -65,20 +65,6 @@ const NAV_SECTIONS = [
       { href: "/admin/project-tracker/access", label: "Access & Logins", icon: KeyRound },
     ],
   },
-  {
-    label: "Projects",
-    items: [
-      {
-        href: "/admin/project-tracker",
-        label: "Project Tracker",
-        icon: ClipboardList,
-        exact: true,
-        also: ["/admin/project-tracker/projects/"],
-      },
-      { href: "/admin/project-tracker/companies", label: "Client Companies", icon: Building2 },
-      { href: "/admin/project-tracker/access", label: "Access & Logins", icon: KeyRound },
-    ],
-  },
 ];
 
 const NAV_ITEMS = NAV_SECTIONS.flatMap((section) => section.items);

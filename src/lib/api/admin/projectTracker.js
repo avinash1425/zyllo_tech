@@ -13,7 +13,7 @@ export const LOGO_TYPES = { "image/png": "png", "image/jpeg": "jpg", "image/webp
 const COMPANY_COLUMNS =
   "id, name, industry, contact_person, email, phone, address, country, status, logo_path, created_at, updated_at";
 const PROJECT_COLUMNS =
-  "id, project_code, company_id, name, description, project_type, status, progress, project_manager, priority, health, start_date, end_date, live_url, repo_source, next_action, notes, created_at, updated_at";
+  "id, project_code, company_id, name, description, project_type, status, progress, project_manager, priority, health, start_date, end_date, completed_date, live_url, repo_source, next_action, notes, created_at, updated_at";
 
 export const PROJECT_STATUSES = [
   { value: "planning", label: "Planning" },
@@ -268,6 +268,7 @@ const PROJECT_FIELDS = [
   "health",
   "start_date",
   "end_date",
+  "completed_date",
   "live_url",
   "repo_source",
   "next_action",
@@ -330,8 +331,12 @@ export function validateProject(input) {
   const dateOk = (d) => !d || /^\d{4}-\d{2}-\d{2}$/.test(d);
   if (!dateOk(values.start_date)) errors.start_date = "Enter a valid date.";
   if (!dateOk(values.end_date)) errors.end_date = "Enter a valid date.";
+  if (!dateOk(values.completed_date)) errors.completed_date = "Enter a valid date.";
   if (values.start_date && values.end_date && values.end_date < values.start_date) {
-    errors.end_date = "Target date cannot be before the start date.";
+    errors.end_date = "End date cannot be before the start date.";
+  }
+  if (values.start_date && values.completed_date && values.completed_date < values.start_date) {
+    errors.completed_date = "Completed date cannot be before the start date.";
   }
   return { values, errors, ok: Object.keys(errors).length === 0 };
 }

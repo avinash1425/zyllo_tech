@@ -71,6 +71,7 @@ export default function ProjectTrackerProjectPage() {
     { label: "Health", value: fmtLabel(project.health), color: HEALTH_COLOR[project.health] ?? "#fff" },
     { label: "Progress", value: `${project.progress ?? 0}%`, color: "#fbbf24" },
     { label: "Timeline", value: (start && end) ? `${start} → ${end}` : (start ?? end ?? "—"), color: "#fff" },
+    { label: "Completed", value: formatDate(project.completed_date) ?? "—", color: "#fff" },
   ];
 
   return (
