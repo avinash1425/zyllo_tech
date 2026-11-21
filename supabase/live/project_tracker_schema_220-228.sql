@@ -10,6 +10,7 @@
 -- Copies NO rows: no companies, projects, logins, passwords or documents.
 -- Changes NO existing website table.
 -- Safe to stop: if anything fails, the whole script is undone.
+-- No CREATE EXTENSION (Lovable's SQL editor rejects it): Supabase Vault must already be installed.
 -- =====================================================================================
 
 begin;
@@ -287,7 +288,11 @@ create index if not exists pt_projects_status_idx on public.pt_projects (status)
 -- Rollback: supabase/rollbacks/223_rollback_project_tracker_access_documents_backups.sql
 -- =====================================================================
 
-create extension if not exists supabase_vault with schema vault;
+do $$ begin
+  if to_regnamespace('vault') is null then
+    raise exception 'Supabase Vault is not installed on this database.';
+  end if;
+end $$;
 
 create schema if not exists pt_private;
 revoke all on schema pt_private from public, anon, authenticated;
