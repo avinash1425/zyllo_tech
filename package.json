@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "dev:hr": "vite --mode hr",
     "dev:tracker": "vite --mode tracker",
     "build": "vite build",
     "build:dev": "vite build --mode development",

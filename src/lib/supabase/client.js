@@ -6,7 +6,7 @@
 // again: two clients on the same project share one localStorage session key,
 // which triggers "Multiple GoTrueClient instances detected" and lets both
 // refresh the same refresh token (the loser's session is revoked). The website
-// (/login, /admin) and the HRMS must use the same instance.
+// (/login, /admin) must use this one instance.
 import { supabase } from "@/integrations/supabase/client";
 
 export { supabase };
