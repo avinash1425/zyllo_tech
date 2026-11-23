@@ -6,6 +6,7 @@ import { Suspense, useState } from "react";
 import { useActionState } from "react";
 import { useSearchParams, useRouter } from "@/lib/nx/navigation";
 import { useAuth } from "@/lib/auth";
+import { loadSupabase } from "@/lib/supabase/load";
 import Seo from "@/components/Seo";
 import {
   ArrowLeft,
@@ -28,15 +29,27 @@ const HIGHLIGHTS = [
   { icon: ShieldCheck, label: "Permissioned access" },
 ];
 
-// Only allow same-site relative redirects (no open redirect).
+// Only allow same-site relative redirects (no open redirect). "" = none given.
 function safeNext(value) {
-  return typeof value === "string" && value.startsWith("/") && !value.startsWith("//") ? value : "/admin";
+  return typeof value === "string" && value.startsWith("/") && !value.startsWith("//") ? value : "";
 }
 
 function NextRedirectField() {
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") || "/admin";
+  const next = searchParams.get("next") || "";
   return <input type="hidden" name="next" value={next} />;
+}
+
+// Where to go after a successful sign-in, by account type:
+// admin -> ?next= or /admin; employee -> /employee (or an /employee ?next=);
+// anyone else -> ?next= or /admin (which shows "Not authorised").
+async function destinationAfterSignIn(next) {
+  const supabase = await loadSupabase();
+  const { data: isAdmin } = await supabase.rpc("is_admin");
+  if (isAdmin === true) return next || "/admin";
+  const { data: me, error } = await supabase.rpc("ep_me");
+  if (!error && me) return next.startsWith("/employee") ? next : "/employee";
+  return next || "/admin";
 }
 
 export default function LoginPage() {
@@ -45,12 +58,12 @@ export default function LoginPage() {
   const { signIn } = useAuth();
   const router = useRouter();
 
-  // Replaces the old server action: sign in with supabase-js, then
-  // navigate to the ?next= target (default /admin).
+  // Sign in with supabase-js, then go to the admin side or the
+  // Employee Portal depending on the account (see destinationAfterSignIn).
   async function signInAction(prevState, formData) {
     const email = formData.get("email")?.toString().trim();
     const password = formData.get("password")?.toString();
-    const next = safeNext(formData.get("next")?.toString() || "/admin");
+    const next = safeNext(formData.get("next")?.toString());
 
     if (!email || !password) {
       return { status: "error", message: "Please enter your email and password." };
@@ -61,7 +74,7 @@ export default function LoginPage() {
       return { status: "error", message: "Invalid email or password." };
     }
 
-    router.replace(next);
+    router.replace(await destinationAfterSignIn(next).catch(() => next || "/admin"));
     return { status: "success", message: "" };
   }
 
@@ -180,7 +193,7 @@ export default function LoginPage() {
                   </p>
 
                   <form action={formAction} className="mt-6 flex flex-col gap-3.5">
-                    <Suspense fallback={<input type="hidden" name="next" value="/admin" />}>
+                    <Suspense fallback={<input type="hidden" name="next" value="" />}>
                       <NextRedirectField />
                     </Suspense>
 

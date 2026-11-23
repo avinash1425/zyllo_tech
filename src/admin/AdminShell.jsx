@@ -20,6 +20,8 @@ import {
   ClipboardList,
   Building2,
   KeyRound,
+  Megaphone,
+  UsersRound,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import AdminSearch from "./AdminSearch";
@@ -63,6 +65,13 @@ const NAV_SECTIONS = [
       },
       { href: "/admin/project-tracker/companies", label: "Clients", icon: Building2 },
       { href: "/admin/project-tracker/access", label: "Access & Logins", icon: KeyRound },
+    ],
+  },
+  {
+    label: "Employee Portal",
+    items: [
+      { href: "/admin/employee-portal", label: "Employee Portal", icon: UsersRound, exact: true },
+      { href: "/admin/employee-messages", label: "Employee Messages", icon: Megaphone },
     ],
   },
 ];

@@ -8,7 +8,7 @@ import { whenIdle } from "@/lib/when-idle";
 // links that carry auth tokens (invites, password resets), need it straight away.
 function needsAuthImmediately() {
   const { pathname, search, hash } = window.location;
-  return /^\/(admin|login|signup|dashboard)(\/|$)/.test(pathname) || /(access_token|refresh_token|token_hash|code|error_description)=/.test(search + hash);
+  return /^\/(admin|employee|login|signup|dashboard)(\/|$)/.test(pathname) || /(access_token|refresh_token|token_hash|code|error_description)=/.test(search + hash);
 }
 
 const AuthContext = createContext({ user: null, loading: true });

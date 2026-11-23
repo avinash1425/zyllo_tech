@@ -1,0 +1,159 @@
+-- Rollback of 233_employee_auto_punch_out.sql.
+-- Restores ep_me / ep_punch_in / ep_punch_out (229) and ep_my_attendance /
+-- ep_attendance_rules (230). Sessions that were closed automatically STAY
+-- closed (their punch out time is kept); only the auto_punched_out flag is dropped.
+begin;
+
+do $$
+begin
+  if exists (select 1 from pg_extension where extname = 'pg_cron') then
+    perform cron.unschedule(jobid) from cron.job where jobname = 'ep-auto-punch-out';
+  end if;
+end $$;
+
+create or replace function public.ep_attendance_rules()
+returns jsonb
+language sql immutable set search_path = ''
+as $$
+  select jsonb_build_object(
+    'timezone',           'Asia/Kolkata',
+    'office_start',       '09:30',
+    'office_end',         '19:00',
+    'late_after',         '09:40',
+    'half_day_min_hours', 4
+  );
+$$;
+
+create or replace function public.ep_me()
+returns jsonb
+language sql stable security definer set search_path = ''
+as $$
+  select jsonb_build_object(
+    'employee_id',   e.id,
+    'employee_code', e.employee_code,
+    'full_name',     e.full_name,
+    'open_session',  (
+      select jsonb_build_object('id', a.id, 'punch_in_at', a.punch_in_at, 'work_date', a.work_date)
+      from public.ep_attendance a
+      where a.employee_id = e.id and a.punch_out_at is null
+    ),
+    'last_session',  (
+      select jsonb_build_object('id', a.id, 'punch_in_at', a.punch_in_at, 'punch_out_at', a.punch_out_at)
+      from public.ep_attendance a
+      where a.employee_id = e.id and a.punch_out_at is not null
+      order by a.punch_out_at desc limit 1
+    )
+  )
+  from public.ep_employees e
+  where e.user_id = auth.uid() and e.is_active;
+$$;
+
+create or replace function public.ep_punch_in()
+returns jsonb
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_emp uuid;
+  v_row public.ep_attendance;
+begin
+  select id into v_emp from public.ep_employees where user_id = auth.uid() and is_active;
+  if v_emp is null then
+    raise exception 'Not an active employee.' using errcode = '42501';
+  end if;
+  perform pg_advisory_xact_lock(hashtextextended(v_emp::text, 0));
+  if exists (select 1 from public.ep_attendance where employee_id = v_emp and punch_out_at is null) then
+    raise exception 'You are already punched in.' using errcode = 'P0001';
+  end if;
+  insert into public.ep_attendance (employee_id) values (v_emp) returning * into v_row;
+  return jsonb_build_object('id', v_row.id, 'punch_in_at', v_row.punch_in_at, 'work_date', v_row.work_date);
+end $$;
+
+create or replace function public.ep_punch_out()
+returns jsonb
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_emp uuid;
+  v_row public.ep_attendance;
+begin
+  select id into v_emp from public.ep_employees where user_id = auth.uid() and is_active;
+  if v_emp is null then
+    raise exception 'Not an active employee.' using errcode = '42501';
+  end if;
+  perform pg_advisory_xact_lock(hashtextextended(v_emp::text, 0));
+  update public.ep_attendance
+     set punch_out_at = now()
+   where employee_id = v_emp and punch_out_at is null
+  returning * into v_row;
+  if v_row.id is null then
+    raise exception 'You are not punched in.' using errcode = 'P0001';
+  end if;
+  return jsonb_build_object('id', v_row.id, 'punch_in_at', v_row.punch_in_at, 'punch_out_at', v_row.punch_out_at);
+end $$;
+
+drop function if exists public.ep_my_attendance(date, date);
+create function public.ep_my_attendance(p_from date, p_to date)
+returns table (
+  work_date      date,
+  first_in       timestamptz,
+  last_out       timestamptz,
+  worked_minutes integer,
+  sessions       integer,
+  is_open        boolean,
+  is_late        boolean,
+  status         text
+)
+language plpgsql stable security definer set search_path = ''
+as $$
+declare
+  v_emp   uuid;
+  v_rules jsonb := public.ep_attendance_rules();
+  v_tz    text  := v_rules ->> 'timezone';
+  v_late  time  := (v_rules ->> 'late_after')::time;
+  v_end   time  := (v_rules ->> 'office_end')::time;
+  v_min   int   := (v_rules ->> 'half_day_min_hours')::int * 60;
+begin
+  select id into v_emp from public.ep_employees where user_id = auth.uid() and is_active;
+  if v_emp is null then
+    raise exception 'Not an active employee.' using errcode = '42501';
+  end if;
+  if p_from is null or p_to is null or p_to < p_from or p_to - p_from > 62 then
+    raise exception 'Choose a date range of at most 62 days.' using errcode = '22023';
+  end if;
+
+  return query
+  with days as (
+    select a.work_date,
+           min(a.punch_in_at)                                                        as first_in,
+           max(a.punch_out_at)                                                       as last_out,
+           floor(sum(extract(epoch from (coalesce(a.punch_out_at, now()) - a.punch_in_at))) / 60)::int as worked,
+           count(*)::int                                                             as n,
+           bool_or(a.punch_out_at is null)                                           as open
+    from public.ep_attendance a
+    where a.employee_id = v_emp and a.work_date between p_from and p_to
+    group by a.work_date
+  )
+  select d.work_date, d.first_in, d.last_out, d.worked, d.n, d.open,
+         (d.first_in at time zone v_tz)::time > v_late,
+         case
+           when d.open                                       then 'working'
+           when d.worked < v_min                             then 'leave'
+           when (d.last_out at time zone v_tz)::time >= v_end then 'present'
+           else 'half_day'
+         end
+  from days d
+  order by d.work_date desc;
+end $$;
+
+revoke all on function public.ep_me(), public.ep_punch_in(), public.ep_punch_out(), public.ep_my_attendance(date, date)
+  from public, anon;
+grant execute on function public.ep_me(), public.ep_punch_in(), public.ep_punch_out(), public.ep_my_attendance(date, date)
+  to authenticated;
+
+drop function if exists public.ep_close_overdue_sessions(uuid);
+drop function if exists public.ep_auto_punch_out_at(date, timestamptz);
+alter table public.ep_attendance drop column if exists auto_punched_out;
+
+notify pgrst, 'reload schema';
+
+commit;
