@@ -3,7 +3,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { LogIn, Clock } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { getMe, getMyAccess, punchIn, punchOut } from "@/lib/api/employee/attendance";
+import { getIsAdmin, getMe, getMyAccess, punchIn, punchOut } from "@/lib/api/employee/attendance";
 import { formatDateTime } from "./attendanceFormat";
 import EmployeeShell from "./EmployeeShell";
 import AttendancePage from "./pages/AttendancePage";
@@ -27,17 +27,20 @@ function FullScreen({ children }) {
 }
 
 function NotEmployee({ onSignOut }) {
-  // "disabled" = an employee whose portal access the admin turned off (migration 239).
-  const [access, setAccess] = useState(null);
+  // "disabled" = an employee whose portal access the admin turned off (migration 239);
+  // "admin" = an admin account, which belongs on the admin side.
+  const [access, setAccess] = useState(undefined);
   useEffect(() => {
     let active = true;
-    getMyAccess()
-      .then((a) => active && setAccess(a))
-      .catch(() => {});
+    Promise.all([getIsAdmin().catch(() => false), getMyAccess().catch(() => null)]).then(([admin, a]) => {
+      if (active) setAccess(admin ? "admin" : a);
+    });
     return () => {
       active = false;
     };
   }, []);
+  if (access === undefined) return <FullScreen><p className="text-sm text-[#676b7a]">Loading…</p></FullScreen>;
+  if (access === "admin") return <Navigate to="/admin" replace />;
   const disabled = access === "disabled";
   return (
     <FullScreen>

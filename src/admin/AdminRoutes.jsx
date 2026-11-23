@@ -35,6 +35,19 @@ function Spinner() {
 }
 
 function NotAuthorised({ onSignOut }) {
+  // An Employee Portal account (active or turned off) belongs on /employee.
+  const [access, setAccess] = useState(undefined);
+  useEffect(() => {
+    let active = true;
+    supabase.rpc("ep_my_access").then(({ data }) => {
+      if (active) setAccess(data ?? null);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+  if (access === undefined) return <Spinner />;
+  if (access === "active" || access === "disabled") return <Navigate to="/employee" replace />;
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#fafbfc] p-6 text-center">
       <h1 className="text-2xl font-bold tracking-tight text-[#2b303b]">Not authorised</h1>

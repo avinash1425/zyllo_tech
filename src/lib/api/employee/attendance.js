@@ -24,6 +24,13 @@ export async function getMyAccess() {
   return data ?? null;
 }
 
+/** True when the signed-in account is an admin (public.is_admin()). */
+export async function getIsAdmin() {
+  const { data, error } = await supabase.rpc("is_admin");
+  if (error) throw error;
+  return data === true;
+}
+
 export async function punchIn() {
   const { data, error } = await supabase.rpc("ep_punch_in");
   if (error) return { ok: false, message: friendly(error, "Could not punch in. Please try again.") };

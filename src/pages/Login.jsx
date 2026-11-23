@@ -41,12 +41,12 @@ function NextRedirectField() {
 }
 
 // Where to go after a successful sign-in, by account type:
-// admin -> ?next= or /admin; employee -> /employee (or an /employee ?next=);
+// admin -> ?next= (never an /employee one) or /admin; employee -> /employee (or an /employee ?next=);
 // anyone else -> ?next= or /admin (which shows "Not authorised").
 async function destinationAfterSignIn(next) {
   const supabase = await loadSupabase();
   const { data: isAdmin } = await supabase.rpc("is_admin");
-  if (isAdmin === true) return next || "/admin";
+  if (isAdmin === true) return next && !next.startsWith("/employee") ? next : "/admin";
   const { data: me, error } = await supabase.rpc("ep_me");
   if (!error && me) return next.startsWith("/employee") ? next : "/employee";
   // An employee whose portal access was turned off by the admin sees that message there.
