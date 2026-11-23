@@ -3,7 +3,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { LogIn, Clock } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { getMe, punchIn, punchOut } from "@/lib/api/employee/attendance";
+import { getMe, getMyAccess, punchIn, punchOut } from "@/lib/api/employee/attendance";
 import { formatDateTime } from "./attendanceFormat";
 import EmployeeShell from "./EmployeeShell";
 import AttendancePage from "./pages/AttendancePage";
@@ -27,11 +27,29 @@ function FullScreen({ children }) {
 }
 
 function NotEmployee({ onSignOut }) {
+  // "disabled" = an employee whose portal access the admin turned off (migration 239).
+  const [access, setAccess] = useState(null);
+  useEffect(() => {
+    let active = true;
+    getMyAccess()
+      .then((a) => active && setAccess(a))
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+  const disabled = access === "disabled";
   return (
     <FullScreen>
       <div className="flex max-w-sm flex-col items-center gap-4 text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-[#2b303b]">Not an employee account</h1>
-        <p className="text-sm text-[#676b7a]">This account does not have access to the Employee Portal.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-[#2b303b]">
+          {disabled ? "Portal access is turned off" : "Not an employee account"}
+        </h1>
+        <p className="text-sm text-[#676b7a]">
+          {disabled
+            ? "Your Employee Portal access has been turned off by the admin. Please contact the admin if you think this is a mistake."
+            : "This account does not have access to the Employee Portal."}
+        </p>
         <button type="button" onClick={onSignOut} className={BTN_PRIMARY}>
           Sign out
         </button>

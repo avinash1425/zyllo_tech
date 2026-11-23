@@ -49,6 +49,9 @@ async function destinationAfterSignIn(next) {
   if (isAdmin === true) return next || "/admin";
   const { data: me, error } = await supabase.rpc("ep_me");
   if (!error && me) return next.startsWith("/employee") ? next : "/employee";
+  // An employee whose portal access was turned off by the admin sees that message there.
+  const { data: access } = await supabase.rpc("ep_my_access");
+  if (access === "disabled") return "/employee";
   return next || "/admin";
 }
 

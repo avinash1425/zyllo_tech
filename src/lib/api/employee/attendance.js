@@ -17,6 +17,13 @@ export async function getMe() {
   return data ?? null;
 }
 
+/** 'active' | 'disabled' (portal access turned off by the admin) | null (not an employee). Migration 239. */
+export async function getMyAccess() {
+  const { data, error } = await supabase.rpc("ep_my_access");
+  if (error) throw error;
+  return data ?? null;
+}
+
 export async function punchIn() {
   const { data, error } = await supabase.rpc("ep_punch_in");
   if (error) return { ok: false, message: friendly(error, "Could not punch in. Please try again.") };
