@@ -21,6 +21,10 @@ import ProjectTrackerProjectPage from "./pages/ProjectTrackerProjectPage";
 import AccessCompaniesPage from "./pages/AccessCompaniesPage";
 import AccessCompanyPage from "./pages/AccessCompanyPage";
 import AccessProjectPage from "./pages/AccessProjectPage";
+import EmployeeMessagesPage from "./pages/EmployeeMessagesPage";
+import EmployeePortalDashboardPage from "./pages/EmployeePortalDashboardPage";
+import EmployeesPage from "./pages/EmployeesPage";
+import EmployeeDetailPage from "./pages/EmployeeDetailPage";
 
 function Spinner() {
   return (
@@ -107,6 +111,10 @@ export default function AdminRoutes() {
           <Route path="project-tracker/access" element={<AccessCompaniesPage />} />
           <Route path="project-tracker/access/:companyId" element={<AccessCompanyPage />} />
           <Route path="project-tracker/access/:companyId/:projectId" element={<AccessProjectPage />} />
+          <Route path="employee-portal" element={<EmployeePortalDashboardPage />} />
+          <Route path="employees" element={<EmployeesPage />} />
+          <Route path="employees/:employeeId" element={<EmployeeDetailPage />} />
+          <Route path="employee-messages" element={<EmployeeMessagesPage />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Routes>
       </AdminShell>

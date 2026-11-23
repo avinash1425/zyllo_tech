@@ -23,6 +23,7 @@ const SitemapPage = lazy(() => import("./pages/SitemapPage.jsx"));
 const Login = lazy(() => import("./pages/Login.jsx"));
 const NotFound = lazy(() => import("./pages/NotFound.jsx"));
 const AdminRoutes = lazy(() => import("./admin/AdminRoutes.jsx"));
+const EmployeePortal = lazy(() => import("./employee/EmployeePortal.jsx"));
 
 export default function App() {
   return (
@@ -34,6 +35,8 @@ export default function App() {
         <Routes>
           {/* Admin has its own shell + auth guard (src/admin/AdminRoutes.jsx) */}
           <Route path="/admin/*" element={<AdminRoutes />} />
+          {/* Employee Portal: own full-screen page, punch in first (src/employee) */}
+          <Route path="/employee/*" element={<EmployeePortal />} />
           <Route element={<SiteChrome />}>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
