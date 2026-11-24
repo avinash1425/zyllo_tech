@@ -21,10 +21,15 @@ import ProjectTrackerProjectPage from "./pages/ProjectTrackerProjectPage";
 import AccessCompaniesPage from "./pages/AccessCompaniesPage";
 import AccessCompanyPage from "./pages/AccessCompanyPage";
 import AccessProjectPage from "./pages/AccessProjectPage";
-import EmployeeMessagesPage from "./pages/EmployeeMessagesPage";
 import EmployeePortalDashboardPage from "./pages/EmployeePortalDashboardPage";
 import EmployeesPage from "./pages/EmployeesPage";
 import EmployeeDetailPage from "./pages/EmployeeDetailPage";
+import ProjectManagementPage from "./pages/ProjectManagementPage";
+import ProjectManagementDetailPage from "./pages/ProjectManagementDetailPage";
+import AttendanceAdminPage from "./pages/AttendanceAdminPage";
+import LeaveAdminPage from "./pages/LeaveAdminPage";
+import ReportsAdminPage from "./pages/ReportsAdminPage";
+import NotificationsAdminPage from "./pages/NotificationsAdminPage";
 
 function Spinner() {
   return (
@@ -127,7 +132,13 @@ export default function AdminRoutes() {
           <Route path="employee-portal" element={<EmployeePortalDashboardPage />} />
           <Route path="employees" element={<EmployeesPage />} />
           <Route path="employees/:employeeId" element={<EmployeeDetailPage />} />
-          <Route path="employee-messages" element={<EmployeeMessagesPage />} />
+          <Route path="project-management" element={<ProjectManagementPage />} />
+          <Route path="project-management/:projectId" element={<ProjectManagementDetailPage />} />
+          <Route path="attendance" element={<AttendanceAdminPage />} />
+          <Route path="leave" element={<LeaveAdminPage />} />
+          <Route path="reports" element={<ReportsAdminPage />} />
+          <Route path="notifications" element={<NotificationsAdminPage />} />
+          <Route path="employee-messages" element={<Navigate to="/admin/notifications" replace />} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Routes>
       </AdminShell>

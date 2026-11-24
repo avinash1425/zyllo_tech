@@ -1,18 +1,20 @@
 // Employee Portal: Dashboard — a calm, at-a-glance overview.
-// Top: Today (check-in / check-out / hours), today's work report, leave
-// balance, attendance this month. Below: assigned projects, my open tasks,
-// recent notifications. Everything comes from existing RPCs (+ 238).
+// Top: greeting banner + KPI cards (hours today, today's work report,
+// attendance this month, leave left). Then Today / Attendance / Leave panels,
+// then assigned projects, my open tasks, recent notifications.
+// Everything comes from existing RPCs (+ 238).
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Link from "@/lib/nx/link";
-import { Bell, CalendarCheck, ClipboardList, Clock, FolderKanban, ListTodo, Plane } from "lucide-react";
+import { ArrowRight, Bell, CalendarCheck, ClipboardList, Clock, FolderKanban, ListTodo, Plane } from "lucide-react";
 import { getMyAttendance, getMySessions, getMyStartDate } from "@/lib/api/employee/attendance";
-import { getMyReport } from "@/lib/api/employee/reports";
+import { REPORT_STATUS, getMyReport } from "@/lib/api/employee/reports";
 import { getLeaveOverview, getMyDaysOff } from "@/lib/api/employee/leave";
 import { TASK_STATUS, getMyOpenTasks, getMyProjects } from "@/lib/api/employee/projects";
 import { KINDS, getMyNotifications, markRead, timeAgo } from "@/lib/api/employee/notifications";
+import { Badge, Empty, Hero, KpiCard, Panel, Progress } from "@/components/portal/PortalUI";
 import { TZ, daysInMonth, dayName, formatDate, formatHours, formatTime, monthDays, monthTitle, todayIst, ymd } from "../attendanceFormat";
-import { CARD, DeadlineText, ProgressBar, StatusChip } from "../projectsUi";
+import { DeadlineText, ProgressBar, StatusChip } from "../projectsUi";
 import { ReportStatusChip } from "../reportsUi";
 
 function greeting() {
@@ -21,42 +23,18 @@ function greeting() {
 }
 
 const num = (v) => Number(v ?? 0).toLocaleString("en-IN", { maximumFractionDigits: 1 });
-const Loading = () => <p className="text-sm text-[#9aa0ad]">Loading…</p>;
-const Label = ({ children }) => <p className="text-[11px] font-semibold uppercase tracking-wider text-[#9aa0ad]">{children}</p>;
+const Loading = () => <p className="py-2 text-sm text-[#9aa0ad]">Loading…</p>;
 
-/** Small status card: icon + label, content, one link at the bottom. */
-function StatCard({ icon: Icon, label, children, href, action }) {
+/** Small "View all →" link for panel headers. */
+function ViewLink({ href, children = "View all" }) {
   return (
-    <section className={`${CARD} flex flex-col`}>
-      <div className="flex items-center gap-2 text-xs font-semibold text-[#4a5880]">
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#f0f4ff] text-[#1f4693]">
-          <Icon size={15} aria-hidden="true" />
-        </span>
-        {label}
-      </div>
-      <div className="mt-3 flex-1">{children}</div>
-      {href && (
-        <Link href={href} className="mt-3 text-xs font-semibold text-[#1f4693] hover:underline">
-          {action} →
-        </Link>
-      )}
-    </section>
-  );
-}
-
-/** List panel with a title and a "View all" link. */
-function Panel({ icon: Icon, title, href, children }) {
-  return (
-    <section className={`${CARD} flex flex-col`}>
-      <div className="mb-2 flex items-center gap-2">
-        <Icon className="h-5 w-5 text-[#1f4693]" aria-hidden="true" />
-        <h3 className="flex-1 text-base font-bold text-[#101a3a]">{title}</h3>
-        <Link href={href} className="text-xs font-semibold text-[#1f4693] hover:underline">
-          View all
-        </Link>
-      </div>
+    <Link
+      href={href}
+      className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-[#1f4693] transition-colors hover:bg-[#f0f4ff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1f4693]"
+    >
       {children}
-    </section>
+      <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+    </Link>
   );
 }
 
@@ -122,8 +100,11 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
 
   const firstName = (me.full_name ?? "").split(" ")[0];
   const paid = (leave?.balances ?? []).filter((b) => b.is_paid && b.allowed != null);
+  const remaining = (b) => Number(b.allowed) - Number(b.approved) - Number(b.pending);
+  const paidLeft = paid.reduce((s, b) => s + remaining(b), 0);
   const pendingLeave = (leave?.requests ?? []).filter((r) => r.status === "pending").length;
   const nextHoliday = (leave?.holidays ?? []).find((h) => h.date >= today.iso);
+  const holidayText = nextHoliday && `Next holiday: ${nextHoliday.name}, ${formatDate(nextHoliday.date).replace(/ \d{4}$/, "")}`;
   const statusLabel = (s) => TASK_STATUS.find((t) => t.value === s)?.label ?? s;
   // Minutes of one session (open session counts up to now).
   const sessionMinutes = (s) =>
@@ -131,6 +112,8 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
   const SHOW = 4; // newest sessions shown on the card; the rest are summed up
   const shownSessions = (sessions ?? []).slice(-SHOW);
   const hiddenCount = (sessions?.length ?? 0) - shownSessions.length;
+  const reportAction = !report || ["draft", "returned"].includes(report.status) ? "Write report" : "View report";
+  const workedToday = todayRow === undefined ? "…" : formatHours(todayRow?.worked_minutes ?? 0);
 
   async function openNote(n) {
     if (!n.read_at) {
@@ -142,102 +125,106 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-5">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight text-[#101a3a]">
-          {greeting()}, {firstName}
-        </h2>
-        <p className="mt-0.5 text-sm text-[#676b7a]">
-          {dayName(today.iso)}, {formatDate(today.iso)}
-        </p>
+      {/* ---------------------------------------------------------- greeting */}
+      <Hero
+        eyebrow={`${dayName(today.iso)}, ${formatDate(today.iso)}`}
+        title={`${greeting()}, ${firstName}`}
+        subtitle="Here is your day at a glance"
+      />
+
+      {/* ---------------------------------------------------------- KPIs */}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <KpiCard
+          icon={Clock}
+          accent="teal"
+          label="Worked today"
+          display={workedToday}
+          chip={todayRow?.is_late ? "Late" : undefined}
+          hint="Auto check-out at 8:00 PM"
+          href="/employee/attendance"
+        />
+        <KpiCard
+          icon={ClipboardList}
+          accent="orange"
+          label="Today's work report"
+          display={report === undefined ? "…" : report ? `${num(report.total_hours)} h` : "—"}
+          chip={report ? REPORT_STATUS[report.status]?.label : undefined}
+          hint={report ? `On ${report.items.length} project(s) · ${reportAction}` : report === null ? `Not started yet · ${reportAction}` : undefined}
+          href="/employee/reports"
+        />
+        <KpiCard
+          icon={CalendarCheck}
+          accent="green"
+          label={`Present · ${monthTitle(today.y, today.m)}`}
+          display={month === undefined ? "…" : monthStats ? String(monthStats.present) : "—"}
+          hint={monthStats ? `${formatHours(monthStats.minutes)} worked this month` : month === null ? "Could not load." : undefined}
+          href="/employee/attendance"
+        />
+        <KpiCard
+          icon={Plane}
+          accent="violet"
+          label={`Paid leave left ${today.y}`}
+          display={leave === undefined ? "…" : leave ? num(paidLeft) : "—"}
+          chip={pendingLeave > 0 ? `${pendingLeave} pending` : undefined}
+          hint={holidayText}
+          href="/employee/leave"
+        />
       </div>
 
-      {/* ---------------------------------------------------------- top cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={Clock} label="Today" href="/employee/attendance" action="Attendance">
+      {/* ---------------------------------------------------------- today / month / leave */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Panel icon={Clock} title="Today" subtitle="Punch in and punch out" action={<ViewLink href="/employee/attendance">Attendance</ViewLink>}>
           <div className="flex items-baseline justify-between gap-2">
-            <Label>Check-ins today</Label>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#9aa0ad]">Check-ins today</span>
             <span className="text-base font-bold tabular-nums text-[#101a3a]">{sessions?.length ?? "…"}</span>
           </div>
           {sessions && sessions.length > 0 && (
-            <ol className="mt-1.5 space-y-1 text-[13px]" aria-label="Punch in and punch out times today">
+            <ol className="mt-2 space-y-1.5 text-[13px]" aria-label="Punch in and punch out times today">
               {hiddenCount > 0 && <li className="text-xs text-[#9aa0ad]">+ {hiddenCount} earlier</li>}
               {shownSessions.map((s, i) => (
-                <li key={s.id} className="flex items-center gap-1.5 tabular-nums">
+                <li key={s.id} className="flex items-center gap-2 rounded-lg bg-[#f8fafd] px-2.5 py-1.5 tabular-nums ring-1 ring-inset ring-[#eef1f7]">
                   <span className="w-4 text-right text-[11px] text-[#9aa0ad]">{hiddenCount + i + 1}.</span>
                   <span className="font-semibold text-[#101a3a]">{formatTime(s.punch_in_at)}</span>
                   <span className="text-[#9aa0ad]" aria-hidden="true">→</span>
                   {s.punch_out_at ? (
                     <span className="font-semibold text-[#101a3a]">{formatTime(s.punch_out_at)}</span>
                   ) : (
-                    <span className="rounded-full bg-emerald-50 px-1.5 text-[11px] font-semibold text-emerald-700">now</span>
+                    <Badge tone="green" dot>
+                      now
+                    </Badge>
                   )}
                   <span className="ml-auto text-xs text-[#676b7a]">{formatHours(sessionMinutes(s))}</span>
                 </li>
               ))}
             </ol>
           )}
-          <p className="mt-2 border-t border-[#f0f2f6] pt-2 text-sm text-[#2b303b]">
-            Total <b className="tabular-nums">{todayRow === undefined ? "…" : formatHours(todayRow?.worked_minutes ?? 0)}</b>
-            {todayRow?.is_late && (
-              <span className="ml-2 rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-semibold text-orange-700">Late</span>
-            )}
+          <p className="mt-3 flex items-center gap-2 border-t border-[#f0f2f6] pt-3 text-sm text-[#2b303b]">
+            Total <b className="tabular-nums">{workedToday}</b>
+            {todayRow?.is_late && <Badge tone="orange">Late</Badge>}
           </p>
-          <p className="mt-0.5 text-xs text-[#9aa0ad]">Still checked in · auto check-out at 10:00 PM</p>
-        </StatCard>
+          <p className="mt-0.5 text-xs text-[#9aa0ad]">Still checked in · auto check-out at 8:00 PM</p>
+          <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[#f0f2f6] pt-3 text-xs text-[#676b7a]">
+            <span className="font-semibold text-[#4a5068]">Work report:</span>
+            {report === undefined ? "…" : report ? <ReportStatusChip status={report.status} /> : "Not started yet"}
+            <span className="ml-auto">
+              <ViewLink href="/employee/reports">{reportAction}</ViewLink>
+            </span>
+          </div>
+        </Panel>
 
-        <StatCard
-          icon={ClipboardList}
-          label="Today's work report"
-          href="/employee/reports"
-          action={!report || ["draft", "returned"].includes(report.status) ? "Write report" : "View report"}
+        <Panel
+          icon={CalendarCheck}
+          title="Attendance"
+          subtitle={monthTitle(today.y, today.m)}
+          action={<ViewLink href="/employee/attendance">Full calendar</ViewLink>}
         >
-          {report === undefined ? (
-            <Loading />
-          ) : report ? (
-            <>
-              <ReportStatusChip status={report.status} />
-              <p className="mt-2 text-sm text-[#2b303b]">
-                {num(report.total_hours)} h on {report.items.length} project(s)
-              </p>
-            </>
-          ) : (
-            <p className="text-sm text-[#676b7a]">Not started yet</p>
-          )}
-        </StatCard>
-
-        <StatCard icon={Plane} label={`Leave balance ${today.y}`} href="/employee/leave" action="Apply for leave">
-          {leave === undefined ? (
-            <Loading />
-          ) : (
-            <>
-              <ul className="space-y-0.5 text-sm">
-                {paid.map((b) => (
-                  <li key={b.code} className="flex justify-between gap-2">
-                    <span className="text-[#676b7a]">{b.name}</span>
-                    <span className="font-semibold tabular-nums text-[#101a3a]">
-                      {num(Number(b.allowed) - Number(b.approved) - Number(b.pending))} / {num(b.allowed)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              {pendingLeave > 0 && <p className="mt-1 text-xs text-amber-700">{pendingLeave} request(s) pending</p>}
-              {nextHoliday && (
-                <p className="mt-1 text-xs text-[#676b7a]">
-                  Next holiday: {nextHoliday.name}, {formatDate(nextHoliday.date).replace(/ \d{4}$/, "")}
-                </p>
-              )}
-            </>
-          )}
-        </StatCard>
-
-        <StatCard icon={CalendarCheck} label={`Attendance · ${monthTitle(today.y, today.m)}`} href="/employee/attendance" action="Full calendar">
           {month === undefined ? (
             <Loading />
           ) : !monthStats ? (
             <p className="text-sm text-[#676b7a]">Could not load.</p>
           ) : (
             <>
-              <ul className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-sm">
+              <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
                 {[
                   ["Present", monthStats.present, "text-emerald-700"],
                   ["Half day", monthStats.half, "text-amber-700"],
@@ -246,30 +233,66 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
                   ["Leave (<4h)", monthStats.leave, "text-red-700"],
                   ["On leave", monthStats.onLeave, "text-violet-700"],
                 ].map(([label, value, color]) => (
-                  <li key={label} className="flex justify-between">
-                    <span className="text-[#676b7a]">{label}</span>
-                    <span className={`font-bold tabular-nums ${color}`}>{value}</span>
+                  <li key={label} className="rounded-xl bg-[#f8fafd] px-3 py-2.5 ring-1 ring-inset ring-[#eef1f7]">
+                    <span className={`block text-xl font-extrabold leading-none tabular-nums ${color}`}>{value}</span>
+                    <span className="mt-1 block truncate text-[11px] font-semibold text-[#676b7a]">{label}</span>
                   </li>
                 ))}
               </ul>
-              <p className="mt-1.5 text-xs text-[#676b7a]">{formatHours(monthStats.minutes)} worked this month</p>
+              <p className="mt-3 text-xs text-[#676b7a]">{formatHours(monthStats.minutes)} worked this month</p>
             </>
           )}
-        </StatCard>
+        </Panel>
+
+        <Panel icon={Plane} title={`Leave balance ${today.y}`} subtitle="Left / allowed" action={<ViewLink href="/employee/leave">Apply for leave</ViewLink>}>
+          {leave === undefined ? (
+            <Loading />
+          ) : (
+            <>
+              <ul className="space-y-3 text-sm">
+                {paid.map((b) => (
+                  <li key={b.code}>
+                    <div className="flex justify-between gap-2">
+                      <span className="text-[#676b7a]">{b.name}</span>
+                      <span className="font-semibold tabular-nums text-[#101a3a]">
+                        {num(remaining(b))} / {num(b.allowed)}
+                      </span>
+                    </div>
+                    <Progress
+                      className="mt-1"
+                      label={false}
+                      value={Number(b.allowed) > 0 ? (remaining(b) / Number(b.allowed)) * 100 : 0}
+                    />
+                  </li>
+                ))}
+              </ul>
+              {pendingLeave > 0 && (
+                <p className="mt-3">
+                  <Badge tone="amber" dot>
+                    {pendingLeave} request(s) pending
+                  </Badge>
+                </p>
+              )}
+              {holidayText && <p className="mt-2 text-xs text-[#676b7a]">{holidayText}</p>}
+            </>
+          )}
+        </Panel>
       </div>
 
       {/* ---------------------------------------------------------- lists */}
       <div className="grid gap-4 lg:grid-cols-3">
-        <Panel icon={FolderKanban} title="Assigned projects" href="/employee/projects">
+        <Panel icon={FolderKanban} title="Assigned projects" action={<ViewLink href="/employee/projects" />} flush>
           {projects === undefined ? (
-            <Loading />
+            <div className="px-5 py-3">
+              <Loading />
+            </div>
           ) : !projects || projects.length === 0 ? (
-            <p className="py-2 text-sm text-[#676b7a]">You are not on any project yet.</p>
+            <Empty icon={FolderKanban} message="You are not on any project yet." className="py-8" />
           ) : (
-            <ul className="divide-y divide-[#f0f2f6]">
+            <ul className="divide-y divide-[#f0f2f6] p-2">
               {projects.slice(0, 4).map((p) => (
                 <li key={p.id}>
-                  <Link href={`/employee/projects/${p.id}`} className="block rounded-lg px-1 py-2.5 hover:bg-[#f6f7fb]">
+                  <Link href={`/employee/projects/${p.id}`} className="block rounded-xl px-3 py-3 transition-colors hover:bg-[#f6f8fd]">
                     <span className="flex items-center gap-2">
                       <span className="min-w-0 flex-1 truncate text-sm font-semibold text-[#101a3a]">{p.name}</span>
                       <StatusChip value={p.status} />
@@ -278,7 +301,7 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
                       {p.my_role ?? p.project_code}
                       {p.my_open_tasks > 0 ? ` · ${p.my_open_tasks} open task(s)` : ""}
                     </span>
-                    <span className="mt-1.5 block">
+                    <span className="mt-2 block">
                       <ProgressBar value={p.progress} />
                     </span>
                   </Link>
@@ -288,16 +311,18 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
           )}
         </Panel>
 
-        <Panel icon={ListTodo} title="My open tasks" href="/employee/projects">
+        <Panel icon={ListTodo} title="My open tasks" action={<ViewLink href="/employee/projects" />} flush>
           {tasks === undefined ? (
-            <Loading />
+            <div className="px-5 py-3">
+              <Loading />
+            </div>
           ) : !tasks || tasks.items.length === 0 ? (
-            <p className="py-2 text-sm text-[#676b7a]">No open tasks assigned to you.</p>
+            <Empty icon={ListTodo} message="No open tasks assigned to you." className="py-8" />
           ) : (
-            <ul className="divide-y divide-[#f0f2f6]">
+            <ul className="divide-y divide-[#f0f2f6] p-2">
               {tasks.items.map((t) => (
                 <li key={t.id}>
-                  <Link href={`/employee/projects/${t.project_id}`} className="block rounded-lg px-1 py-2.5 hover:bg-[#f6f7fb]">
+                  <Link href={`/employee/projects/${t.project_id}`} className="block rounded-xl px-3 py-3 transition-colors hover:bg-[#f6f8fd]">
                     <span className="block truncate text-sm font-semibold text-[#101a3a]">{t.title}</span>
                     <span className="mt-0.5 flex flex-wrap justify-between gap-x-2 text-xs">
                       <span className="truncate text-[#9aa0ad]">
@@ -311,22 +336,28 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
             </ul>
           )}
           {tasks?.total > (tasks?.items.length ?? 0) && (
-            <p className="mt-1 text-xs text-[#9aa0ad]">
+            <p className="border-t border-[#f0f2f6] px-5 py-2.5 text-xs text-[#9aa0ad]">
               Showing {tasks.items.length} of {tasks.total}
             </p>
           )}
         </Panel>
 
-        <Panel icon={Bell} title="Recent notifications" href="/employee/notifications">
+        <Panel icon={Bell} title="Recent notifications" action={<ViewLink href="/employee/notifications" />} flush>
           {notes === undefined ? (
-            <Loading />
+            <div className="px-5 py-3">
+              <Loading />
+            </div>
           ) : !notes || notes.length === 0 ? (
-            <p className="py-2 text-sm text-[#676b7a]">No notifications yet.</p>
+            <Empty icon={Bell} message="No notifications yet." className="py-8" />
           ) : (
-            <ul className="divide-y divide-[#f0f2f6]">
+            <ul className="divide-y divide-[#f0f2f6] p-2">
               {notes.map((n) => (
                 <li key={n.id}>
-                  <button type="button" onClick={() => openNote(n)} className="flex w-full gap-2 rounded-lg px-1 py-2.5 text-left hover:bg-[#f6f7fb]">
+                  <button
+                    type="button"
+                    onClick={() => openNote(n)}
+                    className="flex w-full gap-2.5 rounded-xl px-3 py-3 text-left transition-colors hover:bg-[#f6f8fd] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1f4693]"
+                  >
                     <span
                       className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${
                         n.read_at ? "bg-transparent" : n.priority === "urgent" ? "bg-red-500" : "bg-[#1f4693]"

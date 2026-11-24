@@ -55,6 +55,17 @@ async function destinationAfterSignIn(next) {
   return next || "/admin";
 }
 
+/** Shown after an employee changed their temporary password (?changed=1). */
+function PasswordChangedNotice() {
+  const searchParams = useSearchParams();
+  if (searchParams.get("changed") !== "1") return null;
+  return (
+    <p role="status" className="rounded-lg border border-emerald-400/30 bg-emerald-500/15 px-3.5 py-2.5 text-sm font-medium text-emerald-200">
+      Password changed. Sign in with your new password.
+    </p>
+  );
+}
+
 export default function LoginPage() {
   const [mode, setMode] = useState("signin"); // "signin" | "signup"
   const [showPassword, setShowPassword] = useState(false);
@@ -196,6 +207,9 @@ export default function LoginPage() {
                   </p>
 
                   <form action={formAction} className="mt-6 flex flex-col gap-3.5">
+                    <Suspense fallback={null}>
+                      <PasswordChangedNotice />
+                    </Suspense>
                     <Suspense fallback={<input type="hidden" name="next" value="" />}>
                       <NextRedirectField />
                     </Suspense>

@@ -1,17 +1,43 @@
-// Small shared pieces for the My Projects pages.
+// Small shared pieces for the My Projects pages (also used by admin pages).
 import { HEALTH, PRIORITY, PROJECT_STATUS } from "@/lib/api/employee/projects";
+import { Badge, Progress } from "@/components/portal/PortalUI";
 import { todayIst } from "./attendanceFormat";
 
-export const CARD = "rounded-2xl border border-[#e7e9ee] bg-white p-4 shadow-[0_1px_2px_rgba(16,26,58,0.06)] sm:p-5";
+export { CARD_PAD as CARD } from "@/components/portal/portalStyles";
+
+// Badge tone per value (status / health / priority keys do not overlap).
+const TONE = {
+  planning: "slate",
+  in_progress: "sky",
+  live: "green",
+  on_hold: "amber",
+  completed: "violet",
+  cancelled: "red",
+  on_track: "green",
+  at_risk: "amber",
+  off_track: "red",
+  high: "red",
+  medium: "amber",
+  low: "slate",
+};
 
 export function Chip({ map, value, prefix = "" }) {
   const s = map[value];
   if (!s) return null;
+  const tone = TONE[value];
+  if (!tone) {
+    return (
+      <span className={`inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold ${s.chip}`}>
+        {prefix}
+        {s.label}
+      </span>
+    );
+  }
   return (
-    <span className={`inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold ${s.chip}`}>
+    <Badge tone={tone} dot>
       {prefix}
       {s.label}
-    </span>
+    </Badge>
   );
 }
 
@@ -20,15 +46,7 @@ export const HealthChip = ({ value }) => <Chip map={HEALTH} value={value} />;
 export const PriorityChip = ({ value }) => <Chip map={PRIORITY} value={value} prefix="Priority: " />;
 
 export function ProgressBar({ value }) {
-  const v = Math.max(0, Math.min(100, Number(value) || 0));
-  return (
-    <div className="flex items-center gap-2">
-      <div className="h-2 flex-1 overflow-hidden rounded-full bg-[#eef0f5]" role="progressbar" aria-valuenow={v} aria-valuemin={0} aria-valuemax={100}>
-        <div className="h-full rounded-full bg-gradient-to-r from-[#f7941e] to-[#1f4693]" style={{ width: `${v}%` }} />
-      </div>
-      <span className="w-10 text-right text-xs font-bold tabular-nums text-[#2b303b]">{v}%</span>
-    </div>
-  );
+  return <Progress value={value} />;
 }
 
 /** Whole days from today (India) to a "YYYY-MM-DD" date; negative = past. */

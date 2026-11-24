@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Link from "@/lib/nx/link";
-import { ArrowLeft, CheckCircle2, Undo2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ClipboardCheck, Loader2, MessageSquareText, Undo2, Users } from "lucide-react";
 import { getTeamReport, getTeamReports, reviewReport } from "@/lib/api/employee/reports";
+import { Alert, Avatar, Chips, Empty, Panel } from "@/components/portal/PortalUI";
+import { LABEL, TABLE, TABLE_WRAP, TD, TH, TR } from "@/components/portal/portalStyles";
 import { dayName, formatDate } from "../attendanceFormat";
-import { CARD } from "../projectsUi";
 import {
   BTN_PRIMARY,
   BTN_SECONDARY,
@@ -22,6 +23,15 @@ const FILTERS = [
   { key: "all", label: "All (last 60 days)" },
 ];
 
+function Loading() {
+  return (
+    <p className="flex items-center gap-2 text-sm text-[#676b7a]">
+      <Loader2 className="h-4 w-4 animate-spin text-[#1f4693]" aria-hidden="true" />
+      Loading…
+    </p>
+  );
+}
+
 /** /employee/reports/team — reports from the people who report to me. */
 export function TeamReportsPage() {
   const [data, setData] = useState(null);
@@ -34,78 +44,79 @@ export function TeamReportsPage() {
       .catch(() => setLoadError("Could not load team reports. Please refresh the page."));
   }, []);
 
-  if (loadError) return <p role="alert" className="text-sm text-red-700">{loadError}</p>;
-  if (!data) return <p className="text-sm text-[#676b7a]">Loading…</p>;
+  if (loadError) return <Alert kind="err">{loadError}</Alert>;
+  if (!data) return <Loading />;
 
   const waiting = data.reports.filter((r) => r.status === "submitted").length;
   const rows = filter === "all" ? data.reports : data.reports.filter((r) => r.status === "submitted");
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-4">
+    <div className="mx-auto flex max-w-6xl flex-col gap-5">
       <ReportTabs active="team" hasTeam waiting={waiting} />
 
-      <section className={CARD}>
-        <div className="mb-3 flex flex-wrap items-center gap-2">
-          <h2 className="text-base font-bold text-[#101a3a]">Team reports</h2>
-          <span className="text-xs text-[#9aa0ad]">
-            {data.team.length} {data.team.length === 1 ? "person reports" : "people report"} to you
-          </span>
-          <span className="flex-1" />
-          <div className="flex gap-1.5" role="radiogroup" aria-label="Show">
-            {FILTERS.map((f) => (
-              <button
-                key={f.key}
-                type="button"
-                role="radio"
-                aria-checked={filter === f.key}
-                onClick={() => setFilter(f.key)}
-                className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${
-                  filter === f.key
-                    ? "border-[#1f4693] bg-[#1f4693] text-white"
-                    : "border-[#dce1ec] bg-white text-[#2b303b] hover:bg-[#f6f7fb]"
-                }`}
-              >
-                {f.label}
-                {f.key === "submitted" && waiting > 0 ? ` (${waiting})` : ""}
-              </button>
-            ))}
-          </div>
-        </div>
-
+      <Panel
+        icon={Users}
+        title="Team reports"
+        subtitle={`${data.team.length} ${data.team.length === 1 ? "person reports" : "people report"} to you`}
+        action={
+          <Chips
+            label="Show"
+            items={FILTERS.map((f) => ({ ...f, count: f.key === "submitted" && waiting > 0 ? waiting : undefined }))}
+            value={filter}
+            onChange={setFilter}
+          />
+        }
+        flush
+      >
         {rows.length === 0 ? (
-          <p className="py-6 text-center text-sm text-[#676b7a]">
-            {filter === "submitted" ? "Nothing waiting for your review." : "No reports in the last 60 days."}
-          </p>
+          <Empty
+            icon={ClipboardCheck}
+            message={filter === "submitted" ? "Nothing waiting for your review." : "No reports in the last 60 days."}
+          />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] text-left text-sm">
+          <div className={TABLE_WRAP}>
+            <table className={`${TABLE} min-w-[640px]`}>
               <thead>
-                <tr className="border-b border-[#eef0f5] text-[11px] font-semibold uppercase tracking-wider text-[#9aa0ad]">
-                  <th className="py-2 pr-3">Employee</th>
-                  <th className="py-2 pr-3">Date</th>
-                  <th className="py-2 pr-3">Projects</th>
-                  <th className="py-2 pr-3">Hours</th>
-                  <th className="py-2 pr-3">Status</th>
-                  <th className="py-2" />
+                <tr>
+                  <th className={TH}>Employee</th>
+                  <th className={TH}>Date</th>
+                  <th className={TH}>Projects</th>
+                  <th className={TH}>Hours</th>
+                  <th className={TH}>Status</th>
+                  <th className={TH}>
+                    <span className="sr-only">Open</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((r) => (
-                  <tr key={r.id} className="border-b border-[#f3f4f8] last:border-0">
-                    <td className="py-2.5 pr-3">
-                      <span className="font-medium text-[#101a3a]">{r.employee.full_name}</span>{" "}
-                      <span className="font-mono text-[11px] text-[#9aa0ad]">{r.employee.employee_code}</span>
+                  <tr key={r.id} className={TR}>
+                    <td className={TD}>
+                      <span className="flex items-center gap-2.5">
+                        <Avatar name={r.employee.full_name} size="h-8 w-8 text-xs" />
+                        <span className="min-w-0">
+                          <span className="block font-semibold text-[#101a3a]">{r.employee.full_name}</span>
+                          <span className="font-mono text-[11px] text-[#9aa0ad]">{r.employee.employee_code}</span>
+                        </span>
+                      </span>
                     </td>
-                    <td className="py-2.5 pr-3">
+                    <td className={`${TD} whitespace-nowrap`}>
                       {formatDate(r.report_date)} <span className="text-[#9aa0ad]">{dayName(r.report_date, "short")}</span>
                     </td>
-                    <td className="py-2.5 pr-3 tabular-nums">{r.projects}</td>
-                    <td className="py-2.5 pr-3 tabular-nums">{fmtHours(r.total_hours)}</td>
-                    <td className="py-2.5 pr-3">
+                    <td className={`${TD} tabular-nums`}>{r.projects}</td>
+                    <td className={`${TD} font-semibold tabular-nums text-[#101a3a]`}>{fmtHours(r.total_hours)}</td>
+                    <td className={TD}>
                       <ReportStatusChip status={r.status} />
                     </td>
-                    <td className="py-2.5 text-right">
-                      <Link href={`/employee/reports/team/${r.id}`} className="text-xs font-semibold text-[#1f4693] hover:underline">
+                    <td className={`${TD} text-right`}>
+                      <Link
+                        href={`/employee/reports/team/${r.id}`}
+                        className={`inline-flex whitespace-nowrap rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors ${
+                          r.status === "submitted"
+                            ? "bg-gradient-to-r from-[#f7941e] to-[#f96706] text-white shadow-sm hover:opacity-95"
+                            : "border border-[#dce6f7] bg-white text-[#1f4693] hover:bg-[#f0f4ff]"
+                        }`}
+                      >
                         {r.status === "submitted" ? "Review" : "View"}
                       </Link>
                     </td>
@@ -115,7 +126,7 @@ export function TeamReportsPage() {
             </table>
           </div>
         )}
-      </section>
+      </Panel>
     </div>
   );
 }
@@ -158,7 +169,10 @@ export function TeamReportDetailPage() {
   }
 
   const back = (
-    <Link href="/employee/reports/team" className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#1f4693] hover:underline">
+    <Link
+      href="/employee/reports/team"
+      className="inline-flex w-fit items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-semibold text-[#1f4693] transition-colors hover:bg-[#eef2fb]"
+    >
       <ArrowLeft size={16} aria-hidden="true" /> Team reports
     </Link>
   );
@@ -167,65 +181,60 @@ export function TeamReportDetailPage() {
     return (
       <div className="mx-auto flex max-w-6xl flex-col gap-4">
         {back}
-        <p role="alert" className="text-sm text-red-700">{loadError}</p>
+        <Alert kind="err">{loadError}</Alert>
       </div>
     );
-  if (!report) return <p className="text-sm text-[#676b7a]">Loading…</p>;
+  if (!report) return <Loading />;
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-4">
+    <div className="mx-auto flex max-w-6xl flex-col gap-5">
       {back}
-      <section className={CARD}>
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <h2 className="text-base font-bold text-[#101a3a]">
+      <section className="overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-[0_1px_2px_rgba(16,26,58,0.04),0_8px_24px_-12px_rgba(16,26,58,0.10)]">
+        <div className="flex flex-wrap items-center gap-3 border-b border-[#eef0f4] bg-gradient-to-r from-[#f8faff] to-white px-5 py-4">
+          <Avatar name={report.employee.full_name} size="h-10 w-10 text-sm" ring />
+          <h2 className="min-w-0 flex-1 text-[15px] font-bold text-[#101a3a]">
             {report.employee.full_name} · {dayName(report.report_date)}, {formatDate(report.report_date)}
           </h2>
           <ReportStatusChip status={report.status} />
         </div>
-        <ReportFacts report={report} workedMinutes={report.worked_minutes} showEmployee />
+        <div className="p-5">
+          <ReportFacts report={report} workedMinutes={report.worked_minutes} showEmployee />
+        </div>
       </section>
 
       <ReviewNote report={report} />
       <ReportView report={report} />
 
-      {message.text && (
-        <p
-          role={message.kind === "error" ? "alert" : "status"}
-          className={`rounded-lg px-3 py-2 text-sm ${message.kind === "error" ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-800"}`}
-        >
-          {message.text}
-        </p>
-      )}
+      <Alert kind={message.kind === "error" ? "err" : "ok"}>{message.text}</Alert>
 
       {report.status === "submitted" && (
-        <section className={`${CARD} flex flex-col gap-3`} aria-labelledby="rv-title">
-          <h3 id="rv-title" className="text-sm font-bold text-[#101a3a]">
-            Your review
-          </h3>
-          <div>
-            <label htmlFor="rv-comment" className="mb-1 block text-xs font-semibold text-[#4a5880]">
-              Comment (needed when sending back)
-            </label>
-            <textarea
-              id="rv-comment"
-              rows={3}
-              maxLength={1000}
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              className={INPUT(false)}
-            />
+        <Panel icon={MessageSquareText} title="Your review" subtitle="Mark as reviewed, or send back with a comment">
+          <div className="flex flex-col gap-4">
+            <div>
+              <label htmlFor="rv-comment" className={LABEL}>
+                Comment (needed when sending back)
+              </label>
+              <textarea
+                id="rv-comment"
+                rows={3}
+                maxLength={1000}
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                className={INPUT(false)}
+              />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" className={BTN_PRIMARY} disabled={busy} onClick={() => act("reviewed")}>
+                <CheckCircle2 size={16} aria-hidden="true" />
+                {busy ? "Saving…" : "Mark as reviewed"}
+              </button>
+              <button type="button" className={BTN_SECONDARY} disabled={busy} onClick={() => act("returned")}>
+                <Undo2 size={16} aria-hidden="true" />
+                Send back for changes
+              </button>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <button type="button" className={BTN_PRIMARY} disabled={busy} onClick={() => act("reviewed")}>
-              <CheckCircle2 size={16} aria-hidden="true" />
-              {busy ? "Saving…" : "Mark as reviewed"}
-            </button>
-            <button type="button" className={BTN_SECONDARY} disabled={busy} onClick={() => act("returned")}>
-              <Undo2 size={16} aria-hidden="true" />
-              Send back for changes
-            </button>
-          </div>
-        </section>
+        </Panel>
       )}
     </div>
   );

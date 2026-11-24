@@ -1,8 +1,22 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, CheckCheck, Inbox, PenSquare, Send } from "lucide-react";
+import {
+  Bell,
+  BellRing,
+  CalendarCheck,
+  CheckCheck,
+  ClipboardList,
+  Clock,
+  FolderKanban,
+  Inbox,
+  Loader2,
+  Mail,
+  PenSquare,
+  Send,
+} from "lucide-react";
 import { KINDS, getMyNotifications, getSentMessages, markRead, timeAgo } from "@/lib/api/employee/notifications";
-import { CARD } from "../projectsUi";
+import { Alert, Badge, Chips, Empty, Panel, Tabs } from "@/components/portal/PortalUI";
+import { BTN_SECONDARY } from "@/components/portal/portalStyles";
 import MessageComposer from "../MessageComposer";
 
 const FILTERS = [
@@ -17,10 +31,38 @@ const TABS = [
   { key: "sent", label: "Sent", icon: Send },
 ];
 
+/** Badge tone + icon per notification kind. */
+const KIND_LOOK = {
+  project: { tone: "sky", icon: FolderKanban },
+  leave: { tone: "violet", icon: CalendarCheck },
+  attendance: { tone: "green", icon: Clock },
+  report: { tone: "amber", icon: ClipboardList },
+  message: { tone: "blue", icon: Mail },
+};
+const ICON_TILE = {
+  sky: "bg-sky-50 text-sky-600 ring-sky-600/15",
+  violet: "bg-violet-50 text-violet-600 ring-violet-600/15",
+  green: "bg-emerald-50 text-emerald-600 ring-emerald-600/15",
+  amber: "bg-amber-50 text-amber-600 ring-amber-600/20",
+  blue: "bg-[#eef2fb] text-[#1f4693] ring-[#1f4693]/15",
+  red: "bg-red-50 text-red-600 ring-red-600/15",
+};
+
 function KindChip({ kind }) {
   const k = KINDS[kind];
   if (!k) return null;
-  return <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${k.chip}`}>{k.label}</span>;
+  const look = KIND_LOOK[kind];
+  if (!look) return <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${k.chip}`}>{k.label}</span>;
+  return <Badge tone={look.tone}>{k.label}</Badge>;
+}
+
+function Loading() {
+  return (
+    <p className="flex items-center justify-center gap-2 py-8 text-sm text-[#676b7a]">
+      <Loader2 className="h-4 w-4 animate-spin text-[#1f4693]" aria-hidden="true" />
+      Loading…
+    </p>
+  );
 }
 
 function InboxList({ onChanged }) {
@@ -60,77 +102,83 @@ function InboxList({ onChanged }) {
   }
 
   return (
-    <section className={CARD}>
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <div className="flex flex-1 flex-wrap gap-1.5" role="radiogroup" aria-label="Show">
-          {FILTERS.map((f) => (
-            <button
-              key={f.key}
-              type="button"
-              role="radio"
-              aria-checked={filter === f.key}
-              onClick={() => setFilter(f.key)}
-              className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${
-                filter === f.key ? "border-[#1f4693] bg-[#1f4693] text-white" : "border-[#dce1ec] bg-white text-[#2b303b] hover:bg-[#f6f7fb]"
-              }`}
-            >
-              {f.label}
-              {f.key === "unread" && data?.unread ? ` (${data.unread})` : ""}
-            </button>
-          ))}
-        </div>
-        <button
-          type="button"
-          onClick={markAll}
-          disabled={!data?.unread}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[#dce1ec] bg-white px-3 py-1.5 text-xs font-semibold text-[#2b303b] hover:bg-[#f6f7fb] disabled:opacity-50"
-        >
+    <Panel
+      icon={Bell}
+      title="Inbox"
+      subtitle={data ? (data.unread ? `${data.unread} unread` : "No unread notifications") : undefined}
+      action={
+        <button type="button" onClick={markAll} disabled={!data?.unread} className={`${BTN_SECONDARY} !px-3 !py-1.5 !text-xs`}>
           <CheckCheck size={14} aria-hidden="true" /> Mark all as read
         </button>
+      }
+      flush
+    >
+      <div className="border-b border-[#eef1f7] px-5 py-3">
+        <Chips
+          label="Show"
+          items={FILTERS.map((f) => ({ ...f, count: f.key === "unread" && data?.unread ? data.unread : undefined }))}
+          value={filter}
+          onChange={setFilter}
+        />
       </div>
 
-      {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
-      {!data && !error && <p className="py-6 text-center text-sm text-[#676b7a]">Loading…</p>}
-      {data && data.items.length === 0 && (
-        <div className="flex flex-col items-center gap-2 py-10 text-center text-sm text-[#676b7a]">
-          <Bell className="h-8 w-8 text-[#c5cbd8]" aria-hidden="true" />
-          {filter === "unread" ? "You're all caught up." : "No notifications yet."}
-        </div>
-      )}
-      {data && data.items.length > 0 && (
-        <ul className="divide-y divide-[#f0f2f6]">
-          {data.items.map((n) => {
-            const unread = !n.read_at;
-            const urgent = n.priority === "urgent";
-            return (
-              <li key={n.id}>
-                <button
-                  type="button"
-                  onClick={() => open(n)}
-                  className={`flex w-full gap-3 rounded-lg px-2 py-3 text-left hover:bg-[#f6f7fb] ${unread ? "bg-[#f7f9ff]" : ""}`}
-                >
-                  <span
-                    className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${unread ? (urgent ? "bg-red-500" : "bg-[#1f4693]") : "bg-transparent"}`}
-                    aria-hidden="true"
-                  />
-                  <span className="min-w-0 flex-1">
-                    <span className="flex flex-wrap items-center gap-1.5">
-                      <KindChip kind={n.kind} />
-                      {urgent && <span className="rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-bold text-red-700">Urgent</span>}
-                      {unread && <span className="sr-only">Unread.</span>}
-                      <span className="ml-auto text-[11px] text-[#9aa0ad]">{timeAgo(n.created_at)}</span>
+      <div className="p-3 sm:p-4">
+        <Alert kind="err" className="m-1">
+          {error}
+        </Alert>
+        {!data && !error && <Loading />}
+        {data && data.items.length === 0 && (
+          <Empty icon={Bell} title={filter === "unread" ? "You're all caught up." : "No notifications yet."} />
+        )}
+        {data && data.items.length > 0 && (
+          <ul className="flex flex-col gap-1.5">
+            {data.items.map((n) => {
+              const unread = !n.read_at;
+              const urgent = n.priority === "urgent";
+              const look = KIND_LOOK[n.kind];
+              const Icon = urgent ? BellRing : look?.icon ?? Bell;
+              const tile = ICON_TILE[urgent ? "red" : look?.tone ?? "blue"];
+              return (
+                <li key={n.id}>
+                  <button
+                    type="button"
+                    onClick={() => open(n)}
+                    className={`group relative flex w-full gap-3 rounded-xl border px-3 py-3 text-left transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#1f4693] ${
+                      unread
+                        ? urgent
+                          ? "border-red-200 bg-red-50/50 hover:bg-red-50"
+                          : "border-[#dce6f7] bg-[#f7f9ff] hover:bg-[#eef4ff]"
+                        : "border-transparent hover:border-[#eef1f7] hover:bg-[#f8fafd]"
+                    }`}
+                  >
+                    {unread && (
+                      <span
+                        className={`absolute left-0 top-3 bottom-3 w-[3px] rounded-r-full ${urgent ? "bg-red-500" : "bg-[#1f4693]"}`}
+                        aria-hidden="true"
+                      />
+                    )}
+                    <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset ${tile}`}>
+                      <Icon className="h-4 w-4" aria-hidden="true" />
                     </span>
-                    <span className={`mt-1 block text-sm ${unread ? "font-bold text-[#101a3a]" : "font-medium text-[#2b303b]"}`}>{n.title}</span>
-                    {n.body && <span className="mt-0.5 block whitespace-pre-line break-words text-sm text-[#676b7a]">{n.body}</span>}
-                    {n.sender_label && <span className="mt-1 block text-xs text-[#9aa0ad]">From {n.sender_label}</span>}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </section>
+                    <span className="min-w-0 flex-1">
+                      <span className="flex flex-wrap items-center gap-1.5">
+                        <KindChip kind={n.kind} />
+                        {urgent && <Badge tone="red">Urgent</Badge>}
+                        {unread && <span className="sr-only">Unread.</span>}
+                        <span className="ml-auto text-[11px] text-[#9aa0ad]">{timeAgo(n.created_at)}</span>
+                      </span>
+                      <span className={`mt-1 block text-sm ${unread ? "font-bold text-[#101a3a]" : "font-medium text-[#2b303b]"}`}>{n.title}</span>
+                      {n.body && <span className="mt-0.5 block whitespace-pre-line break-words text-sm text-[#676b7a]">{n.body}</span>}
+                      {n.sender_label && <span className="mt-1 block text-xs text-[#9aa0ad]">From {n.sender_label}</span>}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </Panel>
   );
 }
 
@@ -142,25 +190,46 @@ export function SentList() {
       .then(setItems)
       .catch(() => setError("Could not load sent messages."));
   }, []);
-  if (error) return <p role="alert" className="text-sm text-red-700">{error}</p>;
-  if (!items) return <p className="text-sm text-[#676b7a]">Loading…</p>;
-  if (items.length === 0) return <p className="py-6 text-center text-sm text-[#676b7a]">You have not sent any messages in the last 90 days.</p>;
+  if (error) return <Alert kind="err">{error}</Alert>;
+  if (!items) return <Loading />;
+  if (items.length === 0) return <Empty icon={Send} message="You have not sent any messages in the last 90 days." />;
   return (
-    <ul className="divide-y divide-[#f0f2f6]">
-      {items.map((s) => (
-        <li key={s.message_id} className="py-3">
-          <div className="flex flex-wrap items-center gap-1.5">
-            {s.priority === "urgent" && <span className="rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-bold text-red-700">Urgent</span>}
-            <span className="text-sm font-bold text-[#101a3a]">{s.title}</span>
-            <span className="ml-auto text-[11px] text-[#9aa0ad]">{timeAgo(s.created_at)}</span>
-          </div>
-          {s.body && <p className="mt-0.5 whitespace-pre-line break-words text-sm text-[#676b7a]">{s.body}</p>}
-          <p className="mt-1 text-xs text-[#9aa0ad]">
-            To {s.to.join(", ")}
-            {s.recipients > s.to.length ? ` and ${s.recipients - s.to.length} more` : ""} · Read by {s.read} of {s.recipients}
-          </p>
-        </li>
-      ))}
+    <ul className="flex flex-col gap-2">
+      {items.map((s) => {
+        const allRead = s.recipients > 0 && s.read >= s.recipients;
+        return (
+          <li
+            key={s.message_id}
+            className="flex gap-3 rounded-xl border border-[#eef1f7] bg-[#fbfcfe] px-4 py-3 transition-colors hover:border-[#dce6f7] hover:bg-[#f8faff]"
+          >
+            <span
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset ${
+                s.priority === "urgent" ? ICON_TILE.red : ICON_TILE.blue
+              }`}
+            >
+              <Send className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-1.5">
+                {s.priority === "urgent" && <Badge tone="red">Urgent</Badge>}
+                <span className="text-sm font-bold text-[#101a3a]">{s.title}</span>
+                <span className="ml-auto text-[11px] text-[#9aa0ad]">{timeAgo(s.created_at)}</span>
+              </div>
+              {s.body && <p className="mt-0.5 whitespace-pre-line break-words text-sm text-[#676b7a]">{s.body}</p>}
+              <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[#9aa0ad]">
+                <span>
+                  To {s.to.join(", ")}
+                  {s.recipients > s.to.length ? ` and ${s.recipients - s.to.length} more` : ""}
+                </span>
+                <Badge tone={allRead ? "green" : "slate"}>
+                  <CheckCheck className="h-3 w-3" aria-hidden="true" />
+                  Read by {s.read} of {s.recipients}
+                </Badge>
+              </p>
+            </div>
+          </li>
+        );
+      })}
     </ul>
   );
 }
@@ -169,35 +238,18 @@ export default function NotificationsPage({ onChanged }) {
   const [tab, setTab] = useState("inbox");
   const [sentKey, setSentKey] = useState(0);
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-4">
-      <div className="flex flex-wrap gap-2" role="tablist">
-        {TABS.map((t) => (
-          <button
-            key={t.key}
-            type="button"
-            role="tab"
-            aria-selected={tab === t.key}
-            onClick={() => setTab(t.key)}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold ${
-              tab === t.key ? "bg-[#1f4693] text-white" : "border border-[#dce1ec] bg-white text-[#2b303b] hover:bg-[#f6f7fb]"
-            }`}
-          >
-            <t.icon size={16} aria-hidden="true" /> {t.label}
-          </button>
-        ))}
-      </div>
+    <div className="mx-auto flex max-w-4xl flex-col gap-5">
+      <Tabs items={TABS} value={tab} onChange={setTab} label="Notifications" />
       {tab === "inbox" && <InboxList onChanged={onChanged} />}
       {tab === "compose" && (
-        <section className={CARD}>
-          <h2 className="mb-4 text-base font-bold text-[#101a3a]">Send a message</h2>
+        <Panel icon={PenSquare} title="Send a message" subtitle="Notify colleagues in the portal">
           <MessageComposer onSent={() => setSentKey((k) => k + 1)} />
-        </section>
+        </Panel>
       )}
       {tab === "sent" && (
-        <section className={CARD}>
-          <h2 className="mb-2 text-base font-bold text-[#101a3a]">Messages you sent</h2>
+        <Panel icon={Send} title="Messages you sent" subtitle="Last 90 days">
           <SentList key={sentKey} />
-        </section>
+        </Panel>
       )}
     </div>
   );

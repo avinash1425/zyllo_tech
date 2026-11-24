@@ -1,54 +1,36 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Clock, History as HistoryIcon, Loader2, Pencil, ShieldCheck } from "lucide-react";
 import { getMyAttendance, getMySessionsByDay, getMyStartDate } from "@/lib/api/employee/attendance";
 import { getMyDaysOff } from "@/lib/api/employee/leave";
+import { Alert, Badge, Detail, Empty, Panel } from "@/components/portal/PortalUI";
+import { BTN_SECONDARY, TABLE, TD, TH_STICKY, TR } from "@/components/portal/portalStyles";
+import { AutoOutChip, Calendar, LateChip, PeriodPicker, StatusChip, Summary } from "../attendanceUi";
+import CorrectionsCard from "../CorrectionsCard";
 import {
-  AUTO_OUT_CHIP,
-  LATE_CHIP,
   RULES_TEXT,
-  STATUS,
   dayName,
   daysInMonth,
   formatDate,
   formatHours,
   formatTime,
+  correctionMinDate,
   monthDays,
   monthTitle,
   todayIst,
-  weekdayIndex,
   ymd,
 } from "../attendanceFormat";
 
-const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const CARD = "rounded-2xl border border-[#e7e9ee] bg-white p-4 shadow-[0_1px_2px_rgba(16,26,58,0.06)] sm:p-5";
+/** Table cell, top-aligned (rows can hold several punch times). */
+const TDT = TD.replace("align-middle", "align-top");
+const NAV_BTN =
+  "inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#dce6f7] bg-white text-[#1f4693] transition-colors hover:bg-[#f0f4ff] disabled:cursor-not-allowed disabled:opacity-50";
 
-function StatusChip({ status }) {
-  const s = STATUS[status];
-  if (!s) return null;
-  return <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${s.chip}`}>{s.label}</span>;
-}
-
-function LateChip() {
-  return <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${LATE_CHIP}`}>Late</span>;
-}
-
-function AutoOutChip() {
+function Loading() {
   return (
-    <span
-      className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${AUTO_OUT_CHIP}`}
-      title="Did not punch out; punched out automatically at 10:00 PM"
-    >
-      Auto punch out
-    </span>
-  );
-}
-
-function Stat({ label, value }) {
-  return (
-    <div>
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-[#9aa0ad]">{label}</p>
-      <p className="mt-0.5 text-sm font-bold text-[#101a3a] sm:text-base">{value}</p>
-    </div>
+    <p className="flex items-center justify-center gap-2 py-8 text-sm text-[#676b7a]">
+      <Loader2 className="h-4 w-4 animate-spin text-[#1f4693]" aria-hidden="true" />
+      Loading…
+    </p>
   );
 }
 
@@ -62,16 +44,25 @@ function sessionMinutes(s) {
 function SessionList({ sessions }) {
   if (!sessions?.length) return null;
   return (
-    <ol className="flex flex-col gap-1 text-sm" aria-label="Punch in and punch out times">
+    <ol className="grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-3" aria-label="Punch in and punch out times">
       {sessions.map((s, i) => (
-        <li key={s.id} className="flex flex-wrap items-center gap-x-2 tabular-nums">
-          <span className="w-5 text-right text-xs text-[#9aa0ad]">{i + 1}.</span>
+        <li
+          key={s.id}
+          className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl bg-[#f8fafd] px-3 py-2 tabular-nums ring-1 ring-inset ring-[#eef1f7]"
+        >
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#eef2fb] text-[11px] font-bold text-[#1f4693]">
+            {i + 1}
+          </span>
           <span className="font-semibold text-[#101a3a]">{formatTime(s.punch_in_at)}</span>
-          <span className="text-[#9aa0ad]" aria-hidden="true">→</span>
+          <span className="text-[#9aa0ad]" aria-hidden="true">
+            →
+          </span>
           {s.punch_out_at ? (
             <span className="font-semibold text-[#101a3a]">{formatTime(s.punch_out_at)}</span>
           ) : (
-            <span className="rounded-full bg-emerald-50 px-2 text-xs font-semibold text-emerald-700">now</span>
+            <Badge tone="green" dot>
+              now
+            </Badge>
           )}
           <span className="text-xs text-[#676b7a]">({formatHours(sessionMinutes(s))})</span>
           {s.auto_punched_out && <AutoOutChip />}
@@ -83,193 +74,118 @@ function SessionList({ sessions }) {
 
 function TodayCard({ today, row, sessions }) {
   return (
-    <section className={CARD} aria-labelledby="ep-today">
-      <div className="flex flex-wrap items-center gap-2">
-        <Clock className="h-5 w-5 text-[#1f4693]" aria-hidden="true" />
-        <h2 id="ep-today" className="text-base font-bold text-[#101a3a]">
-          Today
-        </h2>
-        {row && <StatusChip status={row.status} />}
-        {row?.is_late && <LateChip />}
-        {row?.auto_out && <AutoOutChip />}
-      </div>
-      <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        <Stat label="Date" value={formatDate(today.iso)} />
-        <Stat label="Day" value={dayName(today.iso)} />
-        <Stat label="First punch in" value={formatTime(row?.first_in)} />
-        <Stat label="Last punch out" value={row?.is_open ? "—" : formatTime(row?.last_out)} />
-        <Stat label="Total hours" value={formatHours(row?.worked_minutes ?? 0)} />
-        <Stat label="Punch ins" value={row?.sessions ?? 0} />
-      </div>
+    <Panel
+      icon={Clock}
+      title="Today"
+      subtitle={`${dayName(today.iso)}, ${formatDate(today.iso)}`}
+      action={
+        row && (
+          <>
+            <StatusChip status={row.status} />
+            {row.is_late && <LateChip />}
+            {row.auto_out && <AutoOutChip />}
+          </>
+        )
+      }
+    >
+      <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <Detail label="Date">{formatDate(today.iso)}</Detail>
+        <Detail label="Day">{dayName(today.iso)}</Detail>
+        <Detail label="First punch in">{formatTime(row?.first_in)}</Detail>
+        <Detail label="Last punch out">{row?.is_open ? "—" : formatTime(row?.last_out)}</Detail>
+        <Detail label="Total hours">{formatHours(row?.worked_minutes ?? 0)}</Detail>
+        <Detail label="Punch ins">{row?.sessions ?? 0}</Detail>
+      </dl>
       {sessions?.length > 0 && (
-        <div className="mt-4 border-t border-[#f0f2f6] pt-3">
-          <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#9aa0ad]">Punch in / punch out today</p>
+        <div className="mt-5 border-t border-[#eef0f4] pt-4">
+          <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-[#8a90a0]">Punch in / punch out today</p>
           <SessionList sessions={sessions} />
         </div>
       )}
-    </section>
+    </Panel>
   );
 }
 
-function Summary({ days }) {
-  const count = (fn) => days.filter(fn).length;
-  const items = [
-    { label: "Present", value: count((d) => d.status === "present"), color: "text-emerald-700" },
-    { label: "Half day", value: count((d) => d.status === "half_day"), color: "text-amber-700" },
-    { label: "Leave", value: count((d) => d.status === "leave"), color: "text-red-700" },
-    { label: "Absent", value: count((d) => d.status === "absent"), color: "text-rose-700" },
-    { label: "Approved leave", value: count((d) => d.status === "on_leave"), color: "text-violet-700" },
-    { label: "Late", value: count((d) => d.row?.is_late), color: "text-orange-700" },
-    {
-      label: "Hours worked",
-      value: formatHours(days.reduce((sum, d) => sum + (d.row?.worked_minutes ?? 0), 0)),
-      color: "text-[#1f4693]",
-    },
-  ];
-  return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
-      {items.map((it) => (
-        <div key={it.label} className="rounded-xl border border-[#e7e9ee] bg-white px-4 py-3">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-[#9aa0ad]">{it.label}</p>
-          <p className={`mt-1 text-xl font-bold tabular-nums ${it.color}`}>{it.value}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function Calendar({ year, month, days, todayIso }) {
-  const blanks = weekdayIndex(ymd(year, month, 1));
-  return (
-    <div>
-      <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold uppercase tracking-wider text-[#9aa0ad] sm:gap-2">
-        {WEEKDAYS.map((w) => (
-          <div key={w} className="py-1">
-            {w}
-          </div>
-        ))}
-      </div>
-      <div className="mt-1 grid grid-cols-7 gap-1 sm:gap-2">
-        {Array.from({ length: blanks }, (_, i) => (
-          <div key={`b${i}`} aria-hidden="true" />
-        ))}
-        {days.map((d) => {
-          const s = STATUS[d.status];
-          const isToday = d.iso === todayIso;
-          const label = [formatDate(d.iso), s?.label, d.note, d.row?.is_late ? "Late" : null, d.row ? formatHours(d.row.worked_minutes) : null]
-            .filter(Boolean)
-            .join(", ");
-          return (
-            <div
-              key={d.iso}
-              title={label}
-              aria-label={label}
-              className={`flex min-h-[3.6rem] flex-col rounded-lg border p-1 text-left sm:min-h-[5rem] sm:p-2 ${
-                isToday ? "border-[#1f4693] ring-2 ring-[#1f4693]/20" : "border-[#eef0f5]"
-              } ${d.status === "off" ? "bg-slate-50" : "bg-white"}`}
-            >
-              <div className="flex items-center justify-between">
-                <span className={`text-xs font-bold sm:text-sm ${isToday ? "text-[#1f4693]" : "text-[#2b303b]"}`}>{d.day}</span>
-                {d.row?.is_late && <span className="h-2 w-2 rounded-full bg-orange-500" aria-hidden="true" />}
-              </div>
-              {s && (
-                <>
-                  <span className={`mt-auto hidden truncate rounded px-1 py-0.5 text-[10px] font-semibold sm:block ${s.chip}`}>
-                    {s.label}
-                  </span>
-                  <span className={`mt-auto h-1.5 w-full rounded-full sm:hidden ${s.dot}`} aria-hidden="true" />
-                </>
-              )}
-              {d.note && !d.row && (
-                <span className="mt-0.5 hidden truncate text-[10px] text-[#676b7a] sm:block">{d.note}</span>
-              )}
-              {d.row && (
-                <span className="mt-0.5 hidden text-[10px] tabular-nums text-[#676b7a] sm:block">
-                  {formatHours(d.row.worked_minutes)}
-                </span>
-              )}
-            </div>
-          );
-        })}
-      </div>
-      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-[#676b7a]">
-        {Object.entries(STATUS).map(([key, s]) => (
-          <span key={key} className="inline-flex items-center gap-1.5">
-            <span className={`h-2.5 w-2.5 rounded-full ${s.dot}`} aria-hidden="true" />
-            {s.label}
-          </span>
-        ))}
-        <span className="inline-flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-orange-500" aria-hidden="true" />
-          Late
-        </span>
-      </div>
-    </div>
-  );
-}
-
-function History({ days, sessionsByDay }) {
+function History({ days, sessionsByDay, todayIso, onCorrect }) {
+  const minIso = correctionMinDate();
   const rows = days
     .filter((d) => d.row || ["absent", "on_leave", "holiday"].includes(d.status))
     .slice()
     .reverse();
   if (rows.length === 0) {
-    return <p className="py-6 text-center text-sm text-[#676b7a]">No attendance in this month yet.</p>;
+    return <Empty icon={HistoryIcon} title="No attendance in this month yet." />;
   }
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[640px] text-left text-sm">
+    <div className="max-h-[26rem] overflow-auto">
+      <table className={`${TABLE} min-w-[700px]`}>
         <thead>
-          <tr className="border-b border-[#eef0f5] text-[11px] font-semibold uppercase tracking-wider text-[#9aa0ad]">
-            <th className="py-2 pr-3">Date</th>
-            <th className="py-2 pr-3">Day</th>
-            <th className="py-2 pr-3">Punch in</th>
-            <th className="py-2 pr-3">Punch out</th>
-            <th className="py-2 pr-3">Total hours</th>
-            <th className="py-2">Status</th>
+          <tr>
+            <th className={TH_STICKY}>Date</th>
+            <th className={TH_STICKY}>Day</th>
+            <th className={TH_STICKY}>Punch in</th>
+            <th className={TH_STICKY}>Punch out</th>
+            <th className={TH_STICKY}>Total hours</th>
+            <th className={TH_STICKY}>Status</th>
+            <th className={TH_STICKY}>
+              <span className="sr-only">Correction</span>
+            </th>
           </tr>
         </thead>
         <tbody>
           {rows.map((d) => (
-            <tr key={d.iso} className="border-b border-[#f3f4f8] last:border-0">
-              <td className="py-2.5 pr-3 font-medium text-[#101a3a]">{formatDate(d.iso)}</td>
-              <td className="py-2.5 pr-3 text-[#676b7a]">{dayName(d.iso)}</td>
+            <tr key={d.iso} className={TR}>
+              <td className={`${TDT} whitespace-nowrap font-semibold text-[#101a3a]`}>{formatDate(d.iso)}</td>
+              <td className={TDT}>{dayName(d.iso)}</td>
               {(() => {
                 const list = sessionsByDay?.get(d.iso);
                 if (!list?.length) {
                   return (
                     <>
-                      <td className="py-2.5 pr-3 tabular-nums">{formatTime(d.row?.first_in)}</td>
-                      <td className="py-2.5 pr-3 tabular-nums">{d.row?.is_open ? "—" : formatTime(d.row?.last_out)}</td>
+                      <td className={`${TDT} tabular-nums`}>{formatTime(d.row?.first_in)}</td>
+                      <td className={`${TDT} tabular-nums`}>{d.row?.is_open ? "—" : formatTime(d.row?.last_out)}</td>
                     </>
                   );
                 }
                 return (
                   <>
-                    <td className="py-2.5 pr-3 align-top tabular-nums">
+                    <td className={`${TDT} tabular-nums`}>
                       {list.map((s) => (
-                        <span key={s.id} className="block leading-6">{formatTime(s.punch_in_at)}</span>
+                        <span key={s.id} className="block leading-6">
+                          {formatTime(s.punch_in_at)}
+                        </span>
                       ))}
                     </td>
-                    <td className="py-2.5 pr-3 align-top tabular-nums">
+                    <td className={`${TDT} tabular-nums`}>
                       {list.map((s) => (
                         <span key={s.id} className="block leading-6">
                           {s.punch_out_at ? formatTime(s.punch_out_at) : <span className="text-xs font-semibold text-emerald-700">now</span>}
-                          {s.auto_punched_out && <span className="ml-1 text-[11px] text-violet-700">(auto)</span>}
+                          {s.auto_punched_out && <span className="ml-1 text-[11px] font-semibold text-violet-700">(auto)</span>}
                         </span>
                       ))}
                     </td>
                   </>
                 );
               })()}
-              <td className="py-2.5 pr-3 tabular-nums">{d.row ? formatHours(d.row.worked_minutes) : "—"}</td>
-              <td className="py-2.5">
-                <span className="flex flex-wrap gap-1">
+              <td className={`${TDT} font-semibold tabular-nums text-[#101a3a]`}>{d.row ? formatHours(d.row.worked_minutes) : "—"}</td>
+              <td className={TDT}>
+                <span className="flex flex-wrap items-center gap-1">
                   <StatusChip status={d.status} />
                   {d.row?.is_late && <LateChip />}
                   {d.row?.auto_out && <AutoOutChip />}
                   {d.note && <span className="text-xs text-[#676b7a]">{d.note}</span>}
                 </span>
+              </td>
+              <td className={`${TDT} text-right`}>
+                {d.iso >= minIso && d.iso <= todayIso && (d.row || d.status === "absent") && (
+                  <button
+                    type="button"
+                    onClick={() => onCorrect(d.iso)}
+                    className="inline-flex items-center gap-1 whitespace-nowrap rounded-lg border border-[#dce6f7] bg-white px-2.5 py-1 text-xs font-semibold text-[#1f4693] transition-colors hover:bg-[#f0f4ff]"
+                  >
+                    <Pencil className="h-3 w-3" aria-hidden="true" />
+                    Correct
+                  </button>
+                )}
               </td>
             </tr>
           ))}
@@ -367,6 +283,13 @@ export default function AttendancePage({ me }) {
     [view, byDate, today.iso, startIso, daysOff],
   );
 
+  // "Correct" in the history opens the correction form for that day.
+  const [correctFor, setCorrectFor] = useState(null);
+  const openCorrection = (iso) => {
+    setCorrectFor(`${iso}#${Date.now()}`);
+    setTimeout(() => document.getElementById("ep-corrections")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+  };
+
   const isCurrentMonth = view.y === today.y && view.m === today.m;
   const shift = (delta) =>
     setView(({ y, m }) => {
@@ -378,70 +301,71 @@ export default function AttendancePage({ me }) {
     <div className="mx-auto flex max-w-6xl flex-col gap-5">
       <TodayCard today={today} row={todayRow} sessions={todaySessions} />
 
-      <section className={CARD} aria-labelledby="ep-month">
-        <div className="flex flex-wrap items-center gap-2">
-          <h2 id="ep-month" className="flex-1 text-base font-bold text-[#101a3a]">
-            {monthTitle(view.y, view.m)}
-          </h2>
-          <button
-            type="button"
-            onClick={() => shift(-1)}
-            className="rounded-lg border border-[#e7e9ee] p-2 text-[#2b303b] hover:bg-[#f6f7fb]"
-            aria-label="Previous month"
-          >
-            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setView({ y: today.y, m: today.m })}
-            disabled={isCurrentMonth}
-            className="rounded-lg border border-[#e7e9ee] px-3 py-1.5 text-sm font-semibold text-[#2b303b] hover:bg-[#f6f7fb] disabled:opacity-50"
-          >
-            This month
-          </button>
-          <button
-            type="button"
-            onClick={() => shift(1)}
-            disabled={isCurrentMonth}
-            className="rounded-lg border border-[#e7e9ee] p-2 text-[#2b303b] hover:bg-[#f6f7fb] disabled:opacity-50"
-            aria-label="Next month"
-          >
-            <ChevronRight className="h-4 w-4" aria-hidden="true" />
-          </button>
-        </div>
+      <Panel
+        icon={CalendarDays}
+        title={monthTitle(view.y, view.m)}
+        subtitle="Monthly summary and calendar"
+        action={
+          <>
+            <button type="button" onClick={() => shift(-1)} className={NAV_BTN} aria-label="Previous month">
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setView({ y: today.y, m: today.m })}
+              disabled={isCurrentMonth}
+              className={`${BTN_SECONDARY} !px-3 !py-1.5`}
+            >
+              This month
+            </button>
+            <button type="button" onClick={() => shift(1)} disabled={isCurrentMonth} className={NAV_BTN} aria-label="Next month">
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </>
+        }
+      >
+        <Alert kind="err" className="mb-4">
+          {error}
+        </Alert>
 
-        {error && (
-          <p role="alert" className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-            {error}
-          </p>
+        <Summary days={days} />
+
+        <div className="mt-6">
+          <h3 className="mb-3 text-sm font-bold text-[#101a3a]">Monthly calendar</h3>
+          {rows === null && !error ? <Loading /> : <Calendar year={view.y} month={view.m} days={days} todayIso={today.iso} />}
+        </div>
+      </Panel>
+
+      <Panel
+        icon={HistoryIcon}
+        title={`Attendance history — ${monthTitle(view.y, view.m)}`}
+        subtitle="Every punch in and punch out of the month"
+        action={<PeriodPicker view={view} setView={setView} today={today} />}
+        flush
+      >
+        {rows === null && !error ? (
+          <Loading />
+        ) : (
+          <History days={days} sessionsByDay={sessionsByDay} todayIso={today.iso} onCorrect={openCorrection} />
         )}
+      </Panel>
 
-        <div className="mt-4">
-          <Summary days={days} />
-        </div>
+      <CorrectionsCard employeeId={me.employee_id} openFor={correctFor} onChanged={() => setTick((t) => t + 1)} />
 
-        <div className="mt-5">
-          <h3 className="mb-2 text-sm font-bold text-[#101a3a]">Monthly calendar</h3>
-          {rows === null && !error ? (
-            <p className="py-6 text-center text-sm text-[#676b7a]">Loading…</p>
-          ) : (
-            <Calendar year={view.y} month={view.m} days={days} todayIso={today.iso} />
-          )}
-        </div>
-      </section>
-
-      <section className={CARD} aria-labelledby="ep-history">
-        <h2 id="ep-history" className="text-base font-bold text-[#101a3a]">
-          Attendance history — {monthTitle(view.y, view.m)}
-        </h2>
-        <div className="mt-3">{rows === null && !error ? <p className="py-6 text-center text-sm text-[#676b7a]">Loading…</p> : <History days={days} sessionsByDay={sessionsByDay} />}</div>
-      </section>
-
-      <section className="rounded-2xl border border-dashed border-[#dce1ec] bg-white/60 p-4 text-xs text-[#676b7a]">
-        <p className="mb-1.5 font-semibold uppercase tracking-wider text-[#9aa0ad]">Attendance rules</p>
-        <ul className="grid gap-1 sm:grid-cols-2 lg:grid-cols-3">
+      <section
+        aria-labelledby="ep-rules"
+        className="rounded-2xl border border-dashed border-[#dce1ec] bg-gradient-to-br from-white to-[#f8fafd] p-5 text-xs text-[#4a5068]"
+      >
+        <p id="ep-rules" className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wide text-[#8a90a0]">
+          <ShieldCheck className="h-4 w-4 text-[#1f4693]" aria-hidden="true" />
+          Attendance rules
+        </p>
+        <ul className="grid gap-x-5 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
           {RULES_TEXT.map((r) => (
-            <li key={r}>• {r}</li>
+            <li key={r} className="flex gap-2 leading-relaxed">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#f96706]" aria-hidden="true" />
+              {r}
+            </li>
           ))}
         </ul>
       </section>

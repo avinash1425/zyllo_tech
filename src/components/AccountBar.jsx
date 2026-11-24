@@ -1,11 +1,12 @@
 // Account area of the public header.
 // Signed out: a small "Login" pill. Signed in (desktop): an inline strip of
-// Admin pill (admins only) | avatar + email | Logout. On phones it is a stacked
+// Admin pill (admins) or Employee Portal pill (employees) | avatar + email | Logout.
+// On phones it is a stacked
 // card inside the menu. The session lives in supabase-js (localStorage), so
 // moving between /admin and the public site keeps you signed in; only Logout
 // ends it.
 import { useEffect, useState } from "react";
-import { LayoutDashboard, LogOut, ShieldCheck } from "lucide-react";
+import { BriefcaseBusiness, LayoutDashboard, LogOut, ShieldCheck } from "lucide-react";
 import Link from "@/lib/nx/link";
 import { useAuth } from "@/lib/auth";
 import { loadSupabase } from "@/lib/supabase/load";
@@ -18,24 +19,33 @@ function hasStoredSession() {
   }
 }
 
-function useIsAdmin(user) {
-  const [isAdmin, setIsAdmin] = useState(false);
+/**
+ * "admin" | "employee" (active Employee Portal account) | null.
+ * Decides which way back the account bar offers: the admin area or the Employee Portal.
+ */
+function useAccountType(user) {
+  // The answer is kept with the user id it belongs to, so a different (or no) user never sees a stale one.
+  const [found, setFound] = useState({ userId: null, type: null });
+  const userId = user?.id ?? null;
   useEffect(() => {
+    if (!userId) return undefined;
     let active = true;
-    if (!user) {
-      setIsAdmin(false);
-      return undefined;
-    }
     loadSupabase()
-      .then((supabase) => supabase.rpc("is_admin"))
-      .then(({ data }) => {
-        if (active) setIsAdmin(data === true);
+      .then(async (supabase) => {
+        const { data: isAdmin } = await supabase.rpc("is_admin");
+        if (isAdmin === true) return "admin";
+        const { data: access } = await supabase.rpc("ep_my_access");
+        return access === "active" ? "employee" : null;
+      })
+      .catch(() => null)
+      .then((type) => {
+        if (active) setFound({ userId, type });
       });
     return () => {
       active = false;
     };
-  }, [user]);
-  return isAdmin;
+  }, [userId]);
+  return userId && found.userId === userId ? found.type : null;
 }
 
 function Avatar({ email, className = "h-7 w-7 text-xs" }) {
@@ -52,7 +62,9 @@ function Avatar({ email, className = "h-7 w-7 text-xs" }) {
 
 export default function AccountBar({ mobile = false, onNavigate }) {
   const { user, loading, signOut } = useAuth();
-  const isAdmin = useIsAdmin(user);
+  const accountType = useAccountType(user);
+  const isAdmin = accountType === "admin";
+  const isEmployee = accountType === "employee";
 
   // The session check is deferred on public pages. Without a stored session the
   // visitor is signed out, so Login can show at once (the branch below). With one,
@@ -114,6 +126,15 @@ export default function AccountBar({ mobile = false, onNavigate }) {
               <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
               Admin
             </Link>
+          ) : isEmployee ? (
+            <Link
+              href="/employee"
+              onClick={onNavigate}
+              className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#f96706] to-[#f7941e] px-3 text-[15px] font-semibold text-white shadow-[0_4px_12px_rgba(249,103,6,0.25)]"
+            >
+              <BriefcaseBusiness className="h-4 w-4" aria-hidden="true" />
+              Employee Portal
+            </Link>
           ) : (
             <span />
           )}
@@ -143,6 +164,18 @@ export default function AccountBar({ mobile = false, onNavigate }) {
             <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
           </span>
           Admin
+        </Link>
+      )}
+      {isEmployee && (
+        <Link
+          href="/employee"
+          onClick={onNavigate}
+          className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#f96706] to-[#f7941e] py-1 pl-2.5 pr-3.5 text-[13px] font-semibold leading-5 text-white shadow-[0_3px_10px_-3px_rgba(249,103,6,0.6)] transition-all duration-200 hover:shadow-[0_6px_16px_-4px_rgba(249,103,6,0.7)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f96706]/50"
+        >
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/25">
+            <BriefcaseBusiness className="h-3.5 w-3.5" aria-hidden="true" />
+          </span>
+          Employee Portal
         </Link>
       )}
 

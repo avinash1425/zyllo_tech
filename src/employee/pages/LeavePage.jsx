@@ -1,6 +1,23 @@
 import { useEffect, useState } from "react";
 import Link from "@/lib/nx/link";
-import { CalendarDays, ChevronLeft, ChevronRight, ClipboardCheck, Palmtree, Plane, Search, UserCheck, Users, X } from "lucide-react";
+import {
+  Briefcase,
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  ClipboardCheck,
+  ClipboardList,
+  HeartPulse,
+  Loader2,
+  Palmtree,
+  PartyPopper,
+  Plane,
+  Search,
+  Sun,
+  UserCheck,
+  Users,
+  X,
+} from "lucide-react";
 import {
   HALF_DAY,
   LEAVE_STATUS,
@@ -10,17 +27,27 @@ import {
   previewLeaveDays,
   validateLeave,
 } from "@/lib/api/employee/leave";
+import { Alert, Avatar, Badge, Chips, Empty, Panel } from "@/components/portal/PortalUI";
+import { ACCENTS, BTN_SECONDARY, LABEL, TABLE, TABLE_WRAP, TD, TH, TR } from "@/components/portal/portalStyles";
 import { dayName, formatDate, todayIst } from "../attendanceFormat";
-import { CARD } from "../projectsUi";
 import { BTN_PRIMARY, INPUT } from "../reportsUi";
 import { getMessageOptions } from "@/lib/api/employee/notifications";
 
 const num = (v) => Number(v ?? 0).toLocaleString("en-IN", { maximumFractionDigits: 1 });
 
+/** Badge tone per leave status. */
+const STATUS_TONE = { pending: "amber", approved: "green", rejected: "red", cancelled: "slate" };
+
 export function LeaveStatusChip({ status }) {
   const s = LEAVE_STATUS[status];
   if (!s) return null;
-  return <span className={`inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold ${s.chip}`}>{s.label}</span>;
+  const tone = STATUS_TONE[status];
+  if (!tone) return <span className={`inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold ${s.chip}`}>{s.label}</span>;
+  return (
+    <Badge tone={tone} dot>
+      {s.label}
+    </Badge>
+  );
 }
 
 /** "07 Dec 2026" or "07 Dec 2026 – 12 Dec 2026" (+ half day). */
@@ -33,47 +60,76 @@ export function leaveDates(r) {
 // Not shown for now (user asked to hide "Team requests" on 2026-11-23); kept for TeamLeavePage.
 export function LeaveTabs({ active, teamSize, waiting }) {
   const tab = (on) =>
-    `inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold ${
-      on ? "bg-[#1f4693] text-white" : "border border-[#dce1ec] bg-white text-[#2b303b] hover:bg-[#f6f7fb]"
+    `inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3.5 py-2 text-[13px] font-semibold transition-all ${
+      on
+        ? "bg-gradient-to-r from-[#1f4693] to-[#2d5fbe] text-white shadow-[0_4px_12px_-4px_rgba(31,70,147,0.55)]"
+        : "text-[#4a5068] hover:bg-[#f4f7ff] hover:text-[#1f4693]"
     }`;
   return (
-    <div className="flex flex-wrap gap-2">
-      <Link href="/employee/leave" className={tab(active === "mine")}>
-        <Plane size={16} aria-hidden="true" /> My leave
-      </Link>
-      {teamSize > 0 && (
-        <Link href="/employee/leave/team" className={tab(active === "team")}>
-          <Users size={16} aria-hidden="true" /> Team requests
-          {waiting > 0 && <span className="rounded-full bg-[#f7941e] px-1.5 text-[11px] font-bold text-white">{waiting}</span>}
+    <div className="max-w-full overflow-x-auto">
+      <nav aria-label="Leave" className="inline-flex min-w-max gap-1 rounded-xl border border-[#e3e9f5] bg-white p-1 shadow-sm">
+        <Link href="/employee/leave" className={tab(active === "mine")} aria-current={active === "mine" ? "page" : undefined}>
+          <Plane size={16} aria-hidden="true" /> My leave
         </Link>
-      )}
+        {teamSize > 0 && (
+          <Link href="/employee/leave/team" className={tab(active === "team")} aria-current={active === "team" ? "page" : undefined}>
+            <Users size={16} aria-hidden="true" /> Team requests
+            {waiting > 0 && <span className="min-w-[1.25rem] rounded-full bg-[#f96706] px-1.5 text-center text-[10.5px] font-bold leading-5 text-white">{waiting}</span>}
+          </Link>
+        )}
+      </nav>
     </div>
   );
 }
 
+const BALANCE_LOOK = [
+  { accent: "orange", icon: Palmtree },
+  { accent: "blue", icon: HeartPulse },
+  { accent: "teal", icon: Briefcase },
+  { accent: "violet", icon: Sun },
+  { accent: "green", icon: Plane },
+  { accent: "amber", icon: CalendarDays },
+];
+
 function Balances({ balances }) {
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-      {balances.map((b) => {
+    <div className="grid grid-cols-1 gap-4 min-[420px]:grid-cols-2 lg:grid-cols-4">
+      {balances.map((b, i) => {
         const unlimited = b.allowed == null;
         const left = unlimited ? null : Number(b.allowed) - Number(b.approved) - Number(b.pending);
+        const look = BALANCE_LOOK[i % BALANCE_LOOK.length];
+        const a = ACCENTS[look.accent];
+        const Icon = look.icon;
         return (
-          <div key={b.code} className="rounded-2xl border border-[#e7e9ee] bg-white p-4">
-            <p className="text-xs font-semibold text-[#4a5880]">{b.name}</p>
-            <p className="mt-1 text-2xl font-bold tabular-nums text-[#101a3a]">
+          <div
+            key={b.code}
+            className="relative overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white p-5 pt-6 shadow-[0_1px_2px_rgba(16,26,58,0.04),0_8px_24px_-12px_rgba(16,26,58,0.10)]"
+          >
+            <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1" style={{ backgroundImage: `linear-gradient(90deg, ${a.from}, ${a.to})` }} />
+            <span
+              className="flex h-11 w-11 items-center justify-center rounded-2xl text-white shadow-[0_6px_14px_-4px_rgba(16,26,58,0.35)]"
+              style={{ backgroundImage: `linear-gradient(135deg, ${a.from}, ${a.to})` }}
+            >
+              <Icon className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <p className="mt-4 text-[28px] font-extrabold leading-none tabular-nums tracking-tight text-[#101a3a]">
               {unlimited ? "No limit" : num(left)}
-              {!unlimited && <span className="ml-1 text-sm font-semibold text-[#9aa0ad]">/ {num(b.allowed)} left</span>}
+              {!unlimited && <span className="ml-1 text-sm font-semibold tracking-normal text-[#9aa0ad]">/ {num(b.allowed)} left</span>}
             </p>
-            <p className="mt-1 text-xs text-[#676b7a]">
+            <p className="mt-1.5 text-sm font-semibold text-[#2b303b]">{b.name}</p>
+            <p className="mt-0.5 text-xs text-[#676b7a]">
               Used {num(b.approved)}
               {Number(b.pending) > 0 && <> · Pending {num(b.pending)}</>}
               {!b.is_paid && <> · Unpaid</>}
             </p>
             {!unlimited && Number(b.allowed) > 0 && (
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#eef0f5]">
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#eef0f5]">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#f7941e] to-[#1f4693]"
-                  style={{ width: `${Math.min(100, ((Number(b.approved) + Number(b.pending)) / Number(b.allowed)) * 100)}%` }}
+                  className="h-full rounded-full transition-[width] duration-500"
+                  style={{
+                    backgroundImage: `linear-gradient(90deg, ${a.from}, ${a.to})`,
+                    width: `${Math.min(100, ((Number(b.approved) + Number(b.pending)) / Number(b.allowed)) * 100)}%`,
+                  }}
                 />
               </div>
             )}
@@ -99,20 +155,24 @@ function ManagerField({ id, name, people, error, onChange }) {
   const picked = id ? people.find((p) => p.id === id) : null;
   return (
     <div>
-      <label htmlFor="lv-mgr" className="mb-1 block text-xs font-semibold text-[#4a5880]">
+      <label htmlFor="lv-mgr" className={LABEL}>
         Reporting manager
       </label>
+      <p className="-mt-0.5 mb-2 text-xs text-[#9aa0ad]">The admin approves your leave; your manager is kept informed.</p>
       {picked ? (
-        <div className="flex items-center gap-2 rounded-lg border border-[#1f4693] bg-[#f0f4ff] px-3 py-2 text-sm">
-          <UserCheck size={16} className="text-[#1f4693]" aria-hidden="true" />
-          <span className="flex-1">
-            <span className="font-semibold text-[#101a3a]">{picked.full_name}</span>{" "}
-            <span className="text-xs text-[#676b7a]">{picked.designation ?? picked.employee_code} · will be notified</span>
+        <div className="flex items-center gap-3 rounded-xl border border-[#1f4693]/30 bg-[#f4f7ff] px-3 py-2.5 text-sm">
+          <Avatar name={picked.full_name} size="h-8 w-8 text-xs" />
+          <span className="min-w-0 flex-1">
+            <span className="flex items-center gap-1.5 font-semibold text-[#101a3a]">
+              {picked.full_name}
+              <UserCheck size={14} className="text-[#1f4693]" aria-hidden="true" />
+            </span>
+            <span className="block truncate text-xs text-[#676b7a]">{picked.designation ?? picked.employee_code} · will be informed</span>
           </span>
           <button
             type="button"
             onClick={() => onChange("", "")}
-            className="rounded p-1 text-[#4a5880] hover:bg-white"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#64748b] transition-colors hover:bg-white hover:text-[#1f4693]"
             aria-label="Change reporting manager"
           >
             <X size={14} aria-hidden="true" />
@@ -121,7 +181,7 @@ function ManagerField({ id, name, people, error, onChange }) {
       ) : (
         <>
           <div className="relative">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9aa0ad]" aria-hidden="true" />
+            <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#9aa0ad]" aria-hidden="true" />
             <input
               id="lv-mgr"
               value={name}
@@ -136,23 +196,26 @@ function ManagerField({ id, name, people, error, onChange }) {
             />
           </div>
           {focused && matches.length > 0 && (
-            <div className="mt-1.5 flex flex-wrap gap-1.5" aria-label="Matching colleagues">
+            <div className="mt-2 flex flex-wrap gap-1.5" aria-label="Matching colleagues">
               {matches.map((p) => (
                 <button
                   key={p.id}
                   type="button"
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => onChange(p.id, p.full_name)}
-                  className="rounded-lg border border-[#dce1ec] bg-white px-2.5 py-1.5 text-left text-xs hover:bg-[#f6f7fb]"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#e3e9f5] bg-white py-1 pl-1 pr-3 text-left text-xs transition-colors hover:border-[#1f4693]/30 hover:bg-[#eef2fb]"
                 >
-                  <span className="font-semibold text-[#2b303b]">{p.full_name}</span>{" "}
-                  <span className="text-[#9aa0ad]">{p.designation ?? p.employee_code}</span>
+                  <Avatar name={p.full_name} size="h-6 w-6 text-[10px]" />
+                  <span>
+                    <span className="font-semibold text-[#2b303b]">{p.full_name}</span>{" "}
+                    <span className="text-[#9aa0ad]">{p.designation ?? p.employee_code}</span>
+                  </span>
                 </button>
               ))}
             </div>
           )}
           {name.trim() && !matches.length && (
-            <p className="mt-1 text-xs text-[#676b7a]">Not in the portal — the name will be saved with your request.</p>
+            <p className="mt-1.5 text-xs text-[#676b7a]">Not in the portal — the name will be saved with your request.</p>
           )}
         </>
       )}
@@ -222,15 +285,17 @@ function ApplyForm({ overview, onApplied }) {
     setBusy(false);
     if (!res.ok) return setStatus({ kind: "error", text: res.message });
     setF({ ...EMPTY, manager_id: f.manager_id, manager_name: f.manager_name }); // keep the manager for next time
-    setStatus({ kind: "ok", text: `Leave applied (${num(res.request.days)} day(s)). Reporting manager: ${res.request.approver}.` });
+    setStatus({ kind: "ok", text: `Leave applied (${num(res.request.days)} day(s)) and sent to the admin for approval. Reporting manager informed: ${res.request.approver}.` });
     onApplied();
   }
 
+  const durations = [{ key: "full", label: "Full day" }, ...Object.entries(HALF_DAY).map(([k, label]) => ({ key: k, label }))];
+
   return (
-    <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
+    <form onSubmit={submit} className="flex flex-col gap-5" noValidate>
       <div role="radiogroup" aria-label="Leave type">
-        <p className="mb-1 text-xs font-semibold text-[#4a5880]">Leave type</p>
-        <div className="flex flex-wrap gap-1.5">
+        <p className={LABEL}>Leave type</p>
+        <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2">
           {overview.balances.map((b) => {
             const on = f.leave_type === b.code;
             const l = b.allowed == null ? null : Number(b.allowed) - Number(b.approved) - Number(b.pending);
@@ -241,12 +306,14 @@ function ApplyForm({ overview, onApplied }) {
                 role="radio"
                 aria-checked={on}
                 onClick={() => set("leave_type", b.code)}
-                className={`rounded-lg border px-3 py-1.5 text-left text-xs font-semibold ${
-                  on ? "border-[#1f4693] bg-[#1f4693] text-white" : "border-[#dce1ec] bg-white text-[#2b303b] hover:bg-[#f6f7fb]"
+                className={`flex items-center justify-between gap-2 rounded-xl border px-3.5 py-2.5 text-left text-sm font-semibold transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f4693] ${
+                  on
+                    ? "border-transparent bg-gradient-to-r from-[#1f4693] to-[#2d5fbe] text-white shadow-[0_4px_12px_-4px_rgba(31,70,147,0.55)]"
+                    : "border-[#e3e9f5] bg-[#f8faff] text-[#2b303b] hover:border-[#1f4693]/30 hover:bg-[#eef2fb]"
                 }`}
               >
-                {b.name}
-                <span className={`ml-1 font-normal ${on ? "text-white/80" : "text-[#9aa0ad]"}`}>{l == null ? "· no limit" : `· ${num(l)} left`}</span>
+                <span className="truncate">{b.name}</span>
+                <span className={`shrink-0 text-xs font-medium ${on ? "text-white/80" : "text-[#9aa0ad]"}`}>{l == null ? "no limit" : `${num(l)} left`}</span>
               </button>
             );
           })}
@@ -254,16 +321,16 @@ function ApplyForm({ overview, onApplied }) {
         {errors?.leave_type && <p className="mt-1 text-xs text-red-600">{errors.leave_type}</p>}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="lv-start" className="mb-1 block text-xs font-semibold text-[#4a5880]">
+          <label htmlFor="lv-start" className={LABEL}>
             From
           </label>
           <input id="lv-start" type="date" value={f.start_date} onChange={(e) => set("start_date", e.target.value)} className={INPUT(errors?.start_date)} />
           {errors?.start_date && <p className="mt-1 text-xs text-red-600">{errors.start_date}</p>}
         </div>
         <div>
-          <label htmlFor="lv-end" className="mb-1 block text-xs font-semibold text-[#4a5880]">
+          <label htmlFor="lv-end" className={LABEL}>
             To
           </label>
           <input
@@ -279,40 +346,35 @@ function ApplyForm({ overview, onApplied }) {
       </div>
 
       {single && (
-        <div role="radiogroup" aria-label="Duration">
-          <p className="mb-1 text-xs font-semibold text-[#4a5880]">Duration</p>
-          <div className="flex flex-wrap gap-1.5">
-            {[{ value: "", label: "Full day" }, ...Object.entries(HALF_DAY).map(([value, label]) => ({ value, label }))].map((o) => (
-              <button
-                key={o.value || "full"}
-                type="button"
-                role="radio"
-                aria-checked={f.half_day === o.value}
-                onClick={() => set("half_day", o.value)}
-                className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${
-                  f.half_day === o.value ? "border-[#1f4693] bg-[#1f4693] text-white" : "border-[#dce1ec] bg-white text-[#2b303b] hover:bg-[#f6f7fb]"
-                }`}
-              >
-                {o.label}
-              </button>
-            ))}
-          </div>
+        <div>
+          <p className={LABEL} aria-hidden="true">
+            Duration
+          </p>
+          <Chips label="Duration" size="md" items={durations} value={f.half_day || "full"} onChange={(k) => set("half_day", k === "full" ? "" : k)} />
         </div>
       )}
 
       {key && (
-        <p className={`rounded-lg px-3 py-2 text-sm ${overBalance ? "bg-red-50 text-red-700" : "bg-[#f0f4ff] text-[#1f4693]"}`} aria-live="polite">
-          {days == null
-            ? "Counting leave days…"
-            : days === 0
-              ? "These dates are only Sundays or company holidays, so no leave is needed."
-              : `${num(days)} leave day(s) (Sundays and company holidays are not counted).${
-                  overBalance ? ` You only have ${num(left)} day(s) of ${bal.name} left.` : ""
-                }`}
+        <p
+          className={`flex items-start gap-2 rounded-xl border px-4 py-2.5 text-sm ${
+            overBalance ? "border-red-200 bg-red-50 text-red-700" : "border-[#dce6f7] bg-[#f5f8ff] text-[#1f4693]"
+          }`}
+          aria-live="polite"
+        >
+          <CalendarDays className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+          <span>
+            {days == null
+              ? "Counting leave days…"
+              : days === 0
+                ? "These dates are only Sundays or company holidays, so no leave is needed."
+                : `${num(days)} leave day(s) (Sundays and company holidays are not counted).${
+                    overBalance ? ` You only have ${num(left)} day(s) of ${bal.name} left.` : ""
+                  }`}
+          </span>
         </p>
       )}
       {f.start_date && f.start_date < today && (
-        <p className="text-xs text-[#676b7a]">This leave is in the past. You can apply up to 30 days back (e.g. sick leave).</p>
+        <p className="-mt-2 text-xs text-[#676b7a]">This leave is in the past. You can apply up to 30 days back (e.g. sick leave).</p>
       )}
 
       <ManagerField
@@ -327,7 +389,7 @@ function ApplyForm({ overview, onApplied }) {
       />
 
       <div>
-        <label htmlFor="lv-reason" className="mb-1 block text-xs font-semibold text-[#4a5880]">
+        <label htmlFor="lv-reason" className={LABEL}>
           Reason
         </label>
         <textarea
@@ -341,14 +403,7 @@ function ApplyForm({ overview, onApplied }) {
         {errors?.reason && <p className="mt-1 text-xs text-red-600">{errors.reason}</p>}
       </div>
 
-      {status.text && (
-        <p
-          role={status.kind === "error" ? "alert" : "status"}
-          className={`rounded-lg px-3 py-2 text-sm ${status.kind === "error" ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-800"}`}
-        >
-          {status.text}
-        </p>
-      )}
+      <Alert kind={status.kind === "error" ? "err" : "ok"}>{status.text}</Alert>
       <div className="flex flex-wrap items-center gap-3">
         <button type="submit" className={BTN_PRIMARY} disabled={busy}>
           <ClipboardCheck size={16} aria-hidden="true" />
@@ -375,56 +430,77 @@ function History({ requests, onChanged }) {
     onChanged();
   }
 
-  if (requests.length === 0) return <p className="py-6 text-center text-sm text-[#676b7a]">No leave requests this year.</p>;
+  if (requests.length === 0) return <Empty icon={ClipboardList} title="No leave requests this year." />;
   return (
-    <div className="flex flex-col gap-2">
-      {message && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{message}</p>}
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[720px] text-left text-sm">
+    <div className="flex flex-col">
+      <Alert kind="err" className="m-4">
+        {message}
+      </Alert>
+      <div className={TABLE_WRAP}>
+        <table className={`${TABLE} min-w-[720px]`}>
           <thead>
-            <tr className="border-b border-[#eef0f5] text-[11px] font-semibold uppercase tracking-wider text-[#9aa0ad]">
-              <th className="py-2 pr-3">Type</th>
-              <th className="py-2 pr-3">Dates</th>
-              <th className="py-2 pr-3">Days</th>
-              <th className="py-2 pr-3">Reason</th>
-              <th className="py-2 pr-3">Status</th>
-              <th className="py-2" />
+            <tr>
+              <th className={TH}>Type</th>
+              <th className={TH}>Dates</th>
+              <th className={TH}>Days</th>
+              <th className={TH}>Reason</th>
+              <th className={TH}>Status</th>
+              <th className={TH}>
+                <span className="sr-only">Actions</span>
+              </th>
             </tr>
           </thead>
           <tbody>
             {requests.map((r) => {
               const canCancel = r.status === "pending" || (r.status === "approved" && r.start_date > today);
               return (
-                <tr key={r.id} className="border-b border-[#f3f4f8] align-top last:border-0">
-                  <td className="py-2.5 pr-3 font-medium text-[#101a3a]">{r.leave_name}</td>
-                  <td className="py-2.5 pr-3">{leaveDates(r)}</td>
-                  <td className="py-2.5 pr-3 tabular-nums">{num(r.days)}</td>
-                  <td className="max-w-[16rem] py-2.5 pr-3 text-[#676b7a]">
+                <tr key={r.id} className={TR}>
+                  <td className={`${TD} font-semibold text-[#101a3a]`}>{r.leave_name}</td>
+                  <td className={`${TD} whitespace-nowrap`}>{leaveDates(r)}</td>
+                  <td className={`${TD} font-semibold tabular-nums text-[#101a3a]`}>{num(r.days)}</td>
+                  <td className={`${TD} max-w-[16rem] text-[#676b7a]`}>
                     <span className="line-clamp-2 break-words">{r.reason}</span>
                   </td>
-                  <td className="py-2.5 pr-3">
+                  <td className={TD}>
                     <LeaveStatusChip status={r.status} />
-                    {r.status === "pending" && r.approver && <p className="mt-1 text-xs text-[#9aa0ad]">Manager: {r.approver}</p>}
+                    {r.status === "pending" && (
+                      <p className="mt-1 text-xs text-[#9aa0ad]">
+                        Waiting for admin approval{r.approver ? ` · Manager: ${r.approver}` : ""}
+                      </p>
+                    )}
                     {["approved", "rejected"].includes(r.status) && (
                       <p className="mt-1 text-xs text-[#676b7a]">
-                        By {r.decided_by ?? "manager"}
+                        By {r.decided_by ?? "Admin"}
                         {r.decision_comment ? `: ${r.decision_comment}` : ""}
                       </p>
                     )}
                   </td>
-                  <td className="py-2.5 text-right">
+                  <td className={`${TD} text-right`}>
                     {canCancel &&
                       (confirmId === r.id ? (
                         <span className="inline-flex flex-wrap justify-end gap-1">
-                          <button type="button" disabled={busy} onClick={() => doCancel(r.id)} className="rounded-lg bg-red-600 px-2.5 py-1 text-xs font-semibold text-white disabled:opacity-60">
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={() => doCancel(r.id)}
+                            className="whitespace-nowrap rounded-lg bg-red-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-red-700 disabled:opacity-60"
+                          >
                             {busy ? "Cancelling…" : "Yes, cancel"}
                           </button>
-                          <button type="button" onClick={() => setConfirmId(null)} className="rounded-lg border border-[#dce1ec] px-2.5 py-1 text-xs font-semibold">
+                          <button
+                            type="button"
+                            onClick={() => setConfirmId(null)}
+                            className="rounded-lg border border-[#dce6f7] bg-white px-2.5 py-1 text-xs font-semibold text-[#1f4693] transition-colors hover:bg-[#f0f4ff]"
+                          >
                             Keep
                           </button>
                         </span>
                       ) : (
-                        <button type="button" onClick={() => setConfirmId(r.id)} className="text-xs font-semibold text-red-600 hover:underline">
+                        <button
+                          type="button"
+                          onClick={() => setConfirmId(r.id)}
+                          className="rounded-lg border border-red-200 bg-white px-2.5 py-1 text-xs font-semibold text-red-700 transition-colors hover:bg-red-50"
+                        >
                           Cancel
                         </button>
                       ))}
@@ -441,16 +517,25 @@ function History({ requests, onChanged }) {
 
 function Holidays({ holidays, year }) {
   const today = todayIst().iso;
-  if (holidays.length === 0) return <p className="text-sm text-[#676b7a]">No company holidays have been added for {year} yet.</p>;
+  if (holidays.length === 0) return <Empty icon={PartyPopper} message={`No company holidays have been added for ${year} yet.`} />;
   return (
-    <ul className="grid gap-2 sm:grid-cols-2">
+    <ul className="flex flex-col gap-2">
       {holidays.map((h) => {
         const past = h.date < today;
         return (
-          <li key={h.date} className={`flex items-center gap-3 rounded-xl border px-3 py-2 ${past ? "border-[#f0f2f6] opacity-60" : "border-[#e7e9ee]"}`}>
-            <span className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-teal-50 text-teal-800">
+          <li
+            key={h.date}
+            className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-colors ${
+              past ? "border-[#f0f2f6] bg-[#fafbfc] opacity-60" : "border-[#e7e9ee] bg-white hover:border-teal-200 hover:bg-teal-50/40"
+            }`}
+          >
+            <span
+              className={`flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl ${
+                past ? "bg-slate-100 text-slate-500" : "bg-gradient-to-br from-[#3089a6] to-[#2bb3c9] text-white shadow-[0_6px_14px_-6px_rgba(48,137,166,0.6)]"
+              }`}
+            >
               <span className="text-sm font-bold leading-none">{h.date.slice(8)}</span>
-              <span className="text-[10px] font-semibold uppercase">{formatDate(h.date).split(" ")[1]}</span>
+              <span className="mt-0.5 text-[10px] font-semibold uppercase">{formatDate(h.date).split(" ")[1]}</span>
             </span>
             <span className="min-w-0">
               <span className="block truncate text-sm font-semibold text-[#101a3a]">{h.name}</span>
@@ -485,64 +570,53 @@ export default function LeavePage() {
   }, [year, reload]);
 
   const current = data?.year === year ? data : null;
+  const navBtn =
+    "inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#dce6f7] bg-white text-[#1f4693] transition-colors hover:bg-[#f0f4ff] disabled:cursor-not-allowed disabled:opacity-50";
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-4">
-      <div className="flex items-center gap-2">
-        <h2 className="flex-1 text-base font-bold text-[#101a3a]">Leave balance {year}</h2>
-        <button type="button" onClick={() => setYear((y) => y - 1)} className="rounded-lg border border-[#e7e9ee] bg-white p-2 hover:bg-[#f6f7fb]" aria-label="Previous year">
+    <div className="mx-auto flex max-w-6xl flex-col gap-5">
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 className="flex flex-1 items-center gap-2 text-base font-bold text-[#101a3a]">
+          <span className="h-5 w-1 rounded-full bg-gradient-to-b from-[#f7941e] to-[#f96706]" aria-hidden="true" />
+          Leave balance {year}
+        </h2>
+        <button type="button" onClick={() => setYear((y) => y - 1)} className={navBtn} aria-label="Previous year">
           <ChevronLeft className="h-4 w-4" aria-hidden="true" />
         </button>
-        <button
-          type="button"
-          onClick={() => setYear(thisYear)}
-          disabled={year === thisYear}
-          className="rounded-lg border border-[#e7e9ee] bg-white px-3 py-1.5 text-sm font-semibold hover:bg-[#f6f7fb] disabled:opacity-50"
-        >
+        <button type="button" onClick={() => setYear(thisYear)} disabled={year === thisYear} className={`${BTN_SECONDARY} !px-3 !py-1.5`}>
           This year
         </button>
-        <button
-          type="button"
-          onClick={() => setYear((y) => y + 1)}
-          disabled={year > thisYear}
-          className="rounded-lg border border-[#e7e9ee] bg-white p-2 hover:bg-[#f6f7fb] disabled:opacity-50"
-          aria-label="Next year"
-        >
+        <button type="button" onClick={() => setYear((y) => y + 1)} disabled={year > thisYear} className={navBtn} aria-label="Next year">
           <ChevronRight className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
 
-      {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
-      {!current && !error && <p className="text-sm text-[#676b7a]">Loading…</p>}
+      <Alert kind="err">{error}</Alert>
+      {!current && !error && (
+        <p className="flex items-center gap-2 text-sm text-[#676b7a]">
+          <Loader2 className="h-4 w-4 animate-spin text-[#1f4693]" aria-hidden="true" />
+          Loading…
+        </p>
+      )}
 
       {current && (
         <>
           <Balances balances={current.balances} />
 
-          <div className="grid gap-4 lg:grid-cols-5">
-            <section className={`${CARD} lg:col-span-3`} aria-labelledby="lv-apply">
-              <h2 id="lv-apply" className="mb-4 flex items-center gap-2 text-base font-bold text-[#101a3a]">
-                <Palmtree className="h-5 w-5 text-[#1f4693]" aria-hidden="true" /> Apply for leave
-              </h2>
+          <div className="grid gap-5 lg:grid-cols-5">
+            <Panel icon={Palmtree} title="Apply for leave" subtitle="Sent to the admin for approval" className="lg:col-span-3">
               <ApplyForm overview={current} onApplied={() => setReload((r) => r + 1)} />
-            </section>
-            <section className={`${CARD} lg:col-span-2`} aria-labelledby="lv-hol">
-              <h2 id="lv-hol" className="mb-3 flex items-center gap-2 text-base font-bold text-[#101a3a]">
-                <CalendarDays className="h-5 w-5 text-[#1f4693]" aria-hidden="true" /> Company holidays {year}
-              </h2>
+            </Panel>
+            <Panel icon={CalendarDays} title={`Company holidays ${year}`} subtitle="Not counted as leave" className="lg:col-span-2">
               <Holidays holidays={current.holidays} year={year} />
-            </section>
+            </Panel>
           </div>
 
-          <section className={CARD} aria-labelledby="lv-hist">
-            <h2 id="lv-hist" className="mb-3 text-base font-bold text-[#101a3a]">
-              Leave history & approval status — {year}
-            </h2>
+          <Panel icon={ClipboardList} title={`Leave history & approval status — ${year}`} flush>
             <History requests={current.requests} onChanged={() => setReload((r) => r + 1)} />
-          </section>
+          </Panel>
         </>
       )}
     </div>
   );
 }
-

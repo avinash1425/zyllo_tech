@@ -32,7 +32,7 @@ export const TASK_STATUS = [
 
 function friendly(error, fallback) {
   const msg = error?.message ?? "";
-  if (/not on this project|assignee must be on the project team|Not an active employee/i.test(msg)) return msg;
+  if (/not on this project|assignee must be on the project team|Not an active employee|past its deadline|reason|not late|not missed its deadline/i.test(msg)) return msg;
   if (/title_check/.test(msg)) return "Task title must be 1 to 200 characters.";
   if (/due_date/.test(msg)) return "Choose a valid deadline.";
   if (/body_check/.test(msg)) return "Update must be 1 to 2000 characters.";
@@ -74,9 +74,37 @@ export async function addTask(projectId, t) {
   return { ok: true };
 }
 
-export async function setTaskStatus(taskId, status) {
-  const { error } = await supabase.rpc("ep_set_task_status", { p_task: taskId, p_status: status });
-  if (error) return { ok: false, message: friendly(error, "Could not update the task. Please try again.") };
+/**
+ * Change a task status. Marking a task Done after its deadline needs a reason
+ * (migration 244): then { ok: false, needReason: true } comes back.
+ */
+export async function setTaskStatus(taskId, status, delayReason = null) {
+  const { error } = await supabase.rpc("ep_set_task_status", {
+    p_task: taskId,
+    p_status: status,
+    p_delay_reason: delayReason ? String(delayReason).trim() : null,
+  });
+  if (error) {
+    return {
+      ok: false,
+      needReason: /past its deadline/i.test(error.message ?? ""),
+      message: friendly(error, "Could not update the task. Please try again."),
+    };
+  }
+  return { ok: true };
+}
+
+/** Why a task is late (only once it is past its deadline). */
+export async function setTaskDelayReason(taskId, reason) {
+  const { error } = await supabase.rpc("ep_set_task_delay_reason", { p_task: taskId, p_reason: String(reason ?? "").trim() });
+  if (error) return { ok: false, message: friendly(error, "Could not save the reason. Please try again.") };
+  return { ok: true };
+}
+
+/** Why the project missed its deadline (one per team member per deadline; can be edited). */
+export async function setProjectDelayReason(projectId, reason) {
+  const { error } = await supabase.rpc("ep_set_project_delay_reason", { p_project: projectId, p_reason: String(reason ?? "").trim() });
+  if (error) return { ok: false, message: friendly(error, "Could not save the reason. Please try again.") };
   return { ok: true };
 }
 

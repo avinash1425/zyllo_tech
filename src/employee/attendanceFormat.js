@@ -8,7 +8,7 @@ export const RULES_TEXT = [
   "Less than 4 hours = Leave",
   "4 hours or more, out before 7:00 PM = Half day",
   "4 hours or more, out at/after 7:00 PM = Present",
-  "Not punched out by 10:00 PM = automatic punch out at 10:00 PM",
+  "Not punched out by 8:00 PM = automatic punch out at 8:00 PM",
 ];
 
 export const STATUS = {
@@ -113,3 +113,12 @@ export function monthDays(y, m, rowsByDate, todayIso, fromIso, off) {
   }
   return out;
 }
+
+/** "YYYY-MM-DD" n days before a "YYYY-MM-DD" date. */
+export function minusDays(iso, n) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d - n)).toISOString().slice(0, 10);
+}
+
+/** Earliest day a correction can be asked for (30 days back, India time). */
+export const correctionMinDate = () => minusDays(todayIst().iso, 30);

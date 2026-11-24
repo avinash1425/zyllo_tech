@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
 import Link from "@/lib/nx/link";
-import { Check, Copy, RefreshCw, UserPlus, X } from "lucide-react";
+import { Briefcase, Check, CheckCircle2, Copy, KeyRound, RefreshCw, UserPlus, X } from "lucide-react";
 import { createEmployee, generatePassword, suggestEmployeeCode, validateNewEmployee } from "@/lib/api/admin/employees";
-import { Banner, EmploymentTypeChoice, Field, ManagerPicker } from "./ui";
-import { BTN_PRIMARY, BTN_SECONDARY, INPUT } from "./styles";
+import { EmploymentTypeChoice, Field, ManagerPicker } from "./ui";
+import { Alert } from "@/components/portal/PortalUI";
+import { BTN_PRIMARY, BTN_SECONDARY, ICON_BTN, INPUT } from "@/components/portal/portalStyles";
+
+const SECTION = "mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-[#8a90a0]";
+const SECTION_ICON = "flex h-6 w-6 items-center justify-center rounded-md bg-[#eef2fb] text-[#1f4693]";
+const DT = "text-[11px] font-bold uppercase tracking-wider text-[#9aa0ad] sm:pt-0.5";
 
 const EMPTY = {
   employee_code: "",
@@ -16,6 +21,7 @@ const EMPTY = {
   employment_type: "",
   work_location: "",
   reporting_manager_id: "",
+  reporting_manager_name: "",
 };
 
 function CopyButton({ text, label }) {
@@ -29,7 +35,7 @@ function CopyButton({ text, label }) {
           setTimeout(() => setDone(false), 1500);
         })
       }
-      className="inline-flex items-center gap-1 text-xs font-semibold text-[#1f4693] hover:underline"
+      className="inline-flex items-center gap-1 rounded-md border border-[#dce6f7] bg-white px-2 py-0.5 font-sans text-xs font-semibold text-[#1f4693] transition-colors hover:bg-[#f0f4ff]"
     >
       {done ? <Check size={13} aria-hidden="true" /> : <Copy size={13} aria-hidden="true" />}
       {done ? "Copied" : label}
@@ -100,47 +106,62 @@ export default function AddEmployeeDialog({ employees, onClose, onCreated }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#0b1633]/50 p-4 backdrop-blur-sm sm:p-8">
-      <div role="dialog" aria-modal="true" aria-labelledby="ne-title" className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl">
-        <div className="flex items-center gap-2 border-b border-[#eef0f5] px-5 py-4">
-          <UserPlus className="h-5 w-5 text-[#1f4693]" aria-hidden="true" />
-          <h2 id="ne-title" className="flex-1 text-base font-bold text-[#101a3a]">
-            {created ? "Employee added" : "Add employee"}
-          </h2>
-          <button type="button" onClick={onClose} disabled={saving} aria-label="Close" className="rounded-lg p-1.5 text-[#676b7a] hover:bg-[#f6f7fb]">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="ne-title"
+        className="w-full max-w-2xl overflow-hidden rounded-2xl border border-[#e7e9ee] bg-white shadow-[0_24px_60px_-20px_rgba(16,26,58,0.45)]"
+      >
+        <div className="relative flex items-center gap-3 border-b border-[#eef0f4] px-5 py-4">
+          <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#f7941e] via-[#f96706] to-[#1f4693]" />
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#f7941e] to-[#f96706] text-white shadow-[0_6px_14px_-6px_rgba(249,103,6,0.6)]">
+            {created ? <CheckCircle2 className="h-5 w-5" aria-hidden="true" /> : <UserPlus className="h-5 w-5" aria-hidden="true" />}
+          </span>
+          <div className="min-w-0 flex-1">
+            <h2 id="ne-title" className="text-base font-bold text-[#101a3a]">
+              {created ? "Employee added" : "Add employee"}
+            </h2>
+            <p className="text-xs text-[#676b7a]">
+              {created ? "Their Employee Portal account is ready." : "Creates their sign-in account and Employee Portal record."}
+            </p>
+          </div>
+          <button type="button" onClick={onClose} disabled={saving} aria-label="Close" className={ICON_BTN}>
             <X size={18} aria-hidden="true" />
           </button>
         </div>
 
         {created ? (
           <div className="flex flex-col gap-4 p-5">
-            <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800" role="status">
+            <Alert kind="ok">
               {created.employee.full_name} ({created.employee.employee_code}) can now sign in to the Employee Portal.
-            </p>
+            </Alert>
             {created.employee.linked_existing_account ? (
-              <p className="text-sm text-[#2b303b]">
-                This email already had a sign-in account, so it was linked. Their existing password was <b>not</b> changed.
-              </p>
+              <Alert kind="info">
+                This sign-in ID already had an account, so it was linked. Their existing password was <b>not</b> changed.
+              </Alert>
             ) : (
-              <div className="rounded-xl border border-[#eef0f5] bg-[#f9fafc] p-4 text-sm">
-                <p className="mb-3 font-semibold text-[#101a3a]">Share these sign-in details with the employee</p>
-                <dl className="grid gap-2 sm:grid-cols-[8rem_1fr]">
-                  <dt className="text-[#676b7a]">Sign-in page</dt>
-                  <dd className="font-mono">{window.location.origin}/login</dd>
-                  <dt className="text-[#676b7a]">Email</dt>
-                  <dd className="flex flex-wrap items-center gap-2 font-mono">
+              <div className="rounded-xl bg-[#f8fafd] p-4 text-sm ring-1 ring-inset ring-[#eef1f7]">
+                <p className="mb-3 flex items-center gap-2 font-semibold text-[#101a3a]">
+                  <KeyRound size={16} className="shrink-0 text-[#d9650a]" aria-hidden="true" /> Share these sign-in details with the employee
+                </p>
+                <dl className="grid gap-x-4 gap-y-2.5 sm:grid-cols-[9rem_1fr]">
+                  <dt className={DT}>Sign-in page</dt>
+                  <dd className="break-all font-mono text-[#101a3a]">{window.location.origin}/login</dd>
+                  <dt className={DT}>Sign-in ID</dt>
+                  <dd className="flex flex-wrap items-center gap-2 break-all font-mono text-[#101a3a]">
                     {created.employee.work_email} <CopyButton text={created.employee.work_email} label="Copy" />
                   </dd>
-                  <dt className="text-[#676b7a]">Temporary password</dt>
-                  <dd className="flex flex-wrap items-center gap-2 font-mono">
+                  <dt className={DT}>Temporary password</dt>
+                  <dd className="flex flex-wrap items-center gap-2 break-all font-mono text-[#101a3a]">
                     {created.password} <CopyButton text={created.password} label="Copy" />
                   </dd>
                 </dl>
-                <p className="mt-3 text-xs text-[#9aa0ad]">
-                  The password is shown only now — it is stored encrypted and cannot be seen again.
-                </p>
+                <Alert kind="warn" className="mt-4 text-xs">
+                  The password is shown only now — it is stored encrypted and cannot be seen again. The employee must change it at their first sign-in.
+                </Alert>
               </div>
             )}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 border-t border-[#eef0f4] pt-4">
               <Link href={`/admin/employees/${created.employee.id}`} className={BTN_PRIMARY}>
                 Open employee
               </Link>
@@ -151,13 +172,22 @@ export default function AddEmployeeDialog({ employees, onClose, onCreated }) {
           </div>
         ) : (
           <form onSubmit={onSubmit} noValidate className="p-5">
-            <Banner kind="err">{message}</Banner>
-            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[#9aa0ad]">Sign-in account</p>
+            {message && (
+              <Alert kind="err" className="mb-4">
+                {message}
+              </Alert>
+            )}
+            <p className={SECTION}>
+              <span className={SECTION_ICON}>
+                <KeyRound size={13} aria-hidden="true" />
+              </span>
+              Sign-in account
+            </p>
             <div className="grid gap-4 sm:grid-cols-2">
               {input("employee_code", "Employee ID", { placeholder: "e.g. ZT-001", mono: true, upper: true, hint: "Letters, numbers and dashes." })}
               {input("full_name", "Full name", { placeholder: "e.g. Ravi Kumar" })}
-              {input("email", "Work email", { type: "email", placeholder: "name@zyllotech.com", hint: "They sign in with this email." })}
-              <Field id="ne-password" label="Temporary password" error={errors.password} hint="At least 8 characters. Share it with the employee.">
+              {input("email", "Sign-in ID", { type: "email", placeholder: "name@zyllotech.com", hint: "Used only to sign in to the portal (an email address format). Nothing is emailed." })}
+              <Field id="ne-password" label="Temporary password" error={errors.password} hint="At least 6 characters with 1 uppercase, 1 number and 1 special character. They must change it at their first sign-in.">
                 <div className="flex gap-2">
                   <input
                     id="ne-password"
@@ -168,15 +198,18 @@ export default function AddEmployeeDialog({ employees, onClose, onCreated }) {
                     aria-invalid={errors.password ? "true" : undefined}
                     className={`${INPUT(errors.password)} font-mono`}
                   />
-                  <button type="button" onClick={() => set("password", generatePassword())} className={BTN_SECONDARY} aria-label="Generate a new password" title="Generate a new password">
+                  <button type="button" onClick={() => set("password", generatePassword())} className={`${BTN_SECONDARY} shrink-0 px-3`} aria-label="Generate a new password" title="Generate a new password">
                     <RefreshCw size={14} aria-hidden="true" />
                   </button>
                 </div>
               </Field>
             </div>
 
-            <p className="mb-2 mt-6 text-[11px] font-semibold uppercase tracking-wider text-[#9aa0ad]">
-              Work details <span className="normal-case tracking-normal">(can be changed later)</span>
+            <p className={`${SECTION} mt-6 border-t border-[#eef0f4] pt-5`}>
+              <span className={SECTION_ICON}>
+                <Briefcase size={13} aria-hidden="true" />
+              </span>
+              Work details <span className="font-medium normal-case tracking-normal text-[#9aa0ad]">(can be changed later)</span>
             </p>
             <div className="grid gap-4 sm:grid-cols-2">
               {input("department", "Department", { placeholder: "e.g. Engineering" })}
@@ -184,10 +217,16 @@ export default function AddEmployeeDialog({ employees, onClose, onCreated }) {
               {input("date_of_joining", "Date of joining", { type: "date" })}
               {input("work_location", "Work location", { placeholder: "e.g. Guntur office" })}
               <EmploymentTypeChoice id="ne-type" value={form.employment_type} onChange={(v) => set("employment_type", v)} />
-              <ManagerPicker employeeId={null} value={form.reporting_manager_id} onChange={(v) => set("reporting_manager_id", v)} />
+              <ManagerPicker
+                employeeId={null}
+                value={form.reporting_manager_id}
+                onChange={(v) => set("reporting_manager_id", v)}
+                name={form.reporting_manager_name}
+                onNameChange={(v) => set("reporting_manager_name", v)}
+              />
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-2">
+            <div className="mt-6 flex flex-wrap gap-2 border-t border-[#eef0f4] pt-4">
               <button type="submit" disabled={saving} className={BTN_PRIMARY}>
                 {saving ? "Adding…" : "Add employee"}
               </button>

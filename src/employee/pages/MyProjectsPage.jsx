@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import Link from "@/lib/nx/link";
-import { CalendarClock, FolderKanban, ListChecks, Users } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, CalendarClock, FolderKanban, ListChecks, ListTodo, PlayCircle, Users } from "lucide-react";
 import { getMyProjects } from "@/lib/api/employee/projects";
+import { Alert, Badge, Chips, Empty, KpiCard } from "@/components/portal/PortalUI";
+import { CARD } from "@/components/portal/portalStyles";
 import { formatDate } from "../attendanceFormat";
-import { CARD, DeadlineText, HealthChip, ProgressBar, StatusChip } from "../projectsUi";
+import { DeadlineText, HealthChip, ProgressBar, StatusChip } from "../projectsUi";
 
 const FILTERS = [
   { key: "active", label: "Active", test: (p) => ["planning", "in_progress", "on_hold"].includes(p.status) },
@@ -16,34 +18,45 @@ function ProjectCard({ p }) {
   return (
     <Link
       href={`/employee/projects/${p.id}`}
-      className={`${CARD} group flex flex-col gap-3 transition-shadow hover:shadow-[0_10px_30px_-18px_rgba(16,26,58,0.45)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1f4693]`}
+      className={`${CARD} group relative flex flex-col overflow-hidden transition-all duration-200 hover:border-[#d9dce3] hover:shadow-[0_14px_30px_-12px_rgba(16,26,58,0.22)] motion-safe:hover:-translate-y-0.5 motion-reduce:transition-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f96706]`}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <p className="font-mono text-[11px] text-[#9aa0ad]">{p.project_code}</p>
-          <h2 className="truncate text-base font-bold text-[#101a3a] group-hover:text-[#1f4693]">{p.name}</h2>
-          <p className="truncate text-xs text-[#676b7a]">{[p.client, p.project_type].filter(Boolean).join(" · ")}</p>
-        </div>
-        <StatusChip value={p.status} />
-      </div>
-      <ProgressBar value={p.progress} />
-      <div className="flex flex-wrap gap-1.5">
-        {p.health && <HealthChip value={p.health} />}
-        {p.my_role && (
-          <span className="rounded-full bg-[#f0f4ff] px-2 py-0.5 text-[11px] font-semibold text-[#1f4693]">
-            {p.i_am_lead ? "Lead · " : ""}
-            {p.my_role}
+      <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#f7941e] to-[#1f4693]" />
+      <div className="flex flex-col gap-3 p-5 pt-6">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#1f4693] to-[#3b6fd1] text-white shadow-[0_6px_14px_-4px_rgba(16,26,58,0.35)]">
+              <FolderKanban className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <div className="min-w-0">
+              <p className="font-mono text-[11px] text-[#9aa0ad]">{p.project_code}</p>
+              <h2 className="truncate text-base font-bold text-[#101a3a] group-hover:text-[#1f4693]">{p.name}</h2>
+              <p className="truncate text-xs text-[#676b7a]">{[p.client, p.project_type].filter(Boolean).join(" · ")}</p>
+            </div>
+          </div>
+          <span className="flex shrink-0 items-center gap-1.5">
+            <StatusChip value={p.status} />
+            <ArrowUpRight className="h-4 w-4 text-[#8a8f9c] transition-colors group-hover:text-[#1f4693]" aria-hidden="true" />
           </span>
-        )}
+        </div>
+        <ProgressBar value={p.progress} />
+        <div className="flex flex-wrap gap-1.5">
+          {p.health && <HealthChip value={p.health} />}
+          {p.my_role && (
+            <Badge tone="blue">
+              {p.i_am_lead ? "Lead · " : ""}
+              {p.my_role}
+            </Badge>
+          )}
+        </div>
       </div>
-      <dl className="grid grid-cols-2 gap-2 border-t border-[#f3f4f8] pt-3 text-xs">
-        <div className="flex items-center gap-1.5 text-[#4a5880]">
-          <CalendarClock className="h-3.5 w-3.5" aria-hidden="true" />
+      <dl className="mt-auto grid grid-cols-2 gap-px border-t border-[#eef1f7] bg-[#eef1f7] text-xs">
+        <div className="flex items-start gap-2 bg-[#fafbff] px-4 py-3 text-[#4a5880]">
+          <CalendarClock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#9aa0ad]" aria-hidden="true" />
           <dt className="sr-only">Deadline</dt>
-          <dd>
+          <dd className="min-w-0">
             {p.end_date ? (
               <>
-                {formatDate(p.end_date)}
+                <span className="font-semibold text-[#101a3a]">{formatDate(p.end_date)}</span>
                 <span className="block">
                   <DeadlineText iso={p.end_date} done={done} />
                 </span>
@@ -53,11 +66,14 @@ function ProjectCard({ p }) {
             )}
           </dd>
         </div>
-        <div className="flex items-center gap-1.5 text-[#4a5880]">
-          <ListChecks className="h-3.5 w-3.5" aria-hidden="true" />
+        <div className="flex items-start gap-2 bg-[#fafbff] px-4 py-3 text-[#4a5880]">
+          <ListChecks className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#9aa0ad]" aria-hidden="true" />
           <dt className="sr-only">Tasks</dt>
-          <dd>
-            {p.tasks_done}/{p.tasks_total} tasks done
+          <dd className="min-w-0">
+            <span className="font-semibold text-[#101a3a]">
+              {p.tasks_done}/{p.tasks_total}
+            </span>{" "}
+            tasks done
             {p.my_open_tasks > 0 && (
               <span className="block">
                 {p.my_open_tasks} mine open
@@ -66,12 +82,10 @@ function ProjectCard({ p }) {
             )}
           </dd>
         </div>
-        <div className="col-span-2 flex items-center gap-1.5 text-[#4a5880]">
-          <Users className="h-3.5 w-3.5" aria-hidden="true" />
+        <div className="col-span-2 flex items-center gap-2 bg-[#fafbff] px-4 py-2.5 text-[#4a5880]">
+          <Users className="h-3.5 w-3.5 shrink-0 text-[#9aa0ad]" aria-hidden="true" />
           <dt className="sr-only">Team</dt>
-          <dd>
-            {p.team_size} in team
-          </dd>
+          <dd>{p.team_size} in team</dd>
         </div>
       </dl>
     </Link>
@@ -93,7 +107,12 @@ export default function MyProjectsPage() {
     };
   }, []);
 
-  if (error) return <p role="alert" className="mx-auto max-w-6xl rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>;
+  if (error)
+    return (
+      <Alert kind="err" className="mx-auto max-w-6xl">
+        {error}
+      </Alert>
+    );
   if (!projects) return <p className="py-10 text-center text-sm text-[#676b7a]">Loading your projects…</p>;
 
   const f = FILTERS.find((x) => x.key === filter);
@@ -103,46 +122,35 @@ export default function MyProjectsPage() {
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-5">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {[
-          { label: "My projects", value: projects.length, color: "text-[#1f4693]" },
-          { label: "Active", value: projects.filter(FILTERS[0].test).length, color: "text-sky-700" },
-          { label: "My open tasks", value: openTasks, color: "text-amber-700" },
-          { label: "Overdue tasks", value: overdue, color: overdue ? "text-red-600" : "text-emerald-700" },
-        ].map((s) => (
-          <div key={s.label} className="rounded-xl border border-[#e7e9ee] bg-white px-4 py-3">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#9aa0ad]">{s.label}</p>
-            <p className={`mt-1 text-2xl font-bold tabular-nums ${s.color}`}>{s.value}</p>
-          </div>
-        ))}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <KpiCard icon={FolderKanban} accent="blue" label="My projects" value={projects.length} />
+        <KpiCard icon={PlayCircle} accent="teal" label="Active" value={projects.filter(FILTERS[0].test).length} />
+        <KpiCard icon={ListTodo} accent="orange" label="My open tasks" value={openTasks} />
+        <KpiCard icon={AlertTriangle} accent={overdue ? "red" : "green"} label="Overdue tasks" value={overdue} />
       </div>
 
       {projects.length === 0 ? (
-        <div className={`${CARD} flex flex-col items-center gap-2 py-12 text-center`}>
-          <FolderKanban className="h-10 w-10 text-[#b0b8cc]" aria-hidden="true" />
-          <p className="font-semibold text-[#101a3a]">No projects assigned yet</p>
-          <p className="max-w-sm text-sm text-[#676b7a]">When the company adds you to a project team, it will appear here.</p>
+        <div className={CARD}>
+          <Empty
+            icon={FolderKanban}
+            title="No projects assigned yet"
+            message="When the company adds you to a project team, it will appear here."
+            className="py-12"
+          />
         </div>
       ) : (
         <>
-          <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Filter projects">
-            {FILTERS.map((x) => (
-              <button
-                key={x.key}
-                type="button"
-                role="tab"
-                aria-selected={filter === x.key}
-                onClick={() => setFilter(x.key)}
-                className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${
-                  filter === x.key ? "border-[#1f4693] bg-[#1f4693] text-white" : "border-[#dce1ec] bg-white text-[#2b303b] hover:bg-[#f6f7fb]"
-                }`}
-              >
-                {x.label} ({projects.filter(x.test).length})
-              </button>
-            ))}
-          </div>
+          <Chips
+            label="Filter projects"
+            size="md"
+            value={filter}
+            onChange={setFilter}
+            items={FILTERS.map((x) => ({ key: x.key, label: x.label, count: projects.filter(x.test).length }))}
+          />
           {shown.length === 0 ? (
-            <p className="py-8 text-center text-sm text-[#676b7a]">No projects in this view.</p>
+            <div className={CARD}>
+              <Empty icon={FolderKanban} message="No projects in this view." />
+            </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {shown.map((p) => (

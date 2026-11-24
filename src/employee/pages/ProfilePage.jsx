@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Briefcase, HeartPulse, Pencil, Phone, Plus, Trash2, UserRound } from "lucide-react";
+import { Briefcase, HeartPulse, Pencil, Phone, Plus, Star, Trash2, UserRound } from "lucide-react";
 import {
   BLOOD_GROUPS,
   EMPLOYMENT_TYPES,
@@ -12,47 +12,29 @@ import {
   validateContacts,
   validatePersonal,
 } from "@/lib/api/employee/profile";
+import { Alert, Avatar, Badge, Chips, Detail, Hero, Panel } from "@/components/portal/PortalUI";
+import { BTN_PRIMARY, BTN_SECONDARY, INPUT, LABEL } from "@/components/portal/portalStyles";
 import { formatDate } from "../attendanceFormat";
-
-const CARD = "rounded-2xl border border-[#e7e9ee] bg-white p-4 shadow-[0_1px_2px_rgba(16,26,58,0.06)] sm:p-5";
-const BTN =
-  "inline-flex items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold transition-opacity disabled:cursor-not-allowed disabled:opacity-60";
-const BTN_PRIMARY = `${BTN} bg-gradient-to-r from-[#f7941e] to-[#1f4693] text-white`;
-const BTN_SECONDARY = `${BTN} border border-[#dce1ec] bg-white text-[#2b303b] hover:bg-[#f6f7fb]`;
-const INPUT = (err) =>
-  `w-full rounded-lg border bg-white px-3 py-2 text-sm text-[#2b303b] outline-none transition focus:border-[#1f4693] focus:ring-2 focus:ring-[#1f4693]/15 ${
-    err ? "border-red-400" : "border-[#dce1ec]"
-  }`;
+import MyCertificateCard from "../MyCertificateCard";
 
 const EMPTY_CONTACT = { name: "", relationship: "", phone: "", alternate_phone: "" };
 const labelOf = (list, value) => list.find((o) => o.value === value)?.label;
-const show = (v) => (v == null || v === "" ? <span className="text-[#b0b8cc]">Not added</span> : v);
+const show = (v) => (v == null || v === "" ? <span className="font-normal text-[#b0b8cc]">Not added</span> : v);
+/** Responsive grid for <Detail> tiles. */
+const DL = "grid gap-3 sm:grid-cols-2 lg:grid-cols-3";
 
-function CardHeader({ icon: Icon, title, note, action }) {
+function EditButton({ onClick, children = "Edit" }) {
   return (
-    <div className="mb-4 flex flex-wrap items-center gap-2">
-      <Icon className="h-5 w-5 text-[#1f4693]" aria-hidden="true" />
-      <h2 className="text-base font-bold text-[#101a3a]">{title}</h2>
-      {note && <span className="rounded-full bg-[#f0f4ff] px-2 py-0.5 text-[11px] font-semibold text-[#4a5880]">{note}</span>}
-      <span className="flex-1" />
-      {action}
-    </div>
-  );
-}
-
-function Item({ label, children, wide }) {
-  return (
-    <div className={wide ? "sm:col-span-2" : undefined}>
-      <dt className="text-[11px] font-semibold uppercase tracking-wider text-[#9aa0ad]">{label}</dt>
-      <dd className="mt-0.5 whitespace-pre-line break-words text-sm font-medium text-[#101a3a]">{children}</dd>
-    </div>
+    <button type="button" onClick={onClick} className={BTN_SECONDARY}>
+      <Pencil size={14} aria-hidden="true" /> {children}
+    </button>
   );
 }
 
 function Field({ id, label, error, children, wide }) {
   return (
     <div className={wide ? "sm:col-span-2" : undefined}>
-      <label htmlFor={id} className="mb-1 block text-xs font-semibold text-[#4a5880]">
+      <label htmlFor={id} className={LABEL}>
         {label}
       </label>
       {children}
@@ -65,49 +47,28 @@ function Field({ id, label, error, children, wide }) {
   );
 }
 
-/** Button group instead of a dropdown (project rule: no <select>). */
-function Choice({ id, label, options, value, onChange, wide }) {
+/** Chip group instead of a dropdown (project rule: no <select>). Click again to clear. */
+function Choice({ label, options, value, onChange, wide }) {
   return (
-    <div className={wide ? "sm:col-span-2" : undefined} role="radiogroup" aria-labelledby={`${id}-label`}>
-      <p id={`${id}-label`} className="mb-1 text-xs font-semibold text-[#4a5880]">
+    <div className={wide ? "sm:col-span-2" : undefined}>
+      <p className={LABEL} aria-hidden="true">
         {label}
       </p>
-      <div className="flex flex-wrap gap-1.5">
-        {options.map((o) => {
-          const on = value === o.value;
-          return (
-            <button
-              key={o.value}
-              type="button"
-              role="radio"
-              aria-checked={on}
-              onClick={() => onChange(on ? "" : o.value)}
-              className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors ${
-                on ? "border-[#1f4693] bg-[#1f4693] text-white" : "border-[#dce1ec] bg-white text-[#2b303b] hover:bg-[#f6f7fb]"
-              }`}
-            >
-              {o.label}
-            </button>
-          );
-        })}
-      </div>
+      <Chips
+        label={label}
+        size="md"
+        value={value}
+        onChange={(k) => onChange(value === k ? "" : k)}
+        items={options.map((o) => ({ key: o.value, label: o.label }))}
+      />
     </div>
-  );
-}
-
-function Banner({ kind, children }) {
-  if (!children) return null;
-  const cls = kind === "ok" ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-700";
-  return (
-    <p role={kind === "ok" ? "status" : "alert"} className={`mb-4 rounded-lg px-3 py-2 text-sm ${cls}`}>
-      {children}
-    </p>
   );
 }
 
 function completeness(profile) {
   const p = profile.personal ?? {};
-  const keys = ["date_of_birth", "gender", "blood_group", "marital_status", "nationality", "personal_email", "phone", "current_address", "permanent_address"];
+  // Emails are hidden for now (no email features yet), so they do not count here.
+  const keys = ["date_of_birth", "gender", "blood_group", "marital_status", "nationality", "phone", "current_address", "permanent_address"];
   const filled = keys.filter((k) => p[k]).length + (profile.emergency_contacts?.length ? 1 : 0);
   return Math.round((filled / (keys.length + 1)) * 100);
 }
@@ -116,42 +77,48 @@ function ProfileHeader({ profile }) {
   const w = profile.work;
   const pct = completeness(profile);
   return (
-    <section className={`${CARD} flex flex-col gap-4 sm:flex-row sm:items-center`}>
-      <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f7941e] to-[#1f4693] text-2xl font-bold text-white">
-        {(w.full_name?.[0] ?? "E").toUpperCase()}
-      </span>
-      <div className="min-w-0 flex-1">
-        <h2 className="truncate text-xl font-bold text-[#101a3a]">{w.full_name}</h2>
-        <p className="text-sm text-[#676b7a]">
-          {[w.designation, w.department].filter(Boolean).join(" · ") || "Designation not set"}
-        </p>
-        <p className="mt-0.5 font-mono text-xs text-[#9aa0ad]">{w.employee_code}</p>
-      </div>
-      <div className="w-full sm:w-56">
-        <div className="flex justify-between text-xs font-semibold text-[#4a5880]">
-          <span>Profile complete</span>
-          <span className="tabular-nums">{pct}%</span>
+    <Hero
+      eyebrow={w.employee_code}
+      title={
+        <span className="flex min-w-0 items-center gap-3">
+          <Avatar name={w.full_name || "E"} size="h-12 w-12 text-lg sm:h-14 sm:w-14 sm:text-xl" ring />
+          <span className="min-w-0 truncate">{w.full_name}</span>
+        </span>
+      }
+      subtitle={[w.designation, w.department].filter(Boolean).join(" · ") || "Designation not set"}
+      aside={
+        <div className="w-full rounded-xl bg-white/10 px-4 py-3 ring-1 ring-inset ring-white/15 lg:w-64">
+          <div className="flex justify-between text-xs font-semibold text-white/85">
+            <span>Profile complete</span>
+            <span className="tabular-nums">{pct}%</span>
+          </div>
+          <div
+            className="mt-2 h-2 overflow-hidden rounded-full bg-white/15"
+            role="progressbar"
+            aria-label="Profile complete"
+            aria-valuenow={pct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
+            <div className="h-full rounded-full bg-gradient-to-r from-[#f7941e] to-[#ffd29a]" style={{ width: `${pct}%` }} />
+          </div>
         </div>
-        <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[#eef0f5]">
-          <div className="h-full rounded-full bg-gradient-to-r from-[#f7941e] to-[#1f4693]" style={{ width: `${pct}%` }} />
-        </div>
-      </div>
-    </section>
+      }
+    />
   );
 }
 
 function WorkCard({ work }) {
   const m = work.manager;
   return (
-    <section className={CARD}>
-      <CardHeader icon={Briefcase} title="Work details" note="Set by the company" />
-      <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Item label="Employee ID">
+    <Panel icon={Briefcase} title="Work details" subtitle="Set by the company" action={<Badge tone="slate">Read only</Badge>}>
+      <dl className={DL}>
+        <Detail label="Employee ID">
           <span className="font-mono">{work.employee_code}</span>
-        </Item>
-        <Item label="Department">{show(work.department)}</Item>
-        <Item label="Designation">{show(work.designation)}</Item>
-        <Item label="Reporting manager">
+        </Detail>
+        <Detail label="Department">{show(work.department)}</Detail>
+        <Detail label="Designation">{show(work.designation)}</Detail>
+        <Detail label="Reporting manager">
           {m ? (
             <>
               {m.full_name}
@@ -162,13 +129,12 @@ function WorkCard({ work }) {
           ) : (
             show(null)
           )}
-        </Item>
-        <Item label="Date of joining">{show(work.date_of_joining && formatDate(work.date_of_joining))}</Item>
-        <Item label="Employment type">{show(EMPLOYMENT_TYPES[work.employment_type])}</Item>
-        <Item label="Work location">{show(work.work_location)}</Item>
-        <Item label="Work email">{show(work.work_email)}</Item>
+        </Detail>
+        <Detail label="Date of joining">{show(work.date_of_joining && formatDate(work.date_of_joining))}</Detail>
+        <Detail label="Employment type">{show(EMPLOYMENT_TYPES[work.employment_type])}</Detail>
+        <Detail label="Work location">{show(work.work_location)}</Detail>
       </dl>
-    </section>
+    </Panel>
   );
 }
 
@@ -245,80 +211,56 @@ function PersonalCard({ profile, onSaved }) {
   if (!editing) {
     return (
       <>
-        <section className={CARD}>
-          <CardHeader
-            icon={UserRound}
-            title="Personal details"
-            action={
-              <button type="button" onClick={startEdit} className={BTN_SECONDARY}>
-                <Pencil size={14} aria-hidden="true" /> Edit
-              </button>
-            }
-          />
-          <Banner kind={message.kind}>{message.text}</Banner>
-          <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Item label="Full name">{profile.work.full_name}</Item>
-            <Item label="Date of birth">{show(personal.date_of_birth && formatDate(personal.date_of_birth))}</Item>
-            <Item label="Gender">{show(labelOf(GENDERS, personal.gender))}</Item>
-            <Item label="Blood group">{show(personal.blood_group)}</Item>
-            <Item label="Marital status">{show(labelOf(MARITAL_STATUSES, personal.marital_status))}</Item>
-            <Item label="Nationality">{show(personal.nationality)}</Item>
+        <Panel icon={UserRound} title="Personal details" action={<EditButton onClick={startEdit} />}>
+          <Alert kind={message.kind || "info"} className="mb-4">
+            {message.text}
+          </Alert>
+          <dl className={DL}>
+            <Detail label="Full name">{profile.work.full_name}</Detail>
+            <Detail label="Date of birth">{show(personal.date_of_birth && formatDate(personal.date_of_birth))}</Detail>
+            <Detail label="Gender">{show(labelOf(GENDERS, personal.gender))}</Detail>
+            <Detail label="Blood group">{show(personal.blood_group)}</Detail>
+            <Detail label="Marital status">{show(labelOf(MARITAL_STATUSES, personal.marital_status))}</Detail>
+            <Detail label="Nationality">{show(personal.nationality)}</Detail>
           </dl>
-        </section>
-        <section className={CARD}>
-          <CardHeader
-            icon={Phone}
-            title="Contact information"
-            action={
-              <button type="button" onClick={startEdit} className={BTN_SECONDARY}>
-                <Pencil size={14} aria-hidden="true" /> Edit
-              </button>
-            }
-          />
-          <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Item label="Mobile number">{show(personal.phone)}</Item>
-            <Item label="Alternate number">{show(personal.alternate_phone)}</Item>
-            <Item label="Personal email">{show(personal.personal_email)}</Item>
-            <Item label="Current address" wide>
+        </Panel>
+        <Panel icon={Phone} title="Contact information" action={<EditButton onClick={startEdit} />}>
+          <dl className={DL}>
+            <Detail label="Mobile number">{show(personal.phone)}</Detail>
+            <Detail label="Alternate number">{show(personal.alternate_phone)}</Detail>
+            <Detail label="Current address" wide>
               {show(personal.current_address)}
-            </Item>
-            <Item label="Permanent address" wide>
+            </Detail>
+            <Detail label="Permanent address" wide>
               {show(personal.permanent_address)}
-            </Item>
+            </Detail>
           </dl>
-        </section>
+        </Panel>
       </>
     );
   }
 
   return (
-    <section className={CARD}>
-      <CardHeader icon={UserRound} title="Edit personal & contact details" />
-      <Banner kind={message.kind}>{message.text}</Banner>
+    <Panel icon={UserRound} title="Edit personal & contact details">
+      <Alert kind={message.kind || "info"} className="mb-4">
+        {message.text}
+      </Alert>
       <form onSubmit={onSubmit} noValidate className="grid gap-4 sm:grid-cols-2">
         <p className="text-xs text-[#676b7a] sm:col-span-2">
           Your name, department and designation are set by the company. Ask HR if they need to change.
         </p>
         {input("date_of_birth", "Date of birth", { type: "date" })}
         {input("nationality", "Nationality", { placeholder: "e.g. Indian" })}
-        <Choice id="pf-gender" label="Gender" options={GENDERS} value={form.gender} onChange={(v) => set("gender", v)} wide />
-        <Choice id="pf-blood" label="Blood group" options={BLOOD_GROUPS} value={form.blood_group} onChange={(v) => set("blood_group", v)} wide />
-        <Choice
-          id="pf-marital"
-          label="Marital status"
-          options={MARITAL_STATUSES}
-          value={form.marital_status}
-          onChange={(v) => set("marital_status", v)}
-          wide
-        />
+        <Choice label="Gender" options={GENDERS} value={form.gender} onChange={(v) => set("gender", v)} wide />
+        <Choice label="Blood group" options={BLOOD_GROUPS} value={form.blood_group} onChange={(v) => set("blood_group", v)} wide />
+        <Choice label="Marital status" options={MARITAL_STATUSES} value={form.marital_status} onChange={(v) => set("marital_status", v)} wide />
 
-        <div className="flex items-center gap-3 sm:col-span-2">
-          <span className="whitespace-nowrap text-[10px] font-bold uppercase tracking-widest text-[#b0b8cc]">Contact</span>
-          <div className="h-px flex-1 bg-[#eef2fb]" />
+        <div className="flex items-center gap-3 pt-1 sm:col-span-2">
+          <span className="whitespace-nowrap text-[10px] font-bold uppercase tracking-widest text-[#1f4693]">Contact</span>
+          <div className="h-px flex-1 bg-[#eef0f4]" />
         </div>
         {input("phone", "Mobile number", { type: "tel", inputMode: "tel", autoComplete: "tel", placeholder: "+91 98765 43210" })}
         {input("alternate_phone", "Alternate number", { type: "tel", inputMode: "tel" })}
-        {input("personal_email", "Personal email", { type: "email", autoComplete: "email", wide: true })}
         {area("current_address", "Current address")}
         <label className="flex items-center gap-2 text-sm text-[#2b303b] sm:col-span-2">
           <input type="checkbox" checked={sameAddress} onChange={(e) => setSameAddress(e.target.checked)} className="h-4 w-4 accent-[#1f4693]" />
@@ -326,7 +268,7 @@ function PersonalCard({ profile, onSaved }) {
         </label>
         {area("permanent_address", "Permanent address", sameAddress)}
 
-        <div className="flex justify-end gap-2 border-t border-[#f0f4ff] pt-4 sm:col-span-2">
+        <div className="flex flex-wrap justify-end gap-2 border-t border-[#eef0f4] pt-4 sm:col-span-2">
           <button type="button" onClick={() => setEditing(false)} disabled={saving} className={BTN_SECONDARY}>
             Cancel
           </button>
@@ -335,7 +277,7 @@ function PersonalCard({ profile, onSaved }) {
           </button>
         </div>
       </form>
-    </section>
+    </Panel>
   );
 }
 
@@ -375,53 +317,56 @@ function EmergencyCard({ profile, onSaved }) {
     setMessage({ kind: "ok", text: "Emergency contacts saved." });
   }
 
-  const header = (
-    <CardHeader
-      icon={HeartPulse}
-      title="Emergency contacts"
-      note={editing ? "1 to 3 people" : undefined}
-      action={
-        !editing && (
-          <button type="button" onClick={startEdit} className={BTN_SECONDARY}>
-            <Pencil size={14} aria-hidden="true" /> {contacts.length ? "Edit" : "Add"}
-          </button>
-        )
-      }
-    />
-  );
+  const panel = {
+    icon: HeartPulse,
+    title: "Emergency contacts",
+    subtitle: editing ? "1 to 3 people" : undefined,
+    action: !editing && <EditButton onClick={startEdit}>{contacts.length ? "Edit" : "Add"}</EditButton>,
+  };
 
   if (!editing) {
     return (
-      <section className={CARD}>
-        {header}
-        <Banner kind={message.kind}>{message.text}</Banner>
+      <Panel {...panel}>
+        <Alert kind={message.kind || "info"} className="mb-4">
+          {message.text}
+        </Alert>
         {contacts.length === 0 ? (
-          <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
-            No emergency contact yet. Please add at least one person we can call in an emergency.
-          </p>
+          <Alert kind="warn">No emergency contact yet. Please add at least one person we can call in an emergency.</Alert>
         ) : (
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {contacts.map((c, i) => (
-              <div key={`${c.name}-${i}`} className="rounded-xl border border-[#eef0f5] bg-[#fafbfc] p-4">
-                <div className="flex items-center gap-2">
-                  <p className="font-bold text-[#101a3a]">{c.name}</p>
-                  {i === 0 && <span className="rounded-full bg-[#1f4693]/10 px-2 py-0.5 text-[10px] font-bold text-[#1f4693]">Primary</span>}
+              <div key={`${c.name}-${i}`} className="flex min-w-0 gap-3 rounded-xl bg-[#f8fafd] p-4 ring-1 ring-inset ring-[#eef1f7]">
+                <Avatar name={c.name} size="h-10 w-10 text-sm" />
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="truncate font-bold text-[#101a3a]">{c.name}</p>
+                    {i === 0 && (
+                      <Badge tone="navy">
+                        <Star className="h-3 w-3" aria-hidden="true" />
+                        Primary
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-[#676b7a]">{c.relationship}</p>
+                  <p className="mt-2 flex items-center gap-1.5 text-sm tabular-nums text-[#2b303b]">
+                    <Phone className="h-3.5 w-3.5 shrink-0 text-[#9aa0ad]" aria-hidden="true" />
+                    {c.phone}
+                  </p>
+                  {c.alternate_phone && <p className="pl-5 text-sm tabular-nums text-[#676b7a]">{c.alternate_phone}</p>}
                 </div>
-                <p className="text-xs text-[#676b7a]">{c.relationship}</p>
-                <p className="mt-2 text-sm tabular-nums text-[#2b303b]">{c.phone}</p>
-                {c.alternate_phone && <p className="text-sm tabular-nums text-[#676b7a]">{c.alternate_phone}</p>}
               </div>
             ))}
           </div>
         )}
-      </section>
+      </Panel>
     );
   }
 
   return (
-    <section className={CARD}>
-      {header}
-      <Banner kind={message.kind}>{message.text}</Banner>
+    <Panel {...panel}>
+      <Alert kind={message.kind || "info"} className="mb-4">
+        {message.text}
+      </Alert>
       <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
         {list.map((c, i) => {
           const err = errors?.[i] ?? {};
@@ -441,8 +386,8 @@ function EmergencyCard({ profile, onSaved }) {
             </Field>
           );
           return (
-            <fieldset key={i} className="rounded-xl border border-[#eef0f5] p-4">
-              <legend className="px-1 text-xs font-bold text-[#4a5880]">
+            <fieldset key={i} className="min-w-0 rounded-xl border border-[#e7e9ee] bg-[#fafbff] p-4">
+              <legend className="px-1 text-[11px] font-bold uppercase tracking-wide text-[#1f4693]">
                 Contact {i + 1}
                 {i === 0 ? " (primary)" : ""}
               </legend>
@@ -459,7 +404,7 @@ function EmergencyCard({ profile, onSaved }) {
                     setList((l) => l.filter((_, j) => j !== i));
                     setErrors(null);
                   }}
-                  className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-red-600 hover:underline"
+                  className="mt-3 inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50"
                 >
                   <Trash2 size={13} aria-hidden="true" /> Remove contact {i + 1}
                 </button>
@@ -472,7 +417,7 @@ function EmergencyCard({ profile, onSaved }) {
             <Plus size={14} aria-hidden="true" /> Add another contact
           </button>
         )}
-        <div className="flex justify-end gap-2 border-t border-[#f0f4ff] pt-4">
+        <div className="flex flex-wrap justify-end gap-2 border-t border-[#eef0f4] pt-4">
           <button type="button" onClick={() => setEditing(false)} disabled={saving} className={BTN_SECONDARY}>
             Cancel
           </button>
@@ -481,7 +426,7 @@ function EmergencyCard({ profile, onSaved }) {
           </button>
         </div>
       </form>
-    </section>
+    </Panel>
   );
 }
 
@@ -501,9 +446,9 @@ export default function ProfilePage() {
 
   if (error) {
     return (
-      <p role="alert" className="mx-auto max-w-6xl rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+      <Alert kind="err" className="mx-auto max-w-6xl">
         {error}
-      </p>
+      </Alert>
     );
   }
   if (!profile) return <p className="py-10 text-center text-sm text-[#676b7a]">Loading your profile…</p>;
@@ -512,6 +457,7 @@ export default function ProfilePage() {
     <div className="mx-auto flex max-w-6xl flex-col gap-5">
       <ProfileHeader profile={profile} />
       <WorkCard work={profile.work} />
+      <MyCertificateCard isIntern={profile.work.employment_type === "intern"} />
       <PersonalCard profile={profile} onSaved={setProfile} />
       <EmergencyCard profile={profile} onSaved={setProfile} />
     </div>

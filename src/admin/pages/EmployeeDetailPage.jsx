@@ -1,41 +1,41 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Link from "@/lib/nx/link";
-import { ArrowLeft, Briefcase, HeartPulse, KeyRound, Pencil, Phone, UserRound, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  Briefcase,
+  CalendarDays,
+  ChevronRight,
+  HeartPulse,
+  KeyRound,
+  Mail,
+  MapPin,
+  Pencil,
+  Phone,
+  ShieldAlert,
+  UserRound,
+  Users,
+} from "lucide-react";
 import { getEmployee, setEmployeeAccess, updateEmployeeWork, validateWork, WORK_FIELDS } from "@/lib/api/admin/employees";
 import { EMPLOYMENT_TYPES, GENDERS, MARITAL_STATUSES } from "@/lib/api/employee/profile";
 import { formatDate, formatDateTime } from "@/employee/attendanceFormat";
-import {
-  AccessBadge,
-  Avatar,
-  Banner,
-  EmploymentTypeChoice,
-  Field,
-  ManagerPicker,
-} from "../employees/ui";
-import { BTN_DANGER, BTN_PRIMARY, BTN_SECONDARY, CARD, INPUT } from "../employees/styles";
+import { AccessBadge, EmploymentTypeChoice, Field, ManagerPicker } from "../employees/ui";
+import { Alert, Avatar, Badge, Detail, Empty, Panel } from "@/components/portal/PortalUI";
+import { BTN_DANGER, BTN_DANGER_SOFT, BTN_PRIMARY, BTN_SECONDARY, CARD, INPUT } from "@/components/portal/portalStyles";
+import CertificateCard from "../employees/CertificateCard";
 
 const labelOf = (list, value) => list.find((o) => o.value === value)?.label;
-const show = (v) => (v == null || v === "" ? <span className="text-[#b0b8cc]">Not added</span> : v);
+/** Empty values -> undefined, so <Detail> shows "Not added". */
+const val = (v) => (v == null || v === "" || v === false ? undefined : v);
+const DL = "grid gap-3 sm:grid-cols-2 lg:grid-cols-3";
+const BY_EMPLOYEE = "Filled in by the employee";
 
-function CardHeader({ icon: Icon, title, note, action }) {
+function Msg({ message }) {
+  if (!message.text) return null;
   return (
-    <div className="mb-4 flex flex-wrap items-center gap-2">
-      <Icon className="h-5 w-5 text-[#1f4693]" aria-hidden="true" />
-      <h2 className="text-base font-bold text-[#101a3a]">{title}</h2>
-      {note && <span className="rounded-full bg-[#f0f4ff] px-2 py-0.5 text-[11px] font-semibold text-[#4a5880]">{note}</span>}
-      <span className="flex-1" />
-      {action}
-    </div>
-  );
-}
-
-function Item({ label, children, wide }) {
-  return (
-    <div className={wide ? "sm:col-span-2" : undefined}>
-      <dt className="text-[11px] font-semibold uppercase tracking-wider text-[#9aa0ad]">{label}</dt>
-      <dd className="mt-0.5 whitespace-pre-line break-words text-sm font-medium text-[#101a3a]">{children}</dd>
-    </div>
+    <Alert kind={message.kind === "ok" ? "ok" : "err"} className="mb-4">
+      {message.text}
+    </Alert>
   );
 }
 
@@ -50,6 +50,7 @@ function WorkCard({ emp, onSaved }) {
     setForm({
       ...Object.fromEntries(WORK_FIELDS.map((k) => [k, emp[k] ?? ""])),
       reporting_manager_id: emp.manager?.id ?? "",
+      reporting_manager_name: emp.manager_name ?? "",
     });
     setErrors({});
     setMessage({ kind: "", text: "" });
@@ -94,21 +95,28 @@ function WorkCard({ emp, onSaved }) {
 
   if (editing) {
     return (
-      <section className={CARD}>
-        <CardHeader icon={Briefcase} title="Work details" note="Shown read-only in the employee's My Profile" />
-        <Banner kind={message.kind}>{message.text}</Banner>
+      <Panel icon={Briefcase} title="Work details" subtitle="Editing — shown read-only in the employee's My Profile" className="ring-2 ring-[#1f4693]/10">
+        <Msg message={message} />
         <form onSubmit={onSubmit} noValidate className="grid gap-4 sm:grid-cols-2">
-          <Item label="Employee ID">
-            <span className="font-mono">{emp.employee_code}</span>
-          </Item>
+          <dl>
+            <Detail label="Employee ID">
+              <span className="font-mono">{emp.employee_code}</span>
+            </Detail>
+          </dl>
           {input("full_name", "Full name")}
           {input("department", "Department", { placeholder: "e.g. Engineering" })}
           {input("designation", "Designation", { placeholder: "e.g. Software Developer" })}
           {input("date_of_joining", "Date of joining", { type: "date" })}
           {input("work_location", "Work location", { placeholder: "e.g. Guntur office" })}
           <EmploymentTypeChoice id="wk-type" value={form.employment_type} onChange={(v) => set("employment_type", v)} />
-          <ManagerPicker employeeId={emp.id} value={form.reporting_manager_id} onChange={(v) => set("reporting_manager_id", v)} />
-          <div className="flex flex-wrap gap-2 sm:col-span-2">
+          <ManagerPicker
+            employeeId={emp.id}
+            value={form.reporting_manager_id}
+            onChange={(v) => set("reporting_manager_id", v)}
+            name={form.reporting_manager_name ?? ""}
+            onNameChange={(v) => set("reporting_manager_name", v)}
+          />
+          <div className="flex flex-wrap gap-2 border-t border-[#eef0f4] pt-4 sm:col-span-2">
             <button type="submit" disabled={saving} className={BTN_PRIMARY}>
               {saving ? "Saving…" : "Save work details"}
             </button>
@@ -117,32 +125,31 @@ function WorkCard({ emp, onSaved }) {
             </button>
           </div>
         </form>
-      </section>
+      </Panel>
     );
   }
 
   const m = emp.manager;
   return (
-    <section className={CARD}>
-      <CardHeader
-        icon={Briefcase}
-        title="Work details"
-        note="Shown read-only in the employee's My Profile"
-        action={
-          <button type="button" onClick={startEdit} className={BTN_SECONDARY}>
-            <Pencil size={14} aria-hidden="true" /> Edit
-          </button>
-        }
-      />
-      <Banner kind={message.kind}>{message.text}</Banner>
-      <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Item label="Employee ID">
+    <Panel
+      icon={Briefcase}
+      title="Work details"
+      subtitle="Shown read-only in the employee's My Profile"
+      action={
+        <button type="button" onClick={startEdit} className={BTN_SECONDARY}>
+          <Pencil size={14} aria-hidden="true" /> Edit
+        </button>
+      }
+    >
+      <Msg message={message} />
+      <dl className={DL}>
+        <Detail label="Employee ID">
           <span className="font-mono">{emp.employee_code}</span>
-        </Item>
-        <Item label="Full name">{emp.full_name}</Item>
-        <Item label="Department">{show(emp.department)}</Item>
-        <Item label="Designation">{show(emp.designation)}</Item>
-        <Item label="Reporting manager">
+        </Detail>
+        <Detail label="Full name">{emp.full_name}</Detail>
+        <Detail label="Department">{val(emp.department)}</Detail>
+        <Detail label="Designation">{val(emp.designation)}</Detail>
+        <Detail label="Reporting manager">
           {m ? (
             <Link href={`/admin/employees/${m.id}`} className="hover:text-[#1f4693] hover:underline">
               {m.full_name}
@@ -151,19 +158,21 @@ function WorkCard({ emp, onSaved }) {
                 {!m.is_active && " · access off"}
               </span>
             </Link>
-          ) : (
-            show(null)
-          )}
-        </Item>
-        <Item label="Date of joining">{show(emp.date_of_joining && formatDate(emp.date_of_joining))}</Item>
-        <Item label="Employment type">{show(EMPLOYMENT_TYPES[emp.employment_type])}</Item>
-        <Item label="Work location">{show(emp.work_location)}</Item>
-        <Item label="Work email">{show(emp.work_email)}</Item>
-        <Item label="Account status">
+          ) : emp.manager_name ? (
+            <>
+              {emp.manager_name}
+              <span className="block text-xs font-normal text-amber-700">Not in the portal</span>
+            </>
+          ) : undefined}
+        </Detail>
+        <Detail label="Date of joining">{val(emp.date_of_joining && formatDate(emp.date_of_joining))}</Detail>
+        <Detail label="Employment type">{val(EMPLOYMENT_TYPES[emp.employment_type])}</Detail>
+        <Detail label="Work location">{val(emp.work_location)}</Detail>
+        <Detail label="Account status">
           <AccessBadge active={emp.is_active} />
-        </Item>
+        </Detail>
       </dl>
-    </section>
+    </Panel>
   );
 }
 
@@ -186,24 +195,31 @@ function AccessCard({ emp, onSaved }) {
   }
 
   return (
-    <section className={CARD}>
-      <CardHeader icon={KeyRound} title="Portal access" />
-      <Banner kind={message.kind}>{message.text}</Banner>
-      <dl className="grid gap-4 sm:grid-cols-3">
-        <Item label="Status">
+    <Panel icon={KeyRound} title="Portal access" subtitle="Sign-in to the Employee Portal" action={<AccessBadge active={emp.is_active} />}>
+      <Msg message={message} />
+      <dl className="grid gap-3 sm:grid-cols-3">
+        <Detail label="Status">
           <AccessBadge active={emp.is_active} />
-        </Item>
-        <Item label="Last sign-in">{show(emp.last_sign_in_at && formatDateTime(emp.last_sign_in_at))}</Item>
-        <Item label="Right now">
-          {emp.is_active && emp.punched_in ? "Punched in" : <span className="text-[#676b7a]">Not punched in</span>}
-        </Item>
+        </Detail>
+        <Detail label="Last sign-in">{val(emp.last_sign_in_at && formatDateTime(emp.last_sign_in_at))}</Detail>
+        <Detail label="Right now">
+          {emp.is_active && emp.punched_in ? (
+            <Badge tone="blue" dot>
+              Punched in
+            </Badge>
+          ) : (
+            <span className="font-normal text-[#676b7a]">Not punched in</span>
+          )}
+        </Detail>
       </dl>
-      <div className="mt-4 border-t border-[#f0f2f6] pt-4">
+      <div className="mt-5 border-t border-[#eef0f4] pt-4">
         {emp.is_active ? (
           confirming ? (
-            <div className="rounded-lg bg-red-50 p-3 text-sm text-red-800">
-              <p className="font-semibold">Turn off portal access for {emp.full_name}?</p>
-              <p className="mt-1 text-xs">
+            <div role="alertdialog" aria-labelledby="access-off-title" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+              <p id="access-off-title" className="flex items-center gap-2 font-semibold">
+                <ShieldAlert size={16} aria-hidden="true" /> Turn off portal access for {emp.full_name}?
+              </p>
+              <p className="mt-1 text-xs leading-relaxed">
                 They will not be able to use the Employee Portal (punch in, reports, leave, notifications).
                 {emp.punched_in && " Their current punch-in session will be closed now."}
                 {emp.reports_count > 0 &&
@@ -220,7 +236,7 @@ function AccessCard({ emp, onSaved }) {
               </div>
             </div>
           ) : (
-            <button type="button" onClick={() => setConfirming(true)} className={`${BTN_SECONDARY} text-red-700`}>
+            <button type="button" onClick={() => setConfirming(true)} className={BTN_DANGER_SOFT}>
               Turn off portal access
             </button>
           )
@@ -230,30 +246,33 @@ function AccessCard({ emp, onSaved }) {
           </button>
         )}
       </div>
-    </section>
+    </Panel>
   );
 }
 
 function TeamCard({ reports }) {
   if (!reports?.length) return null;
   return (
-    <section className={CARD}>
-      <CardHeader icon={Users} title="Reports to this employee" note={String(reports.length)} />
-      <ul className="flex flex-col divide-y divide-[#f0f2f6]">
+    <Panel icon={Users} title="Reports to this employee" action={<Badge tone="blue">{reports.length}</Badge>}>
+      <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {reports.map((r) => (
           <li key={r.id}>
-            <Link href={`/admin/employees/${r.id}`} className="flex items-center gap-3 py-2 hover:text-[#1f4693]">
-              <Avatar name={r.full_name} size="h-8 w-8 text-xs" />
+            <Link
+              href={`/admin/employees/${r.id}`}
+              className="group flex items-center gap-3 rounded-xl border border-[#eef1f7] bg-[#fbfcfe] p-3 transition-colors hover:border-[#1f4693]/25 hover:bg-[#f4f7ff]"
+            >
+              <Avatar name={r.full_name} size="h-9 w-9 text-xs" />
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-semibold">{r.full_name}</span>
-                <span className="block text-xs text-[#676b7a]">{[r.designation, r.employee_code].filter(Boolean).join(" · ")}</span>
+                <span className="block truncate text-sm font-semibold text-[#101a3a] group-hover:text-[#1f4693]">{r.full_name}</span>
+                <span className="block truncate text-xs text-[#676b7a]">{[r.designation, r.employee_code].filter(Boolean).join(" · ")}</span>
               </span>
               {!r.is_active && <AccessBadge active={false} />}
+              <ChevronRight size={15} className="shrink-0 text-[#c4cad6] group-hover:text-[#1f4693]" aria-hidden="true" />
             </Link>
           </li>
         ))}
       </ul>
-    </section>
+    </Panel>
   );
 }
 
@@ -262,51 +281,114 @@ function PersonalCards({ emp }) {
   const contacts = emp.emergency_contacts ?? [];
   return (
     <>
-      <section className={CARD}>
-        <CardHeader icon={UserRound} title="Personal details" note="Filled in by the employee" />
-        <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Item label="Date of birth">{show(p.date_of_birth && formatDate(p.date_of_birth))}</Item>
-          <Item label="Gender">{show(labelOf(GENDERS, p.gender))}</Item>
-          <Item label="Blood group">{show(p.blood_group)}</Item>
-          <Item label="Marital status">{show(labelOf(MARITAL_STATUSES, p.marital_status))}</Item>
-          <Item label="Nationality">{show(p.nationality)}</Item>
+      <Panel icon={UserRound} title="Personal details" subtitle={BY_EMPLOYEE}>
+        <dl className={DL}>
+          <Detail label="Date of birth">{val(p.date_of_birth && formatDate(p.date_of_birth))}</Detail>
+          <Detail label="Gender">{val(labelOf(GENDERS, p.gender))}</Detail>
+          <Detail label="Blood group">{val(p.blood_group)}</Detail>
+          <Detail label="Marital status">{val(labelOf(MARITAL_STATUSES, p.marital_status))}</Detail>
+          <Detail label="Nationality">{val(p.nationality)}</Detail>
         </dl>
-      </section>
-      <section className={CARD}>
-        <CardHeader icon={Phone} title="Contact information" note="Filled in by the employee" />
-        <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Item label="Mobile number">{show(p.phone)}</Item>
-          <Item label="Alternate number">{show(p.alternate_phone)}</Item>
-          <Item label="Personal email">{show(p.personal_email)}</Item>
-          <Item label="Current address" wide>
-            {show(p.current_address)}
-          </Item>
-          <Item label="Permanent address">{show(p.permanent_address)}</Item>
+      </Panel>
+      <Panel icon={Phone} title="Contact information" subtitle={BY_EMPLOYEE}>
+        <dl className={DL}>
+          <Detail label="Mobile number">{val(p.phone)}</Detail>
+          <Detail label="Alternate number">{val(p.alternate_phone)}</Detail>
+          <Detail label="Current address" wide>
+            {val(p.current_address)}
+          </Detail>
+          <Detail label="Permanent address">{val(p.permanent_address)}</Detail>
         </dl>
-      </section>
-      <section className={CARD}>
-        <CardHeader icon={HeartPulse} title="Emergency contacts" note="Filled in by the employee" />
+      </Panel>
+      <Panel icon={HeartPulse} title="Emergency contacts" subtitle={BY_EMPLOYEE}>
         {contacts.length === 0 ? (
-          <p className="text-sm text-[#b0b8cc]">Not added</p>
+          <Empty icon={HeartPulse} title="Not added" message="The employee has not added emergency contacts yet." className="py-6" />
         ) : (
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {contacts.map((c, i) => (
-              <li key={i} className="rounded-xl border border-[#eef0f5] p-3">
-                <p className="text-sm font-semibold text-[#101a3a]">
-                  {c.name}
-                  {i === 0 && (
-                    <span className="ml-2 rounded-full bg-[#fff4e6] px-2 py-0.5 text-[10px] font-semibold text-[#d9650a]">Primary</span>
-                  )}
-                </p>
-                <p className="text-xs text-[#676b7a]">{c.relationship}</p>
-                <p className="mt-1 text-sm tabular-nums text-[#2b303b]">{c.phone}</p>
-                {c.alternate_phone && <p className="text-xs tabular-nums text-[#676b7a]">{c.alternate_phone}</p>}
+              <li
+                key={i}
+                className={`rounded-xl p-4 ring-1 ring-inset ${i === 0 ? "bg-[#fffaf3] ring-[#f7941e]/25" : "bg-[#f8fafd] ring-[#eef1f7]"}`}
+              >
+                <div className="flex items-start gap-3">
+                  <Avatar name={c.name} size="h-9 w-9 text-xs" />
+                  <div className="min-w-0 flex-1">
+                    <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-[#101a3a]">
+                      <span className="break-words">{c.name}</span>
+                      {i === 0 && <Badge tone="orange">Primary</Badge>}
+                    </p>
+                    <p className="text-xs text-[#676b7a]">{c.relationship}</p>
+                    <p className="mt-2 flex items-center gap-1.5 text-sm tabular-nums text-[#2b303b]">
+                      <Phone size={13} className="text-[#9aa0ad]" aria-hidden="true" />
+                      {c.phone}
+                    </p>
+                    {c.alternate_phone && <p className="ml-[19px] text-xs tabular-nums text-[#676b7a]">{c.alternate_phone}</p>}
+                  </div>
+                </div>
               </li>
             ))}
           </ul>
         )}
-      </section>
+      </Panel>
     </>
+  );
+}
+
+function Fact({ icon: Icon, label, children }) {
+  return (
+    <div className="flex min-w-0 items-center gap-2.5">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#eef2fb] text-[#1f4693]">
+        <Icon size={15} aria-hidden="true" />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-[10px] font-bold uppercase tracking-wider text-[#9aa0ad]">{label}</span>
+        <span className="block truncate text-[13px] font-semibold text-[#101a3a]">{children ?? <span className="font-normal text-[#b0b8cc]">Not added</span>}</span>
+      </span>
+    </div>
+  );
+}
+
+function ProfileHeader({ emp }) {
+  return (
+    <section className={`${CARD} overflow-hidden`}>
+      <div aria-hidden="true" className="relative h-20 bg-gradient-to-br from-[#101a3a] via-[#173a52] to-[#3089a6] sm:h-24">
+        <div className="absolute -right-6 -top-12 h-40 w-40 rounded-full bg-[#f7941e]/40 blur-[60px]" />
+      </div>
+      <div className="px-5 pb-5">
+        <div className="relative z-10 -mt-10 flex flex-col gap-3 sm:-mt-12 sm:flex-row sm:items-end">
+          <span className="rounded-full bg-white p-1 shadow-[0_6px_16px_-6px_rgba(16,26,58,0.35)] self-start">
+            <Avatar name={emp.full_name} size="h-20 w-20 text-2xl sm:h-24 sm:w-24 sm:text-3xl" />
+          </span>
+          <div className="min-w-0 flex-1 sm:pb-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="min-w-0 break-words text-xl font-bold tracking-tight text-[#101a3a] sm:text-2xl">{emp.full_name}</h1>
+              <AccessBadge active={emp.is_active} />
+              {emp.is_active && emp.punched_in && <Badge tone="blue">Punched in now</Badge>}
+            </div>
+            <p className="mt-0.5 text-sm text-[#676b7a]">
+              {[emp.designation, emp.department].filter(Boolean).join(" · ") || "Designation not set"}
+            </p>
+          </div>
+          <span className="self-start rounded-lg bg-[#f6f7fb] px-2.5 py-1 font-mono text-xs font-semibold text-[#4a5068] ring-1 ring-inset ring-[#e7e9ee] sm:self-end sm:mb-1">
+            {emp.employee_code}
+          </span>
+        </div>
+        <div className="mt-5 grid gap-3 border-t border-[#eef0f4] pt-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Fact icon={Briefcase} label="Employment type">
+            {val(EMPLOYMENT_TYPES[emp.employment_type])}
+          </Fact>
+          <Fact icon={CalendarDays} label="Joined">
+            {val(emp.date_of_joining && formatDate(emp.date_of_joining))}
+          </Fact>
+          <Fact icon={Users} label="Reports to">
+            {emp.manager?.full_name ?? emp.manager_name}
+          </Fact>
+          <Fact icon={MapPin} label="Work location">
+            {val(emp.work_location)}
+          </Fact>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -339,17 +421,22 @@ export default function EmployeeDetailPage() {
   }, [employeeId]);
 
   const back = (
-    <Link href="/admin/employees" className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#1f4693] hover:underline">
+    <Link href="/admin/employees" className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-[#1f4693] hover:underline">
       <ArrowLeft size={16} aria-hidden="true" /> All employees
     </Link>
   );
 
-  if (emp === undefined) return <p className="text-sm text-[#676b7a]">Loading…</p>;
+  if (emp === undefined)
+    return (
+      <p role="status" className="text-sm text-[#676b7a]">
+        Loading…
+      </p>
+    );
   if (!emp) {
     return (
       <div className="flex flex-col gap-4">
         {back}
-        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+        <Alert kind="err">{error}</Alert>
       </div>
     );
   }
@@ -357,21 +444,13 @@ export default function EmployeeDetailPage() {
   return (
     <div className="flex flex-col gap-5">
       {back}
-      <section className={`${CARD} flex flex-col gap-4 sm:flex-row sm:items-center`}>
-        <Avatar name={emp.full_name} size="h-16 w-16 text-2xl" />
-        <div className="min-w-0 flex-1">
-          <h1 className="truncate text-xl font-bold text-[#101a3a]">{emp.full_name}</h1>
-          <p className="text-sm text-[#676b7a]">
-            {[emp.designation, emp.department].filter(Boolean).join(" · ") || "Designation not set"}
-          </p>
-          <p className="mt-0.5 font-mono text-xs text-[#9aa0ad]">{emp.employee_code}</p>
-        </div>
-        <AccessBadge active={emp.is_active} />
-      </section>
-      <WorkCard key={`w-${emp.id}`} emp={emp} onSaved={setEmp} />
-      <AccessCard key={`a-${emp.id}`} emp={emp} onSaved={setEmp} />
-      <TeamCard reports={emp.direct_reports} />
+      <ProfileHeader emp={emp} />
+      {/* Order: personal, contact, emergency contacts, work details, certificate, team, portal access. */}
       <PersonalCards emp={emp} />
+      <WorkCard key={`w-${emp.id}`} emp={emp} onSaved={setEmp} />
+      <CertificateCard emp={emp} />
+      <TeamCard reports={emp.direct_reports} />
+      <AccessCard key={`a-${emp.id}`} emp={emp} onSaved={setEmp} />
     </div>
   );
 }

@@ -20,9 +20,13 @@ import {
   ClipboardList,
   Building2,
   KeyRound,
-  Megaphone,
   UsersRound,
   UserCog,
+  ListChecks,
+  CalendarCheck,
+  Palmtree,
+  FileText,
+  BellRing,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import AdminSearch from "./AdminSearch";
@@ -73,7 +77,11 @@ const NAV_SECTIONS = [
     items: [
       { href: "/admin/employee-portal", label: "Employee Portal", icon: UsersRound, exact: true },
       { href: "/admin/employees", label: "Employee Management", icon: UserCog },
-      { href: "/admin/employee-messages", label: "Employee Messages", icon: Megaphone },
+      { href: "/admin/project-management", label: "Project Management", icon: ListChecks },
+      { href: "/admin/attendance", label: "Attendance Management", icon: CalendarCheck },
+      { href: "/admin/leave", label: "Leave Management", icon: Palmtree },
+      { href: "/admin/reports", label: "Daily Work Reports", icon: FileText },
+      { href: "/admin/notifications", label: "Notifications Management", icon: BellRing },
     ],
   },
 ];

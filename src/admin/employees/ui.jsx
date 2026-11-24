@@ -3,37 +3,31 @@ import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { listEmployees } from "@/lib/api/admin/employees";
 import { EMPLOYMENT_OPTIONS, INPUT } from "./styles";
+import { Alert, Avatar as KitAvatar, Badge } from "@/components/portal/PortalUI";
 
 export function AccessBadge({ active }) {
   return active ? (
-    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
-      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" /> Active
-    </span>
+    <Badge tone="green" dot>
+      Active
+    </Badge>
   ) : (
-    <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-700">
-      <span className="h-1.5 w-1.5 rounded-full bg-red-500" aria-hidden="true" /> Access off
-    </span>
+    <Badge tone="red" dot>
+      Access off
+    </Badge>
   );
 }
 
-export function Avatar({ name, size = "h-9 w-9 text-sm" }) {
-  return (
-    <span
-      className={`flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#f7941e] to-[#1f4693] font-bold text-white ${size}`}
-      aria-hidden="true"
-    >
-      {(name?.[0] ?? "E").toUpperCase()}
-    </span>
-  );
+/** Initials avatar (Portal UI kit). */
+export function Avatar({ name, size }) {
+  return <KitAvatar name={name} size={size} />;
 }
 
+/** Message strip: kind "ok" | "err". */
 export function Banner({ kind, children }) {
-  if (!children) return null;
-  const cls = kind === "ok" ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-700";
   return (
-    <p role={kind === "ok" ? "status" : "alert"} className={`mb-4 rounded-lg px-3 py-2 text-sm ${cls}`}>
+    <Alert kind={kind === "ok" ? "ok" : "err"} className="mb-4">
       {children}
-    </p>
+    </Alert>
   );
 }
 
@@ -85,7 +79,11 @@ export function EmploymentTypeChoice({ id, value, onChange }) {
 }
 
 /** Pick the reporting manager from the active employees (search + buttons; no dropdown). */
-export function ManagerPicker({ employeeId, value, onChange }) {
+/**
+ * Reporting manager: pick an employee from the portal, OR type a name when the manager
+ * has no portal account (migration 250). Picking one clears the other.
+ */
+export function ManagerPicker({ employeeId, value, onChange, name = "", onNameChange }) {
   const [all, setAll] = useState(null);
   const [query, setQuery] = useState("");
   useEffect(() => {
@@ -119,6 +117,17 @@ export function ManagerPicker({ employeeId, value, onChange }) {
               Remove
             </button>
           </>
+        ) : name.trim() ? (
+          <>
+            <span className="font-semibold text-[#101a3a]">{name.trim()}</span>
+            <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800 ring-1 ring-inset ring-amber-600/20">
+              Not in the portal
+            </span>
+            <span className="flex-1" />
+            <button type="button" onClick={() => onNameChange?.("")} className="text-xs font-semibold text-red-600 hover:underline">
+              Remove
+            </button>
+          </>
         ) : (
           <span className="text-[#9aa0ad]">No reporting manager</span>
         )}
@@ -146,6 +155,7 @@ export function ManagerPicker({ employeeId, value, onChange }) {
                 type="button"
                 onClick={() => {
                   onChange(e.id);
+                  onNameChange?.("");
                   setQuery("");
                 }}
                 className="rounded-lg border border-[#dce1ec] bg-white px-3 py-1.5 text-left text-xs hover:border-[#1f4693] hover:bg-[#f0f4ff]"
@@ -156,6 +166,27 @@ export function ManagerPicker({ employeeId, value, onChange }) {
             </li>
           ))}
         </ul>
+      )}
+      {onNameChange && (
+        <div className="mt-3 rounded-lg border border-dashed border-[#dce1ec] bg-white p-3">
+          <label htmlFor={`mgr-name-${employeeId ?? "new"}`} className="mb-1 block text-xs font-semibold text-[#4a5880]">
+            Manager not in the portal? Type the name
+          </label>
+          <input
+            id={`mgr-name-${employeeId ?? "new"}`}
+            value={name}
+            maxLength={120}
+            onChange={(e) => {
+              onNameChange(e.target.value);
+              if (e.target.value.trim() && value) onChange("");
+            }}
+            placeholder="e.g. Ravi Kumar (Team Lead)"
+            className={INPUT(false)}
+          />
+          <p className="mt-1 text-[11px] text-[#9aa0ad]">
+            Shown to the employee as their reporting manager. Their daily reports and leave then go to the admin for review.
+          </p>
+        </div>
       )}
     </div>
   );

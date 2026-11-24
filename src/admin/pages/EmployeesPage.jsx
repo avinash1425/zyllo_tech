@@ -1,18 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "@/lib/nx/link";
-import { ChevronRight, Search, UserCog, UserPlus } from "lucide-react";
+import { ChevronRight, ShieldOff, UserCheck, UserCog, UserPlus, UsersRound } from "lucide-react";
 import PageHeader from "../PageHeader";
 import { listEmployees } from "@/lib/api/admin/employees";
 import { EMPLOYMENT_TYPES } from "@/lib/api/employee/profile";
-import { AccessBadge, Avatar } from "../employees/ui";
-import { BTN_PRIMARY } from "../employees/styles";
+import { AccessBadge } from "../employees/ui";
+import { Alert, Avatar, Badge, Chips, Empty, MetricStrip, TableCard } from "@/components/portal/PortalUI";
+import { BTN_PRIMARY, ICON_BTN, TABLE, TABLE_WRAP, TD, TH, TR } from "@/components/portal/portalStyles";
 import AddEmployeeDialog from "../employees/AddEmployeeDialog";
 
-const CARD = "rounded-2xl border border-[#e7e9ee] bg-white shadow-[0_1px_2px_rgba(16,26,58,0.06)]";
 const FILTERS = [
-  { key: "all", label: "All" },
-  { key: "active", label: "Active" },
-  { key: "disabled", label: "Access off" },
+  { key: "all", label: "All", icon: UsersRound, color: "#1f4693" },
+  { key: "active", label: "Active", icon: UserCheck, color: "#059669" },
+  { key: "disabled", label: "Access off", icon: ShieldOff, color: "#dc2626" },
 ];
 
 const dash = (v) => v || <span className="text-[#b0b8cc]">—</span>;
@@ -50,7 +50,7 @@ export default function EmployeesPage() {
       if (filter === "active" && !e.is_active) return false;
       if (filter === "disabled" && e.is_active) return false;
       if (!q) return true;
-      return [e.full_name, e.employee_code, e.department, e.designation, e.work_email, e.manager?.full_name, EMPLOYMENT_TYPES[e.employment_type]]
+      return [e.full_name, e.employee_code, e.department, e.designation, e.work_email, e.manager?.full_name, e.manager_name, EMPLOYMENT_TYPES[e.employment_type]]
         .filter(Boolean)
         .some((s) => s.toLowerCase().includes(q));
     });
@@ -69,52 +69,50 @@ export default function EmployeesPage() {
         }
       />
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="relative w-full sm:max-w-xs">
-          <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#9aa0ad]" aria-hidden="true" />
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search name, ID, department…"
-            aria-label="Search employees"
-            className="w-full rounded-lg border border-[#dce1ec] bg-white py-2 pl-9 pr-3 text-sm text-[#2b303b] outline-none focus:border-[#1f4693] focus:ring-2 focus:ring-[#1f4693]/15"
-          />
-        </div>
-        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter by portal access">
-          {FILTERS.map((f) => (
-            <button
-              key={f.key}
-              type="button"
-              aria-pressed={filter === f.key}
-              onClick={() => setFilter(f.key)}
-              className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors ${
-                filter === f.key
-                  ? "border-[#1f4693] bg-[#1f4693] text-white"
-                  : "border-[#dce1ec] bg-white text-[#2b303b] hover:bg-[#f6f7fb]"
-              }`}
-            >
-              {f.label} <span className="tabular-nums opacity-75">({counts[f.key]})</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      <MetricStrip
+        items={FILTERS.map((f) => ({ ...f, value: rows === null ? "—" : counts[f.key] }))}
+        selected={filter}
+        onSelect={setFilter}
+      />
 
-      <section className={CARD}>
+      <TableCard
+        title="Employees"
+        count={rows === null ? null : shown.length}
+        total={rows === null ? null : rows.length}
+        search={query}
+        onSearch={setQuery}
+        searchPlaceholder="Search name, ID, department…"
+        filters={
+          <Chips
+            label="Filter by portal access"
+            value={filter}
+            onChange={setFilter}
+            items={FILTERS.map((f) => ({ key: f.key, label: f.label, count: rows === null ? null : counts[f.key] }))}
+          />
+        }
+      >
         {error ? (
-          <p role="alert" className="p-5 text-sm text-red-700">{error}</p>
+          <div className="p-5">
+            <Alert kind="err">{error}</Alert>
+          </div>
         ) : rows === null ? (
-          <p className="p-5 text-sm text-[#676b7a]">Loading employees…</p>
+          <p role="status" className="p-5 text-sm text-[#676b7a]">
+            Loading employees…
+          </p>
         ) : shown.length === 0 ? (
-          <p className="p-5 text-sm text-[#676b7a]">{rows.length ? "No employees match." : "No employees yet. Click “Add employee” to add the first one."}</p>
+          <Empty
+            icon={UsersRound}
+            title={rows.length ? "No employees match." : "No employees yet."}
+            message={rows.length ? "Try a different search or filter." : "Click “Add employee” to add the first one."}
+          />
         ) : (
           <>
             {/* Phones: cards */}
             <ul className="divide-y divide-[#f0f2f6] md:hidden">
               {shown.map((e) => (
                 <li key={e.id}>
-                  <Link href={`/admin/employees/${e.id}`} className="flex items-center gap-3 p-4 hover:bg-[#f9fafc]">
-                    <Avatar name={e.full_name} />
+                  <Link href={`/admin/employees/${e.id}`} className="flex items-center gap-3 px-5 py-4 transition-colors hover:bg-[#f8fafd]">
+                    <Avatar name={e.full_name} size="h-10 w-10 text-sm" />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold text-[#101a3a]">{e.full_name}</p>
                       <p className="truncate text-xs text-[#676b7a]">
@@ -122,31 +120,36 @@ export default function EmployeesPage() {
                         {[e.designation, e.department, EMPLOYMENT_TYPES[e.employment_type]].filter(Boolean).length > 0 && " · "}
                         {[e.designation, e.department, EMPLOYMENT_TYPES[e.employment_type]].filter(Boolean).join(" · ")}
                       </p>
-                      <div className="mt-1"><AccessBadge active={e.is_active} /></div>
+                      <div className="mt-1.5 flex flex-wrap gap-1">
+                        <AccessBadge active={e.is_active} />
+                        {e.is_active && e.punched_in && <Badge tone="blue">Punched in now</Badge>}
+                      </div>
                     </div>
-                    <ChevronRight size={16} className="text-[#b0b8cc]" aria-hidden="true" />
+                    <ChevronRight size={16} className="shrink-0 text-[#b0b8cc]" aria-hidden="true" />
                   </Link>
                 </li>
               ))}
             </ul>
             {/* Larger screens: table */}
-            <div className="hidden overflow-x-auto md:block">
-              <table className="w-full text-left text-sm">
+            <div className={`hidden md:block ${TABLE_WRAP}`}>
+              <table className={TABLE}>
                 <thead>
-                  <tr className="border-b border-[#eef0f5] text-[11px] font-semibold uppercase tracking-wider text-[#9aa0ad]">
-                    <th className="px-5 py-3">Employee</th>
-                    <th className="px-3 py-3">Department</th>
-                    <th className="px-3 py-3">Designation</th>
-                    <th className="px-3 py-3">Employment type</th>
-                    <th className="px-3 py-3">Reporting manager</th>
-                    <th className="px-3 py-3">Status</th>
-                    <th className="px-3 py-3"><span className="sr-only">Open</span></th>
+                  <tr>
+                    <th scope="col" className={`${TH} pl-5`}>Employee</th>
+                    <th scope="col" className={TH}>Department</th>
+                    <th scope="col" className={TH}>Designation</th>
+                    <th scope="col" className={TH}>Employment type</th>
+                    <th scope="col" className={TH}>Reporting manager</th>
+                    <th scope="col" className={TH}>Status</th>
+                    <th scope="col" className={`${TH} text-right`}>
+                      <span className="sr-only">Open</span>
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#f0f2f6]">
+                <tbody>
                   {shown.map((e) => (
-                    <tr key={e.id} className="group hover:bg-[#f9fafc]">
-                      <td className="px-5 py-3">
+                    <tr key={e.id} className={`group ${TR}`}>
+                      <td className={`${TD} pl-5`}>
                         <Link href={`/admin/employees/${e.id}`} className="flex items-center gap-3">
                           <Avatar name={e.full_name} />
                           <span className="min-w-0">
@@ -155,25 +158,25 @@ export default function EmployeesPage() {
                           </span>
                         </Link>
                       </td>
-                      <td className="px-3 py-3 text-[#2b303b]">{dash(e.department)}</td>
-                      <td className="px-3 py-3 text-[#2b303b]">{dash(e.designation)}</td>
-                      <td className="px-3 py-3 text-[#2b303b]">{dash(EMPLOYMENT_TYPES[e.employment_type])}</td>
-                      <td className="px-3 py-3 text-[#2b303b]">{dash(e.manager?.full_name)}</td>
-                      <td className="px-3 py-3">
+                      <td className={TD}>{dash(e.department)}</td>
+                      <td className={TD}>{dash(e.designation)}</td>
+                      <td className={TD}>
+                        {EMPLOYMENT_TYPES[e.employment_type] ? (
+                          <Badge tone={e.employment_type === "intern" ? "violet" : "slate"}>{EMPLOYMENT_TYPES[e.employment_type]}</Badge>
+                        ) : (
+                          dash(null)
+                        )}
+                      </td>
+                      <td className={TD}>{dash(e.manager?.full_name ?? e.manager_name)}</td>
+                      <td className={TD}>
                         <div className="flex flex-col items-start gap-1">
                           <AccessBadge active={e.is_active} />
-                          {e.is_active && e.punched_in && (
-                            <span className="text-[11px] font-medium text-[#1f4693]">Punched in now</span>
-                          )}
+                          {e.is_active && e.punched_in && <Badge tone="blue">Punched in now</Badge>}
                         </div>
                       </td>
-                      <td className="px-3 py-3 text-right">
-                        <Link
-                          href={`/admin/employees/${e.id}`}
-                          aria-label={`Open ${e.full_name}`}
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#1f4693] hover:underline"
-                        >
-                          Open <ChevronRight size={14} aria-hidden="true" />
+                      <td className={`${TD} text-right`}>
+                        <Link href={`/admin/employees/${e.id}`} aria-label={`Open ${e.full_name}`} title="Open" className={ICON_BTN}>
+                          <ChevronRight size={16} aria-hidden="true" />
                         </Link>
                       </td>
                     </tr>
@@ -183,7 +186,7 @@ export default function EmployeesPage() {
             </div>
           </>
         )}
-      </section>
+      </TableCard>
 
       {adding && (
         <AddEmployeeDialog

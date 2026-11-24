@@ -1,12 +1,14 @@
 // Admin: Employee Management for the Employee Portal (migration 239).
 // All reads and writes go through admin-only RPCs that check public.is_admin().
 import { supabase } from "@/lib/supabase/client";
+import { passwordProblem } from "@/lib/api/employee/password";
 
 export const WORK_FIELDS = [
   "full_name",
   "department",
   "designation",
   "reporting_manager_id",
+  "reporting_manager_name",
   "date_of_joining",
   "employment_type",
   "work_location",
@@ -79,12 +81,25 @@ export function suggestEmployeeCode(employees) {
   return code;
 }
 
-/** 12-character temporary password (no look-alike characters). */
+/**
+ * 10-character temporary password with at least 1 uppercase, 1 lowercase, 1 number and
+ * 1 special character (the portal password rules), no look-alike characters.
+ */
 export function generatePassword() {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789@#$%";
-  const bytes = new Uint32Array(12);
-  crypto.getRandomValues(bytes);
-  return Array.from(bytes, (b) => chars[b % chars.length]).join("");
+  const sets = ["ABCDEFGHJKLMNPQRSTUVWXYZ", "abcdefghijkmnpqrstuvwxyz", "23456789", "@#$%!*"];
+  const all = sets.join("");
+  const rnd = (n) => {
+    const b = new Uint32Array(1);
+    crypto.getRandomValues(b);
+    return b[0] % n;
+  };
+  const chars = sets.map((s) => s[rnd(s.length)]);
+  while (chars.length < 10) chars.push(all[rnd(all.length)]);
+  for (let i = chars.length - 1; i > 0; i -= 1) {
+    const j = rnd(i + 1);
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+  return chars.join("");
 }
 
 export function validateNewEmployee(form) {
@@ -92,8 +107,8 @@ export function validateNewEmployee(form) {
   const v = (k) => String(form[k] ?? "").trim();
   if (!CODE.test(v("employee_code").toUpperCase())) errors.employee_code = "Use 2–30 letters, numbers or dashes (e.g. ZT-001).";
   if (!EMAIL.test(v("email")) || v("email").length > 254) errors.email = "Enter a valid email address.";
-  const pw = String(form.password ?? "");
-  if (pw.length < 8 || pw.length > 72) errors.password = "Use 8–72 characters.";
+  const problem = passwordProblem(form.password);
+  if (problem) errors.password = problem;
   return errors;
 }
 
@@ -120,4 +135,11 @@ export async function setEmployeeAccess(id, active) {
   const { data, error } = await supabase.rpc("ep_admin_set_employee_access", { p_id: id, p_active: active });
   if (error) return { ok: false, message: friendly(error, "Could not change portal access. Please try again.") };
   return { ok: true, employee: data };
+}
+
+/** Admin → Employee Portal dashboard: today, pending actions, upcoming (migration 247). */
+export async function getPortalDashboard() {
+  const { data, error } = await supabase.rpc("ep_admin_portal_dashboard");
+  if (error) throw error;
+  return data;
 }
