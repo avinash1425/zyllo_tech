@@ -5,6 +5,7 @@ import { Plus, Pencil, Trash2, ExternalLink, X, ImageOff, FolderKanban } from "l
 import PageHeader from "../PageHeader";
 import StatusBadge from "../StatusBadge";
 import EmptyState from "../EmptyState";
+import { useAccess } from "@/lib/access";
 import { createProject, updateProject, toggleProjectStatus, deleteProject } from "@/lib/api/admin/portfolio";
 
 const STATUS_LABELS = {
@@ -22,6 +23,7 @@ function emptyForm() {
 }
 
 export default function PortfolioManager({ initialProjects, onReload }) {
+  const { can } = useAccess();
   const [projects, setProjects] = useState(initialProjects);
   useEffect(() => setProjects(initialProjects), [initialProjects]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -99,6 +101,7 @@ export default function PortfolioManager({ initialProjects, onReload }) {
           </>
         }
         actions={
+        can("website.portfolio.create") && (
         <button
           type="button"
           onClick={openCreate}
@@ -107,6 +110,7 @@ export default function PortfolioManager({ initialProjects, onReload }) {
           <Plus className="h-4 w-4" aria-hidden="true" />
           New Featured Project
         </button>
+        )
         }
       />
 
@@ -115,7 +119,11 @@ export default function PortfolioManager({ initialProjects, onReload }) {
           bordered
           icon={FolderKanban}
           title="No projects yet"
-          message='No projects yet — click "New Featured Project" to add your first one.'
+          message={
+            can("website.portfolio.create")
+              ? 'No projects yet — click "New Featured Project" to add your first one.'
+              : "No projects yet."
+          }
         />
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -138,14 +146,20 @@ export default function PortfolioManager({ initialProjects, onReload }) {
                     <ImageOff className="h-8 w-8" aria-hidden="true" />
                   </div>
                 )}
-                <button
-                  type="button"
-                  onClick={() => handleToggleStatus(project)}
-                  disabled={isPending}
-                  className="absolute left-3 top-3 inline-flex rounded-full bg-white/90 shadow-sm backdrop-blur-sm transition-opacity hover:opacity-80 disabled:opacity-50"
-                >
-                  <StatusBadge status={project.status} label={STATUS_LABELS[project.status]} />
-                </button>
+                {can("website.portfolio.edit") ? (
+                  <button
+                    type="button"
+                    onClick={() => handleToggleStatus(project)}
+                    disabled={isPending}
+                    className="absolute left-3 top-3 inline-flex rounded-full bg-white/90 shadow-sm backdrop-blur-sm transition-opacity hover:opacity-80 disabled:opacity-50"
+                  >
+                    <StatusBadge status={project.status} label={STATUS_LABELS[project.status]} />
+                  </button>
+                ) : (
+                  <span className="absolute left-3 top-3 inline-flex rounded-full bg-white/90 shadow-sm backdrop-blur-sm">
+                    <StatusBadge status={project.status} label={STATUS_LABELS[project.status]} />
+                  </span>
+                )}
               </div>
 
               <div className="p-4">
@@ -168,22 +182,26 @@ export default function PortfolioManager({ initialProjects, onReload }) {
                       <ExternalLink className="h-4 w-4" aria-hidden="true" />
                     </a>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => openEdit(project)}
-                    aria-label={`Edit ${project.title}`}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-[#f7941e]/10 hover:text-[#f7941e]"
-                  >
-                    <Pencil className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setDeletingId(project.id)}
-                    aria-label={`Delete ${project.title}`}
-                    className="ml-auto flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-red-50 hover:text-red-600"
-                  >
-                    <Trash2 className="h-4 w-4" aria-hidden="true" />
-                  </button>
+                  {can("website.portfolio.edit") && (
+                    <button
+                      type="button"
+                      onClick={() => openEdit(project)}
+                      aria-label={`Edit ${project.title}`}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-[#f7941e]/10 hover:text-[#f7941e]"
+                    >
+                      <Pencil className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  )}
+                  {can("website.portfolio.delete") && (
+                    <button
+                      type="button"
+                      onClick={() => setDeletingId(project.id)}
+                      aria-label={`Delete ${project.title}`}
+                      className="ml-auto flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-red-50 hover:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

@@ -5,6 +5,7 @@ import { createEmployee, generatePassword, suggestEmployeeCode, validateNewEmplo
 import { EmploymentTypeChoice, Field, ManagerPicker } from "./ui";
 import { Alert } from "@/components/portal/PortalUI";
 import { BTN_PRIMARY, BTN_SECONDARY, ICON_BTN, INPUT } from "@/components/portal/portalStyles";
+import { checkRealEmail } from "@/lib/emailCheck";
 
 const SECTION = "mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-[#8a90a0]";
 const SECTION_ICON = "flex h-6 w-6 items-center justify-center rounded-md bg-[#eef2fb] text-[#1f4693]";
@@ -81,6 +82,13 @@ export default function AddEmployeeDialog({ employees, onClose, onCreated }) {
     }
     setSaving(true);
     setMessage("");
+    // Employees sign in with their own real email (migration 267).
+    const real = await checkRealEmail(form.email);
+    if (!real.ok) {
+      setSaving(false);
+      setErrors({ email: real.message });
+      return setMessage(real.message);
+    }
     const result = await createEmployee(form);
     setSaving(false);
     if (!result.ok) return setMessage(result.message);
@@ -135,14 +143,19 @@ export default function AddEmployeeDialog({ employees, onClose, onCreated }) {
             <Alert kind="ok">
               {created.employee.full_name} ({created.employee.employee_code}) can now sign in to the Employee Portal.
             </Alert>
-            {created.employee.linked_existing_account ? (
+            {created.employee.welcome === "sending" ? (
+              <Alert kind="info">
+                The sign-in email and a one-time password were emailed to <b>{created.employee.work_email}</b> (from info@zyllotech.com).
+                The password is not shown here. If that mailbox does not exist you will get a notification “Mailbox does not exist”.
+              </Alert>
+            ) : created.employee.linked_existing_account ? (
               <Alert kind="info">
                 This sign-in ID already had an account, so it was linked. Their existing password was <b>not</b> changed.
               </Alert>
             ) : (
               <div className="rounded-xl bg-[#f8fafd] p-4 text-sm ring-1 ring-inset ring-[#eef1f7]">
                 <p className="mb-3 flex items-center gap-2 font-semibold text-[#101a3a]">
-                  <KeyRound size={16} className="shrink-0 text-[#d9650a]" aria-hidden="true" /> Share these sign-in details with the employee
+                  <KeyRound size={16} className="shrink-0 text-[#d9650a]" aria-hidden="true" /> Email is not set up yet — share these sign-in details with the employee
                 </p>
                 <dl className="grid gap-x-4 gap-y-2.5 sm:grid-cols-[9rem_1fr]">
                   <dt className={DT}>Sign-in page</dt>
@@ -186,7 +199,7 @@ export default function AddEmployeeDialog({ employees, onClose, onCreated }) {
             <div className="grid gap-4 sm:grid-cols-2">
               {input("employee_code", "Employee ID", { placeholder: "e.g. ZT-001", mono: true, upper: true, hint: "Letters, numbers and dashes." })}
               {input("full_name", "Full name", { placeholder: "e.g. Ravi Kumar" })}
-              {input("email", "Sign-in ID", { type: "email", placeholder: "name@zyllotech.com", hint: "Used only to sign in to the portal (an email address format). Nothing is emailed." })}
+              {input("email", "Sign-in email (the employee's own real email)", { type: "email", placeholder: "name@gmail.com", hint: "Must be the employee's real, existing email address. They sign in with it." })}
               <Field id="ne-password" label="Temporary password" error={errors.password} hint="At least 6 characters with 1 uppercase, 1 number and 1 special character. They must change it at their first sign-in.">
                 <div className="flex gap-2">
                   <input

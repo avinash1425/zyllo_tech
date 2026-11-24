@@ -15,6 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import PageHeader from "../PageHeader";
+import { useAccess } from "@/lib/access";
 import { downloadCsv, getReports, reviewReport } from "@/lib/api/admin/reportsNotifications";
 import { REPORT_STATUS } from "@/lib/api/employee/reports";
 import { dayName, formatDate, formatDateTime, formatHours, minusDays, todayIst } from "@/employee/attendanceFormat";
@@ -79,6 +80,8 @@ function Block({ label, text }) {
 
 // ---------------------------------------------------------------- one report
 function ReportCard({ r, onChanged }) {
+  const { can } = useAccess();
+  const canApprove = can("portal.reports.approve");
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState(null); // null | "reviewed" | "returned"
   const [comment, setComment] = useState("");
@@ -168,6 +171,7 @@ function ReportCard({ r, onChanged }) {
             </div>
           )}
           {r.status === "submitted" &&
+            canApprove &&
             (mode ? (
               <div className="flex flex-col gap-2 rounded-xl border border-[#dce6f7] bg-[#f8faff] p-4 sm:flex-row sm:items-end">
                 <label className="flex-1">
@@ -324,6 +328,7 @@ function ProjectSummary({ rows }) {
  * filter by date and export CSV. Migration 243.
  */
 export default function ReportsAdminPage() {
+  const { can } = useAccess();
   const today = useMemo(() => todayIst(), []);
   const [params, setParams] = useSearchParams();
   const tab = TABS.some((t) => t.key === params.get("tab")) ? params.get("tab") : "reports";
@@ -434,9 +439,11 @@ export default function ReportsAdminPage() {
         icon={FileText}
         subtitle="Submitted and pending reports, employee-wise and project-wise summaries, work done, hours spent and manager feedback. Filter by date and export to CSV (opens in Excel)."
         actions={
-          <button type="button" onClick={exporter} disabled={!data} className={BTN_SECONDARY}>
-            <Download size={15} aria-hidden="true" /> Export {TABS.find((t) => t.key === tab).label.toLowerCase()} (CSV)
-          </button>
+          can("portal.reports.export") && (
+            <button type="button" onClick={exporter} disabled={!data} className={BTN_SECONDARY}>
+              <Download size={15} aria-hidden="true" /> Export {TABS.find((t) => t.key === tab).label.toLowerCase()} (CSV)
+            </button>
+          )
         }
       />
 

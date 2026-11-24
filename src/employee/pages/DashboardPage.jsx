@@ -102,7 +102,7 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
   const paid = (leave?.balances ?? []).filter((b) => b.is_paid && b.allowed != null);
   const remaining = (b) => Number(b.allowed) - Number(b.approved) - Number(b.pending);
   const paidLeft = paid.reduce((s, b) => s + remaining(b), 0);
-  const pendingLeave = (leave?.requests ?? []).filter((r) => r.status === "pending").length;
+  const pendingLeave = (leave?.requests ?? []).filter((r) => ["manager_review", "pending", "manager_pending"].includes(r.status)).length;
   const nextHoliday = (leave?.holidays ?? []).find((h) => h.date >= today.iso);
   const holidayText = nextHoliday && `Next holiday: ${nextHoliday.name}, ${formatDate(nextHoliday.date).replace(/ \d{4}$/, "")}`;
   const statusLabel = (s) => TASK_STATUS.find((t) => t.value === s)?.label ?? s;

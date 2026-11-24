@@ -1,5 +1,6 @@
 ﻿import { useCallback, useState } from "react";
 import { Check, Copy, DatabaseBackup, ExternalLink, Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
+import { useAccess } from "@/lib/access";
 import useAdminData from "../useAdminData";
 import AdminLoading from "../AdminLoading";
 import EmptyState from "../EmptyState";
@@ -164,6 +165,10 @@ export default function BackupsTab({ projectId }) {
   const [removing, setRemoving] = useState(null);
   const [notice, setNotice] = useState(null);
   const pw = usePasswordReveal({ onMessage: (text, tone) => setNotice({ text, tone }) });
+  const { can } = useAccess();
+  const canEdit = can("projects.tracker.edit");
+  const canDelete = can("projects.tracker.delete");
+  const canReveal = can("projects.logins.reveal");
 
   async function afterSave(text, tone = "success") {
     setEditing(false);
@@ -189,6 +194,7 @@ export default function BackupsTab({ projectId }) {
             <DatabaseBackup className="h-4 w-4 text-white" aria-hidden="true" />
           </span>
           <span className="flex-1 text-sm font-bold text-white">Backups</span>
+          {canEdit && (
           <button
             type="button"
             onClick={() => setEditing(true)}
@@ -197,6 +203,7 @@ export default function BackupsTab({ projectId }) {
             <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
             {anything ? "Edit backup details" : "Add backup details"}
           </button>
+          )}
         </div>
 
         <div className="flex flex-col gap-3 bg-[#f8fafc] p-4">
@@ -252,12 +259,16 @@ export default function BackupsTab({ projectId }) {
                               <span aria-live="polite" className={`rounded-md px-2 py-0.5 font-mono text-xs ${shown ? "bg-amber-50 text-[#2b303b]" : "bg-[#eef2fb] text-[#8a90a0] tracking-widest"}`}>
                                 {shown ?? "••••••"}
                               </span>
+                              {canReveal && (
+                              <>
                               <button type="button" disabled={pw.busyId === cred.id} onClick={() => (shown ? pw.hide(cred.id) : pw.run(cred, "view"))} aria-label={shown ? `Hide password for ${p.title}` : `Show password for ${p.title}`} title={shown ? "Hide" : `Show for ${SHOW_SECONDS} seconds`} className="rounded p-1 text-[#676b7a] hover:bg-[#f3f4f7] hover:text-[#1f4693] disabled:opacity-50">
                                 {shown ? <EyeOff className="h-3.5 w-3.5" aria-hidden="true" /> : <Eye className="h-3.5 w-3.5" aria-hidden="true" />}
                               </button>
                               <button type="button" disabled={pw.busyId === cred.id} onClick={() => pw.run(cred, "copy")} aria-label={`Copy password for ${p.title}`} title="Copy without showing" className="rounded p-1 text-[#676b7a] hover:bg-[#f3f4f7] hover:text-[#1f4693] disabled:opacity-50">
                                 {pw.copiedId === cred.id ? <Check className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" /> : <Copy className="h-3.5 w-3.5" aria-hidden="true" />}
                               </button>
+                              </>
+                              )}
                             </div>
                           )}
                           {row.backup_date && (
@@ -269,7 +280,7 @@ export default function BackupsTab({ projectId }) {
                         </>
                       )}
                     </div>
-                    {row && (
+                    {row && canDelete && (
                       <div className="flex shrink-0 gap-1 pl-11 sm:pl-0">
                         <button type="button" onClick={() => setRemoving({ row, plan: p })} aria-label={`Clear ${p.title}`} title="Clear" className="rounded-lg p-2 text-[#676b7a] hover:bg-red-50 hover:text-red-600">
                           <Trash2 className="h-4 w-4" aria-hidden="true" />

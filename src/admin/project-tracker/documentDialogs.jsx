@@ -8,6 +8,7 @@ import {
   documentCategory,
   updateDocument,
 } from "@/lib/api/admin/projectTrackerProject";
+import { useAccess } from "@/lib/access";
 import { ChoiceChips, Field, FormMessage, Modal } from "./ui";
 import { BTN_PRIMARY, BTN_SECONDARY, formatDate, inputClass } from "./styles";
 import { dateLabel, formatSize, isPdf, refLabel } from "./docActions";
@@ -274,6 +275,9 @@ export function DocumentFormModal({ projectId, doc, defaultCategory, lockCategor
  * `onOpen(doc, download)` does the opening (and reports pop-up blocks); `onEdit` is optional.
  */
 export function DocumentViewModal({ doc, projectLabel, onOpen, onEdit, onClose }) {
+  const { can } = useAccess();
+  const canDownload = can("projects.tracker.download");
+  const canEdit = can("projects.tracker.edit");
   const section = sectionOf(doc.category);
   const ref = refLabel(doc);
   const rows = [
@@ -309,17 +313,19 @@ export function DocumentViewModal({ doc, projectLabel, onOpen, onEdit, onClose }
         ))}
       </dl>
       <div className="mt-5 flex flex-wrap justify-end gap-2">
-        {onEdit && (
+        {onEdit && canEdit && (
           <button type="button" onClick={onEdit} className={BTN_SECONDARY}>
             <Pencil className="h-4 w-4" aria-hidden="true" />
             Edit
           </button>
         )}
+        {canDownload && (
         <button type="button" onClick={() => onOpen(doc, false)} className={BTN_SECONDARY}>
           <ExternalLink className="h-4 w-4" aria-hidden="true" />
           {doc.external_url ? "Open link" : "Open"}
         </button>
-        {!doc.external_url && (
+        )}
+        {canDownload && !doc.external_url && (
           <button type="button" onClick={() => onOpen(doc, true)} className={BTN_PRIMARY}>
             <Download className="h-4 w-4" aria-hidden="true" />
             {pdf ? "Download PDF" : "Download"}

@@ -19,6 +19,7 @@ import {
   ShieldCheck,
   Trash2,
 } from "lucide-react";
+import { useAccess } from "@/lib/access";
 import useAdminData from "../useAdminData";
 import AdminLoading from "../AdminLoading";
 import EmptyState from "../EmptyState";
@@ -76,6 +77,11 @@ export default function CredentialsTab({ project, onProjectChanged }) {
   const [copiedId, setCopiedId] = useState(null);
   const [notice, setNotice] = useState(null);
   const timers = useRef({});
+  const { can } = useAccess();
+  const canCreate = can("projects.logins.create");
+  const canEdit = can("projects.logins.edit");
+  const canDelete = can("projects.logins.delete");
+  const canReveal = can("projects.logins.reveal");
 
   // Clear every shown password when leaving the tab.
   useEffect(() => {
@@ -151,6 +157,7 @@ export default function CredentialsTab({ project, onProjectChanged }) {
             {data?.length > 0 && <span className="ml-2 font-normal text-white/55">{data.length}</span>}
           </span>
           <span className="hidden text-[11px] text-white/50 sm:block mr-1">🔒 Encrypted</span>
+          {canCreate && (
           <button
             type="button"
             onClick={() => setAddingAll(true)}
@@ -159,6 +166,7 @@ export default function CredentialsTab({ project, onProjectChanged }) {
             <Plus className="h-3.5 w-3.5" aria-hidden="true" />
             Add logins
           </button>
+          )}
         </div>
 
         {!data?.length ? (
@@ -180,6 +188,7 @@ export default function CredentialsTab({ project, onProjectChanged }) {
                       {g.label}
                       <span className="ml-1 font-medium text-white/60">({g.items.length})</span>
                     </h3>
+                    {canCreate && (
                     <button
                       type="button"
                       onClick={() => setEditing({})}
@@ -188,6 +197,7 @@ export default function CredentialsTab({ project, onProjectChanged }) {
                       <Plus className="h-3.5 w-3.5" aria-hidden="true" />
                       Add
                     </button>
+                    )}
                   </div>
                   <ul className="divide-y divide-[#f1f3f7]">
                     {g.items.map((c) => {
@@ -212,12 +222,16 @@ export default function CredentialsTab({ project, onProjectChanged }) {
                                 )}
                               </div>
                               <div className="flex shrink-0 gap-0.5">
+                                {canEdit && (
                                 <button type="button" onClick={() => setEditing(c)} aria-label={`Edit ${c.service}`} className="rounded-lg p-2 text-[#9aa0ad] hover:bg-[#eef2fb] hover:text-[#1f4693]">
                                   <Pencil className="h-4 w-4" aria-hidden="true" />
                                 </button>
+                                )}
+                                {canDelete && (
                                 <button type="button" onClick={() => setDeleting(c)} aria-label={`Delete ${c.service}`} className="rounded-lg p-2 text-[#9aa0ad] hover:bg-red-50 hover:text-red-600">
                                   <Trash2 className="h-4 w-4" aria-hidden="true" />
                                 </button>
+                                )}
                               </div>
                             </div>
 
@@ -255,18 +269,26 @@ export default function CredentialsTab({ project, onProjectChanged }) {
                                   {shown ? shown.value : "••••••••••"}
                                 </span>
                                 <div className="flex items-center gap-1">
+                                  {canReveal && (
+                                  <>
                                   <button type="button" disabled={busyId === c.id} onClick={() => (shown ? hide(c.id) : runPasswordAction(c, "view"))} aria-label={shown ? `Hide password for ${c.service}` : `Show password for ${c.service}`} title={shown ? "Hide" : `Show for ${SHOW_SECONDS}s`} className="rounded-lg p-2 text-[#8a90a0] hover:bg-white hover:text-[#1f4693] disabled:opacity-40">
                                     {shown ? <EyeOff className="h-4 w-4" aria-hidden="true" /> : <Eye className="h-4 w-4" aria-hidden="true" />}
                                   </button>
                                   <button type="button" disabled={busyId === c.id} onClick={() => runPasswordAction(c, "copy")} aria-label={`Copy password for ${c.service}`} title="Copy without showing" className="rounded-lg p-2 text-[#8a90a0] hover:bg-white hover:text-[#1f4693] disabled:opacity-40">
                                     {copiedId === c.id ? <Check className="h-4 w-4 text-emerald-600" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
                                   </button>
-                                  <div className="mx-1 h-4 w-px bg-[#e2e8f0]" />
+                                  </>
+                                  )}
+                                  {canReveal && canEdit && <div className="mx-1 h-4 w-px bg-[#e2e8f0]" />}
+                                  {canEdit && (
+                                  <>
                                   <button type="button" onClick={() => setPasswordFor(c)} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-[#1f4693] hover:bg-white">Change</button>
                                   <button type="button" onClick={() => setRemovingPw(c)} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-red-500 hover:bg-white">Remove</button>
+                                  </>
+                                  )}
                                 </div>
                               </div>
-                            ) : (
+                            ) : canEdit && (
                               <div className="mt-2.5">
                                 <button type="button" onClick={() => setPasswordFor(c)} className="inline-flex items-center gap-1 rounded-lg border border-dashed border-[#c8d4f0] px-3 py-1.5 text-xs font-semibold text-[#1f4693] hover:border-[#1f4693] hover:bg-[#eef2fb]">
                                   <Plus className="h-3.5 w-3.5" aria-hidden="true" />

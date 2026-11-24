@@ -1,0 +1,34 @@
+-- Rollback of 256_employee_admin_inbox.sql: removes the admin inbox, its triggers and functions.
+-- All admin notifications are deleted with it. Nothing else changes.
+begin;
+drop trigger if exists ep_admin_leave on public.ep_leave_requests;
+drop trigger if exists ep_admin_attendance on public.ep_attendance;
+drop trigger if exists ep_admin_correction on public.ep_attendance_corrections;
+drop trigger if exists ep_admin_report on public.ep_work_reports;
+drop trigger if exists ep_admin_profile on public.ep_employee_profiles;
+drop trigger if exists ep_admin_contacts on public.ep_emergency_contacts;
+drop trigger if exists ep_admin_document on public.ep_employee_documents;
+drop trigger if exists ep_admin_task on public.ep_project_tasks;
+drop trigger if exists ep_admin_project_update on public.ep_project_updates;
+drop trigger if exists ep_admin_project_delay on public.ep_project_delay_reasons;
+drop trigger if exists ep_admin_account on public.ep_employees;
+drop function if exists public.ep_admin_inbox(text, int);
+drop function if exists public.ep_admin_inbox_summary();
+drop function if exists public.ep_admin_inbox_mark_read(uuid[]);
+drop function if exists public.ep_trg_admin_leave();
+drop function if exists public.ep_trg_admin_attendance();
+drop function if exists public.ep_trg_admin_correction();
+drop function if exists public.ep_trg_admin_report();
+drop function if exists public.ep_trg_admin_profile();
+drop function if exists public.ep_trg_admin_document();
+drop function if exists public.ep_trg_admin_task();
+drop function if exists public.ep_trg_admin_project_update();
+drop function if exists public.ep_trg_admin_project_delay();
+drop function if exists public.ep_trg_admin_account();
+drop function if exists public.ep_admin_notify(uuid, text, text, text, text, text, text);
+drop function if exists public.ep_actor_employee();
+drop function if exists public.ep_admin_fmt_dates(date, date);
+drop table if exists public.ep_admin_notification_reads;
+drop table if exists public.ep_admin_notifications;
+notify pgrst, 'reload schema';
+commit;

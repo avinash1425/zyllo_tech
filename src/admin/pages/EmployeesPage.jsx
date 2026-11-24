@@ -8,6 +8,7 @@ import { AccessBadge } from "../employees/ui";
 import { Alert, Avatar, Badge, Chips, Empty, MetricStrip, TableCard } from "@/components/portal/PortalUI";
 import { BTN_PRIMARY, ICON_BTN, TABLE, TABLE_WRAP, TD, TH, TR } from "@/components/portal/portalStyles";
 import AddEmployeeDialog from "../employees/AddEmployeeDialog";
+import { useAccess } from "@/lib/access";
 
 const FILTERS = [
   { key: "all", label: "All", icon: UsersRound, color: "#1f4693" },
@@ -28,6 +29,8 @@ export default function EmployeesPage() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
   const [adding, setAdding] = useState(false);
+  const { can } = useAccess();
+  const canCreate = can("portal.employees.create");
 
   useEffect(() => {
     let active = true;
@@ -63,9 +66,11 @@ export default function EmployeesPage() {
         icon={UserCog}
         subtitle="Everyone with an Employee Portal account. Add new employees, open one to see their profile, set their work details and reporting manager, or turn their portal access on or off."
         actions={
-          <button type="button" onClick={() => setAdding(true)} disabled={rows === null} className={BTN_PRIMARY}>
-            <UserPlus size={16} aria-hidden="true" /> Add employee
-          </button>
+          canCreate && (
+            <button type="button" onClick={() => setAdding(true)} disabled={rows === null} className={BTN_PRIMARY}>
+              <UserPlus size={16} aria-hidden="true" /> Add employee
+            </button>
+          )
         }
       />
 
@@ -103,7 +108,7 @@ export default function EmployeesPage() {
           <Empty
             icon={UsersRound}
             title={rows.length ? "No employees match." : "No employees yet."}
-            message={rows.length ? "Try a different search or filter." : "Click “Add employee” to add the first one."}
+            message={rows.length ? "Try a different search or filter." : canCreate ? "Click “Add employee” to add the first one." : undefined}
           />
         ) : (
           <>
@@ -188,7 +193,7 @@ export default function EmployeesPage() {
         )}
       </TableCard>
 
-      {adding && (
+      {adding && canCreate && (
         <AddEmployeeDialog
           employees={rows ?? []}
           onClose={() => setAdding(false)}

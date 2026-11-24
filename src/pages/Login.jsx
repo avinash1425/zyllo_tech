@@ -46,9 +46,14 @@ function NextRedirectField() {
 async function destinationAfterSignIn(next) {
   const supabase = await loadSupabase();
   const { data: isAdmin } = await supabase.rpc("is_admin");
-  if (isAdmin === true) return next && !next.startsWith("/employee") ? next : "/admin";
   const { data: me, error } = await supabase.rpc("ep_me");
-  if (!error && me) return next.startsWith("/employee") ? next : "/employee";
+  // An Employee Portal account starts in the portal; if its role may open admin pages, it opens them
+  // from there (or follows an /admin link). Other admin accounts go to the admin dashboard.
+  if (!error && me) {
+    if (isAdmin === true && next.startsWith("/admin")) return next;
+    return next.startsWith("/employee") ? next : "/employee";
+  }
+  if (isAdmin === true) return next && !next.startsWith("/employee") ? next : "/admin";
   // An employee whose portal access was turned off by the admin sees that message there.
   const { data: access } = await supabase.rpc("ep_my_access");
   if (access === "disabled") return "/employee";

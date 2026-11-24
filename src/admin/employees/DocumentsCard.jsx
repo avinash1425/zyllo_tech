@@ -3,11 +3,13 @@ import { FolderOpen } from "lucide-react";
 import { listEmployeeDocuments } from "@/lib/api/employee/documents";
 import { DocumentList } from "@/employee/documentsUi";
 import { Alert, Badge, Empty, Panel } from "@/components/portal/PortalUI";
+import { useAccess } from "@/lib/access";
 
 /** Admin: documents the employee uploaded in My Profile (migration 251). Read-only: View / Download. */
 export default function DocumentsCard({ emp, subtitle }) {
   const [docs, setDocs] = useState(undefined);
   const [error, setError] = useState("");
+  const { can } = useAccess();
 
   useEffect(() => {
     let active = true;
@@ -35,7 +37,7 @@ export default function DocumentsCard({ emp, subtitle }) {
       ) : docs.length === 0 ? (
         <Empty icon={FolderOpen} title="Not added" message="The employee has not uploaded any documents yet." className="py-6" />
       ) : (
-        <DocumentList docs={docs} onError={setError} />
+        <DocumentList docs={docs} onError={setError} canDownload={can("portal.employees.download")} />
       )}
     </Panel>
   );

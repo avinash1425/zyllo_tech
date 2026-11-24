@@ -24,6 +24,9 @@ import { Alert, Avatar, Badge, Detail, Empty, Panel } from "@/components/portal/
 import { BTN_DANGER, BTN_DANGER_SOFT, BTN_PRIMARY, BTN_SECONDARY, CARD, INPUT } from "@/components/portal/portalStyles";
 import CertificateCard from "../employees/CertificateCard";
 import DocumentsCard from "../employees/DocumentsCard";
+import { useAccess } from "@/lib/access";
+import ApproverCard from "../employees/ApproverCard";
+import SignInEmailCard from "../employees/SignInEmailCard";
 
 const labelOf = (list, value) => list.find((o) => o.value === value)?.label;
 /** Empty values -> undefined, so <Detail> shows "Not added". */
@@ -41,6 +44,8 @@ function Msg({ message }) {
 }
 
 function WorkCard({ emp, onSaved }) {
+  const { can } = useAccess();
+  const canEdit = can("portal.employees.edit");
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({});
   const [errors, setErrors] = useState({});
@@ -50,6 +55,7 @@ function WorkCard({ emp, onSaved }) {
   function startEdit() {
     setForm({
       ...Object.fromEntries(WORK_FIELDS.map((k) => [k, emp[k] ?? ""])),
+      employee_code: emp.employee_code ?? "",
       reporting_manager_id: emp.manager?.id ?? "",
       reporting_manager_name: emp.manager_name ?? "",
     });
@@ -76,7 +82,13 @@ function WorkCard({ emp, onSaved }) {
     if (!result.ok) return setMessage({ kind: "err", text: result.message });
     onSaved(result.employee);
     setEditing(false);
-    setMessage({ kind: "ok", text: "Work details saved. The employee sees them in My Profile." });
+    const idChanged = result.employee?.employee_code && result.employee.employee_code !== emp.employee_code;
+    setMessage({
+      kind: "ok",
+      text: idChanged
+        ? `Work details saved. Employee ID changed to ${result.employee.employee_code}; the employee was notified.`
+        : "Work details saved. The employee sees them in My Profile.",
+    });
   }
 
   const input = (k, label, props = {}) => (
@@ -94,16 +106,27 @@ function WorkCard({ emp, onSaved }) {
     </Field>
   );
 
-  if (editing) {
+  if (editing && canEdit) {
     return (
       <Panel icon={Briefcase} title="Work details" subtitle="Editing — shown read-only in the employee's My Profile" className="ring-2 ring-[#1f4693]/10">
         <Msg message={message} />
         <form onSubmit={onSubmit} noValidate className="grid gap-4 sm:grid-cols-2">
-          <dl>
-            <Detail label="Employee ID">
-              <span className="font-mono">{emp.employee_code}</span>
-            </Detail>
-          </dl>
+          <Field
+            id="wk-employee_code"
+            label="Employee ID"
+            error={errors.employee_code}
+            hint="Changing it does not change how the employee signs in. They get a notification."
+          >
+            <input
+              id="wk-employee_code"
+              value={form.employee_code ?? ""}
+              maxLength={30}
+              onChange={(e) => set("employee_code", e.target.value.toUpperCase())}
+              aria-invalid={errors.employee_code ? "true" : undefined}
+              aria-describedby={errors.employee_code ? "wk-employee_code-error" : undefined}
+              className={`${INPUT(errors.employee_code)} font-mono`}
+            />
+          </Field>
           {input("full_name", "Full name")}
           {input("department", "Department", { placeholder: "e.g. Engineering" })}
           {input("designation", "Designation", { placeholder: "e.g. Software Developer" })}
@@ -137,9 +160,11 @@ function WorkCard({ emp, onSaved }) {
       title="Work details"
       subtitle="Shown read-only in the employee's My Profile"
       action={
-        <button type="button" onClick={startEdit} className={BTN_SECONDARY}>
-          <Pencil size={14} aria-hidden="true" /> Edit
-        </button>
+        canEdit && (
+          <button type="button" onClick={startEdit} className={BTN_SECONDARY}>
+            <Pencil size={14} aria-hidden="true" /> Edit
+          </button>
+        )
       }
     >
       <Msg message={message} />
@@ -178,6 +203,8 @@ function WorkCard({ emp, onSaved }) {
 }
 
 function AccessCard({ emp, onSaved }) {
+  const { can } = useAccess();
+  const canEdit = can("portal.employees.edit");
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState({ kind: "", text: "" });
@@ -213,40 +240,42 @@ function AccessCard({ emp, onSaved }) {
           )}
         </Detail>
       </dl>
-      <div className="mt-5 border-t border-[#eef0f4] pt-4">
-        {emp.is_active ? (
-          confirming ? (
-            <div role="alertdialog" aria-labelledby="access-off-title" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-              <p id="access-off-title" className="flex items-center gap-2 font-semibold">
-                <ShieldAlert size={16} aria-hidden="true" /> Turn off portal access for {emp.full_name}?
-              </p>
-              <p className="mt-1 text-xs leading-relaxed">
-                They will not be able to use the Employee Portal (punch in, reports, leave, notifications).
-                {emp.punched_in && " Their current punch-in session will be closed now."}
-                {emp.reports_count > 0 &&
-                  ` ${emp.reports_count} ${emp.reports_count === 1 ? "person reports" : "people report"} to them — consider assigning a new manager.`}{" "}
-                Their data is kept, and you can turn access back on any time.
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button type="button" disabled={busy} onClick={() => change(false)} className={BTN_DANGER}>
-                  {busy ? "Turning off…" : "Yes, turn off access"}
-                </button>
-                <button type="button" disabled={busy} onClick={() => setConfirming(false)} className={BTN_SECONDARY}>
-                  Cancel
-                </button>
+      {canEdit && (
+        <div className="mt-5 border-t border-[#eef0f4] pt-4">
+          {emp.is_active ? (
+            confirming ? (
+              <div role="alertdialog" aria-labelledby="access-off-title" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                <p id="access-off-title" className="flex items-center gap-2 font-semibold">
+                  <ShieldAlert size={16} aria-hidden="true" /> Turn off portal access for {emp.full_name}?
+                </p>
+                <p className="mt-1 text-xs leading-relaxed">
+                  They will not be able to use the Employee Portal (punch in, reports, leave, notifications).
+                  {emp.punched_in && " Their current punch-in session will be closed now."}
+                  {emp.reports_count > 0 &&
+                    ` ${emp.reports_count} ${emp.reports_count === 1 ? "person reports" : "people report"} to them — consider assigning a new manager.`}{" "}
+                  Their data is kept, and you can turn access back on any time.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button type="button" disabled={busy} onClick={() => change(false)} className={BTN_DANGER}>
+                    {busy ? "Turning off…" : "Yes, turn off access"}
+                  </button>
+                  <button type="button" disabled={busy} onClick={() => setConfirming(false)} className={BTN_SECONDARY}>
+                    Cancel
+                  </button>
+                </div>
               </div>
-            </div>
+            ) : (
+              <button type="button" onClick={() => setConfirming(true)} className={BTN_DANGER_SOFT}>
+                Turn off portal access
+              </button>
+            )
           ) : (
-            <button type="button" onClick={() => setConfirming(true)} className={BTN_DANGER_SOFT}>
-              Turn off portal access
+            <button type="button" disabled={busy} onClick={() => change(true)} className={BTN_PRIMARY}>
+              {busy ? "Turning on…" : "Turn on portal access"}
             </button>
-          )
-        ) : (
-          <button type="button" disabled={busy} onClick={() => change(true)} className={BTN_PRIMARY}>
-            {busy ? "Turning on…" : "Turn on portal access"}
-          </button>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </Panel>
   );
 }
@@ -399,6 +428,7 @@ function ProfileHeader({ emp }) {
  * details the employee filled in (read-only for the admin). Migration 239.
  */
 export default function EmployeeDetailPage() {
+  const { can } = useAccess();
   const { employeeId } = useParams();
   const [emp, setEmp] = useState(undefined);
   const [error, setError] = useState("");
@@ -450,6 +480,8 @@ export default function EmployeeDetailPage() {
       <PersonalCards emp={emp} />
       <DocumentsCard emp={emp} subtitle={BY_EMPLOYEE} />
       <WorkCard key={`w-${emp.id}`} emp={emp} onSaved={setEmp} />
+      <ApproverCard key={`ap-${emp.id}`} emp={emp} onSaved={(approver) => setEmp((x) => ({ ...x, admin_approver: approver }))} />
+      <SignInEmailCard key={`se-${emp.id}`} emp={emp} canEdit={can("portal.employees.edit")} onChanged={() => getEmployee(emp.id).then(setEmp).catch(() => {})} />
       <CertificateCard emp={emp} />
       <TeamCard reports={emp.direct_reports} />
       <AccessCard key={`a-${emp.id}`} emp={emp} onSaved={setEmp} />

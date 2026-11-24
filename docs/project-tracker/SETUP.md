@@ -8,6 +8,9 @@ This branch (`project-tracker`) is the Zyllo Tech website plus:
 - **Employee side** (`/employee`): punch in / out, Dashboard, Attendance (+ corrections), My Profile,
   My Projects, Daily Work Report, Leave, Notifications, first-sign-in password change,
   My documents (employee uploads certificates / ID proofs; the admin sees them on the employee's page).
+- **Admin Notifications** (`/admin/inbox`, bell in the admin top bar): the admin is notified automatically
+  when employees apply for / cancel leave, punch in late, forget to punch out, request corrections, submit
+  reports, work on project tasks, change their profile / documents, or sign in for the first time.
 
 There is **one login page** (`/login`) for everybody: an admin lands on `/admin`, an employee lands on `/employee`.
 
@@ -65,6 +68,11 @@ Open **`http://localhost:8080`** (the "Local" address shown in the terminal) and
 
 ## Accounts
 
+- **Roles & permissions** (Admin → Settings): Super Admin, Admin, HR, Manager, Team Lead, Employee.
+  Settings → Users & Roles gives people roles; Settings → Roles & Permissions decides what each role may
+  do, per action (view / create / edit / delete / download / approve / export / see passwords). The
+  database enforces it too. Existing admins became Super Admin automatically.
+
 - Accounts live in the database, so the logins the project owner uses work for you too.
 - A separate admin account for yourself: create it (Supabase → Authentication → Users, or **Sign Up** on
   `/login`) and the project owner adds one row for it in `admin_users`. Sign out and in again.
@@ -87,7 +95,7 @@ Open **`http://localhost:8080`** (the "Local" address shown in the terminal) and
 
 ## Database (for whoever sets up a new Supabase project)
 
-Apply `supabase/migrations/220_…sql` to `252_…sql` in order (220–228 Project Tracker, 229–252 Employee
+Apply `supabase/migrations/220_…sql` to `268_…sql` in order (220–228 Project Tracker, 229–268 Employee Portal + roles
 Portal). Each has a rollback in `supabase/rollbacks/`. They need the `supabase_vault`, `pgcrypto` and `pg_cron`
 extensions and a `public.is_admin()` function that returns true for website admins. The shared dev database
 already has all of them.
@@ -96,6 +104,33 @@ The **live website** database (Lovable Cloud) gets the same structure — no dat
 run in Lovable Cloud → SQL editor, in this order:
 
 1. `supabase/live/project_tracker_schema_220-228.sql` (already done)
-2. `supabase/live/employee_portal_schema_229-252.sql`
+2. `supabase/live/employee_portal_schema_229-252.sql` (already done)
+3. `supabase/live/employee_portal_253-268_updates.sql` (editable Employee ID, leave order: reporting
+   manager reviews -> admin approves -> manager gives the final approval, Admin Notifications)
 
-Each runs as one transaction (all or nothing) and refuses to run twice.
+Each runs as one transaction (all or nothing). The two schema scripts refuse to run twice; the updates
+script is safe to run again.
+
+## Email (daily report "Send by email")
+
+Emails are sent by the database through **Resend** (https://resend.com), from
+`<employee> via Zyllo Tech <info@zyllotech.com>`; replies go to the employee's sign-in email.
+Set it up once per database (dev and live):
+
+1. **Resend:** create an account → Domains → add `zyllotech.com` → add the DNS records Resend shows
+   (TXT/MX) where the domain's DNS is managed → wait until it says *Verified*. Then API Keys → create a key
+   with *Sending access*.
+2. **pg_net** must be enabled: Supabase Dashboard → Database → Extensions → `pg_net` (dev already has it).
+3. **Store the key in the Vault** (Supabase / Lovable Cloud → SQL editor), replacing the placeholder:
+   ```sql
+   select vault.create_secret('re_YOUR_KEY_HERE', 'resend_api_key');
+   ```
+   To change it later: `select vault.update_secret((select id from vault.secrets where name = 'resend_api_key'), 're_NEW_KEY');`
+
+The same setup sends **welcome emails**: when an admin adds an employee or user, the sign-in email and a
+one-time password are emailed to them (they choose their own password at the first sign-in). Every 5 minutes
+the database asks Resend about recent welcome emails; a bounce raises the urgent admin notification
+"Mailbox does not exist", and the admin can use "Change sign-in email & resend".
+
+Until both are in place, "Send email" answers "Email is not set up yet". Each send shows *Sending → Sent* or
+*Failed* with Resend's reason (e.g. domain not verified).

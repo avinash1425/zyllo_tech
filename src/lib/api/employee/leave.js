@@ -4,7 +4,10 @@
 import { supabase } from "@/lib/supabase/client";
 
 export const LEAVE_STATUS = {
-  pending: { label: "Pending approval", chip: "bg-amber-100 text-amber-800" },
+  // Leave flow (migration 257): manager review -> admin -> manager approval.
+  manager_review: { label: "Waiting for manager review", chip: "bg-amber-100 text-amber-800" },
+  pending: { label: "Waiting for admin", chip: "bg-amber-100 text-amber-800" },
+  manager_pending: { label: "Waiting for manager approval", chip: "bg-sky-100 text-sky-800" },
   approved: { label: "Approved", chip: "bg-emerald-100 text-emerald-800" },
   rejected: { label: "Rejected", chip: "bg-red-100 text-red-700" },
   cancelled: { label: "Cancelled", chip: "bg-slate-100 text-slate-600" },
@@ -13,7 +16,7 @@ export const LEAVE_STATUS = {
 export const HALF_DAY = { first_half: "First half", second_half: "Second half" };
 
 const DB_MESSAGES =
-  /Choose a leave type|reporting manager|valid start and end|cross into the next year|at most 30 days ago|half day must|Write a reason|No reporting manager|only Sundays or company holidays|already have leave|Not enough|not found|Only pending leave|already (approved|rejected|cancelled)|Comment must|Not an active employee/i;
+  /Choose a leave type|reporting manager|valid start and end|cross into the next year|at most 30 days ago|half day must|Write a reason|No reporting manager|only Sundays or company holidays|already have leave|Not enough|not found|Only pending leave|already (approved|rejected|cancelled)|Comment must|Not an active employee|has not approved this request yet|with the admin now|Send it to the admin or reject it/i;
 
 function friendly(error, fallback) {
   const msg = error?.message ?? "";

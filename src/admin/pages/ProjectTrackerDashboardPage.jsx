@@ -5,6 +5,7 @@ import useAdminData from "../useAdminData";
 import AdminLoading from "../AdminLoading";
 import PageHeader from "../PageHeader";
 import EmptyState from "../EmptyState";
+import { useAccess } from "@/lib/access";
 import { PROJECT_STATUSES, deleteProject, fetchAllProjects } from "@/lib/api/admin/projectTracker";
 import { COMMERCIAL_CATEGORIES, fetchCommercialDocuments } from "@/lib/api/admin/projectTrackerProject";
 import { HealthBadge, PriorityBadge, ProgressBar, StatusBadge } from "../project-tracker/badges";
@@ -38,6 +39,7 @@ function CommercialCell({ docs, label, onView, onAdd }) {
       {extra > 0 && (
         <span className="text-[11px] font-semibold text-[#9aa0ad]">+{extra}</span>
       )}
+      {onAdd && (
       <button
         type="button"
         onClick={onAdd}
@@ -48,6 +50,7 @@ function CommercialCell({ docs, label, onView, onAdd }) {
         <Plus className="h-3 w-3" aria-hidden="true" />
         Add
       </button>
+      )}
     </div>
   );
 }
@@ -201,6 +204,9 @@ export default function ProjectTrackerDashboardPage() {
   const [notice, setNotice] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null); // { project }
   const [deleting, setDeleting] = useState(false);
+  const { can } = useAccess();
+  const canEdit = can("projects.tracker.edit");
+  const canDelete = can("projects.tracker.delete");
 
   const projects = useMemo(
     () => [...(data?.projects ?? [])].sort(byProjectCode),
@@ -498,14 +504,18 @@ export default function ProjectTrackerDashboardPage() {
                               className="inline-flex h-7 w-7 items-center justify-center rounded text-[#1f4693] hover:bg-[#1f4693]/10">
                               <Eye className="h-3.5 w-3.5" aria-hidden="true" /><span className="sr-only">View</span>
                             </Link>
+                            {canEdit && (
                             <Link href={`/admin/project-tracker/projects/${p.id}?edit=1`} title="Edit project"
                               className="inline-flex h-7 w-7 items-center justify-center rounded text-[#64748b] hover:bg-[#f1f4fc] hover:text-[#1f4693]">
                               <Pencil className="h-3.5 w-3.5" aria-hidden="true" /><span className="sr-only">Edit</span>
                             </Link>
+                            )}
+                            {canDelete && (
                             <button type="button" title="Delete project" onClick={() => setConfirmDelete({ project: p })}
                               className="inline-flex h-7 w-7 items-center justify-center rounded text-[#9aa0ad] hover:bg-[#fee2e2] hover:text-[#dc2626]">
                               <Trash2 className="h-3.5 w-3.5" aria-hidden="true" /><span className="sr-only">Delete</span>
                             </button>
+                            )}
                           </div>
                         </td>
                       </tr>

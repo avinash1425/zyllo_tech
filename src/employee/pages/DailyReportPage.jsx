@@ -26,6 +26,8 @@ import {
   ReviewNote,
   fmtHours,
 } from "../reportsUi";
+import { useAccess } from "@/lib/access";
+import ReportEmailPanel from "../ReportEmailPanel";
 
 /** "YYYY-MM-DD" n days before iso. */
 function isoMinus(iso, n) {
@@ -87,6 +89,7 @@ export function ReportTabs({ active, hasTeam, waiting }) {
 
 export default function DailyReportPage() {
   const today = todayIst().iso;
+  const { can: canPerm } = useAccess();
   const [params] = useSearchParams();
   // ?date=YYYY-MM-DD (links from notifications); otherwise today.
   const [date, setDate] = useState(() => {
@@ -161,7 +164,9 @@ export default function DailyReportPage() {
   }
 
   const report = day?.report ?? null;
-  const editable = !!day && day.date_allowed && (!report || ["draft", "returned"].includes(report.status));
+  // Without emp.reports.create the report is shown read-only (no save / submit).
+  const canWrite = canPerm("emp.reports.create");
+  const editable = canWrite && !!day && day.date_allowed && (!report || ["draft", "returned"].includes(report.status));
   const addable = (projects ?? []).filter((p) => !entries.some((e) => e.project_id === p.id));
   const total = entries.reduce((s, e) => s + (parseHours(e.hours) || 0), 0);
   const worked = day?.worked_minutes;
@@ -223,10 +228,11 @@ export default function DailyReportPage() {
   }
 
   const waiting = team.reports.filter((r) => r.status === "submitted").length;
+  const canTeamReports = canPerm("team.reports");
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-5">
-      <ReportTabs active="mine" hasTeam={team.team.length > 0} waiting={waiting} />
+      <ReportTabs active="mine" hasTeam={canTeamReports && team.team.length > 0} waiting={waiting} />
 
       {/* Day picker: buttons, no dropdown */}
       <Panel icon={CalendarDays} title="Report for" subtitle="Choose the day">
@@ -313,9 +319,12 @@ export default function DailyReportPage() {
           <ReviewNote report={report} forEmployee />
 
           {report && !editable && <ReportView report={report} />}
-          {!report && !day.date_allowed && (
+          {!report && (!day.date_allowed || !canWrite) && (
             <div className={CARD}>
-              <Empty icon={ClipboardList} message="No report was written for this day." />
+              <Empty
+                icon={ClipboardList}
+                message={canWrite ? "No report was written for this day." : "No report was written for this day. You can view reports but not write them."}
+              />
             </div>
           )}
 
@@ -392,7 +401,7 @@ export default function DailyReportPage() {
                     Loading your projects…
                   </p>
                 ) : projects.length === 0 ? (
-                  <p className="text-sm text-[#676b7a]">You are not assigned to any project yet.</p>
+                  <p className="text-sm text-[#676b7a]">You are not assigned to any project yet. You can still write what you worked on today below and submit the report.</p>
                 ) : addable.length === 0 ? (
                   <p className="text-sm text-[#676b7a]">All your projects are in this report.</p>
                 ) : (
@@ -411,13 +420,14 @@ export default function DailyReportPage() {
               <section className={`${CARD} p-5`}>
                 <label htmlFor="r-notes" className={`${LABEL} flex items-center gap-1.5`}>
                   <StickyNote className="h-3.5 w-3.5" aria-hidden="true" />
-                  Notes / blockers for your manager (optional)
+                  {entries.length === 0 ? "What did you work on today? *" : "Other work, notes or blockers (optional)"}
                 </label>
                 <textarea
                   id="r-notes"
                   rows={3}
                   maxLength={TEXT_MAX}
                   value={notes}
+                  placeholder={entries.length === 0 ? "e.g. Training, meetings, documentation, support work… (no project needed)" : undefined}
                   onChange={(ev) => {
                     setNotes(ev.target.value);
                     setDirty(true);
@@ -459,7 +469,7 @@ export default function DailyReportPage() {
                     <button
                       type="button"
                       className={BTN_PRIMARY}
-                      disabled={busy || entries.length === 0}
+                      disabled={busy || (entries.length === 0 && !notes.trim())}
                       onClick={() => {
                         const v = validateReport(entries, notes, true);
                         setErrors(v);
@@ -478,6 +488,15 @@ export default function DailyReportPage() {
           )}
 
           {!editable && message.text && message.kind === "ok" && <Alert kind="ok">{message.text}</Alert>}
+
+          {/* Send by email (migration 266): the saved report exactly as written. */}
+          {canWrite && day && (report || editable) && (
+            <ReportEmailPanel
+              key={date}
+              date={date}
+              ensureSaved={async () => (editable && (dirty || !report) ? save(false) : !!report)}
+            />
+          )}
         </>
       )}
 

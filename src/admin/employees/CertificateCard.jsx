@@ -11,6 +11,7 @@ import {
 } from "@/lib/api/employee/certificate";
 import { formatDateTime } from "@/employee/attendanceFormat";
 import { Alert, Badge, Panel } from "@/components/portal/PortalUI";
+import { useAccess } from "@/lib/access";
 import { BTN_DANGER, BTN_PRIMARY, BTN_SECONDARY, ICON_BTN_DANGER } from "@/components/portal/portalStyles";
 
 /** Opens a link in a new tab, or saves it (the link itself carries the file name). */
@@ -48,6 +49,9 @@ export default function CertificateCard({ emp }) {
   const [msg, setMsg] = useState({ kind: "", text: "" });
   const input = useRef(null);
   const isIntern = emp.employment_type === "intern";
+  const { can } = useAccess();
+  const canEdit = can("portal.employees.edit");
+  const canDownload = can("portal.employees.download");
 
   useEffect(() => {
     let active = true;
@@ -122,27 +126,33 @@ export default function CertificateCard({ emp }) {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button type="button" onClick={() => view(false)} className={BTN_SECONDARY}>
-              <Eye size={14} aria-hidden="true" /> View
-            </button>
-            <button type="button" onClick={() => view(true)} className={BTN_SECONDARY}>
-              <Download size={14} aria-hidden="true" /> Download
-            </button>
-            {isIntern && (
+            {canDownload && (
+              <>
+                <button type="button" onClick={() => view(false)} className={BTN_SECONDARY}>
+                  <Eye size={14} aria-hidden="true" /> View
+                </button>
+                <button type="button" onClick={() => view(true)} className={BTN_SECONDARY}>
+                  <Download size={14} aria-hidden="true" /> Download
+                </button>
+              </>
+            )}
+            {isIntern && canEdit && (
               <button type="button" disabled={busy} onClick={() => input.current?.click()} className={BTN_SECONDARY}>
                 <Upload size={14} aria-hidden="true" /> {busy ? "Uploading…" : "Replace"}
               </button>
             )}
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => setConfirm(true)}
-              className={ICON_BTN_DANGER}
-              aria-label="Remove certificate"
-              title="Remove certificate"
-            >
-              <Trash2 size={15} aria-hidden="true" />
-            </button>
+            {canEdit && (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => setConfirm(true)}
+                className={ICON_BTN_DANGER}
+                aria-label="Remove certificate"
+                title="Remove certificate"
+              >
+                <Trash2 size={15} aria-hidden="true" />
+              </button>
+            )}
           </div>
         </div>
       ) : (
@@ -154,12 +164,14 @@ export default function CertificateCard({ emp }) {
             <span className="block font-semibold text-[#2b303b]">No certificate uploaded yet.</span>
             PDF, PNG, JPG or WEBP, up to 10 MB.
           </p>
-          <button type="button" disabled={busy} onClick={() => input.current?.click()} className={BTN_PRIMARY}>
-            <Upload size={15} aria-hidden="true" /> {busy ? "Uploading…" : "Upload certificate"}
-          </button>
+          {canEdit && (
+            <button type="button" disabled={busy} onClick={() => input.current?.click()} className={BTN_PRIMARY}>
+              <Upload size={15} aria-hidden="true" /> {busy ? "Uploading…" : "Upload certificate"}
+            </button>
+          )}
         </div>
       )}
-      {confirm && (
+      {confirm && canEdit && (
         <div role="alertdialog" aria-label="Remove certificate" className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
           <span className="font-semibold">Remove this certificate? The intern will no longer be able to download it.</span>
           <button type="button" disabled={busy} onClick={remove} className={BTN_DANGER}>

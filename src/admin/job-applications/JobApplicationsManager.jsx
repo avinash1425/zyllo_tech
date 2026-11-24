@@ -24,6 +24,7 @@ import { updateApplicationStatus, updateApplicationProspectRating } from "@/lib/
 import ResumeViewer from "../careers/applicants/ResumeViewer";
 import PageHeader from "../PageHeader";
 import EmptyState from "../EmptyState";
+import { useAccess } from "@/lib/access";
 
 const STATUS_STYLES = {
   new: "bg-[#1f4693]/10 text-[#1f4693]",
@@ -127,6 +128,9 @@ function StarRating({ value, onChange, disabled, size = "h-3.5 w-3.5" }) {
 }
 
 export default function JobApplicationsManager({ initialApplications, jobOptions, resumeFiles, onReload }) {
+  const { can } = useAccess();
+  const canEdit = can("website.job_applications.edit");
+  const canDownload = can("website.job_applications.download");
   const [applications, setApplications] = useState(initialApplications);
   useEffect(() => setApplications(initialApplications), [initialApplications]);
   const [activeTab, setActiveTab] = useState("applications");
@@ -377,6 +381,7 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
           <ClipboardList className="h-4 w-4" aria-hidden="true" />
           Applications
         </button>
+        {canDownload && (
         <button
           type="button"
           onClick={() => setActiveTab("library")}
@@ -389,6 +394,7 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
           <FolderOpen className="h-4 w-4" aria-hidden="true" />
           Resume Library ({resumeFiles.length})
         </button>
+        )}
       </div>
 
       {activeTab === "applications" && (
@@ -417,15 +423,17 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
               Filter by position, experience, status, or prospect rating. Click a row to read the resume and record decisions.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={handleExportExcel}
-            disabled={isExporting}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#e7e9ee] bg-white px-3.5 py-2 text-sm font-medium text-[#2b303b] transition-colors hover:border-[#3089a6]/40 hover:text-[#3089a6] disabled:opacity-50"
-          >
-            <FileSpreadsheet className="h-4 w-4" aria-hidden="true" />
-            {isExporting ? "Exporting…" : `Export Excel (${filtered.length})`}
-          </button>
+          {can("website.job_applications.export") && (
+            <button
+              type="button"
+              onClick={handleExportExcel}
+              disabled={isExporting}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#e7e9ee] bg-white px-3.5 py-2 text-sm font-medium text-[#2b303b] transition-colors hover:border-[#3089a6]/40 hover:text-[#3089a6] disabled:opacity-50"
+            >
+              <FileSpreadsheet className="h-4 w-4" aria-hidden="true" />
+              {isExporting ? "Exporting…" : `Export Excel (${filtered.length})`}
+            </button>
+          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 border-b border-[#e7e9ee] p-4">
@@ -526,6 +534,7 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
                       : "—"}
                   </td>
                   <td className="px-5 py-4">
+                    {canEdit ? (
                     <select
                       value={item.status}
                       onClick={(e) => e.stopPropagation()}
@@ -539,12 +548,17 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
                         </option>
                       ))}
                     </select>
+                    ) : (
+                      <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_STYLES[item.status]}`}>
+                        {STATUS_LABELS[item.status]}
+                      </span>
+                    )}
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-1.5">
                       <StarRating
                         value={item.prospect_rating}
-                        disabled={isPending}
+                        disabled={isPending || !canEdit}
                         onChange={(rating) => handleProspectChange(item.id, rating)}
                       />
                       {item.prospect_rating && (
@@ -587,7 +601,7 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
       </>
       )}
 
-      {activeTab === "library" && (
+      {activeTab === "library" && canDownload && (
         <div className="rounded-2xl border border-[#e7e9ee] bg-white shadow-sm">
           <div className="flex flex-col gap-4 border-b border-[#e7e9ee] p-5 sm:flex-row sm:items-start sm:justify-between">
             <div>
@@ -837,7 +851,7 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
                   <div className="mt-2">
                     <StarRating
                       value={viewing.prospect_rating}
-                      disabled={isPending}
+                      disabled={isPending || !canEdit}
                       size="h-5 w-5"
                       onChange={(rating) => handleProspectChange(viewing.id, rating)}
                     />
@@ -856,7 +870,9 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
 
               <div className="mt-4">
                 <p className="mb-2 text-xs font-bold uppercase tracking-wide text-[#676b7a]">Resume</p>
-                {viewing.resume_url ? (
+                {viewing.resume_url && !canDownload ? (
+                  <p className="text-sm text-[#676b7a]">A resume was uploaded. You don&apos;t have access to open it.</p>
+                ) : viewing.resume_url ? (
                   <>
                     <ResumeViewer url={viewing.resume_url} />
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -885,6 +901,7 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
               </div>
             </div>
 
+            {canEdit && (
             <div className="border-t border-[#e7e9ee] p-4">
               <label htmlFor="modal-status" className="mb-1.5 block text-xs font-medium text-[#676b7a]">
                 Application Status
@@ -906,6 +923,7 @@ export default function JobApplicationsManager({ initialApplications, jobOptions
                 <p className="mt-1.5 text-xs text-[#676b7a]">Hired is final and can&apos;t be changed.</p>
               )}
             </div>
+            )}
           </div>
         </div>
       )}

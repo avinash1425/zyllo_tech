@@ -30,10 +30,10 @@ async function openDocument(doc, download) {
 }
 
 /**
- * List of employee documents with View / Download, optional Delete (employee only),
+ * List of employee documents with View / Download (hidden when canDownload is false), optional Delete (employee only),
  * and category filter buttons when there are documents of more than one kind.
  */
-export function DocumentList({ docs, onDelete, onError }) {
+export function DocumentList({ docs, onDelete, onError, canDownload = true }) {
   const [filter, setFilter] = useState("all");
   const [confirmId, setConfirmId] = useState(null);
   const [busyId, setBusyId] = useState(null);
@@ -82,12 +82,16 @@ export function DocumentList({ docs, onDelete, onError }) {
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <button type="button" onClick={() => view(d, false)} className={BTN_SECONDARY}>
-                    <Eye size={14} aria-hidden="true" /> View
-                  </button>
-                  <button type="button" onClick={() => view(d, true)} className={ICON_BTN} aria-label={`Download ${d.title}`} title="Download">
-                    <Download size={15} aria-hidden="true" />
-                  </button>
+                  {canDownload && (
+                    <>
+                      <button type="button" onClick={() => view(d, false)} className={BTN_SECONDARY}>
+                        <Eye size={14} aria-hidden="true" /> View
+                      </button>
+                      <button type="button" onClick={() => view(d, true)} className={ICON_BTN} aria-label={`Download ${d.title}`} title="Download">
+                        <Download size={15} aria-hidden="true" />
+                      </button>
+                    </>
+                  )}
                   {onDelete && (
                     <button
                       type="button"

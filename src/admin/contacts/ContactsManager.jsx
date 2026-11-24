@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import PageHeader from "../PageHeader";
 import StatusBadge from "../StatusBadge";
+import { useAccess } from "@/lib/access";
 import EmptyState from "../EmptyState";
 import { updateSubmissionStatus, deleteSubmission } from "@/lib/api/admin/contacts";
 
@@ -57,6 +58,7 @@ function formatDate(isoString) {
 }
 
 export default function ContactsManager({ initialSubmissions }) {
+  const { can } = useAccess();
   const [submissions, setSubmissions] = useState(initialSubmissions);
   useEffect(() => setSubmissions(initialSubmissions), [initialSubmissions]);
   const [activeFilter, setActiveFilter] = useState("all");
@@ -310,15 +312,17 @@ export default function ContactsManager({ initialSubmissions }) {
             )}
           </div>
 
-          <button
-            type="button"
-            onClick={handleExportExcel}
-            disabled={isExporting}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#e7e9ee] bg-white px-3.5 py-2 text-sm font-medium text-[#2b303b] transition-colors hover:border-[#3089a6]/40 hover:text-[#3089a6] disabled:opacity-50"
-          >
-            <FileSpreadsheet className="h-4 w-4" aria-hidden="true" />
-            {isExporting ? "Exporting…" : "Export Excel"}
-          </button>
+          {can("website.contacts.export") && (
+            <button
+              type="button"
+              onClick={handleExportExcel}
+              disabled={isExporting}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#e7e9ee] bg-white px-3.5 py-2 text-sm font-medium text-[#2b303b] transition-colors hover:border-[#3089a6]/40 hover:text-[#3089a6] disabled:opacity-50"
+            >
+              <FileSpreadsheet className="h-4 w-4" aria-hidden="true" />
+              {isExporting ? "Exporting…" : "Export Excel"}
+            </button>
+          )}
         </div>
       </div>
 
@@ -357,6 +361,7 @@ export default function ContactsManager({ initialSubmissions }) {
                   <td className="px-5 py-4 text-[#2b303b]">{item.company || "—"}</td>
                   <td className="px-5 py-4 text-[#676b7a]">{item.service || "—"}</td>
                   <td className="px-5 py-4">
+                    {can("website.contacts.edit") ? (
                     <select
                       value={item.status}
                       onChange={(e) => handleStatusChange(item.id, e.target.value)}
@@ -369,6 +374,9 @@ export default function ContactsManager({ initialSubmissions }) {
                         </option>
                       ))}
                     </select>
+                    ) : (
+                      <StatusBadge status={item.status} label={STATUS_LABELS[item.status]} />
+                    )}
                   </td>
                   <td className="px-5 py-4 text-[#676b7a]">{formatDate(item.created_at)}</td>
                   <td className="px-5 py-4">
@@ -381,14 +389,16 @@ export default function ContactsManager({ initialSubmissions }) {
                       >
                         <Eye className="h-4 w-4" aria-hidden="true" />
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => setDeletingId(item.id)}
-                        aria-label={`Delete submission from ${item.full_name}`}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-red-50 hover:text-red-600"
-                      >
-                        <Trash2 className="h-4 w-4" aria-hidden="true" />
-                      </button>
+                      {can("website.contacts.delete") && (
+                        <button
+                          type="button"
+                          onClick={() => setDeletingId(item.id)}
+                          aria-label={`Delete submission from ${item.full_name}`}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-red-50 hover:text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

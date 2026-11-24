@@ -23,6 +23,7 @@ import {
   LEAVE_STATUS,
   applyLeave,
   cancelLeave,
+  getTeamLeave,
   getLeaveOverview,
   previewLeaveDays,
   validateLeave,
@@ -32,11 +33,12 @@ import { ACCENTS, BTN_SECONDARY, LABEL, TABLE, TABLE_WRAP, TD, TH, TR } from "@/
 import { dayName, formatDate, todayIst } from "../attendanceFormat";
 import { BTN_PRIMARY, INPUT } from "../reportsUi";
 import { getMessageOptions } from "@/lib/api/employee/notifications";
+import { useAccess } from "@/lib/access";
 
 const num = (v) => Number(v ?? 0).toLocaleString("en-IN", { maximumFractionDigits: 1 });
 
 /** Badge tone per leave status. */
-const STATUS_TONE = { pending: "amber", approved: "green", rejected: "red", cancelled: "slate" };
+const STATUS_TONE = { manager_review: "amber", pending: "amber", manager_pending: "blue", approved: "green", rejected: "red", cancelled: "slate" };
 
 export function LeaveStatusChip({ status }) {
   const s = LEAVE_STATUS[status];
@@ -57,7 +59,7 @@ export function leaveDates(r) {
   return r.half_day ? `${base} (${HALF_DAY[r.half_day]})` : base;
 }
 
-// Not shown for now (user asked to hide "Team requests" on 2026-11-23); kept for TeamLeavePage.
+// "Team requests" shows only for reporting managers (two-step approval, migration 255).
 export function LeaveTabs({ active, teamSize, waiting }) {
   const tab = (on) =>
     `inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3.5 py-2 text-[13px] font-semibold transition-all ${
@@ -158,7 +160,7 @@ function ManagerField({ id, name, people, error, onChange }) {
       <label htmlFor="lv-mgr" className={LABEL}>
         Reporting manager
       </label>
-      <p className="-mt-0.5 mb-2 text-xs text-[#9aa0ad]">The admin approves your leave; your manager is kept informed.</p>
+      <p className="-mt-0.5 mb-2 text-xs text-[#9aa0ad]">Your reporting manager reviews it first, then the admin, then your manager gives the final approval. (Without a manager in the portal, the admin decides.)</p>
       {picked ? (
         <div className="flex items-center gap-3 rounded-xl border border-[#1f4693]/30 bg-[#f4f7ff] px-3 py-2.5 text-sm">
           <Avatar name={picked.full_name} size="h-8 w-8 text-xs" />
@@ -415,7 +417,7 @@ function ApplyForm({ overview, onApplied }) {
 }
 
 function History({ requests, onChanged }) {
-  const today = todayIst().iso;
+  const { can } = useAccess();
   const [confirmId, setConfirmId] = useState(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -452,7 +454,8 @@ function History({ requests, onChanged }) {
           </thead>
           <tbody>
             {requests.map((r) => {
-              const canCancel = r.status === "pending" || (r.status === "approved" && r.start_date > today);
+              // Only while nobody has approved yet (manager review or with the admin) — migrations 254 / 257.
+              const canCancel = can("emp.leave.delete") && (r.status === "manager_review" || r.status === "pending");
               return (
                 <tr key={r.id} className={TR}>
                   <td className={`${TD} font-semibold text-[#101a3a]`}>{r.leave_name}</td>
@@ -462,17 +465,10 @@ function History({ requests, onChanged }) {
                     <span className="line-clamp-2 break-words">{r.reason}</span>
                   </td>
                   <td className={TD}>
+                    {/* Only the status (user, 2026-11-24): not who approved. A rejection still shows its reason. */}
                     <LeaveStatusChip status={r.status} />
-                    {r.status === "pending" && (
-                      <p className="mt-1 text-xs text-[#9aa0ad]">
-                        Waiting for admin approval{r.approver ? ` · Manager: ${r.approver}` : ""}
-                      </p>
-                    )}
-                    {["approved", "rejected"].includes(r.status) && (
-                      <p className="mt-1 text-xs text-[#676b7a]">
-                        By {r.decided_by ?? "Admin"}
-                        {r.decision_comment ? `: ${r.decision_comment}` : ""}
-                      </p>
+                    {r.status === "rejected" && r.decision_comment && (
+                      <p className="mt-1 max-w-[18rem] break-words text-xs text-[#676b7a]">Reason: {r.decision_comment}</p>
                     )}
                   </td>
                   <td className={`${TD} text-right`}>
@@ -569,12 +565,28 @@ export default function LeavePage() {
     };
   }, [year, reload]);
 
+  // Reporting managers also get "Team requests" (requests the admin approved, waiting for them).
+  const [team, setTeam] = useState(null);
+  useEffect(() => {
+    let active = true;
+    getTeamLeave()
+      .then((t) => active && setTeam(t))
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+  const teamWaiting = team?.requests?.filter((r) => r.status === "manager_review" || r.status === "manager_pending").length ?? 0;
+  const { can } = useAccess();
+  const isManager = can("team.leave") && ((team?.team_size ?? 0) > 0 || (team?.requests?.length ?? 0) > 0);
+
   const current = data?.year === year ? data : null;
   const navBtn =
     "inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#dce6f7] bg-white text-[#1f4693] transition-colors hover:bg-[#f0f4ff] disabled:cursor-not-allowed disabled:opacity-50";
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-5">
+      {isManager && <LeaveTabs active="mine" teamSize={1} waiting={teamWaiting} />}
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="flex flex-1 items-center gap-2 text-base font-bold text-[#101a3a]">
           <span className="h-5 w-1 rounded-full bg-gradient-to-b from-[#f7941e] to-[#f96706]" aria-hidden="true" />
@@ -604,10 +616,17 @@ export default function LeavePage() {
           <Balances balances={current.balances} />
 
           <div className="grid gap-5 lg:grid-cols-5">
-            <Panel icon={Palmtree} title="Apply for leave" subtitle="Sent to the admin for approval" className="lg:col-span-3">
-              <ApplyForm overview={current} onApplied={() => setReload((r) => r + 1)} />
-            </Panel>
-            <Panel icon={CalendarDays} title={`Company holidays ${year}`} subtitle="Not counted as leave" className="lg:col-span-2">
+            {can("emp.leave.create") && (
+              <Panel icon={Palmtree} title="Apply for leave" subtitle="Sent to the admin for approval" className="lg:col-span-3">
+                <ApplyForm overview={current} onApplied={() => setReload((r) => r + 1)} />
+              </Panel>
+            )}
+            <Panel
+              icon={CalendarDays}
+              title={`Company holidays ${year}`}
+              subtitle="Not counted as leave"
+              className={can("emp.leave.create") ? "lg:col-span-2" : "lg:col-span-5"}
+            >
               <Holidays holidays={current.holidays} year={year} />
             </Panel>
           </div>

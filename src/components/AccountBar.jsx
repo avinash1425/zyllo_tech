@@ -32,10 +32,10 @@ function useAccountType(user) {
     let active = true;
     loadSupabase()
       .then(async (supabase) => {
-        const { data: isAdmin } = await supabase.rpc("is_admin");
-        if (isAdmin === true) return "admin";
         const { data: access } = await supabase.rpc("ep_my_access");
-        return access === "active" ? "employee" : null;
+        if (access === "active") return "employee";
+        const { data: isAdmin } = await supabase.rpc("is_admin");
+        return isAdmin === true ? "admin" : null;
       })
       .catch(() => null)
       .then((type) => {

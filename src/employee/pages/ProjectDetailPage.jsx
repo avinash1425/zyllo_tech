@@ -16,6 +16,7 @@ import { Alert, Avatar, Badge, Chips, Detail, Empty, Hero, Panel, Tabs } from "@
 import { BTN_PRIMARY, BTN_SECONDARY, INPUT, LABEL } from "@/components/portal/portalStyles";
 import { formatDate } from "../attendanceFormat";
 import { DeadlineText, HealthChip, PriorityChip, ProgressBar, StatusChip } from "../projectsUi";
+import { useAccess } from "@/lib/access";
 
 const TABS = [
   { key: "overview", label: "Overview", icon: Info },
@@ -50,6 +51,8 @@ function Pills({ label, options, value, onChange }) {
 
 /** Missed project deadline: the team writes why (migration 244). */
 function ProjectDelay({ data, reload }) {
+  const { can } = useAccess();
+  const canEdit = can("emp.projects.edit");
   const p = data.project;
   const mine = data.delay_reasons.find((r) => r.employee_id === data.me && r.deadline === p.end_date);
   const [text, setText] = useState(mine?.reason ?? "");
@@ -92,7 +95,7 @@ function ProjectDelay({ data, reload }) {
           {msg.text}
         </Alert>
       )}
-      {editing ? (
+      {!canEdit ? null : editing ? (
         <div className="mt-4 flex flex-col gap-2">
           <label htmlFor="pd-reason" className={LABEL}>
             Your reason for the delay
@@ -295,6 +298,9 @@ function AddTaskForm({ data, onDone, onCancel }) {
 }
 
 function Tasks({ data, reload }) {
+  const { can } = useAccess();
+  const canAdd = can("emp.projects.create");
+  const canEdit = can("emp.projects.edit");
   const [view, setView] = useState("all");
   const [adding, setAdding] = useState(false);
   const [busyId, setBusyId] = useState(null);
@@ -347,7 +353,7 @@ function Tasks({ data, reload }) {
               { key: "mine", label: "My tasks", count: data.tasks.filter((t) => t.assignee_id === data.me).length },
             ]}
           />
-          {!adding && (
+          {canAdd && !adding && (
             <button type="button" onClick={() => setAdding(true)} className={BTN_PRIMARY}>
               <Plus size={15} aria-hidden="true" /> Add task
             </button>
@@ -358,7 +364,7 @@ function Tasks({ data, reload }) {
       <Alert kind="err" className="mb-4">
         {message}
       </Alert>
-      {adding && (
+      {canAdd && adding && (
         <div className="mb-4">
           <AddTaskForm
             data={data}
@@ -401,7 +407,7 @@ function Tasks({ data, reload }) {
                     <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs text-amber-900">
                       <span className="font-semibold">Reason for delay:</span> {t.delay_reason}
                       {t.delay_reason_by && <span className="text-amber-700"> — {t.delay_reason_by}</span>}
-                      {t.overdue && (
+                      {canEdit && t.overdue && (
                         <button type="button" onClick={() => setReasonBox({ id: t.id, mode: "reason", text: t.delay_reason })} className="ml-2 font-semibold text-[#1f4693] hover:underline">
                           Edit
                         </button>
@@ -411,13 +417,15 @@ function Tasks({ data, reload }) {
                     t.overdue && (
                       <p className="mt-1.5 flex flex-wrap items-center gap-2 text-xs font-semibold text-red-600">
                         <AlertTriangle size={13} aria-hidden="true" /> Past the deadline — the reason is required.
-                        <button type="button" onClick={() => setReasonBox({ id: t.id, mode: "reason", text: "" })} className="text-[#1f4693] hover:underline">
-                          Write reason
-                        </button>
+                        {canEdit && (
+                          <button type="button" onClick={() => setReasonBox({ id: t.id, mode: "reason", text: "" })} className="text-[#1f4693] hover:underline">
+                            Write reason
+                          </button>
+                        )}
                       </p>
                     )
                   )}
-                  {reasonBox?.id === t.id && (
+                  {canEdit && reasonBox?.id === t.id && (
                     <div className="mt-3 flex flex-col gap-2 rounded-xl border border-red-200 bg-white p-3 shadow-[0_6px_16px_-10px_rgba(220,38,38,0.35)]">
                       <label htmlFor={`rs-${t.id}`} className="text-xs font-semibold text-red-800">
                         {reasonBox.mode === "done"
@@ -445,36 +453,42 @@ function Tasks({ data, reload }) {
                     </div>
                   )}
                 </div>
-                <div
-                  className="inline-flex shrink-0 gap-1 self-start rounded-xl border border-[#e3e9f5] bg-[#f8faff] p-1 lg:self-center"
-                  role="radiogroup"
-                  aria-label={`Status of ${t.title}`}
-                >
-                  {TASK_STATUS.map((s) => {
-                    const on = t.status === s.value;
-                    return (
-                      <button
-                        key={s.value}
-                        type="button"
-                        role="radio"
-                        aria-checked={on}
-                        disabled={busyId === t.id}
-                        onClick={() => changeStatus(t, s.value)}
-                        className={`whitespace-nowrap rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1f4693] ${
-                          on
-                            ? s.value === "done"
-                              ? "bg-emerald-600 text-white shadow-sm"
-                              : s.value === "in_progress"
-                                ? "bg-sky-600 text-white shadow-sm"
-                                : "bg-slate-500 text-white shadow-sm"
-                            : "text-[#4a5880] hover:bg-white hover:text-[#1f4693]"
-                        }`}
-                      >
-                        {s.label}
-                      </button>
-                    );
-                  })}
-                </div>
+                {!canEdit ? (
+                  <span className="shrink-0 self-start whitespace-nowrap rounded-lg border border-[#e3e9f5] bg-[#f8faff] px-2.5 py-1 text-[11px] font-semibold text-[#4a5880] lg:self-center">
+                    {TASK_STATUS.find((s) => s.value === t.status)?.label ?? t.status}
+                  </span>
+                ) : (
+                  <div
+                    className="inline-flex shrink-0 gap-1 self-start rounded-xl border border-[#e3e9f5] bg-[#f8faff] p-1 lg:self-center"
+                    role="radiogroup"
+                    aria-label={`Status of ${t.title}`}
+                  >
+                    {TASK_STATUS.map((s) => {
+                      const on = t.status === s.value;
+                      return (
+                        <button
+                          key={s.value}
+                          type="button"
+                          role="radio"
+                          aria-checked={on}
+                          disabled={busyId === t.id}
+                          onClick={() => changeStatus(t, s.value)}
+                          className={`whitespace-nowrap rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1f4693] ${
+                            on
+                              ? s.value === "done"
+                                ? "bg-emerald-600 text-white shadow-sm"
+                                : s.value === "in_progress"
+                                  ? "bg-sky-600 text-white shadow-sm"
+                                  : "bg-slate-500 text-white shadow-sm"
+                              : "text-[#4a5880] hover:bg-white hover:text-[#1f4693]"
+                          }`}
+                        >
+                          {s.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </li>
             );
           })}
@@ -485,6 +499,7 @@ function Tasks({ data, reload }) {
 }
 
 function Updates({ data, reload }) {
+  const { can } = useAccess();
   const [body, setBody] = useState("");
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
@@ -503,26 +518,28 @@ function Updates({ data, reload }) {
 
   return (
     <Panel icon={Megaphone} title="Project updates" subtitle={`${data.updates.length} update${data.updates.length === 1 ? "" : "s"}`}>
-      <form onSubmit={onSubmit} className="mb-6 flex flex-col gap-2 rounded-2xl border border-[#dce6f7] bg-[#f8faff] p-4">
-        <label htmlFor="pu-body" className={LABEL}>
-          Share an update with the team
-        </label>
-        <textarea
-          id="pu-body"
-          rows={3}
-          maxLength={2000}
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="What was done, what is next, any blockers…"
-          className={`${INPUT(false)} resize-none`}
-        />
-        <Alert kind="err">{message}</Alert>
-        <div className="flex justify-end">
-          <button type="submit" disabled={saving || !body.trim()} className={BTN_PRIMARY}>
-            <Send size={14} aria-hidden="true" /> {saving ? "Posting…" : "Post update"}
-          </button>
-        </div>
-      </form>
+      {can("emp.projects.edit") && (
+        <form onSubmit={onSubmit} className="mb-6 flex flex-col gap-2 rounded-2xl border border-[#dce6f7] bg-[#f8faff] p-4">
+          <label htmlFor="pu-body" className={LABEL}>
+            Share an update with the team
+          </label>
+          <textarea
+            id="pu-body"
+            rows={3}
+            maxLength={2000}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="What was done, what is next, any blockers…"
+            className={`${INPUT(false)} resize-none`}
+          />
+          <Alert kind="err">{message}</Alert>
+          <div className="flex justify-end">
+            <button type="submit" disabled={saving || !body.trim()} className={BTN_PRIMARY}>
+              <Send size={14} aria-hidden="true" /> {saving ? "Posting…" : "Post update"}
+            </button>
+          </div>
+        </form>
+      )}
       {data.updates.length === 0 ? (
         <Empty icon={Megaphone} message="No updates yet." className="py-6" />
       ) : (

@@ -6,6 +6,7 @@ import { Alert, Badge, Detail, Empty, Panel } from "@/components/portal/PortalUI
 import { BTN_SECONDARY, TABLE, TD, TH_STICKY, TR } from "@/components/portal/portalStyles";
 import { AutoOutChip, Calendar, LateChip, PeriodPicker, StatusChip, Summary } from "../attendanceUi";
 import CorrectionsCard from "../CorrectionsCard";
+import { useAccess } from "@/lib/access";
 import {
   RULES_TEXT,
   dayName,
@@ -107,6 +108,7 @@ function TodayCard({ today, row, sessions }) {
 }
 
 function History({ days, sessionsByDay, todayIso, onCorrect }) {
+  const { can } = useAccess();
   const minIso = correctionMinDate();
   const rows = days
     .filter((d) => d.row || ["absent", "on_leave", "holiday"].includes(d.status))
@@ -176,7 +178,7 @@ function History({ days, sessionsByDay, todayIso, onCorrect }) {
                 </span>
               </td>
               <td className={`${TDT} text-right`}>
-                {d.iso >= minIso && d.iso <= todayIso && (d.row || d.status === "absent") && (
+                {can("emp.attendance.edit") && d.iso >= minIso && d.iso <= todayIso && (d.row || d.status === "absent") && (
                   <button
                     type="button"
                     onClick={() => onCorrect(d.iso)}

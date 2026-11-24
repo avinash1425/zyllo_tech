@@ -92,7 +92,7 @@ export function ReportView({ report }) {
             <StickyNote className="h-4 w-4" aria-hidden="true" />
           </span>
           <div className="min-w-0 flex-1">
-            <Block label="Notes / blockers" text={report.notes} />
+            <Block label={report.items.length ? "Other work, notes / blockers" : "Work done today (no project)"} text={report.notes} />
           </div>
         </section>
       )}

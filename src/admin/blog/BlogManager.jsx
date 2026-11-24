@@ -15,6 +15,7 @@ import {
 import PageHeader from "../PageHeader";
 import StatusBadge from "../StatusBadge";
 import EmptyState from "../EmptyState";
+import { useAccess } from "@/lib/access";
 import { createBlogPost, updateBlogPost, togglePostStatus, deleteBlogPost } from "@/lib/api/admin/blog";
 
 const CATEGORY_OPTIONS = [
@@ -221,6 +222,7 @@ function StatCard({ icon: Icon, label, value, accent }) {
 }
 
 export default function BlogManager({ initialPosts, onReload }) {
+  const { can } = useAccess();
   const [posts, setPosts] = useState(initialPosts);
   useEffect(() => setPosts(initialPosts), [initialPosts]);
   const [query, setQuery] = useState("");
@@ -301,14 +303,16 @@ export default function BlogManager({ initialPosts, onReload }) {
               className="w-full rounded-lg border border-[#e7e9ee] bg-white py-2 pl-9 pr-3 text-sm text-[#2b303b] outline-none placeholder:text-[#676b7a]/50 focus:border-[#1f4693]/50"
             />
           </div>
-          <button
-            type="button"
-            onClick={openCreateForm}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#f7941e] to-[#f96706] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:brightness-95"
-          >
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            New Post
-          </button>
+          {can("website.blog.create") && (
+            <button
+              type="button"
+              onClick={openCreateForm}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#f7941e] to-[#f96706] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:brightness-95"
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              New Post
+            </button>
+          )}
         </>
         }
       />
@@ -351,15 +355,19 @@ export default function BlogManager({ initialPosts, onReload }) {
                   <td className="px-5 py-4 text-[#676b7a]">{post.category}</td>
                   <td className="px-5 py-4 text-[#676b7a]">{post.author}</td>
                   <td className="px-5 py-4">
-                    <button
-                      type="button"
-                      onClick={() => handleToggleStatus(post)}
-                      disabled={isPending}
-                      title="Toggle published/draft"
-                      className="inline-flex rounded-full transition-opacity hover:opacity-80 disabled:opacity-50"
-                    >
+                    {can("website.blog.edit") ? (
+                      <button
+                        type="button"
+                        onClick={() => handleToggleStatus(post)}
+                        disabled={isPending}
+                        title="Toggle published/draft"
+                        className="inline-flex rounded-full transition-opacity hover:opacity-80 disabled:opacity-50"
+                      >
+                        <StatusBadge status={post.status} />
+                      </button>
+                    ) : (
                       <StatusBadge status={post.status} />
-                    </button>
+                    )}
                   </td>
                   <td className="px-5 py-4 text-[#676b7a]">{post.views}</td>
                   <td className="px-5 py-4">
@@ -374,23 +382,27 @@ export default function BlogManager({ initialPosts, onReload }) {
                           <Eye className="h-4 w-4" aria-hidden="true" />
                         </Link>
                       )}
-                      <button
-                        type="button"
-                        onClick={() => openEditForm(post)}
-                        aria-label={`Edit ${post.title}`}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-[#f7941e]/10 hover:text-[#f7941e]"
-                      >
-                        <Pencil className="h-4 w-4" aria-hidden="true" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(post)}
-                        disabled={isPending}
-                        aria-label={`Delete ${post.title}`}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
-                      >
-                        <Trash2 className="h-4 w-4" aria-hidden="true" />
-                      </button>
+                      {can("website.blog.edit") && (
+                        <button
+                          type="button"
+                          onClick={() => openEditForm(post)}
+                          aria-label={`Edit ${post.title}`}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-[#f7941e]/10 hover:text-[#f7941e]"
+                        >
+                          <Pencil className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                      )}
+                      {can("website.blog.delete") && (
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(post)}
+                          disabled={isPending}
+                          aria-label={`Delete ${post.title}`}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                        >
+                          <Trash2 className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

@@ -18,6 +18,7 @@ import { KINDS, getMyNotifications, getSentMessages, markRead, timeAgo } from "@
 import { Alert, Badge, Chips, Empty, Panel, Tabs } from "@/components/portal/PortalUI";
 import { BTN_SECONDARY } from "@/components/portal/portalStyles";
 import MessageComposer from "../MessageComposer";
+import { useAccess } from "@/lib/access";
 
 const FILTERS = [
   { key: "all", label: "All" },
@@ -237,9 +238,12 @@ export function SentList() {
 export default function NotificationsPage({ onChanged }) {
   const [tab, setTab] = useState("inbox");
   const [sentKey, setSentKey] = useState(0);
+  // Sending needs a message permission (Settings -> Roles & Permissions).
+  const { canAny } = useAccess();
+  const tabs = canAny(["emp.messages", "team.messages"]) ? TABS : TABS.filter((t) => t.key === "inbox");
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-5">
-      <Tabs items={TABS} value={tab} onChange={setTab} label="Notifications" />
+      <Tabs items={tabs} value={tab} onChange={setTab} label="Notifications" />
       {tab === "inbox" && <InboxList onChanged={onChanged} />}
       {tab === "compose" && (
         <Panel icon={PenSquare} title="Send a message" subtitle="Notify colleagues in the portal">

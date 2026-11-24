@@ -20,6 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { formatTime } from "./attendanceFormat";
+import { useAccess } from "@/lib/access";
 
 const NAV_SECTIONS = [
   {
@@ -32,10 +33,10 @@ const NAV_SECTIONS = [
   {
     label: "My work",
     items: [
-      { href: "/employee/projects", label: "My Projects", icon: FolderKanban },
-      { href: "/employee/reports", label: "Daily Work Report", icon: ClipboardList },
-      { href: "/employee/attendance", label: "Attendance Management", icon: CalendarCheck },
-      { href: "/employee/leave", label: "Leave Management", icon: Plane },
+      { href: "/employee/projects", label: "My Projects", icon: FolderKanban, perms: ["emp.projects"] },
+      { href: "/employee/reports", label: "Daily Work Report", icon: ClipboardList, perms: ["emp.reports"] },
+      { href: "/employee/attendance", label: "Attendance Management", icon: CalendarCheck, perms: ["emp.attendance"] },
+      { href: "/employee/leave", label: "Leave Management", icon: Plane, perms: ["emp.leave", "team.leave"] },
       { href: "/employee/notifications", label: "Notifications", icon: Bell, badge: "unread" },
     ],
   },
@@ -122,6 +123,11 @@ function UserMenu({ me, busy, onSignOut }) {
 
 /** Sidebar + top bar for the Employee Portal (same look as the admin side). */
 export default function EmployeeShell({ me, busy, message, onPunchOut, onSignOut, summary, onDismissUrgent, children }) {
+  const { canAny, access } = useAccess();
+  const visibleSections = NAV_SECTIONS.map((section) => ({
+    ...section,
+    items: section.items.filter((i) => !i.perms || canAny(i.perms)),
+  })).filter((section) => section.items.length > 0);
   const unread = summary?.unread ?? 0;
   const urgent = summary?.urgent ?? [];
   const pathname = usePathname();
@@ -187,7 +193,7 @@ export default function EmployeeShell({ me, busy, message, onPunchOut, onSignOut
 
         <nav className="relative flex-1 overflow-y-auto px-3 pb-2 pt-1" aria-label="Employee">
           <div className="flex flex-col gap-4">
-            {NAV_SECTIONS.map((section) => (
+            {visibleSections.map((section) => (
               <div key={section.label}>
                 <p className="px-3 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-white/40">
                   {section.label}
@@ -287,6 +293,7 @@ export default function EmployeeShell({ me, busy, message, onPunchOut, onSignOut
               </div>
             </div>
 
+            {me.open_session && (
             <span
               className="hidden h-11 shrink-0 items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 text-xs font-semibold text-emerald-800 xl:inline-flex"
               title={me.open_session.auto_punch_out_at ? `Auto punch out at ${formatTime(me.open_session.auto_punch_out_at)}` : undefined}
@@ -297,6 +304,7 @@ export default function EmployeeShell({ me, busy, message, onPunchOut, onSignOut
                 <span className="font-normal text-emerald-700">· auto out {formatTime(me.open_session.auto_punch_out_at)}</span>
               )}
             </span>
+            )}
 
             <Link
               href="/employee/notifications"
@@ -311,11 +319,19 @@ export default function EmployeeShell({ me, busy, message, onPunchOut, onSignOut
               )}
             </Link>
 
+            {access?.is_admin && (
+              <Link href="/admin" className={`${TOP_BTN} hidden md:inline-flex`} title="Admin pages your role may open">
+                <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
+                Admin pages
+              </Link>
+            )}
+
             <Link href="/" className={`${TOP_BTN} hidden md:inline-flex`}>
               <ExternalLink className="h-4 w-4" aria-hidden="true" />
               View site
             </Link>
 
+            {me.open_session && (
             <button
               type="button"
               onClick={onPunchOut}
@@ -327,6 +343,7 @@ export default function EmployeeShell({ me, busy, message, onPunchOut, onSignOut
               <LogOut className="h-4 w-4" aria-hidden="true" />
               <span className="hidden sm:inline">{busy ? "Punching out…" : "Punch out"}</span>
             </button>
+            )}
 
             <UserMenu me={me} busy={busy} onSignOut={onSignOut} />
           </div>

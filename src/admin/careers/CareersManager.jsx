@@ -6,6 +6,7 @@ import { Plus, MapPin, Pencil, Trash2, Users, X, Briefcase, CheckCircle2, XCircl
 import PageHeader from "../PageHeader";
 import StatusBadge from "../StatusBadge";
 import EmptyState from "../EmptyState";
+import { useAccess } from "@/lib/access";
 import {
   createJobPosting,
   updateJobPosting,
@@ -188,6 +189,7 @@ function StatCard({ icon: Icon, label, value, accent }) {
 }
 
 export default function CareersManager({ initialPositions, onReload }) {
+  const { can } = useAccess();
   const [positions, setPositions] = useState(initialPositions);
   useEffect(() => setPositions(initialPositions), [initialPositions]);
   const [formOpen, setFormOpen] = useState(false);
@@ -249,6 +251,7 @@ export default function CareersManager({ initialPositions, onReload }) {
           </>
         }
         actions={
+        can("website.careers.create") && (
         <button
           type="button"
           onClick={openCreateForm}
@@ -257,6 +260,7 @@ export default function CareersManager({ initialPositions, onReload }) {
           <Plus className="h-4 w-4" aria-hidden="true" />
           New Position
         </button>
+        )
         }
       />
 
@@ -273,8 +277,13 @@ export default function CareersManager({ initialPositions, onReload }) {
           bordered
           icon={Briefcase}
           title="No positions yet"
-          message="No positions yet. Create your first job posting to get started."
+          message={
+            can("website.careers.create")
+              ? "No positions yet. Create your first job posting to get started."
+              : "No positions yet."
+          }
           action={
+            can("website.careers.create") && (
             <button
               type="button"
               onClick={openCreateForm}
@@ -283,6 +292,7 @@ export default function CareersManager({ initialPositions, onReload }) {
               <Plus className="h-4 w-4" aria-hidden="true" />
               New Position
             </button>
+            )
           }
         />
       ) : (
@@ -328,34 +338,42 @@ export default function CareersManager({ initialPositions, onReload }) {
                 </p>
               </Link>
 
+              {(can("website.careers.edit") || can("website.careers.delete")) && (
               <div className="flex items-center gap-1.5 border-t border-[#e7e9ee] px-5 py-3">
-                <button
-                  type="button"
-                  onClick={() => handleToggleStatus(position)}
-                  disabled={isPending}
-                  title="Manually toggle open/closed (auto-managed by selections)"
-                  className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#676b7a] transition-colors hover:bg-[#fafbfc] disabled:opacity-50"
-                >
-                  Toggle
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openEditForm(position)}
-                  aria-label={`Edit ${position.title}`}
-                  className="ml-auto flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-[#f7941e]/10 hover:text-[#f7941e]"
-                >
-                  <Pencil className="h-4 w-4" aria-hidden="true" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(position)}
-                  disabled={isPending}
-                  aria-label={`Delete ${position.title}`}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
-                >
-                  <Trash2 className="h-4 w-4" aria-hidden="true" />
-                </button>
+                {can("website.careers.edit") && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleStatus(position)}
+                      disabled={isPending}
+                      title="Manually toggle open/closed (auto-managed by selections)"
+                      className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#676b7a] transition-colors hover:bg-[#fafbfc] disabled:opacity-50"
+                    >
+                      Toggle
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => openEditForm(position)}
+                      aria-label={`Edit ${position.title}`}
+                      className="ml-auto flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-[#f7941e]/10 hover:text-[#f7941e]"
+                    >
+                      <Pencil className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  </>
+                )}
+                {can("website.careers.delete") && (
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(position)}
+                    disabled={isPending}
+                    aria-label={`Delete ${position.title}`}
+                    className={`${can("website.careers.edit") ? "" : "ml-auto "}flex h-8 w-8 items-center justify-center rounded-lg text-[#676b7a] transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50`}
+                  >
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                )}
               </div>
+              )}
             </div>
           ))}
         </div>

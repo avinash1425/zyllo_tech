@@ -13,6 +13,7 @@ import { fileSize } from "@/lib/api/employee/certificate";
 import { Alert, Badge, Chips, Empty, Panel } from "@/components/portal/PortalUI";
 import { BTN_PRIMARY, BTN_SECONDARY, INPUT, LABEL } from "@/components/portal/portalStyles";
 import { DocumentList } from "./documentsUi";
+import { useAccess } from "@/lib/access";
 
 /** Upload form: kind of document (buttons, no dropdown), optional name, file. */
 function UploadForm({ onDone, onCancel }) {
@@ -102,6 +103,9 @@ function UploadForm({ onDone, onCancel }) {
 
 /** My Profile: documents the employee uploads (certificates, ID proofs, …). Migration 251. */
 export default function MyDocumentsCard() {
+  const { can } = useAccess();
+  const canUpload = can("emp.documents.create");
+  const canDelete = can("emp.documents.delete");
   const [docs, setDocs] = useState(undefined); // undefined = loading
   const [reload, setReload] = useState(0);
   const [adding, setAdding] = useState(false);
@@ -133,7 +137,7 @@ export default function MyDocumentsCard() {
       action={
         <div className="flex items-center gap-2">
           {docs?.length > 0 && <Badge tone="blue">{docs.length}</Badge>}
-          {!adding && docs && (
+          {canUpload && !adding && docs && (
             <button
               type="button"
               disabled={full}
@@ -181,7 +185,7 @@ export default function MyDocumentsCard() {
           />
         )
       ) : (
-        <DocumentList docs={docs} onDelete={onDelete} onError={(text) => setMsg({ kind: "err", text })} />
+        <DocumentList docs={docs} onDelete={canDelete ? onDelete : undefined} onError={(text) => setMsg({ kind: "err", text })} />
       )}
     </Panel>
   );

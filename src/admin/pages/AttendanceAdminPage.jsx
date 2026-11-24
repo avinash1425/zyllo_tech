@@ -38,6 +38,7 @@ import {
   ymd,
 } from "@/employee/attendanceFormat";
 import { AutoOutChip, LateChip, PeriodPicker, StatusChip, Summary } from "@/employee/attendanceUi";
+import { useAccess } from "@/lib/access";
 import { Alert, Avatar, Badge, Chips, Empty, MetricStrip, Panel, TableCard, Tabs } from "@/components/portal/PortalUI";
 import {
   BTN_DANGER,
@@ -437,6 +438,8 @@ const CORR_FILTERS = [
 ];
 
 function CorrectionItem({ c, onDone }) {
+  const { can } = useAccess();
+  const canApprove = can("portal.attendance.approve");
   const [rejecting, setRejecting] = useState(false);
   const [comment, setComment] = useState("");
   const [busy, setBusy] = useState(false);
@@ -484,7 +487,7 @@ function CorrectionItem({ c, onDone }) {
           <Badge tone={STATUS_TONE[c.status] ?? "slate"} dot>
             {st?.label}
           </Badge>
-          {c.status === "pending" && !rejecting && (
+          {c.status === "pending" && !rejecting && canApprove && (
             <>
               <button type="button" disabled={busy} onClick={() => decide("approved")} className={`${BTN_NAVY} px-3 py-1.5`}>
                 <Check className="h-4 w-4" aria-hidden="true" />
@@ -498,7 +501,7 @@ function CorrectionItem({ c, onDone }) {
           )}
         </div>
       </div>
-      {rejecting && (
+      {rejecting && canApprove && (
         <div className="mt-3 flex flex-col gap-2 rounded-xl border border-red-100 bg-red-50/70 p-3 sm:flex-row sm:items-end">
           <label className="flex-1">
             <span className={`${LABEL} text-red-800`}>Reason for rejecting</span>

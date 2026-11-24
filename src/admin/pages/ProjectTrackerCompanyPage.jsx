@@ -6,6 +6,7 @@ import { ArrowLeft, Building2, CalendarDays, FolderOpen, Mail, MapPin, Pencil, P
 import useAdminData from "../useAdminData";
 import AdminLoading from "../AdminLoading";
 import EmptyState from "../EmptyState";
+import { useAccess } from "@/lib/access";
 import { deleteCompany, deleteProject, fetchCompany, fetchProjects } from "@/lib/api/admin/projectTracker";
 import CompanyFormModal from "../project-tracker/CompanyFormModal";
 import ProjectFormModal from "../project-tracker/ProjectFormModal";
@@ -29,6 +30,13 @@ export default function ProjectTrackerCompanyPage() {
   const [projectForm, setProjectForm] = useState(null); // null = closed, {} = new, project = edit
   const [deletingProject, setDeletingProject] = useState(null);
   const [notice, setNotice] = useState(null);
+  const { can } = useAccess();
+  // Projects: Project Tracker permissions. The client itself: Clients permissions (migration 262).
+  const canCreate = can("projects.tracker.create");
+  const canEdit = can("projects.tracker.edit");
+  const canDelete = can("projects.tracker.delete");
+  const canEditClient = can("projects.clients.edit");
+  const canDeleteClient = can("projects.clients.delete");
 
   async function afterSave(text, tone = "success") {
     setEditingCompany(false);
@@ -66,12 +74,12 @@ export default function ProjectTrackerCompanyPage() {
 
   const { company, projects } = data;
   const location = [company.address, company.country].filter(Boolean).join(", ");
-  const addProject = (
+  const addProject = canCreate ? (
     <button type="button" onClick={() => setProjectForm({})} className={BTN_PRIMARY}>
       <Plus className="h-4 w-4" aria-hidden="true" />
       Add project
     </button>
-  );
+  ) : null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -120,10 +128,13 @@ export default function ProjectTrackerCompanyPage() {
           </ul>
         </div>
         <div className="mt-4 flex gap-2 sm:mt-0 sm:self-start">
+          {canEditClient && (
           <button type="button" onClick={() => setEditingCompany(true)} className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/30 bg-white/15 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/25">
             <Pencil className="h-4 w-4" aria-hidden="true" />
             Edit
           </button>
+          )}
+          {canDeleteClient && (
           <button
             type="button"
             onClick={() => setDeletingCompany(true)}
@@ -132,6 +143,7 @@ export default function ProjectTrackerCompanyPage() {
           >
             <Trash2 className="h-4 w-4" aria-hidden="true" />
           </button>
+          )}
         </div>
         </div>
       </section>
@@ -178,6 +190,7 @@ export default function ProjectTrackerCompanyPage() {
                     </div>
                   </div>
                   <div className="flex shrink-0 gap-1">
+                    {canEdit && (
                     <button
                       type="button"
                       onClick={() => setProjectForm(p)}
@@ -186,6 +199,8 @@ export default function ProjectTrackerCompanyPage() {
                     >
                       <Pencil className="h-4 w-4" aria-hidden="true" />
                     </button>
+                    )}
+                    {canDelete && (
                     <button
                       type="button"
                       onClick={() => setDeletingProject(p)}
@@ -194,6 +209,7 @@ export default function ProjectTrackerCompanyPage() {
                     >
                       <Trash2 className="h-4 w-4" aria-hidden="true" />
                     </button>
+                    )}
                   </div>
                 </div>
                 {p.description && <p className="line-clamp-3 text-sm text-[#676b7a]">{p.description}</p>}

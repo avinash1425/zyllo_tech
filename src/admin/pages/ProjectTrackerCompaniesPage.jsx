@@ -6,6 +6,7 @@ import AdminLoading from "../AdminLoading";
 import PageHeader from "../PageHeader";
 import EmptyState from "../EmptyState";
 import { fetchCompanies } from "@/lib/api/admin/projectTracker";
+import { useAccess } from "@/lib/access";
 import CompanyFormModal from "../project-tracker/CompanyFormModal";
 import { CompanyLogo, Notice } from "../project-tracker/ui";
 import { BTN_PRIMARY, INPUT } from "../project-tracker/styles";
@@ -17,6 +18,8 @@ export default function ProjectTrackerCompaniesPage() {
   const [query, setQuery] = useState("");
   const [adding, setAdding] = useState(false);
   const [notice, setNotice] = useState(null);
+  const { can } = useAccess();
+  const canCreate = can("projects.clients.create");
 
   const companies = useMemo(() => data ?? [], [data]);
   const filtered = useMemo(() => {
@@ -35,12 +38,12 @@ export default function ProjectTrackerCompaniesPage() {
 
   if (loading) return <AdminLoading />;
 
-  const addButton = (
+  const addButton = canCreate ? (
     <button type="button" onClick={() => setAdding(true)} className={BTN_PRIMARY} disabled={Boolean(error)}>
       <Plus className="h-4 w-4" aria-hidden="true" />
       Add client
     </button>
-  );
+  ) : null;
 
   return (
     <div className="flex flex-col gap-6">

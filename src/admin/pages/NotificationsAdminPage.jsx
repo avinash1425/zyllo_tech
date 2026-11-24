@@ -19,6 +19,7 @@ import {
   Zap,
 } from "lucide-react";
 import PageHeader from "../PageHeader";
+import { useAccess } from "@/lib/access";
 import {
   deleteCustomReminder,
   getCustomReminders,
@@ -343,6 +344,9 @@ function DayPicker({ days, onChange, small = false }) {
 
 // ---------------------------------------------------------------- reminders: built-in (compact rows)
 function BuiltInRow({ s, onSaved }) {
+  const { can } = useAccess();
+  const canEdit = can("portal.notifications.edit");
+  const canSend = can("portal.notifications.create");
   const [enabled, setEnabled] = useState(s.enabled);
   const [time, setTime] = useState(s.send_at);
   const [days, setDays] = useState(s.days);
@@ -370,15 +374,27 @@ function BuiltInRow({ s, onSaved }) {
   return (
     <li className="flex flex-col gap-3 px-5 py-3.5 lg:flex-row lg:items-center">
       <div className="flex min-w-0 flex-1 items-center gap-3">
-        <Toggle on={enabled} onClick={() => setEnabled(!enabled)} label={`${t.title} on or off`} />
+        {canEdit ? (
+          <Toggle on={enabled} onClick={() => setEnabled(!enabled)} label={`${t.title} on or off`} />
+        ) : (
+          <Badge tone={enabled ? "green" : "slate"}>{enabled ? "On" : "Off"}</Badge>
+        )}
         <div className="min-w-0" title={t.who}>
           <p className={`truncate text-sm font-semibold ${enabled ? "text-[#101a3a]" : "text-[#9aa0ad]"}`}>{t.title}</p>
           <p className="truncate text-xs text-[#676b7a]">{t.short}</p>
         </div>
       </div>
       <div className={`flex flex-wrap items-center gap-2 ${enabled ? "" : "opacity-50"}`}>
-        <input type="time" value={time} onChange={(e) => setTime(e.target.value)} aria-label={`${t.title} time`} className={`${INPUT_INLINE(false)} w-[7.5rem] py-1.5`} />
-        <DayPicker days={days} onChange={setDays} small />
+        {canEdit ? (
+          <>
+            <input type="time" value={time} onChange={(e) => setTime(e.target.value)} aria-label={`${t.title} time`} className={`${INPUT_INLINE(false)} w-[7.5rem] py-1.5`} />
+            <DayPicker days={days} onChange={setDays} small />
+          </>
+        ) : (
+          <span className="text-xs text-[#4a5068]">
+            {timeText(time)} · {daysText(days)}
+          </span>
+        )}
       </div>
       <div className="flex items-center gap-2 lg:w-56 lg:justify-end">
         <span className="text-[11px] text-[#9aa0ad]">
@@ -388,14 +404,16 @@ function BuiltInRow({ s, onSaved }) {
             <>{s.sent_today} today · {s.last_run ? `last ${formatDate(s.last_run)}` : "not sent yet"}</>
           )}
         </span>
-        {dirty && (
+        {dirty && canEdit && (
           <button type="button" disabled={busy} onClick={save} className={`${BTN_PRIMARY} px-3 py-1.5 text-xs`}>
             Save
           </button>
         )}
-        <button type="button" disabled={busy} onClick={now} className={ICON_BTN} title="Send now" aria-label={`Send ${t.title} now`}>
-          <Send size={15} aria-hidden="true" />
-        </button>
+        {canSend && (
+          <button type="button" disabled={busy} onClick={now} className={ICON_BTN} title="Send now" aria-label={`Send ${t.title} now`}>
+            <Send size={15} aria-hidden="true" />
+          </button>
+        )}
       </div>
     </li>
   );
@@ -576,6 +594,10 @@ function CustomReminderForm({ opts, reminder, onSaved, onClose }) {
 }
 
 function CustomRow({ r, opts, onList }) {
+  const { can } = useAccess();
+  const canEdit = can("portal.notifications.edit");
+  const canDelete = can("portal.notifications.delete");
+  const canSend = can("portal.notifications.create");
   const [mode, setMode] = useState(null); // null | "edit" | "delete"
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState({ kind: "", text: "" });
@@ -601,7 +623,7 @@ function CustomRow({ r, opts, onList }) {
     onList(res.list);
   }
 
-  if (mode === "edit") {
+  if (mode === "edit" && canEdit) {
     return (
       <li>
         <CustomReminderForm opts={opts} reminder={r} onSaved={onList} onClose={() => setMode(null)} />
@@ -614,7 +636,11 @@ function CustomRow({ r, opts, onList }) {
     <li className="px-5 py-3.5">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
         <div className="flex min-w-0 flex-1 items-center gap-3">
-          <Toggle on={r.enabled} onClick={toggle} label={`${r.title} on or off`} />
+          {canEdit ? (
+            <Toggle on={r.enabled} onClick={toggle} label={`${r.title} on or off`} />
+          ) : (
+            <Badge tone={r.enabled ? "green" : "slate"}>{r.enabled ? "On" : "Off"}</Badge>
+          )}
           <div className="min-w-0">
             <p className={`flex flex-wrap items-center gap-2 text-sm font-semibold ${r.enabled ? "text-[#101a3a]" : "text-[#9aa0ad]"}`}>
               <span className="truncate">{r.title}</span>
@@ -634,26 +660,32 @@ function CustomRow({ r, opts, onList }) {
         </div>
         <div className="flex items-center gap-1 lg:w-56 lg:justify-end">
           {msg.text && <span className={`mr-1 text-[11px] ${msg.kind === "ok" ? "text-emerald-700" : "text-red-600"}`}>{msg.text}</span>}
-          <button type="button" disabled={busy} onClick={now} className={ICON_BTN} title="Send now" aria-label={`Send ${r.title} now`}>
-            <Send size={15} aria-hidden="true" />
-          </button>
-          <button type="button" disabled={busy} onClick={() => setMode("edit")} className={ICON_BTN} title="Edit" aria-label={`Edit ${r.title}`}>
-            <Pencil size={15} aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => setMode(mode === "delete" ? null : "delete")}
-            className={ICON_BTN_DANGER}
-            title="Delete"
-            aria-label={`Delete ${r.title}`}
-            aria-expanded={mode === "delete"}
-          >
-            <Trash2 size={15} aria-hidden="true" />
-          </button>
+          {canSend && (
+            <button type="button" disabled={busy} onClick={now} className={ICON_BTN} title="Send now" aria-label={`Send ${r.title} now`}>
+              <Send size={15} aria-hidden="true" />
+            </button>
+          )}
+          {canEdit && (
+            <button type="button" disabled={busy} onClick={() => setMode("edit")} className={ICON_BTN} title="Edit" aria-label={`Edit ${r.title}`}>
+              <Pencil size={15} aria-hidden="true" />
+            </button>
+          )}
+          {canDelete && (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => setMode(mode === "delete" ? null : "delete")}
+              className={ICON_BTN_DANGER}
+              title="Delete"
+              aria-label={`Delete ${r.title}`}
+              aria-expanded={mode === "delete"}
+            >
+              <Trash2 size={15} aria-hidden="true" />
+            </button>
+          )}
         </div>
       </div>
-      {mode === "delete" && (
+      {mode === "delete" && canDelete && (
         <div role="alertdialog" className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
           <span className="font-semibold">Delete this reminder?</span>
           <button type="button" disabled={busy} onClick={remove} className={`${BTN_DANGER} px-3 py-1.5 text-xs`}>
@@ -669,6 +701,8 @@ function CustomRow({ r, opts, onList }) {
 }
 
 function CustomReminders() {
+  const { can } = useAccess();
+  const canEdit = can("portal.notifications.edit");
   const opts = useNotifyOptions();
   const [list, setList] = useState(null);
   const [adding, setAdding] = useState(false);
@@ -688,7 +722,8 @@ function CustomReminders() {
       title="Your reminders"
       subtitle="Your own scheduled messages — to everyone, departments, a project team or chosen people"
       action={
-        !adding && (
+        !adding &&
+        canEdit && (
           <button type="button" onClick={() => setAdding(true)} disabled={!opts} className={BTN_PRIMARY}>
             <Plus size={15} aria-hidden="true" /> New reminder
           </button>
@@ -696,7 +731,7 @@ function CustomReminders() {
       }
       flush
     >
-      {adding && opts && <CustomReminderForm opts={opts} reminder={null} onSaved={setList} onClose={() => setAdding(false)} />}
+      {adding && canEdit && opts && <CustomReminderForm opts={opts} reminder={null} onSaved={setList} onClose={() => setAdding(false)} />}
       {!list || !opts ? (
         <p className="p-5 text-sm text-[#676b7a]">Loading…</p>
       ) : list.length === 0 ? (
@@ -874,6 +909,7 @@ function ActivityLog() {
  * automatic notifications and an activity log. Migration 243.
  */
 export default function NotificationsAdminPage() {
+  const { can } = useAccess();
   const [params, setParams] = useSearchParams();
   const tab = TABS.some((t) => t.key === params.get("tab")) ? params.get("tab") : "send";
   const [sentKey, setSentKey] = useState(0);
@@ -904,7 +940,11 @@ export default function NotificationsAdminPage() {
         <ActivityLog />
       ) : (
         <Panel icon={PenSquare} title="New notification" subtitle="Appears in each recipient's Employee Portal notifications.">
-          <Composer onSent={() => setSentKey((k) => k + 1)} />
+          {can("portal.notifications.create") ? (
+            <Composer onSent={() => setSentKey((k) => k + 1)} />
+          ) : (
+            <p className="text-sm text-[#676b7a]">You can view notifications but not send them.</p>
+          )}
         </Panel>
       )}
     </div>

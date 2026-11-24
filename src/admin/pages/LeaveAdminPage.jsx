@@ -7,6 +7,7 @@ import {
   ChevronRight,
   ClipboardList,
   Info,
+  MessageSquareText,
   Palmtree,
   PartyPopper,
   Pencil,
@@ -17,6 +18,7 @@ import {
   X,
 } from "lucide-react";
 import PageHeader from "../PageHeader";
+import { useAccess } from "@/lib/access";
 import {
   decideLeave,
   deleteHoliday,
@@ -32,10 +34,10 @@ import { dayName, formatDate, formatDateTime, todayIst } from "@/employee/attend
 import { Alert, Avatar, Badge, Chips, Empty, Panel, TableCard, Tabs } from "@/components/portal/PortalUI";
 import {
   BTN_DANGER,
-  BTN_DANGER_SOFT,
   BTN_NAVY,
   BTN_PRIMARY,
   BTN_SECONDARY,
+  BTN_SUCCESS,
   ICON_BTN,
   ICON_BTN_DANGER,
   INPUT,
@@ -47,6 +49,7 @@ import {
   TH,
   TR,
 } from "@/components/portal/portalStyles";
+import { useAuth } from "@/lib/auth";
 
 const TABS = [
   { key: "requests", label: "Leave requests", icon: ClipboardList },
@@ -54,13 +57,15 @@ const TABS = [
   { key: "holidays", label: "Holidays", icon: PartyPopper },
 ];
 const REQ_FILTERS = [
-  { key: "pending", label: "Pending" },
+  { key: "pending", label: "Waiting for you" },
+  { key: "manager_review", label: "Manager review" },
+  { key: "manager_pending", label: "Manager approval" },
   { key: "approved", label: "Approved" },
   { key: "rejected", label: "Rejected" },
   { key: "cancelled", label: "Cancelled" },
   { key: "all", label: "All" },
 ];
-const STATUS_TONE = { pending: "amber", approved: "green", rejected: "red", cancelled: "slate" };
+const STATUS_TONE = { manager_review: "slate", pending: "amber", manager_pending: "blue", approved: "green", rejected: "red", cancelled: "slate" };
 
 const NAV_BTN =
   "inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#4a5068] transition-colors hover:bg-[#f0f4ff] hover:text-[#1f4693] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f4693]";
@@ -104,16 +109,25 @@ const dates = (r) =>
 
 // ---------------------------------------------------------------- requests
 function RequestItem({ r, onDone }) {
-  const [rejecting, setRejecting] = useState(false);
+  const { user } = useAuth();
+  const { access, can } = useAccess();
+  const myUserId = user?.id;
+  const iAmSuper = !!access?.is_super_admin;
+  const [reviewing, setReviewing] = useState(false);
   const [comment, setComment] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const st = LEAVE_STATUS[r.status];
   const b = r.balance;
   const left = b?.allowed == null ? null : Number(b.allowed) - Number(b.approved) - Number(b.pending);
+  // Named approver (migration 264): only that person or a Super Admin decides.
+  const approverIsSomeoneElse = !!r.admin_approver && r.admin_approver.user_id !== myUserId && !iAmSuper;
+  const canReview = (can("portal.leave.approve") && ["manager_review", "pending", "manager_pending"].includes(r.status)) && !approverIsSomeoneElse;
+  const withManager = r.status === "manager_pending";
+  const inReview = r.status === "manager_review";
 
   async function decide(action) {
-    if (action === "rejected" && !comment.trim()) return setError("Write a reason for rejecting.");
+    if (action === "rejected" && !comment.trim()) return setError("Write your feedback: the employee needs a reason when leave is rejected.");
     setBusy(true);
     setError("");
     const res = await decideLeave(r.id, action, comment);
@@ -123,8 +137,13 @@ function RequestItem({ r, onDone }) {
   }
 
   return (
-    <li className="px-5 py-4 transition-colors hover:bg-[#fafbff]">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+    <li className={`px-5 py-4 transition-colors ${reviewing ? "bg-[#fafbff]" : "hover:bg-[#fafbff]"}`}>
+      <div
+        className={`flex flex-col gap-3 sm:flex-row sm:items-start ${canReview && !reviewing ? "cursor-pointer" : ""}`}
+        onClick={(e) => {
+          if (canReview && !reviewing && !e.target.closest("button")) setReviewing(true);
+        }}
+      >
         <Avatar name={r.employee?.full_name} />
         <div className="min-w-0 flex-1 text-sm">
           <p className="font-semibold text-[#101a3a]">
@@ -144,7 +163,7 @@ function RequestItem({ r, onDone }) {
           <p className="mt-1.5 text-[11px] text-[#9aa0ad]">
             Applied {formatDateTime(r.created_at)}
             {r.approver && ` · Manager entered: ${r.approver}`}
-          </p>
+          {r.admin_approver && ` · Approver: ${r.admin_approver.name}`}</p>
           {b && b.is_paid && (
             <p className="mt-2 inline-flex flex-wrap items-center gap-x-1 rounded-lg bg-[#f5f8ff] px-2.5 py-1 text-xs text-[#4a5880] ring-1 ring-inset ring-[#dce6f7]">
               {b.name} balance {r.start_date.slice(0, 4)}: {num(b.allowed)} allowed · {num(b.approved)} approved ·{" "}
@@ -152,10 +171,48 @@ function RequestItem({ r, onDone }) {
               <span className={left < 0 ? "font-semibold text-red-600" : "font-semibold text-emerald-700"}>{num(left)} left</span>
             </p>
           )}
+          {inReview && (
+            <p className="mt-1.5 text-xs text-[#676b7a]">
+              Step 1: waiting for <span className="font-semibold">{r.manager ?? "the reporting manager"}</span> to review it and send it to you
+            </p>
+          )}
+          {r.manager_reviewed_at && (
+            <p className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-[#f6f7fb] px-2.5 py-1.5 text-xs text-[#2b303b] ring-1 ring-inset ring-[#e3e6ee]">
+              <MessageSquareText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#4a5068]" aria-hidden="true" />
+              <span className="break-words">
+                <span className="font-semibold">Reviewed by {r.manager_reviewed_by ?? "the manager"}</span> on {formatDateTime(r.manager_reviewed_at)}
+                {r.manager_review_comment ? `: ${r.manager_review_comment}` : " and sent to you"}
+              </span>
+            </p>
+          )}
+          {r.status === "manager_pending" && (
+            <p className="mt-1.5 text-xs text-[#676b7a]">
+              You approved on {formatDateTime(r.admin_decided_at)} · now with <span className="font-semibold">{r.manager ?? "the manager"}</span> for the
+              final approval
+            </p>
+          )}
+          {r.admin_comment && (r.status === "manager_pending" || (r.decided_by && !r.decided_by_is_admin)) && (
+            <p className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-[#fff8ef] px-2.5 py-1.5 text-xs text-[#2b303b] ring-1 ring-inset ring-[#f7941e]/25">
+              <MessageSquareText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#c2560b]" aria-hidden="true" />
+              <span className="break-words">
+                <span className="font-semibold text-[#c2560b]">Your feedback: </span>
+                {r.admin_comment}
+              </span>
+            </p>
+          )}
           {r.decided_at && (
             <p className="mt-1.5 text-xs text-[#676b7a]">
-              {st?.label} by {r.decided_by ?? "—"} on {formatDateTime(r.decided_at)}
-              {r.decision_comment && ` · ${r.decision_comment}`}
+              {st?.label} by {r.decided_by ?? "—"}
+              {r.decided_by && !r.decided_by_is_admin ? " (reporting manager)" : ""} on {formatDateTime(r.decided_at)}
+            </p>
+          )}
+          {r.decided_at && r.decision_comment && (
+            <p className="mt-1.5 flex items-start gap-1.5 rounded-lg bg-[#f5f8ff] px-2.5 py-1.5 text-xs text-[#2b303b] ring-1 ring-inset ring-[#dce6f7]">
+              <MessageSquareText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#1f4693]" aria-hidden="true" />
+              <span className="break-words">
+                <span className="font-semibold text-[#1f4693]">{r.decided_by && !r.decided_by_is_admin ? "Manager's feedback: " : "Feedback: "}</span>
+                {r.decision_comment}
+              </span>
             </p>
           )}
           {!r.decided_at && r.decision_comment && <p className="mt-1.5 text-xs text-[#676b7a]">{r.decision_comment}</p>}
@@ -164,32 +221,68 @@ function RequestItem({ r, onDone }) {
           <Badge tone={STATUS_TONE[r.status] ?? "slate"} dot>
             {st?.label}
           </Badge>
-          {r.status === "pending" && !rejecting && (
-            <>
-              <button type="button" disabled={busy} onClick={() => decide("approved")} className={`${BTN_NAVY} px-3 py-1.5`}>
-                <Check className="h-4 w-4" aria-hidden="true" />
-                {busy ? "Saving…" : "Approve"}
-              </button>
-              <button type="button" disabled={busy} onClick={() => setRejecting(true)} className={`${BTN_DANGER_SOFT} px-3 py-1.5`}>
-                <X className="h-4 w-4" aria-hidden="true" />
-                Reject
-              </button>
-            </>
+          {canReview && !reviewing && (
+            <button
+              type="button"
+              onClick={() => setReviewing(true)}
+              className={r.status === "pending" ? `${BTN_NAVY} px-3 py-1.5` : `${BTN_SECONDARY} px-3 py-1.5`}
+            >
+              <MessageSquareText className="h-4 w-4" aria-hidden="true" />
+              {r.status === "pending" ? "Review" : inReview ? "Decide now" : "Decide instead"}
+            </button>
           )}
         </div>
       </div>
-      {rejecting && (
-        <div className="mt-3 flex flex-col gap-2 rounded-xl border border-red-100 bg-red-50/70 p-3 sm:flex-row sm:items-end">
-          <label className="flex-1">
-            <span className={`${LABEL} text-red-800`}>Reason for rejecting (the employee sees it)</span>
-            <input value={comment} onChange={(e) => setComment(e.target.value)} maxLength={1000} className={INPUT(!!error)} />
+      {reviewing && canReview && (
+        <div className="mt-3 flex flex-col gap-3 rounded-xl border border-[#dce6f7] bg-white p-4 shadow-sm sm:ml-[52px]">
+          <label htmlFor={`fb-${r.id}`}>
+            <span className={LABEL}>Your review / feedback</span>
+            <textarea
+              id={`fb-${r.id}`}
+              rows={3}
+              autoFocus
+              value={comment}
+              onChange={(e) => {
+                setComment(e.target.value);
+                if (error) setError("");
+              }}
+              maxLength={1000}
+              placeholder="e.g. Approved — please hand over your tasks before you leave. / Rejected — project deadline that week."
+              className={`${INPUT(!!error)} resize-y`}
+            />
           </label>
-          <button type="button" disabled={busy} onClick={() => decide("rejected")} className={BTN_DANGER}>
-            {busy ? "Saving…" : "Reject"}
-          </button>
-          <button type="button" disabled={busy} onClick={() => setRejecting(false)} className={BTN_SECONDARY}>
-            Cancel
-          </button>
+          <p className="-mt-1 flex justify-between gap-2 text-[11px] text-[#9aa0ad]">
+            <span>
+              {withManager
+                ? `This is the FINAL decision, made instead of ${r.manager ?? "the manager"} (e.g. they are away). `
+                : inReview
+                  ? `${r.manager ?? "The manager"} has not reviewed it yet. Deciding now skips their review; if you approve, they still give the final approval. `
+                  : "If the employee's reporting manager uses the portal, Approve sends it to them for the final approval; otherwise your approval is final. "}
+              The employee sees your feedback. Optional for Approve, required for Reject.
+            </span>
+            <span className="tabular-nums">{comment.length}/1000</span>
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" disabled={busy} onClick={() => decide("approved")} className={BTN_SUCCESS}>
+              <Check className="h-4 w-4" aria-hidden="true" />
+              {busy ? "Saving…" : "Approve"}
+            </button>
+            <button type="button" disabled={busy} onClick={() => decide("rejected")} className={BTN_DANGER}>
+              <X className="h-4 w-4" aria-hidden="true" />
+              {busy ? "Saving…" : "Reject"}
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                setReviewing(false);
+                setError("");
+              }}
+              className={BTN_SECONDARY}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       )}
       {error && (
@@ -225,7 +318,7 @@ function RequestsView({ year }) {
       flush
       icon={ClipboardList}
       title={`Leave applications — ${year}`}
-      subtitle="Approving updates the employee’s balance and marks the days as approved leave on both attendance calendars. The employee is notified either way."
+      subtitle="Order: 1) the reporting manager reviews and sends it to you, 2) you approve or reject, 3) the manager gives the final approval. Without a manager in the portal, your decision is final."
     >
       <div className="border-b border-[#eef1f7] bg-[#fafbff] px-5 py-3">
         <Chips
@@ -259,6 +352,8 @@ function RequestsView({ year }) {
 
 // ---------------------------------------------------------------- balances
 function BalanceCell({ emp, b, year, onSaved }) {
+  const { can } = useAccess();
+  const canEdit = can("portal.leave.edit");
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState("");
   const [busy, setBusy] = useState(false);
@@ -282,6 +377,20 @@ function BalanceCell({ emp, b, year, onSaved }) {
     if (!r.ok) return setError(r.message);
     setEditing(false);
     onSaved(emp.id, r.balance);
+  }
+
+  if (!canEdit) {
+    return (
+      <span className="block">
+        <span className={`block text-sm font-bold tabular-nums ${left < 0 ? "text-red-600" : "text-[#101a3a]"}`}>
+          {num(left)} <span className="text-xs font-normal text-[#676b7a]">of {num(b.allowed)} left</span>
+        </span>
+        <span className="mt-0.5 flex flex-wrap items-center gap-1 text-[11px] text-[#9aa0ad]">
+          {num(b.approved)} used{Number(b.pending) > 0 && ` · ${num(b.pending)} pending`}
+          {b.is_custom && <Badge tone="orange" className="px-1.5 py-0 text-[10px]">custom</Badge>}
+        </span>
+      </span>
+    );
   }
 
   if (editing) {
@@ -488,12 +597,15 @@ function HolidayForm({ year, holiday, onSaved, onClose }) {
 }
 
 function HolidayRow({ h, year, onSaved }) {
+  const { can } = useAccess();
+  const canEdit = can("portal.leave.edit");
+  const canDelete = can("portal.leave.delete");
   const [mode, setMode] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const past = h.date < todayIst().iso;
 
-  if (mode === "edit") {
+  if (mode === "edit" && canEdit) {
     return (
       <tr className="border-b border-[#eef1f7] bg-white last:border-0">
         <td colSpan={4} className="px-4 py-3">
@@ -517,26 +629,30 @@ function HolidayRow({ h, year, onSaved }) {
         </td>
         <td className={`${TD} text-right`}>
           <span className="inline-flex items-center gap-1">
-            <button type="button" onClick={() => setMode("edit")} className={ICON_BTN} aria-label={`Edit ${h.name}`} title="Edit">
-              <Pencil size={14} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode(mode === "delete" ? null : "delete")}
-              className={ICON_BTN_DANGER}
-              aria-label={`Delete ${h.name}`}
-              aria-expanded={mode === "delete"}
-              title="Delete"
-            >
-              <Trash2 size={14} aria-hidden="true" />
-            </button>
+            {canEdit && (
+              <button type="button" onClick={() => setMode("edit")} className={ICON_BTN} aria-label={`Edit ${h.name}`} title="Edit">
+                <Pencil size={14} aria-hidden="true" />
+              </button>
+            )}
+            {canDelete && (
+              <button
+                type="button"
+                onClick={() => setMode(mode === "delete" ? null : "delete")}
+                className={ICON_BTN_DANGER}
+                aria-label={`Delete ${h.name}`}
+                aria-expanded={mode === "delete"}
+                title="Delete"
+              >
+                <Trash2 size={14} aria-hidden="true" />
+              </button>
+            )}
           </span>
         </td>
       </tr>
-      {(mode === "delete" || error) && (
+      {((mode === "delete" && canDelete) || error) && (
         <tr className="border-b border-[#eef1f7] bg-white last:border-0">
           <td colSpan={4} className="px-4 pb-3 pt-1">
-            {mode === "delete" && (
+            {mode === "delete" && canDelete && (
               <div className="flex flex-wrap items-center gap-2 rounded-xl border border-red-100 bg-red-50/70 p-3 text-sm text-red-800">
                 <span className="flex-1 font-semibold">Delete {h.name}? Leave covering this day will count it again.</span>
                 <button
@@ -571,6 +687,8 @@ function HolidayRow({ h, year, onSaved }) {
 }
 
 function HolidaysView({ year }) {
+  const { can } = useAccess();
+  const canEdit = can("portal.leave.edit");
   const [list, setList] = useState(null);
   const [adding, setAdding] = useState(false);
   const [reload, setReload] = useState(0);
@@ -590,7 +708,8 @@ function HolidaysView({ year }) {
       title={`Company holidays — ${year}`}
       count={list?.length}
       actions={
-        !adding && (
+        !adding &&
+        canEdit && (
           <button type="button" onClick={() => setAdding(true)} className={BTN_PRIMARY}>
             <Plus size={16} aria-hidden="true" /> Add holiday
           </button>
@@ -602,7 +721,7 @@ function HolidaysView({ year }) {
             Employees see these in Leave Management and on their attendance calendar. Holidays are not counted as leave
             days or absent days; adding one re-counts leave already applied for that day.
           </Hint>
-          {adding && <HolidayForm year={year} holiday={null} onSaved={onSaved} onClose={() => setAdding(false)} />}
+          {adding && canEdit && <HolidayForm year={year} holiday={null} onSaved={onSaved} onClose={() => setAdding(false)} />}
         </div>
       }
     >

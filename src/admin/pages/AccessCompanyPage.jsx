@@ -4,6 +4,7 @@ import Link from "@/lib/nx/link";
 import { useRouter } from "@/lib/nx/navigation";
 import { ArrowLeft, Download, Eye, FolderOpen, KeyRound } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { useAccess } from "@/lib/access";
 import useAdminData from "../useAdminData";
 import AdminLoading from "../AdminLoading";
 import EmptyState from "../EmptyState";
@@ -24,6 +25,8 @@ export default function AccessCompanyPage() {
   const [busy, setBusy] = useState(null);
   const [pending, setPending] = useState(null);
   const [notice, setNotice] = useState(null);
+  const { can } = useAccess();
+  const canExport = can("projects.logins.export");
 
   async function download(project) {
     const { company } = data;
@@ -95,10 +98,12 @@ export default function AccessCompanyPage() {
             {projects.length} project{projects.length === 1 ? "" : "s"} · {totalLogins} login{totalLogins === 1 ? "" : "s"}
           </p>
         </div>
+        {canExport && (
         <button type="button" onClick={() => download(null)} disabled={!totalLogins || busy !== null} className={`${BTN_PRIMARY} shrink-0`}>
           <Download className="h-4 w-4" aria-hidden="true" />
           {busy === "all" ? "Preparing…" : "Download all (Excel)"}
         </button>
+        )}
       </section>
 
       <Notice text={notice?.text} tone={notice?.tone} onClose={() => setNotice(null)} />
@@ -140,6 +145,7 @@ export default function AccessCompanyPage() {
                         <Link href={href} aria-label={`View logins of ${p.name}`} title="View" className="rounded-lg p-2 text-[#676b7a] hover:bg-[#f3f4f7] hover:text-[#1f4693]">
                           <Eye className="h-4 w-4" aria-hidden="true" />
                         </Link>
+                        {canExport && (
                         <button
                           type="button"
                           onClick={() => download(p)}
@@ -150,6 +156,7 @@ export default function AccessCompanyPage() {
                         >
                           <Download className="h-4 w-4" aria-hidden="true" />
                         </button>
+                        )}
                       </div>
                     </td>
                   </tr>

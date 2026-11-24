@@ -16,7 +16,7 @@ export const TEXT_MAX = 2000;
 
 // Messages raised by the database that are safe and clear to show as they are.
 const DB_MESSAGES =
-  /future date|last 7 days|at most 20 project|Notes must be|at least one project|No reporting manager|already submitted|only report on projects|added only once|Hours spent must|Total hours|Write what you worked on|at most 2000|Only a submitted report|Write a comment|Comment must be|Report not found|Not an active employee/i;
+  /future date|last 7 days|at most 20 project|Notes must be|at least one project|what you worked on today|No reporting manager|already submitted|only report on projects|added only once|Hours spent must|Total hours|Write what you worked on|at most 2000|Only a submitted report|Write a comment|Comment must be|Report not found|Not an active employee/i;
 
 function friendly(error, fallback) {
   const msg = error?.message ?? "";
@@ -61,7 +61,10 @@ export function validateReport(entries, notes, submit) {
   const total = entries.reduce((s, e) => s + (parseHours(e.hours) || 0), 0);
   if (total > 24) form = "Total hours for the day cannot be more than 24.";
   if (String(notes ?? "").length > TEXT_MAX) form = `Notes must be at most ${TEXT_MAX} characters.`;
-  if (submit && entries.length === 0) form = "Add at least one project entry before submitting.";
+  // Without project entries, "What did you work on today?" is required (migration 265).
+  if (submit && entries.length === 0 && !String(notes ?? "").trim()) {
+    form = "Write what you worked on today (or add a project entry) before submitting.";
+  }
   const hasItemErrors = items.some((e) => Object.keys(e).length);
   return hasItemErrors || form ? { items, form } : null;
 }

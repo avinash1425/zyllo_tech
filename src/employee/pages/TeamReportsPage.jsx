@@ -17,6 +17,7 @@ import {
   fmtHours,
 } from "../reportsUi";
 import { ReportTabs } from "./DailyReportPage";
+import { useAccess } from "@/lib/access";
 
 const FILTERS = [
   { key: "submitted", label: "Waiting for review" },
@@ -134,6 +135,7 @@ export function TeamReportsPage() {
 /** /employee/reports/team/:reportId — read one report, mark reviewed or send back. */
 export function TeamReportDetailPage() {
   const { reportId } = useParams();
+  const { can } = useAccess();
   const [report, setReport] = useState(null);
   const [loadError, setLoadError] = useState("");
   const [comment, setComment] = useState("");
@@ -207,7 +209,7 @@ export function TeamReportDetailPage() {
 
       <Alert kind={message.kind === "error" ? "err" : "ok"}>{message.text}</Alert>
 
-      {report.status === "submitted" && (
+      {can("team.reports.approve") && report.status === "submitted" && (
         <Panel icon={MessageSquareText} title="Your review" subtitle="Mark as reviewed, or send back with a comment">
           <div className="flex flex-col gap-4">
             <div>

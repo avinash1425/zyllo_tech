@@ -15,9 +15,11 @@ import ProjectDetailPage from "./pages/ProjectDetailPage";
 import DailyReportPage from "./pages/DailyReportPage";
 import { TeamReportDetailPage, TeamReportsPage } from "./pages/TeamReportsPage";
 import LeavePage from "./pages/LeavePage";
+import TeamLeavePage from "./pages/TeamLeavePage";
 import DashboardPage from "./pages/DashboardPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import { getNotificationSummary, markRead } from "@/lib/api/employee/notifications";
+import { AccessProvider, useAccess } from "@/lib/access";
 
 function FullScreen({ children }) {
   return (
@@ -165,10 +167,21 @@ export default function EmployeePortal() {
   if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to={`/login?next=${encodeURIComponent(pathname + search)}`} replace />;
   // Keyed by account so a different sign-in starts from a clean state.
-  return <EmployeeArea key={user.id} userId={user.id} signOut={signOut} />;
+  return (
+    <AccessProvider userId={user.id}>
+      <EmployeeArea key={user.id} userId={user.id} signOut={signOut} />
+    </AccessProvider>
+  );
+}
+
+/** A page that needs one of the permissions (the database checks every action again). */
+function PortalGate({ perms, children }) {
+  const { can } = useAccess();
+  return perms.some((p) => can(p)) ? children : <Navigate to="/employee" replace />;
 }
 
 function EmployeeArea({ userId, signOut }) {
+  const { loading: accessLoading, can } = useAccess();
   // undefined = loading, null = not an employee, object = employee
   const [me, setMe] = useState(undefined);
   const [loadError, setLoadError] = useState("");
@@ -265,7 +278,7 @@ function EmployeeArea({ userId, signOut }) {
         </p>
       </FullScreen>
     );
-  if (me === undefined) return <LoadingScreen />;
+  if (me === undefined || accessLoading) return <LoadingScreen />;
   if (me === null) return <NotEmployee onSignOut={signOut} />;
   // Signed in with the temporary password the admin gave: set an own password first (migration 249).
   if (me.must_change_password) return <ChangePasswordScreen me={me} signOut={signOut} />;
@@ -273,7 +286,8 @@ function EmployeeArea({ userId, signOut }) {
   return (
     <>
       {helmet}
-      {me.open_session ? (
+      {/* Punch-in first, unless the role has no "Punch in / out" permission (Settings -> Roles & Permissions). */}
+      {me.open_session || !can("emp.attendance.create") ? (
         <EmployeeShell
           me={me}
           busy={busy}
@@ -285,17 +299,17 @@ function EmployeeArea({ userId, signOut }) {
         >
           <Routes>
             <Route index element={<DashboardPage me={me} onNotificationsChanged={refreshSummary} />} />
-            <Route path="attendance" element={<AttendancePage me={me} />} />
+            <Route path="attendance" element={<PortalGate perms={["emp.attendance"]}><AttendancePage me={me} /></PortalGate>} />
             <Route path="profile" element={<ProfilePage />} />
-            <Route path="projects" element={<MyProjectsPage />} />
-            <Route path="projects/:projectId" element={<ProjectDetailPage />} />
-            <Route path="reports" element={<DailyReportPage key={search} />} />
-            <Route path="leave" element={<LeavePage />} />
-            {/* "Team requests" hidden for now (2026-11-23); old links land on Leave Management. */}
-            <Route path="leave/team" element={<Navigate to="/employee/leave" replace />} />
+            <Route path="projects" element={<PortalGate perms={["emp.projects"]}><MyProjectsPage /></PortalGate>} />
+            <Route path="projects/:projectId" element={<PortalGate perms={["emp.projects"]}><ProjectDetailPage /></PortalGate>} />
+            <Route path="reports" element={<PortalGate perms={["emp.reports"]}><DailyReportPage key={search} /></PortalGate>} />
+            <Route path="leave" element={<PortalGate perms={["emp.leave","team.leave"]}><LeavePage /></PortalGate>} />
+            {/* Team requests: the reporting manager's final decision after the admin approved (migration 255). */}
+            <Route path="leave/team" element={<PortalGate perms={["team.leave"]}><TeamLeavePage /></PortalGate>} />
             <Route path="notifications" element={<NotificationsPage onChanged={refreshSummary} />} />
-            <Route path="reports/team" element={<TeamReportsPage />} />
-            <Route path="reports/team/:reportId" element={<TeamReportDetailPage />} />
+            <Route path="reports/team" element={<PortalGate perms={["team.reports"]}><TeamReportsPage /></PortalGate>} />
+            <Route path="reports/team/:reportId" element={<PortalGate perms={["team.reports"]}><TeamReportDetailPage /></PortalGate>} />
             <Route path="*" element={<Navigate to="/employee" replace />} />
           </Routes>
         </EmployeeShell>

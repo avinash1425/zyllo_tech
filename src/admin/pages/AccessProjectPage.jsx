@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import Link from "@/lib/nx/link";
 import { ArrowLeft, Check, Copy, Download, ExternalLink, Eye, EyeOff, KeyRound, Pencil } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { useAccess } from "@/lib/access";
 import useAdminData from "../useAdminData";
 import AdminLoading from "../AdminLoading";
 import EmptyState from "../EmptyState";
@@ -33,6 +34,8 @@ function ExtLink({ href, children }) {
 }
 
 function PasswordCell({ cred, pw, compact }) {
+  const { can } = useAccess();
+  const canReveal = can("projects.logins.reveal");
   if (!cred.has_password) return <span className="text-[#9aa0ad]">Not saved</span>;
   const shown = pw.revealed[cred.id];
   return (
@@ -43,6 +46,7 @@ function PasswordCell({ cred, pw, compact }) {
       >
         {shown ?? "••••••••"}
       </span>
+      {canReveal && (
       <button
         type="button"
         disabled={pw.busyId === cred.id}
@@ -57,7 +61,8 @@ function PasswordCell({ cred, pw, compact }) {
       >
         {shown ? <EyeOff className="h-3.5 w-3.5" aria-hidden="true" /> : <Eye className="h-3.5 w-3.5" aria-hidden="true" />}
       </button>
-      {!compact && (
+      )}
+      {canReveal && !compact && (
         <button
           type="button"
           disabled={pw.busyId === cred.id}
@@ -77,6 +82,9 @@ function PasswordCell({ cred, pw, compact }) {
 }
 
 function ViewModal({ cred, pw, onClose, onEdit, onChangePassword, onDownload, downloading }) {
+  const { can } = useAccess();
+  const canEdit = can("projects.logins.edit");
+  const canExport = can("projects.logins.export");
   const repoLink = repositoryUrl(cred.service, cred.repository);
   const rows = [
     ["Type", typeLabel(cred.category)],
@@ -102,18 +110,24 @@ function ViewModal({ cred, pw, onClose, onEdit, onChangePassword, onDownload, do
         ))}
       </dl>
       <div className="mt-5 flex flex-wrap justify-end gap-2">
-        <button type="button" onClick={onChangePassword} className={BTN_SECONDARY}>
-          <KeyRound className="h-4 w-4" aria-hidden="true" />
-          {cred.has_password ? "Change password" : "Add password"}
-        </button>
-        <button type="button" onClick={onDownload} disabled={downloading} className={BTN_SECONDARY}>
-          <Download className="h-4 w-4" aria-hidden="true" />
-          {downloading ? "Preparing…" : "Download (Excel)"}
-        </button>
-        <button type="button" onClick={onEdit} className={BTN_PRIMARY}>
-          <Pencil className="h-4 w-4" aria-hidden="true" />
-          Edit
-        </button>
+        {canEdit && (
+          <button type="button" onClick={onChangePassword} className={BTN_SECONDARY}>
+            <KeyRound className="h-4 w-4" aria-hidden="true" />
+            {cred.has_password ? "Change password" : "Add password"}
+          </button>
+        )}
+        {canExport && (
+          <button type="button" onClick={onDownload} disabled={downloading} className={BTN_SECONDARY}>
+            <Download className="h-4 w-4" aria-hidden="true" />
+            {downloading ? "Preparing…" : "Download (Excel)"}
+          </button>
+        )}
+        {canEdit && (
+          <button type="button" onClick={onEdit} className={BTN_PRIMARY}>
+            <Pencil className="h-4 w-4" aria-hidden="true" />
+            Edit
+          </button>
+        )}
       </div>
     </Modal>
   );
@@ -134,6 +148,9 @@ export default function AccessProjectPage() {
   const [passwordFor, setPasswordFor] = useState(null);
   const [busy, setBusy] = useState(null);
   const pw = usePasswordReveal({ onMessage: (text, tone) => setNotice({ text, tone }) });
+  const { can } = useAccess();
+  const canEdit = can("projects.logins.edit");
+  const canExport = can("projects.logins.export");
 
   const credentials = useMemo(() => data?.credentials ?? [], [data]);
   const viewingCred = viewing ? credentials.find((c) => c.id === viewing) : null;
@@ -224,12 +241,14 @@ export default function AccessProjectPage() {
             </Link>
           </p>
         </div>
+        {canExport && (
         <div className="flex flex-wrap gap-2">
           <button type="button" onClick={() => download(credentials, "all")} disabled={!credentials.length || busy !== null} className={BTN_PRIMARY}>
             <Download className="h-4 w-4" aria-hidden="true" />
             {busy === "all" ? "Preparing…" : "Download all (Excel)"}
           </button>
         </div>
+        )}
       </section>
 
       <Notice text={notice?.text} tone={notice?.tone} onClose={() => setNotice(null)} />
@@ -294,9 +313,12 @@ export default function AccessProjectPage() {
                         <button type="button" onClick={() => setViewing(c.id)} aria-label={`View ${c.service}`} title="View" className="rounded-lg p-2 text-[#676b7a] hover:bg-[#f3f4f7] hover:text-[#1f4693]">
                           <Eye className="h-4 w-4" aria-hidden="true" />
                         </button>
+                        {canEdit && (
                         <button type="button" onClick={() => setEditing(c)} aria-label={`Edit ${c.service}`} title="Edit" className="rounded-lg p-2 text-[#676b7a] hover:bg-[#f3f4f7] hover:text-[#1f4693]">
                           <Pencil className="h-4 w-4" aria-hidden="true" />
                         </button>
+                        )}
+                        {canExport && (
                         <button
                           type="button"
                           onClick={() => download([c], c.id)}
@@ -307,6 +329,7 @@ export default function AccessProjectPage() {
                         >
                           <Download className="h-4 w-4" aria-hidden="true" />
                         </button>
+                        )}
                       </div>
                     </td>
                   </tr>

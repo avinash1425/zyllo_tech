@@ -15,6 +15,7 @@ import { updateApplicationStatus } from "@/lib/api/admin/careers";
 import ResumeViewer from "./ResumeViewer";
 import StatusBadge from "../../StatusBadge";
 import EmptyState from "../../EmptyState";
+import { useAccess } from "@/lib/access";
 
 const STATUS_LABELS = {
   new: "New",
@@ -54,6 +55,9 @@ function availableStatusOptions(currentStatus) {
 }
 
 export default function ApplicantsManager({ job, initialApplicants }) {
+  const { can } = useAccess();
+  const canEdit = can("website.job_applications.edit");
+  const canDownload = can("website.job_applications.download");
   const [applicants, setApplicants] = useState(initialApplicants);
   useEffect(() => setApplicants(initialApplicants), [initialApplicants]);
   const [viewing, setViewing] = useState(null);
@@ -146,7 +150,7 @@ export default function ApplicantsManager({ job, initialApplicants }) {
                       {applicant.phone}
                     </span>
                   )}
-                  {applicant.resume_url && (
+                  {applicant.resume_url && canDownload && (
                     <a
                       href={applicant.resume_url}
                       target="_blank"
@@ -167,6 +171,7 @@ export default function ApplicantsManager({ job, initialApplicants }) {
                 )}
               </div>
 
+              {canEdit ? (
               <select
                 value={applicant.status}
                 disabled={isPending || applicant.status === "hired"}
@@ -180,6 +185,9 @@ export default function ApplicantsManager({ job, initialApplicants }) {
                   </option>
                 ))}
               </select>
+              ) : (
+                <StatusBadge status={applicant.status} label={STATUS_LABELS[applicant.status]} />
+              )}
             </div>
           ))}
         </div>
@@ -248,7 +256,9 @@ export default function ApplicantsManager({ job, initialApplicants }) {
                 <p className="mb-2 text-xs font-bold uppercase tracking-wide text-[#676b7a]">
                   Resume
                 </p>
-                {viewing.resume_url ? (
+                {viewing.resume_url && !canDownload ? (
+                  <p className="text-sm text-[#676b7a]">A resume was uploaded. You don&apos;t have access to open it.</p>
+                ) : viewing.resume_url ? (
                   <>
                     <ResumeViewer url={viewing.resume_url} />
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -277,6 +287,7 @@ export default function ApplicantsManager({ job, initialApplicants }) {
               </div>
             </div>
 
+            {canEdit && (
             <div className="border-t border-[#e7e9ee] p-4">
               <label
                 htmlFor="modal-status"
@@ -307,6 +318,7 @@ export default function ApplicantsManager({ job, initialApplicants }) {
                 </p>
               )}
             </div>
+            )}
           </div>
         </div>
       )}

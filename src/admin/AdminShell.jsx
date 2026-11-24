@@ -27,35 +27,41 @@ import {
   Palmtree,
   FileText,
   BellRing,
+  Bell,
+  CircleUserRound,
+  ShieldCheck,
+  UserCog as UserCog2,
 } from "lucide-react";
+import { useAccess } from "@/lib/access";
 import { useAuth } from "@/lib/auth";
 import AdminSearch from "./AdminSearch";
+import { getAdminInboxSummary, INBOX_CHANGED } from "@/lib/api/admin/inbox";
 
 const NAV_SECTIONS = [
   {
     label: "Overview",
-    items: [{ href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true }],
+    items: [{ href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true, perm: "dashboard" }],
   },
   {
     label: "Content",
     items: [
-      { href: "/admin/contacts", label: "Contact Submissions", icon: Mail },
-      { href: "/admin/blog", label: "Blog Posts", icon: Newspaper },
-      { href: "/admin/portfolio", label: "Portfolio", icon: FolderKanban },
+      { href: "/admin/contacts", label: "Contact Submissions", icon: Mail, perm: "website.contacts" },
+      { href: "/admin/blog", label: "Blog Posts", icon: Newspaper, perm: "website.blog" },
+      { href: "/admin/portfolio", label: "Portfolio", icon: FolderKanban, perm: "website.portfolio" },
     ],
   },
   {
     label: "Hiring",
     items: [
-      { href: "/admin/careers", label: "Careers", icon: Briefcase },
-      { href: "/admin/job-applications", label: "Job Applications", icon: Users },
+      { href: "/admin/careers", label: "Careers", icon: Briefcase, perm: "website.careers" },
+      { href: "/admin/job-applications", label: "Job Applications", icon: Users, perm: "website.job_applications" },
     ],
   },
   {
     label: "Growth",
     items: [
-      { href: "/admin/seo", label: "SEO", icon: Search },
-      { href: "/admin/search-console", label: "Search Console", icon: BarChart3 },
+      { href: "/admin/seo", label: "SEO", icon: Search, perm: "website.seo" },
+      { href: "/admin/search-console", label: "Search Console", icon: BarChart3, perm: "website.search_console" },
     ],
   },
   {
@@ -64,27 +70,42 @@ const NAV_SECTIONS = [
       {
         href: "/admin/project-tracker",
         label: "Project Tracker",
+        perm: "projects.tracker",
         icon: ClipboardList,
         exact: true,
         also: ["/admin/project-tracker/projects/"],
       },
-      { href: "/admin/project-tracker/companies", label: "Clients", icon: Building2 },
-      { href: "/admin/project-tracker/access", label: "Access & Logins", icon: KeyRound },
+      { href: "/admin/project-tracker/companies", label: "Clients", icon: Building2, perm: "projects.clients" },
+      { href: "/admin/project-tracker/access", label: "Access & Logins", icon: KeyRound, perm: "projects.logins" },
     ],
   },
   {
     label: "Employee Portal",
     items: [
-      { href: "/admin/employee-portal", label: "Employee Portal", icon: UsersRound, exact: true },
-      { href: "/admin/employees", label: "Employee Management", icon: UserCog },
-      { href: "/admin/project-management", label: "Project Management", icon: ListChecks },
-      { href: "/admin/attendance", label: "Attendance Management", icon: CalendarCheck },
-      { href: "/admin/leave", label: "Leave Management", icon: Palmtree },
-      { href: "/admin/reports", label: "Daily Work Reports", icon: FileText },
-      { href: "/admin/notifications", label: "Notifications Management", icon: BellRing },
+      { href: "/admin/employee-portal", label: "Employee Portal", icon: UsersRound, exact: true, perm: "portal.dashboard" },
+      { href: "/admin/employees", label: "Employee Management", icon: UserCog, perm: "portal.employees" },
+      { href: "/admin/project-management", label: "Project Management", icon: ListChecks, perm: "portal.projects" },
+      { href: "/admin/attendance", label: "Attendance Management", icon: CalendarCheck, perm: "portal.attendance" },
+      { href: "/admin/leave", label: "Leave Management", icon: Palmtree, perm: "portal.leave" },
+      { href: "/admin/reports", label: "Daily Work Reports", icon: FileText, perm: "portal.reports" },
+      { href: "/admin/notifications", label: "Notifications Management", icon: BellRing, perm: "portal.notifications" },
+      { href: "/admin/inbox", label: "Notifications", icon: Bell, badge: "inbox", perm: "portal.inbox" },
+    ],
+  },
+  {
+    label: "Settings",
+    items: [
+      { href: "/admin/settings/users", label: "Users & Roles", icon: UserCog2, perm: "settings.users" },
+      { href: "/admin/settings/roles", label: "Roles & Permissions", icon: ShieldCheck, perm: "settings.roles" },
     ],
   },
 ];
+
+/** First menu page the user may open (used when they may not see the website dashboard). */
+export function firstAllowedHref(can) {
+  for (const section of NAV_SECTIONS) for (const item of section.items) if (!item.perm || can(item.perm)) return item.href;
+  return null;
+}
 
 const NAV_ITEMS = NAV_SECTIONS.flatMap((section) => section.items);
 
@@ -148,6 +169,15 @@ function UserMenu({ email, onSignOut }) {
           </div>
           <div className="p-1.5">
             <Link
+              href="/admin/profile"
+              role="menuitem"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-[#2b303b] transition-colors hover:bg-[#fafbfc]"
+            >
+              <CircleUserRound className="h-4 w-4 text-[#676b7a]" aria-hidden="true" />
+              My profile
+            </Link>
+            <Link
               href="/"
               role="menuitem"
               onClick={() => setOpen(false)}
@@ -175,10 +205,39 @@ function UserMenu({ email, onSignOut }) {
   );
 }
 
+/** Unread admin notifications (migration 256): polled every 60 s and refreshed when the inbox page reads some. */
+function useInboxUnread(enabled) {
+  const [unread, setUnread] = useState(0);
+  useEffect(() => {
+    if (!enabled) return undefined;
+    let active = true;
+    const load = () =>
+      getAdminInboxSummary()
+        .then((s) => active && setUnread(Number(s?.unread) || 0))
+        .catch(() => {}); // database without the inbox yet: no badge
+    load();
+    const t = setInterval(load, 60_000);
+    window.addEventListener(INBOX_CHANGED, load);
+    return () => {
+      active = false;
+      clearInterval(t);
+      window.removeEventListener(INBOX_CHANGED, load);
+    };
+  }, [enabled]);
+  return enabled ? unread : 0;
+}
+
 export default function AdminShell({ children }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { can, access } = useAccess();
+  const isEmployee = (access?.roles ?? []).some((r) => r.key === "employee");
+  const canInbox = can("portal.inbox");
+  const inboxUnread = useInboxUnread(canInbox);
+  const visibleSections = NAV_SECTIONS.map((section) => ({ ...section, items: section.items.filter((item) => !item.perm || can(item.perm)) })).filter(
+    (section) => section.items.length > 0,
+  );
 
   function isActive(item) {
     if (item.also?.some((prefix) => pathname.startsWith(prefix))) return true;
@@ -248,7 +307,7 @@ export default function AdminShell({ children }) {
 
         <nav className="zt-admin-scroll relative flex-1 overflow-y-auto px-3 pb-2 pt-1" aria-label="Admin">
           <div className="flex flex-col gap-4">
-            {NAV_SECTIONS.map((section) => (
+            {visibleSections.map((section) => (
               <div key={section.label}>
                 <p className="px-3 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-white/40">
                   {section.label}
@@ -276,6 +335,11 @@ export default function AdminShell({ children }) {
                             aria-hidden="true"
                           />
                           <span className="truncate">{item.label}</span>
+                          {item.badge === "inbox" && inboxUnread > 0 && (
+                            <span className="ml-auto min-w-[1.25rem] rounded-full bg-red-600 px-1.5 text-center text-[10.5px] font-bold leading-5 text-white">
+                              {inboxUnread > 99 ? "99+" : inboxUnread}
+                            </span>
+                          )}
                         </Link>
                       </li>
                     );
@@ -339,7 +403,7 @@ export default function AdminShell({ children }) {
                   )}
                 </nav>
                 <h2 className="truncate text-lg font-bold leading-tight tracking-tight text-[#101a3a] sm:text-[1.35rem]">
-                  {currentItem?.label ?? "Admin"}
+                  {pathname.startsWith("/admin/profile") ? "My profile" : (currentItem?.label ?? "Admin")}
                 </h2>
               </div>
             </div>
@@ -347,6 +411,32 @@ export default function AdminShell({ children }) {
             <div className="ml-auto hidden flex-1 justify-end sm:flex">
               <AdminSearch />
             </div>
+
+            {canInbox && (
+            <Link
+              href="/admin/inbox"
+              className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#e7e9ee] bg-white text-[#173a52] shadow-[0_1px_2px_rgba(16,26,58,0.08)] transition-all hover:border-[#f7941e]/60 hover:text-[#c24f05]"
+              aria-label={inboxUnread ? `Notifications, ${inboxUnread} unread` : "Notifications"}
+              title="Notifications"
+            >
+              <Bell className="h-5 w-5" aria-hidden="true" />
+              {inboxUnread > 0 && (
+                <span className="absolute -right-1.5 -top-1.5 min-w-[1.25rem] rounded-full bg-red-600 px-1 text-center text-[11px] font-bold leading-5 text-white">
+                  {inboxUnread > 99 ? "99+" : inboxUnread}
+                </span>
+              )}
+            </Link>
+            )}
+
+            {isEmployee && (
+              <Link
+                href="/employee"
+                className="hidden h-11 items-center gap-2 rounded-xl border border-[#e7e9ee] bg-white px-4 text-sm font-semibold text-[#173a52] shadow-[0_1px_2px_rgba(16,26,58,0.08)] transition-all hover:border-[#f7941e]/60 hover:text-[#c24f05] md:inline-flex"
+              >
+                <UsersRound className="h-4 w-4" aria-hidden="true" />
+                Employee Portal
+              </Link>
+            )}
 
             <Link
               href="/"

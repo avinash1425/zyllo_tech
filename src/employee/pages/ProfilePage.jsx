@@ -17,6 +17,7 @@ import { BTN_PRIMARY, BTN_SECONDARY, INPUT, LABEL } from "@/components/portal/po
 import { formatDate } from "../attendanceFormat";
 import MyCertificateCard from "../MyCertificateCard";
 import MyDocumentsCard from "../MyDocumentsCard";
+import ChangePasswordCard from "@/components/portal/ChangePasswordCard";
 
 const EMPTY_CONTACT = { name: "", relationship: "", phone: "", alternate_phone: "" };
 const labelOf = (list, value) => list.find((o) => o.value === value)?.label;
@@ -462,6 +463,7 @@ export default function ProfilePage() {
       <PersonalCard profile={profile} onSaved={setProfile} />
       <EmergencyCard profile={profile} onSaved={setProfile} />
       <MyDocumentsCard />
+      <ChangePasswordCard />
     </div>
   );
 }

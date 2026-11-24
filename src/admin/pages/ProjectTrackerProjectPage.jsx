@@ -5,6 +5,7 @@ import { ArrowLeft, CalendarDays, DatabaseBackup, ExternalLink, FileText, Folder
 import useAdminData from "../useAdminData";
 import AdminLoading from "../AdminLoading";
 import EmptyState from "../EmptyState";
+import { useAccess } from "@/lib/access";
 import { fetchProjectPage } from "@/lib/api/admin/projectTrackerProject";
 import ProjectFormModal from "../project-tracker/ProjectFormModal";
 import CredentialsTab from "../project-tracker/CredentialsTab";
@@ -30,7 +31,11 @@ function fmtLabel(val) {
 export default function ProjectTrackerProjectPage() {
   const { projectId } = useParams();
   const [params, setParams] = useSearchParams();
-  const tab = TABS.some((t) => t.key === params.get("tab")) ? params.get("tab") : "access";
+  const { can } = useAccess();
+  const canEdit = can("projects.tracker.edit");
+  // The Access & Logins tab needs the separate logins permission.
+  const tabs = TABS.filter((t) => t.key !== "access" || can("projects.logins"));
+  const tab = tabs.some((t) => t.key === params.get("tab")) ? params.get("tab") : tabs[0].key;
   const loader = useCallback(() => fetchProjectPage(projectId), [projectId]);
   const { data: project, loading, error, reload } = useAdminData(loader, [projectId]);
   const [editing, setEditing] = useState(false);
@@ -153,6 +158,7 @@ export default function ProjectTrackerProjectPage() {
             </div>
           </div>
 
+          {canEdit && (
           <div className="shrink-0">
             <button
               type="button"
@@ -163,6 +169,7 @@ export default function ProjectTrackerProjectPage() {
               Edit project
             </button>
           </div>
+          )}
         </div>
 
         {/* Next action strip */}
@@ -187,7 +194,7 @@ export default function ProjectTrackerProjectPage() {
         aria-label="Project sections"
         className="flex overflow-x-auto rounded-2xl border border-[#e8edf8] bg-white px-2 shadow-sm"
       >
-        {TABS.map(({ key, label, icon: Icon }) => {
+        {tabs.map(({ key, label, icon: Icon }) => {
           const active = tab === key;
           return (
             <button

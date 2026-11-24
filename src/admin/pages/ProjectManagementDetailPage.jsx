@@ -35,6 +35,7 @@ import { PRIORITY, TASK_STATUS } from "@/lib/api/employee/projects";
 import { DeadlineText, PriorityChip, StatusChip } from "@/employee/projectsUi";
 import { formatDate, formatDateTime } from "@/employee/attendanceFormat";
 import { Banner, Field } from "../employees/ui";
+import { useAccess } from "@/lib/access";
 import { Alert, Avatar, Badge, Chips, Empty, Panel, Progress, SearchBox } from "@/components/portal/PortalUI";
 import {
   BTN_DANGER,
@@ -107,6 +108,8 @@ function Stat({ icon: Icon, label, children }) {
 
 // ---------------------------------------------------------------- header + deadline
 function DeadlineEditor({ project, onSaved }) {
+  const { can } = useAccess();
+  const canEdit = can("portal.projects.edit");
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState("");
   const [busy, setBusy] = useState(false);
@@ -123,7 +126,7 @@ function DeadlineEditor({ project, onSaved }) {
     setEditing(false);
   }
 
-  if (editing) {
+  if (editing && canEdit) {
     return (
       <div className="flex flex-col gap-2">
         <input
@@ -154,17 +157,19 @@ function DeadlineEditor({ project, onSaved }) {
     <div className="flex flex-col gap-0.5">
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm font-bold text-[#101a3a]">{project.end_date ? formatDate(project.end_date) : "Not set"}</span>
-        <button
-          type="button"
-          onClick={() => {
-            setValue(project.end_date ?? "");
-            setError("");
-            setEditing(true);
-          }}
-          className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-semibold text-[#1f4693] transition-colors hover:bg-[#eef2fb]"
-        >
-          <Pencil size={12} aria-hidden="true" /> {project.end_date ? "Change" : "Set deadline"}
-        </button>
+        {canEdit && (
+          <button
+            type="button"
+            onClick={() => {
+              setValue(project.end_date ?? "");
+              setError("");
+              setEditing(true);
+            }}
+            className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-semibold text-[#1f4693] transition-colors hover:bg-[#eef2fb]"
+          >
+            <Pencil size={12} aria-hidden="true" /> {project.end_date ? "Change" : "Set deadline"}
+          </button>
+        )}
       </div>
       {project.end_date && (
         <span className="text-xs">
@@ -382,6 +387,8 @@ function AddMember({ project, onSaved, onClose }) {
 }
 
 function MemberRow({ project, m, onSaved }) {
+  const { can } = useAccess();
+  const canEdit = can("portal.projects.edit");
   const [mode, setMode] = useState(null); // null | "edit" | "remove"
   const [role, setRole] = useState(m.project_role ?? "");
   const [lead, setLead] = useState(m.is_lead);
@@ -442,29 +449,31 @@ function MemberRow({ project, m, onSaved }) {
             </p>
             <p className="text-[#676b7a]">{m.last_report_date ? `Last report ${formatDate(m.last_report_date)}` : "No reports yet"}</p>
           </div>
-          <div className="flex shrink-0 gap-1">
-            <button
-              type="button"
-              onClick={() => setMode(mode === "edit" ? null : "edit")}
-              className={ICON_BTN}
-              aria-label={`Edit ${m.full_name}'s role`}
-              aria-expanded={mode === "edit"}
-            >
-              <Pencil size={15} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode(mode === "remove" ? null : "remove")}
-              className={ICON_BTN_DANGER}
-              aria-label={`Remove ${m.full_name} from the project`}
-              aria-expanded={mode === "remove"}
-            >
-              <Trash2 size={15} aria-hidden="true" />
-            </button>
-          </div>
+          {canEdit && (
+            <div className="flex shrink-0 gap-1">
+              <button
+                type="button"
+                onClick={() => setMode(mode === "edit" ? null : "edit")}
+                className={ICON_BTN}
+                aria-label={`Edit ${m.full_name}'s role`}
+                aria-expanded={mode === "edit"}
+              >
+                <Pencil size={15} aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode(mode === "remove" ? null : "remove")}
+                className={ICON_BTN_DANGER}
+                aria-label={`Remove ${m.full_name} from the project`}
+                aria-expanded={mode === "remove"}
+              >
+                <Trash2 size={15} aria-hidden="true" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
-      {mode === "edit" && (
+      {mode === "edit" && canEdit && (
         <div className={`${SUB_FORM} mt-3 grid gap-3 sm:grid-cols-[1fr_auto_auto] sm:items-end`}>
           <Field id={`role-${m.id}`} label="Role on this project">
             <input id={`role-${m.id}`} value={role} onChange={(e) => setRole(e.target.value)} placeholder="e.g. Backend developer" className={INPUT(false)} />
@@ -483,7 +492,7 @@ function MemberRow({ project, m, onSaved }) {
           </button>
         </div>
       )}
-      {mode === "remove" && (
+      {mode === "remove" && canEdit && (
         <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
           <p className="font-semibold">
             Remove {m.full_name} from {project.name}?
@@ -508,6 +517,8 @@ function MemberRow({ project, m, onSaved }) {
 }
 
 function TeamCard({ project, onSaved }) {
+  const { can } = useAccess();
+  const canEdit = can("portal.projects.edit");
   const [adding, setAdding] = useState(false);
   return (
     <Panel
@@ -519,7 +530,8 @@ function TeamCard({ project, onSaved }) {
       }
       subtitle="Progress = this employee's tasks done on this project. Hours come from submitted daily work reports."
       action={
-        !adding && (
+        !adding &&
+        canEdit && (
           <button type="button" onClick={() => setAdding(true)} className={BTN_SECONDARY}>
             <UserPlus size={14} aria-hidden="true" /> Assign employee
           </button>
@@ -527,13 +539,13 @@ function TeamCard({ project, onSaved }) {
       }
       flush
     >
-      {adding && (
+      {adding && canEdit && (
         <div className="px-5 pt-5">
           <AddMember project={project} onSaved={onSaved} onClose={() => setAdding(false)} />
         </div>
       )}
       {project.team.length === 0 ? (
-        <Empty icon={Users} title="No employees on this project yet" message="Click “Assign employee” to add the team." />
+        <Empty icon={Users} title="No employees on this project yet" message={canEdit ? "Click “Assign employee” to add the team." : undefined} />
       ) : (
         <ul className="divide-y divide-[#eef1f7]">
           {project.team.map((m) => (
@@ -634,6 +646,9 @@ function TaskForm({ project, task, onSaved, onClose }) {
 }
 
 function TaskRow({ project, t, onSaved }) {
+  const { can } = useAccess();
+  const canEdit = can("portal.projects.edit");
+  const canDelete = can("portal.projects.delete");
   const [mode, setMode] = useState(null); // null | "edit" | "delete"
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -659,7 +674,7 @@ function TaskRow({ project, t, onSaved }) {
       }),
     );
 
-  if (mode === "edit") {
+  if (mode === "edit" && canEdit) {
     return (
       <li className="px-5 py-4">
         <TaskForm project={project} task={t} onSaved={onSaved} onClose={() => setMode(null)} />
@@ -710,40 +725,50 @@ function TaskRow({ project, t, onSaved }) {
           )}
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
-          <div className="inline-flex rounded-lg border border-[#e3e9f5] bg-white p-0.5 shadow-sm" role="group" aria-label={`Status of ${t.title}`}>
-            {TASK_STATUS.map((o) => {
-              const on = t.status === o.value;
-              return (
-                <button
-                  key={o.value}
-                  type="button"
-                  disabled={busy}
-                  aria-pressed={on}
-                  onClick={() => !on && setStatus(o.value)}
-                  className={`whitespace-nowrap rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:opacity-60 ${
-                    on ? TASK_ON[o.value] : "text-[#676b7a] hover:bg-[#f1f4fc] hover:text-[#1f4693]"
-                  }`}
-                >
-                  {o.label}
-                </button>
-              );
-            })}
-          </div>
-          <button type="button" onClick={() => setMode("edit")} className={ICON_BTN} aria-label={`Edit task ${t.title}`}>
-            <Pencil size={15} aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode(mode === "delete" ? null : "delete")}
-            className={ICON_BTN_DANGER}
-            aria-label={`Delete task ${t.title}`}
-            aria-expanded={mode === "delete"}
-          >
-            <Trash2 size={15} aria-hidden="true" />
-          </button>
+          {canEdit ? (
+            <div className="inline-flex rounded-lg border border-[#e3e9f5] bg-white p-0.5 shadow-sm" role="group" aria-label={`Status of ${t.title}`}>
+              {TASK_STATUS.map((o) => {
+                const on = t.status === o.value;
+                return (
+                  <button
+                    key={o.value}
+                    type="button"
+                    disabled={busy}
+                    aria-pressed={on}
+                    onClick={() => !on && setStatus(o.value)}
+                    className={`whitespace-nowrap rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors disabled:opacity-60 ${
+                      on ? TASK_ON[o.value] : "text-[#676b7a] hover:bg-[#f1f4fc] hover:text-[#1f4693]"
+                    }`}
+                  >
+                    {o.label}
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <span className={`whitespace-nowrap rounded-md px-2.5 py-1 text-[11px] font-semibold ${TASK_ON[t.status] ?? ""}`}>
+              {TASK_STATUS.find((o) => o.value === t.status)?.label ?? t.status}
+            </span>
+          )}
+          {canEdit && (
+            <button type="button" onClick={() => setMode("edit")} className={ICON_BTN} aria-label={`Edit task ${t.title}`}>
+              <Pencil size={15} aria-hidden="true" />
+            </button>
+          )}
+          {canDelete && (
+            <button
+              type="button"
+              onClick={() => setMode(mode === "delete" ? null : "delete")}
+              className={ICON_BTN_DANGER}
+              aria-label={`Delete task ${t.title}`}
+              aria-expanded={mode === "delete"}
+            >
+              <Trash2 size={15} aria-hidden="true" />
+            </button>
+          )}
         </div>
       </div>
-      {mode === "delete" && (
+      {mode === "delete" && canDelete && (
         <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
           <span className="font-semibold">Delete this task? This cannot be undone.</span>
           <span className="flex-1" />
@@ -761,6 +786,8 @@ function TaskRow({ project, t, onSaved }) {
 }
 
 function TasksCard({ project, onSaved }) {
+  const { can } = useAccess();
+  const canEdit = can("portal.projects.edit");
   const [adding, setAdding] = useState(false);
   const [filter, setFilter] = useState("open");
   const counts = {
@@ -783,7 +810,8 @@ function TasksCard({ project, onSaved }) {
       }
       subtitle="Assign work, set deadlines and update status."
       action={
-        !adding && (
+        !adding &&
+        canEdit && (
           <button type="button" onClick={() => setAdding(true)} className={BTN_PRIMARY}>
             <Plus size={14} aria-hidden="true" /> New task
           </button>
@@ -791,7 +819,7 @@ function TasksCard({ project, onSaved }) {
       }
       flush
     >
-      {adding && (
+      {adding && canEdit && (
         <div className="px-5 pt-5">
           <TaskForm project={project} task={null} onSaved={onSaved} onClose={() => setAdding(false)} />
         </div>
@@ -803,7 +831,7 @@ function TasksCard({ project, onSaved }) {
         <Empty
           icon={ListChecks}
           title={project.tasks.length ? "No tasks here" : "No tasks yet"}
-          message={project.tasks.length ? "Try another filter." : "Click “New task” to add the first one."}
+          message={project.tasks.length ? "Try another filter." : canEdit ? "Click “New task” to add the first one." : undefined}
         />
       ) : (
         <ul className="divide-y divide-[#eef1f7]">

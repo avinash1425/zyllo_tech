@@ -17,10 +17,11 @@ export const WORK_FIELDS = [
 function friendly(error, fallback) {
   const msg = error?.message ?? "";
   if (
-    /Only admins|not found|cannot report to themselves|make a loop|active employee as reporting|Name cannot be empty/i.test(msg)
+    /Only admins|not found|cannot report to themselves|make a loop|active employee as reporting|Name cannot be empty|Employee ID/i.test(msg)
   ) {
     return msg;
   }
+  if (/employee_code/.test(msg)) return "That Employee ID is already used by another employee.";
   if (/department/.test(msg)) return "Department must be 1–80 characters.";
   if (/designation/.test(msg)) return "Designation must be 1–80 characters.";
   if (/work_location/.test(msg)) return "Work location must be 1–120 characters.";
@@ -41,10 +42,15 @@ export async function getEmployee(id) {
   return data;
 }
 
+const CODE = /^[A-Z0-9][A-Z0-9-]{1,29}$/;
+
 /** Same limits as the database, so the admin sees a clear message first. */
 export function validateWork(form) {
   const errors = {};
   const v = (k) => String(form[k] ?? "").trim();
+  if ("employee_code" in form && !CODE.test(v("employee_code").toUpperCase())) {
+    errors.employee_code = "Use 2–30 letters, numbers or dashes (e.g. ZT-001).";
+  }
   if (!v("full_name")) errors.full_name = "Name is required.";
   else if (v("full_name").length > 120) errors.full_name = "Keep it under 120 characters.";
   if (v("department").length > 80) errors.department = "Keep it under 80 characters.";
@@ -58,12 +64,13 @@ export function validateWork(form) {
 
 export async function updateEmployeeWork(id, form) {
   const p = Object.fromEntries(WORK_FIELDS.map((k) => [k, String(form[k] ?? "").trim()]));
+  // Employee ID is editable too (migration 253); sign-in is unaffected (it uses the email).
+  if ("employee_code" in form) p.employee_code = String(form.employee_code ?? "").trim().toUpperCase();
   const { data, error } = await supabase.rpc("ep_admin_update_employee", { p_id: id, p });
   if (error) return { ok: false, message: friendly(error, "Could not save the work details. Please try again.") };
   return { ok: true, employee: data };
 }
 
-const CODE = /^[A-Z0-9][A-Z0-9-]{1,29}$/;
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 /** Next Employee ID after the most recently added one (e.g. ZT-007 -> ZT-008). */
@@ -123,7 +130,7 @@ export async function createEmployee(form) {
   const { data, error } = await supabase.rpc("ep_admin_create_employee", { p });
   if (error) {
     const msg = error.message ?? "";
-    if (/Employee ID|already|admin account|Temporary password|valid work email|Name is required/i.test(msg)) {
+    if (/Employee ID|already|admin account|Temporary password|valid work email|Name is required|cannot receive email/i.test(msg)) {
       return { ok: false, message: msg };
     }
     return { ok: false, message: friendly(error, "Could not add the employee. Please try again.") };
@@ -142,4 +149,22 @@ export async function getPortalDashboard() {
   const { data, error } = await supabase.rpc("ep_admin_portal_dashboard");
   if (error) throw error;
   return data;
+}
+
+// ---- Approver (admin side), migration 264: who decides this employee's leave, corrections and reports.
+/** [{ user_id, name, role }] — people whose role may approve leave. */
+export async function getApproverOptions() {
+  const { data, error } = await supabase.rpc("ep_admin_approver_options");
+  if (error) throw error;
+  return data ?? [];
+}
+
+/** userId = null: anyone with the permission decides. */
+export async function setApprover(employeeId, userId) {
+  const { data, error } = await supabase.rpc("ep_admin_set_approver", { p_emp: employeeId, p_user: userId });
+  if (error) {
+    const msg = error.message ?? "";
+    return { ok: false, message: /approve|permission|own requests/i.test(msg) ? msg : "Could not save the approver. Please try again." };
+  }
+  return { ok: true, approver: data?.user_id ? data : null };
 }

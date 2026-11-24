@@ -5,6 +5,7 @@ import { CORRECTION_STATUS, cancelCorrection, getMyCorrections, requestCorrectio
 import { Alert, Badge, Chips, Empty, Panel } from "@/components/portal/PortalUI";
 import { BTN_PRIMARY, BTN_SECONDARY, INPUT, LABEL } from "@/components/portal/portalStyles";
 import { correctionMinDate, formatDate, formatTime, todayIst } from "./attendanceFormat";
+import { useAccess } from "@/lib/access";
 
 /** Badge tone per correction status. */
 const TONE = { pending: "amber", approved: "green", rejected: "red", cancelled: "slate" };
@@ -166,6 +167,8 @@ function Times({ inAt, outAt }) {
  * to open the form for (set by the history table's "Correct" link).
  */
 export default function CorrectionsCard({ employeeId, openFor, onChanged }) {
+  const { can } = useAccess();
+  const canEdit = can("emp.attendance.edit");
   const [list, setList] = useState(null);
   const [formDate, setFormDate] = useState(null); // null = closed, "" = today
   const [reload, setReload] = useState(0);
@@ -202,6 +205,7 @@ export default function CorrectionsCard({ employeeId, openFor, onChanged }) {
       subtitle="Missed or wrong punch? Ask the admin to fix it."
       className="scroll-mt-24"
       action={
+        canEdit &&
         formDate === null && (
           <button type="button" onClick={() => setFormDate("")} className={BTN_SECONDARY}>
             <Plus className="h-4 w-4" aria-hidden="true" /> Request a correction
@@ -209,7 +213,7 @@ export default function CorrectionsCard({ employeeId, openFor, onChanged }) {
         )
       }
     >
-      {formDate !== null && (
+      {canEdit && formDate !== null && (
         <Form
           key={formDate}
           employeeId={employeeId}
@@ -274,7 +278,7 @@ export default function CorrectionsCard({ employeeId, openFor, onChanged }) {
                   ) : (
                     <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${st?.chip}`}>{st?.label}</span>
                   )}
-                  {c.status === "pending" && (
+                  {canEdit && c.status === "pending" && (
                     <button
                       type="button"
                       onClick={() => cancel(c.id)}

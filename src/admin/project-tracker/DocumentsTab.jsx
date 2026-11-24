@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { Briefcase, ClipboardList, Download, Eye, FileText, Files, Link2, PackageCheck, Pencil, Plus, Receipt, RotateCcw, Trash2 } from "lucide-react";
+import { useAccess } from "@/lib/access";
 import useAdminData from "../useAdminData";
 import AdminLoading from "../AdminLoading";
 import EmptyState from "../EmptyState";
@@ -29,6 +30,11 @@ export default function DocumentsTab({ projectId, projectLabel }) {
   const [viewing, setViewing] = useState(null);
   const [deleting, setDeleting] = useState(null);
   const [notice, setNotice] = useState(null);
+  const { can } = useAccess();
+  const canCreate = can("projects.tracker.create");
+  const canEdit = can("projects.tracker.edit");
+  const canDelete = can("projects.tracker.delete");
+  const canDownload = can("projects.tracker.download");
 
   const docs = useMemo(() => data ?? [], [data]);
   const nextRefs = useMemo(() => {
@@ -70,6 +76,7 @@ export default function DocumentsTab({ projectId, projectLabel }) {
             Documents
             {docs.length > 0 && <span className="ml-2 font-normal text-white/55">{docs.length}</span>}
           </span>
+          {canCreate && (
           <button
             type="button"
             onClick={() => setEditing({ category: "" })}
@@ -78,6 +85,7 @@ export default function DocumentsTab({ projectId, projectLabel }) {
             <Plus className="h-3.5 w-3.5" aria-hidden="true" />
             Add document
           </button>
+          )}
         </div>
 
         <div className="flex flex-col gap-3 bg-[#f8fafc] p-4">
@@ -97,6 +105,7 @@ export default function DocumentsTab({ projectId, projectLabel }) {
                 {section.label}
                 <span className="ml-1 font-medium text-white/60">({items.length})</span>
               </h3>
+              {canCreate && (
               <button
                 type="button"
                 onClick={() => setEditing({ category: section.value, lock: true })}
@@ -105,6 +114,7 @@ export default function DocumentsTab({ projectId, projectLabel }) {
                 <Plus className="h-3.5 w-3.5" aria-hidden="true" />
                 {addLabel}
               </button>
+              )}
             </div>
             {items.length === 0 ? (
               <p className="px-4 py-4 text-sm text-[#9aa0ad]">Nothing here yet.</p>
@@ -140,14 +150,17 @@ export default function DocumentsTab({ projectId, projectLabel }) {
                         <button type="button" onClick={() => setViewing(d)} aria-label={`View ${ref ?? d.title}`} title="View" className={ICON_BTN}>
                           <Eye className="h-4 w-4" aria-hidden="true" />
                         </button>
-                        {!d.external_url && (
+                        {canDownload && !d.external_url && (
                           <button type="button" onClick={() => open(d, true)} aria-label={`Download ${ref ?? d.title}`} title="Download" className={ICON_BTN}>
                             <Download className="h-4 w-4" aria-hidden="true" />
                           </button>
                         )}
+                        {canEdit && (
                         <button type="button" onClick={() => setEditing(d)} aria-label={`Edit ${ref ?? d.title}`} title="Edit" className={ICON_BTN}>
                           <Pencil className="h-4 w-4" aria-hidden="true" />
                         </button>
+                        )}
+                        {canDelete && (
                         <button
                           type="button"
                           onClick={() => setDeleting(d)}
@@ -157,6 +170,7 @@ export default function DocumentsTab({ projectId, projectLabel }) {
                         >
                           <Trash2 className="h-4 w-4" aria-hidden="true" />
                         </button>
+                        )}
                       </div>
                     </li>
                   );
