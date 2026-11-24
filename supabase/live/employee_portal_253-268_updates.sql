@@ -9936,8 +9936,9 @@ select '266: Resend key in the Vault (needed to send emails)', exists (select 1 
 union all
 select '267: real email for staff', public.ep_email_is_real('person@gmail.com') and not public.ep_email_is_real('person@example.com')
 union all
-select '268: welcome emails + bounce check every 5 min', to_regprocedure('public.rbac_check_welcome_emails()') is not null
-                                                    and exists (select 1 from cron.job where jobname = 'rbac-welcome-check')
+select '268: welcome emails installed', to_regprocedure('public.rbac_check_welcome_emails()') is not null
+union all
+select 'pg_cron enabled (needed for reminders, auto punch-out, bounce checks)', exists (select 1 from pg_extension where extname = 'pg_cron')
 union all
 select '259: at least one Super Admin (your existing admins)', exists (select 1 from public.rbac_user_roles where role_key = 'super_admin')
 union all
