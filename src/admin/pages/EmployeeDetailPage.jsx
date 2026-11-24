@@ -23,6 +23,7 @@ import { AccessBadge, EmploymentTypeChoice, Field, ManagerPicker } from "../empl
 import { Alert, Avatar, Badge, Detail, Empty, Panel } from "@/components/portal/PortalUI";
 import { BTN_DANGER, BTN_DANGER_SOFT, BTN_PRIMARY, BTN_SECONDARY, CARD, INPUT } from "@/components/portal/portalStyles";
 import CertificateCard from "../employees/CertificateCard";
+import DocumentsCard from "../employees/DocumentsCard";
 
 const labelOf = (list, value) => list.find((o) => o.value === value)?.label;
 /** Empty values -> undefined, so <Detail> shows "Not added". */
@@ -445,8 +446,9 @@ export default function EmployeeDetailPage() {
     <div className="flex flex-col gap-5">
       {back}
       <ProfileHeader emp={emp} />
-      {/* Order: personal, contact, emergency contacts, work details, certificate, team, portal access. */}
+      {/* Order: personal, contact, emergency contacts, documents, work details, certificate, team, portal access. */}
       <PersonalCards emp={emp} />
+      <DocumentsCard emp={emp} subtitle={BY_EMPLOYEE} />
       <WorkCard key={`w-${emp.id}`} emp={emp} onSaved={setEmp} />
       <CertificateCard emp={emp} />
       <TeamCard reports={emp.direct_reports} />

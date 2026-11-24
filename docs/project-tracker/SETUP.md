@@ -6,7 +6,8 @@ This branch (`project-tracker`) is the Zyllo Tech website plus:
   admin pages (Employee Portal dashboard, Employee Management, Project Management, Attendance, Leave,
   Daily Work Reports, Notifications).
 - **Employee side** (`/employee`): punch in / out, Dashboard, Attendance (+ corrections), My Profile,
-  My Projects, Daily Work Report, Leave, Notifications, first-sign-in password change.
+  My Projects, Daily Work Report, Leave, Notifications, first-sign-in password change,
+  My documents (employee uploads certificates / ID proofs; the admin sees them on the employee's page).
 
 There is **one login page** (`/login`) for everybody: an admin lands on `/admin`, an employee lands on `/employee`.
 
@@ -48,7 +49,11 @@ Start the site:
 npm run dev:tracker
 ```
 
-Open the address shown in the terminal (for example `http://localhost:8080`) and go to **/login**.
+Open **`http://localhost:8080`** (the "Local" address shown in the terminal) and go to **/login**.
+
+> Use `localhost` on your own computer. The "Network" address (`http://192.168…:8080`) also opens the site,
+> but browsers treat it as "not secure", so the **Copy** buttons (passwords, logins) do not work there.
+> Uploads work on both.
 
 - Sign in with an **admin** login → you land on `/admin` (sidebar: Projects, Employee Portal, …).
 - Sign in with an **employee** login (Employee ID / sign-in ID created in Admin → Employee Management)
@@ -82,7 +87,7 @@ Open the address shown in the terminal (for example `http://localhost:8080`) and
 
 ## Database (for whoever sets up a new Supabase project)
 
-Apply `supabase/migrations/220_…sql` to `250_…sql` in order (220–228 Project Tracker, 229–250 Employee
+Apply `supabase/migrations/220_…sql` to `251_…sql` in order (220–228 Project Tracker, 229–251 Employee
 Portal). Each has a rollback in `supabase/rollbacks/`. They need the `supabase_vault` and `pg_cron`
 extensions and a `public.is_admin()` function that returns true for website admins. The shared dev database
 already has all of them. The **live website** database has 220–228 only — the Employee Portal is not live yet.

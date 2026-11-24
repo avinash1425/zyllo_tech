@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase/client";
 import { fetchCompanies, fetchCompany } from "./projectTracker";
+import { randomId } from "@/lib/randomId";
 
 const LOGO_BUCKET = "pt-company-logos";
 const LOGO_TTL = 60 * 60;
@@ -388,7 +389,7 @@ export async function createDocument(projectId, input, { mode, file }) {
   let storage = {};
   if (mode === "file") {
     const ext = fileExtension(file.name);
-    const path = `${projectId}/${crypto.randomUUID()}-${safeFileName(file.name)}`;
+    const path = `${projectId}/${randomId()}-${safeFileName(file.name)}`;
     const { error: upError } = await supabase.storage
       .from(DOC_BUCKET)
       .upload(path, file, { contentType: DOC_TYPES[ext], upsert: false, cacheControl: "3600" });

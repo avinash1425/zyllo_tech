@@ -16,6 +16,7 @@ import { Alert, Avatar, Badge, Chips, Detail, Hero, Panel } from "@/components/p
 import { BTN_PRIMARY, BTN_SECONDARY, INPUT, LABEL } from "@/components/portal/portalStyles";
 import { formatDate } from "../attendanceFormat";
 import MyCertificateCard from "../MyCertificateCard";
+import MyDocumentsCard from "../MyDocumentsCard";
 
 const EMPTY_CONTACT = { name: "", relationship: "", phone: "", alternate_phone: "" };
 const labelOf = (list, value) => list.find((o) => o.value === value)?.label;
@@ -460,6 +461,7 @@ export default function ProfilePage() {
       <MyCertificateCard isIntern={profile.work.employment_type === "intern"} />
       <PersonalCard profile={profile} onSaved={setProfile} />
       <EmergencyCard profile={profile} onSaved={setProfile} />
+      <MyDocumentsCard />
     </div>
   );
 }

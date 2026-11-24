@@ -2,6 +2,7 @@
 // Files live in the private bucket "ep-certificates" under "<employee_id>/…"; the database
 // row (ep_internship_certificates) is written only through admin RPCs.
 import { supabase } from "@/lib/supabase/client";
+import { randomId } from "@/lib/randomId";
 
 const BUCKET = "ep-certificates";
 export const CERT_MAX_BYTES = 10 * 1024 * 1024;
@@ -51,7 +52,7 @@ export async function uploadCertificate(employeeId, file) {
   const problem = checkCertificateFile(file);
   if (problem) return { ok: false, message: problem };
   const mime = CERT_TYPES[ext(file.name)];
-  const path = `${employeeId}/${crypto.randomUUID()}-${safeName(file.name)}`;
+  const path = `${employeeId}/${randomId()}-${safeName(file.name)}`;
   const { error: upError } = await supabase.storage.from(BUCKET).upload(path, file, { contentType: mime, upsert: false });
   if (upError) return { ok: false, message: "Could not upload the file. Please try again." };
 
