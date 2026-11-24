@@ -87,7 +87,15 @@ Open **`http://localhost:8080`** (the "Local" address shown in the terminal) and
 
 ## Database (for whoever sets up a new Supabase project)
 
-Apply `supabase/migrations/220_…sql` to `251_…sql` in order (220–228 Project Tracker, 229–251 Employee
-Portal). Each has a rollback in `supabase/rollbacks/`. They need the `supabase_vault` and `pg_cron`
+Apply `supabase/migrations/220_…sql` to `252_…sql` in order (220–228 Project Tracker, 229–252 Employee
+Portal). Each has a rollback in `supabase/rollbacks/`. They need the `supabase_vault`, `pgcrypto` and `pg_cron`
 extensions and a `public.is_admin()` function that returns true for website admins. The shared dev database
-already has all of them. The **live website** database has 220–228 only — the Employee Portal is not live yet.
+already has all of them.
+
+The **live website** database (Lovable Cloud) gets the same structure — no data — from two one-step scripts
+run in Lovable Cloud → SQL editor, in this order:
+
+1. `supabase/live/project_tracker_schema_220-228.sql` (already done)
+2. `supabase/live/employee_portal_schema_229-252.sql`
+
+Each runs as one transaction (all or nothing) and refuses to run twice.
