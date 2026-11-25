@@ -107,8 +107,8 @@ run in Lovable Cloud → SQL editor, in this order:
 2. `supabase/live/employee_portal_schema_229-252.sql` (already done)
 3. `supabase/live/employee_portal_253-268_updates.sql` (editable Employee ID, leave order: reporting
    manager reviews -> admin approves -> manager gives the final approval, Admin Notifications)
-4. `supabase/migrations/269_rbac_many_roles.sql` (several roles per person + top-bar role switcher)
-5. `supabase/migrations/270_late_after_1005_unread_first.sql` (Late after 10:05 AM; unread notifications first)
+4. `supabase/live/employee_portal_269-270_updates.sql` (several roles per person + top-bar role switcher;
+   Late after 10:05 AM; unread notifications first)
 
 Each runs as one transaction (all or nothing). The two schema scripts refuse to run twice; the updates
 script is safe to run again.
