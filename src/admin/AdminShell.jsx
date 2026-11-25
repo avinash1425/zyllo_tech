@@ -32,7 +32,7 @@ import {
   ShieldCheck,
   UserCog as UserCog2,
 } from "lucide-react";
-import { useAccess } from "@/lib/access";
+import { roleFits, useAccess } from "@/lib/access";
 import RoleSwitcher from "@/components/portal/RoleSwitcher";
 import { useAuth } from "@/lib/auth";
 import AdminSearch from "./AdminSearch";
@@ -234,7 +234,9 @@ export default function AdminShell({ children }) {
   const { user, signOut } = useAuth();
   const { can, access, roles, activeRole } = useAccess();
   const hasSwitcher = !!activeRole && roles.length > 1;
-  const isEmployee = !hasSwitcher && (access?.roles ?? []).some((r) => r.key === "employee");
+  // "Employee Portal" button: for employees; with several roles only while the active role is a portal role
+  // (e.g. a Team Lead who opened admin pages like Project Tracker) — admin roles switch with the Role button.
+  const isEmployee = (access?.roles ?? []).some((r) => r.key === "employee") && (!hasSwitcher || roleFits(activeRole, "portal"));
   const canInbox = can("portal.inbox");
   const inboxUnread = useInboxUnread(canInbox);
   const visibleSections = NAV_SECTIONS.map((section) => ({ ...section, items: section.items.filter((item) => !item.perm || can(item.perm)) })).filter(
