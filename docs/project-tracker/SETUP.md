@@ -95,7 +95,7 @@ Open **`http://localhost:8080`** (the "Local" address shown in the terminal) and
 
 ## Database (for whoever sets up a new Supabase project)
 
-Apply `supabase/migrations/220_…sql` to `268_…sql` in order (220–228 Project Tracker, 229–268 Employee Portal + roles
+Apply `supabase/migrations/220_…sql` to `270_…sql` in order (220–228 Project Tracker, 229–270 Employee Portal + roles
 Portal). Each has a rollback in `supabase/rollbacks/`. They need the `supabase_vault`, `pgcrypto` and `pg_cron`
 extensions and a `public.is_admin()` function that returns true for website admins. The shared dev database
 already has all of them.
@@ -107,6 +107,8 @@ run in Lovable Cloud → SQL editor, in this order:
 2. `supabase/live/employee_portal_schema_229-252.sql` (already done)
 3. `supabase/live/employee_portal_253-268_updates.sql` (editable Employee ID, leave order: reporting
    manager reviews -> admin approves -> manager gives the final approval, Admin Notifications)
+4. `supabase/migrations/269_rbac_many_roles.sql` (several roles per person + top-bar role switcher)
+5. `supabase/migrations/270_late_after_1005_unread_first.sql` (Late after 10:05 AM; unread notifications first)
 
 Each runs as one transaction (all or nothing). The two schema scripts refuse to run twice; the updates
 script is safe to run again.

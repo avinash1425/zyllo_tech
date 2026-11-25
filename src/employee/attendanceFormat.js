@@ -3,8 +3,8 @@
 export const TZ = "Asia/Kolkata";
 
 export const RULES_TEXT = [
-  "Office hours 9:30 AM – 7:00 PM",
-  "Punch in after 9:40 AM = Late",
+  "Office hours 9:40 AM – 7:00 PM",
+  "Punch in 9:40 – 10:05 AM = on time; after 10:05 AM = Late",
   "Less than 4 hours = Leave",
   "4 hours or more, out before 7:00 PM = Half day",
   "4 hours or more, out at/after 7:00 PM = Present",

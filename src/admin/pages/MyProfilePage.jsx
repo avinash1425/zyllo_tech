@@ -11,7 +11,7 @@ export default function MyProfilePage() {
   const { user } = useAuth();
   const { access } = useAccess();
   const name = user?.user_metadata?.full_name || (user?.email ?? "").split("@")[0];
-  const role = access?.roles?.[0];
+  const myRoles = access?.roles ?? [];
 
   return (
     <div className="flex flex-col gap-5">
@@ -24,7 +24,17 @@ export default function MyProfilePage() {
             <Detail label="Sign-in ID">
               <span className="break-all">{user?.email ?? "—"}</span>
             </Detail>
-            <Detail label="Role">{role ? <Badge tone={role.key === "super_admin" ? "orange" : "blue"}>{role.name}</Badge> : "—"}</Detail>
+            <Detail label={myRoles.length > 1 ? "Roles" : "Role"}>
+              {myRoles.length ? (
+                <span className="flex flex-wrap gap-1.5">
+                  {myRoles.map((r) => (
+                    <Badge key={r.key} tone={r.key === "super_admin" ? "orange" : "blue"}>{r.name}</Badge>
+                  ))}
+                </span>
+              ) : (
+                "—"
+              )}
+            </Detail>
             <Detail label="Last sign-in">{user?.last_sign_in_at ? formatDateTime(user.last_sign_in_at) : "—"}</Detail>
           </dl>
         </div>

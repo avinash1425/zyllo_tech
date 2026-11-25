@@ -43,6 +43,16 @@ function NextRedirectField() {
 // Where to go after a successful sign-in, by account type:
 // admin -> ?next= (never an /employee one) or /admin; employee -> /employee (or an /employee ?next=);
 // anyone else -> ?next= or /admin (which shows "Not authorised").
+async function lastRoleIsAdmin(supabase) {
+  try {
+    const { data } = await supabase.auth.getUser();
+    const key = data?.user?.id ? window.localStorage.getItem(`zt-active-role:${data.user.id}`) : null;
+    return ["super_admin", "admin", "hr"].includes(key);
+  } catch {
+    return false;
+  }
+}
+
 async function destinationAfterSignIn(next) {
   const supabase = await loadSupabase();
   const { data: isAdmin } = await supabase.rpc("is_admin");
@@ -51,6 +61,8 @@ async function destinationAfterSignIn(next) {
   // from there (or follows an /admin link). Other admin accounts go to the admin dashboard.
   if (!error && me) {
     if (isAdmin === true && next.startsWith("/admin")) return next;
+    // Several roles (migration 269): start where the role chosen last time on this browser works.
+    if (isAdmin === true && !next.startsWith("/employee") && (await lastRoleIsAdmin(supabase))) return "/admin";
     return next.startsWith("/employee") ? next : "/employee";
   }
   if (isAdmin === true) return next && !next.startsWith("/employee") ? next : "/admin";

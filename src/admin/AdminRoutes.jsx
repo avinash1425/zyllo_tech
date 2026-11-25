@@ -158,7 +158,7 @@ export default function AdminRoutes() {
         <title>Admin | Zyllo Tech</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
-      <AccessProvider userId={userId}>
+      <AccessProvider userId={userId} area="admin">
       <MustChangePassword onSignOut={signOut}>
       <AdminShell>
         <Routes>

@@ -27,24 +27,27 @@ const FILTERS = [
 ];
 
 const isAdminArea = (u) => u.roles.some((r) => ROLE[r]?.area === "admin");
-// One role per person: the given role, else Employee for an active portal account (migration 263).
-const effective = (u) => (u.roles.length ? [u.roles[0]] : u.employee_active ? ["employee"] : []);
+// Several roles per person (migration 269): the given roles, plus Employee for an active portal account.
+const ORDER = Object.fromEntries(ROLES.map((r, i) => [r.key, i]));
+const sortRoles = (keys) => [...new Set(keys)].sort((a, b) => (ORDER[a] ?? 99) - (ORDER[b] ?? 99));
+const effective = (u) => sortRoles([...u.roles, ...(u.employee_active ? ["employee"] : [])]);
 
-/** Role buttons: ONE role per person (migration 263; no dropdowns). value = [roleKey]. */
-function RoleButtons({ value, onChange, options, disabledKeys = [] }) {
+/** Role buttons: pick ONE OR MORE roles (migration 269; no dropdowns). value = [roleKey, ...]. */
+function RoleButtons({ value, onChange, options, disabledKeys = [], lockedKeys = [] }) {
   return (
-    <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Role">
+    <div className="flex flex-wrap gap-1.5" role="group" aria-label="Roles">
       {options.map((r) => {
-        const on = value.includes(r.key);
-        const disabled = disabledKeys.includes(r.key);
+        const on = value.includes(r.key) || lockedKeys.includes(r.key);
+        const disabled = disabledKeys.includes(r.key) || lockedKeys.includes(r.key);
         return (
           <button
             key={r.key}
             type="button"
-            role="radio"
+            role="checkbox"
             aria-checked={on}
             disabled={disabled}
-            onClick={() => onChange([r.key])}
+            title={lockedKeys.includes(r.key) ? "Every Employee Portal account is an Employee" : undefined}
+            onClick={() => onChange(on ? value.filter((k) => k !== r.key) : sortRoles([...value, r.key]))}
             className={`rounded-full border px-3 py-1 text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-40 ${
               on
                 ? "border-transparent bg-gradient-to-r from-[#1f4693] to-[#2d5fbe] text-white shadow-sm"
@@ -61,19 +64,24 @@ function RoleButtons({ value, onChange, options, disabledKeys = [] }) {
 }
 
 function RoleEditor({ user, iAmSuper, onSaved, onCancel }) {
-  // One role: the given one, or "Employee" for a portal account without another role.
-  const [roles, setRoles] = useState(user.roles.length ? [user.roles[0]] : user.employee_code ? ["employee"] : []);
+  // The given roles; "Employee" is always on for an Employee Portal account (migration 269).
+  const [roles, setRoles] = useState(sortRoles(user.roles.filter((k) => k !== "employee")));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   // Employee / Manager / Team Lead only for Employee Portal accounts; Super Admin only by a Super Admin.
   const options = ROLES.filter((r) => r.area !== "portal" || user.employee_code);
   const disabledKeys = iAmSuper ? [] : ["super_admin"];
   const becomesAdmin = user.employee_code && roles.some((r) => ROLE[r]?.area === "admin");
+  const lockedKeys = user.employee_code ? ["employee"] : [];
 
   async function save() {
     setBusy(true);
     setError("");
-    if (roles.some((k) => REAL_EMAIL_ROLES.includes(k)) || roles.length === 0) {
+    if (!user.employee_code && roles.length === 0) {
+      setBusy(false);
+      return setError("Choose at least one role.");
+    }
+    if (roles.some((k) => REAL_EMAIL_ROLES.includes(k)) || user.employee_code) {
       const real = await checkRealEmail(user.sign_in);
       if (!real.ok) {
         setBusy(false);
@@ -88,18 +96,18 @@ function RoleEditor({ user, iAmSuper, onSaved, onCancel }) {
 
   return (
     <div className="mt-3 flex flex-col gap-3 rounded-xl border border-[#dce6f7] bg-white p-4 shadow-sm">
-      <span className={LABEL}>Role (one per person)</span>
-      <RoleButtons value={roles} onChange={setRoles} options={options} disabledKeys={disabledKeys} />
+      <span className={LABEL}>Roles (choose one or more)</span>
+      <RoleButtons value={roles} onChange={setRoles} options={options} disabledKeys={disabledKeys} lockedKeys={lockedKeys} />
       {user.employee_code && (
         <p className="text-xs text-[#676b7a]">
           <Lock className="mr-1 inline h-3 w-3" aria-hidden="true" />
-          Manager and Team Lead are employees too: they keep the Employee Portal features of their role.
+          Employee is always on for an Employee Portal account. Add Manager, Team Lead, HR or Admin on top of it.
         </p>
       )}
       {!iAmSuper && <p className="text-xs text-[#9aa0ad]">Only a Super Admin can give or remove Super Admin.</p>}
       {becomesAdmin && (
         <Alert kind="warn" className="py-2 text-xs">
-          With an admin-area role this person signs in to the admin dashboard instead of the Employee Portal.
+          This person can open the admin dashboard too. They switch between their roles with the “Role” button in the top bar, without signing out or punching out.
         </Alert>
       )}
       {error && (
@@ -109,7 +117,7 @@ function RoleEditor({ user, iAmSuper, onSaved, onCancel }) {
       )}
       <div className="flex flex-wrap gap-2">
         <button type="button" disabled={busy} onClick={save} className={BTN_PRIMARY}>
-          {busy ? "Saving…" : "Save role"}
+          {busy ? "Saving…" : "Save roles"}
         </button>
         <button type="button" disabled={busy} onClick={onCancel} className={BTN_SECONDARY}>
           Cancel
@@ -222,7 +230,7 @@ function AddUser({ iAmSuper, onDone, onCancel }) {
           {errors.password && <span className="mt-1 block text-xs text-red-600">{errors.password}</span>}
         </div>
         <div className="sm:col-span-2">
-          <span className={LABEL}>Role</span>
+          <span className={LABEL}>Roles (choose one or more)</span>
           <RoleButtons value={f.roles} onChange={(v) => set("roles", v)} options={ROLES.filter((r) => r.area === "admin")} disabledKeys={iAmSuper ? [] : ["super_admin"]} />
           {errors.roles && <span className="mt-1 block text-xs text-red-600">{errors.roles}</span>}
         </div>
@@ -306,7 +314,7 @@ export default function SettingsUsersPage() {
           }}
         />
       )}
-      <Panel flush icon={KeyRound} title="Users" subtitle="Each person has one role. Click “Edit role” to change it.">
+      <Panel flush icon={KeyRound} title="Users" subtitle="A person can have several roles and switches between them from the top bar. Click “Edit roles” to change them.">
         <div className="flex flex-col gap-3 border-b border-[#eef1f7] bg-[#fafbff] px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
           <Chips items={FILTERS.map((x) => ({ ...x, count: counts[x.key] }))} value={filter} onChange={setFilter} label="Show" />
           <SearchBox value={q} onChange={setQ} placeholder="Search name, sign-in ID, employee ID…" />
@@ -358,7 +366,7 @@ export default function SettingsUsersPage() {
                       }}
                       className={BTN_SECONDARY}
                     >
-                      <Pencil className="h-4 w-4" aria-hidden="true" /> Edit role
+                      <Pencil className="h-4 w-4" aria-hidden="true" /> Edit roles
                     </button>
                   )}
                   {!u.is_self && can("settings.users.edit") && emailEdit !== u.user_id && (
@@ -377,7 +385,7 @@ export default function SettingsUsersPage() {
                     <ChangeEmailForm
                       userId={u.user_id}
                       currentEmail={u.sign_in}
-                      needsRealEmail={!["super_admin", "admin"].includes(u.roles[0])}
+                      needsRealEmail={!!u.employee_code || u.roles.length === 0 || u.roles.some((k) => !["super_admin", "admin"].includes(k))}
                       onDone={() => setReload((n) => n + 1)}
                       onCancel={emailEdit === u.user_id ? () => setEmailEdit(null) : undefined}
                     />

@@ -33,6 +33,7 @@ import {
   UserCog as UserCog2,
 } from "lucide-react";
 import { useAccess } from "@/lib/access";
+import RoleSwitcher from "@/components/portal/RoleSwitcher";
 import { useAuth } from "@/lib/auth";
 import AdminSearch from "./AdminSearch";
 import { getAdminInboxSummary, INBOX_CHANGED } from "@/lib/api/admin/inbox";
@@ -109,7 +110,7 @@ export function firstAllowedHref(can) {
 
 const NAV_ITEMS = NAV_SECTIONS.flatMap((section) => section.items);
 
-function UserMenu({ email, onSignOut }) {
+function UserMenu({ email, onSignOut, roleName }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -145,7 +146,7 @@ function UserMenu({ email, onSignOut }) {
           <span aria-hidden="true" className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-[#3089a6]" />
         </span>
         <span className="hidden text-left md:block">
-          <span className="block text-[13.5px] font-semibold leading-tight text-[#101a3a]">Admin</span>
+          <span className="block text-[13.5px] font-semibold leading-tight text-[#101a3a]">{roleName || "Admin"}</span>
           <span className="block max-w-[150px] truncate text-xs leading-tight text-[#6b7280]">
             {email || "Zyllo Tech"}
           </span>
@@ -231,8 +232,9 @@ export default function AdminShell({ children }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, signOut } = useAuth();
-  const { can, access } = useAccess();
-  const isEmployee = (access?.roles ?? []).some((r) => r.key === "employee");
+  const { can, access, roles, activeRole } = useAccess();
+  const hasSwitcher = !!activeRole && roles.length > 1;
+  const isEmployee = !hasSwitcher && (access?.roles ?? []).some((r) => r.key === "employee");
   const canInbox = can("portal.inbox");
   const inboxUnread = useInboxUnread(canInbox);
   const visibleSections = NAV_SECTIONS.map((section) => ({ ...section, items: section.items.filter((item) => !item.perm || can(item.perm)) })).filter(
@@ -412,6 +414,8 @@ export default function AdminShell({ children }) {
               <AdminSearch />
             </div>
 
+            <RoleSwitcher />
+
             {canInbox && (
             <Link
               href="/admin/inbox"
@@ -447,7 +451,7 @@ export default function AdminShell({ children }) {
             </Link>
 
             <div className="ml-auto sm:ml-0">
-              <UserMenu email={user?.email} onSignOut={signOut} />
+              <UserMenu email={user?.email} onSignOut={signOut} roleName={activeRole?.name} />
             </div>
           </div>
 

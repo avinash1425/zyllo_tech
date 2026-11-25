@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { AlertTriangle, Clock, Loader2, LogIn, LogOut, ShieldOff, Timer, UserX } from "lucide-react";
 import { useAuth } from "@/lib/auth";
@@ -19,7 +19,7 @@ import TeamLeavePage from "./pages/TeamLeavePage";
 import DashboardPage from "./pages/DashboardPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import { getNotificationSummary, markRead } from "@/lib/api/employee/notifications";
-import { AccessProvider, useAccess } from "@/lib/access";
+import { AccessProvider, roleFits, useAccess } from "@/lib/access";
 
 function FullScreen({ children }) {
   return (
@@ -90,6 +90,35 @@ function NotEmployee({ onSignOut }) {
   );
 }
 
+/** Other roles of this person that open the admin dashboard (migration 269): usable without punching in. */
+function AdminRoleButtons({ busy }) {
+  const { roles, setActiveRole } = useAccess();
+  const navigate = useNavigate();
+  const adminRoles = roles.filter((r) => Array.isArray(r.permissions) && roleFits(r, "admin"));
+  if (adminRoles.length === 0) return null;
+  return (
+    <div className="mt-4 border-t border-[#e7e9ee] pt-4">
+      <p className="text-xs text-[#676b7a]">Or switch role without punching in:</p>
+      <div className="mt-2 flex flex-col gap-2">
+        {adminRoles.map((r) => (
+          <button
+            key={r.key}
+            type="button"
+            disabled={busy}
+            onClick={() => {
+              setActiveRole(r.key);
+              navigate("/admin");
+            }}
+            className={`${BTN_SECONDARY} w-full`}
+          >
+            Continue as {r.name} (Admin dashboard)
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /** Blocking pop-up: nothing else is usable until the employee punches in. */
 function PunchInDialog({ me, busy, message, onPunchIn, onSignOut }) {
   const last = me.last_session;
@@ -155,6 +184,7 @@ function PunchInDialog({ me, busy, message, onPunchIn, onSignOut }) {
               Sign out
             </button>
           </div>
+          <AdminRoleButtons busy={busy} />
         </div>
       </div>
     </div>
@@ -168,7 +198,7 @@ export default function EmployeePortal() {
   if (!user) return <Navigate to={`/login?next=${encodeURIComponent(pathname + search)}`} replace />;
   // Keyed by account so a different sign-in starts from a clean state.
   return (
-    <AccessProvider userId={user.id}>
+    <AccessProvider userId={user.id} area="portal">
       <EmployeeArea key={user.id} userId={user.id} signOut={signOut} />
     </AccessProvider>
   );

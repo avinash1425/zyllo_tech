@@ -63,7 +63,7 @@ const TABS = [
   { key: "missing", label: "Missing check-outs", icon: LogOut },
   { key: "corrections", label: "Correction requests", icon: ClipboardList },
 ];
-const LATE_AFTER_MIN = 9 * 60 + 40; // 09:40, same as ep_attendance_rules()
+const LATE_AFTER_MIN = 10 * 60 + 5; // 10:05, same as ep_attendance_rules() (migration 270)
 const STATUS_TONE = { pending: "amber", approved: "green", rejected: "red", cancelled: "slate" };
 
 /** Bordered square arrow button used by the month / day navigators. */
@@ -322,7 +322,7 @@ function EmployeeView({ model, view, setView, today }) {
 function LateView({ model }) {
   const rows = model.rows.filter((r) => r.is_late).sort((a, b) => b.work_date.localeCompare(a.work_date));
   return (
-    <TableCard title="Late arrivals" count={rows.length} filters={<Hint>First punch in of the day after 9:40 AM.</Hint>}>
+    <TableCard title="Late arrivals" count={rows.length} filters={<Hint>First punch in of the day after 10:05 AM.</Hint>}>
       {rows.length === 0 ? (
         <Empty icon={AlarmClock} title="No late arrivals this month." />
       ) : (

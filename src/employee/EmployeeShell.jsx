@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { formatTime } from "./attendanceFormat";
 import { useAccess } from "@/lib/access";
+import RoleSwitcher from "@/components/portal/RoleSwitcher";
 
 const NAV_SECTIONS = [
   {
@@ -123,7 +124,8 @@ function UserMenu({ me, busy, onSignOut }) {
 
 /** Sidebar + top bar for the Employee Portal (same look as the admin side). */
 export default function EmployeeShell({ me, busy, message, onPunchOut, onSignOut, summary, onDismissUrgent, children }) {
-  const { canAny, access } = useAccess();
+  const { canAny, access, roles, activeRole } = useAccess();
+  const hasSwitcher = !!activeRole && roles.length > 1;
   const visibleSections = NAV_SECTIONS.map((section) => ({
     ...section,
     items: section.items.filter((i) => !i.perms || canAny(i.perms)),
@@ -319,7 +321,9 @@ export default function EmployeeShell({ me, busy, message, onPunchOut, onSignOut
               )}
             </Link>
 
-            {access?.is_admin && (
+            <RoleSwitcher />
+
+            {access?.is_admin && !hasSwitcher && (
               <Link href="/admin" className={`${TOP_BTN} hidden md:inline-flex`} title="Admin pages your role may open">
                 <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
                 Admin pages
