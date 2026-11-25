@@ -36,7 +36,7 @@ const NAV_SECTIONS = [
     label: "My work",
     items: [
       { href: "/employee/projects", label: "My Projects", icon: FolderKanban, perms: ["emp.projects"] },
-      { href: "/employee/reports", label: "Daily Work Report", icon: ClipboardList, perms: ["emp.reports"] },
+      { href: "/employee/reports", label: "Daily Work Report", icon: ClipboardList, perms: ["emp.reports", "team.reports"], teamHref: "/employee/reports/team", ownPerm: "emp.reports" },
       { href: "/employee/attendance", label: "Attendance Management", icon: CalendarCheck, perms: ["emp.attendance"] },
       { href: "/employee/leave", label: "Leave Management", icon: Plane, perms: ["emp.leave", "team.leave"] },
       { href: "/employee/notifications", label: "Notifications", icon: Bell, badge: "unread" },
@@ -141,7 +141,10 @@ export default function EmployeeShell({ me, busy, message, onPunchOut, onSignOut
   };
   const visibleSections = [...NAV_SECTIONS, adminSection].map((section) => ({
     ...section,
-    items: section.items.filter((i) => !i.perms || canAny(i.perms)),
+    items: section.items
+      .filter((i) => !i.perms || canAny(i.perms))
+      // A role with only the team part (e.g. Team reports without writing own reports) opens the team page.
+      .map((i) => (i.teamHref && !canAny([i.ownPerm]) ? { ...i, href: i.teamHref } : i)),
   })).filter((section) => section.items.length > 0);
   const unread = summary?.unread ?? 0;
   const urgent = summary?.urgent ?? [];

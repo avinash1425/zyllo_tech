@@ -16,6 +16,7 @@ import { Badge, Empty, Hero, KpiCard, Panel, Progress } from "@/components/porta
 import { TZ, daysInMonth, dayName, formatDate, formatHours, formatTime, monthDays, monthTitle, todayIst, ymd } from "../attendanceFormat";
 import { DeadlineText, ProgressBar, StatusChip } from "../projectsUi";
 import { ReportStatusChip } from "../reportsUi";
+import { useAccess } from "@/lib/access";
 
 function greeting() {
   const h = Number(new Intl.DateTimeFormat("en-GB", { timeZone: TZ, hour: "numeric", hour12: false }).format(new Date()));
@@ -40,6 +41,11 @@ function ViewLink({ href, children = "View all" }) {
 
 export default function DashboardPage({ me, onNotificationsChanged }) {
   const navigate = useNavigate();
+  const { can } = useAccess();
+  const canAttendance = can("emp.attendance");
+  const canReports = can("emp.reports");
+  const canLeave = can("emp.leave");
+  const canProjects = can("emp.projects");
   const today = todayIst();
   const [todayRow, setTodayRow] = useState(undefined); // today's attendance (null = none)
   const [sessions, setSessions] = useState(undefined); // every punch in / out today
@@ -125,6 +131,7 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-5">
+      {/* Each box shows only when the role has that feature (Settings -> Roles & Permissions). */}
       {/* ---------------------------------------------------------- greeting */}
       <Hero
         eyebrow={`${dayName(today.iso)}, ${formatDate(today.iso)}`}
@@ -134,6 +141,7 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
 
       {/* ---------------------------------------------------------- KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {canAttendance && (
         <KpiCard
           icon={Clock}
           accent="teal"
@@ -143,6 +151,8 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
           hint="Auto check-out at 8:00 PM"
           href="/employee/attendance"
         />
+        )}
+        {canReports && (
         <KpiCard
           icon={ClipboardList}
           accent="orange"
@@ -152,6 +162,8 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
           hint={report ? `On ${report.items.length} project(s) · ${reportAction}` : report === null ? `Not started yet · ${reportAction}` : undefined}
           href="/employee/reports"
         />
+        )}
+        {canAttendance && (
         <KpiCard
           icon={CalendarCheck}
           accent="green"
@@ -160,6 +172,8 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
           hint={monthStats ? `${formatHours(monthStats.minutes)} worked this month` : month === null ? "Could not load." : undefined}
           href="/employee/attendance"
         />
+        )}
+        {canLeave && (
         <KpiCard
           icon={Plane}
           accent="violet"
@@ -169,10 +183,12 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
           hint={holidayText}
           href="/employee/leave"
         />
+        )}
       </div>
 
       {/* ---------------------------------------------------------- today / month / leave */}
       <div className="grid gap-4 lg:grid-cols-3">
+        {canAttendance && (
         <Panel icon={Clock} title="Today" subtitle="Punch in and punch out" action={<ViewLink href="/employee/attendance">Attendance</ViewLink>}>
           <div className="flex items-baseline justify-between gap-2">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#9aa0ad]">Check-ins today</span>
@@ -203,6 +219,7 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
             {todayRow?.is_late && <Badge tone="orange">Late</Badge>}
           </p>
           <p className="mt-0.5 text-xs text-[#9aa0ad]">Still checked in · auto check-out at 8:00 PM</p>
+          {canReports && (
           <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[#f0f2f6] pt-3 text-xs text-[#676b7a]">
             <span className="font-semibold text-[#4a5068]">Work report:</span>
             {report === undefined ? "…" : report ? <ReportStatusChip status={report.status} /> : "Not started yet"}
@@ -210,8 +227,11 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
               <ViewLink href="/employee/reports">{reportAction}</ViewLink>
             </span>
           </div>
+          )}
         </Panel>
+        )}
 
+        {canAttendance && (
         <Panel
           icon={CalendarCheck}
           title="Attendance"
@@ -243,7 +263,9 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
             </>
           )}
         </Panel>
+        )}
 
+        {canLeave && (
         <Panel icon={Plane} title={`Leave balance ${today.y}`} subtitle="Left / allowed" action={<ViewLink href="/employee/leave">Apply for leave</ViewLink>}>
           {leave === undefined ? (
             <Loading />
@@ -277,10 +299,12 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
             </>
           )}
         </Panel>
+        )}
       </div>
 
       {/* ---------------------------------------------------------- lists */}
       <div className="grid gap-4 lg:grid-cols-3">
+        {canProjects && (
         <Panel icon={FolderKanban} title="Assigned projects" action={<ViewLink href="/employee/projects" />} flush>
           {projects === undefined ? (
             <div className="px-5 py-3">
@@ -310,7 +334,9 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
             </ul>
           )}
         </Panel>
+        )}
 
+        {canProjects && (
         <Panel icon={ListTodo} title="My open tasks" action={<ViewLink href="/employee/projects" />} flush>
           {tasks === undefined ? (
             <div className="px-5 py-3">
@@ -341,6 +367,7 @@ export default function DashboardPage({ me, onNotificationsChanged }) {
             </p>
           )}
         </Panel>
+        )}
 
         <Panel icon={Bell} title="Recent notifications" action={<ViewLink href="/employee/notifications" />} flush>
           {notes === undefined ? (
