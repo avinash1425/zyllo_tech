@@ -70,13 +70,18 @@ export function AccessProvider({ userId, area = "admin", children }) {
   // Per-role permissions exist from migration 269 on; before that the switcher stays hidden.
   const perRole = roles.length > 0 && roles.every((r) => Array.isArray(r.permissions));
 
-  // The active role: the remembered one if it belongs in this area, else the first role that does.
+  // The active role. Admin dashboard: the remembered one if it has admin pages, else the first role that does.
+  // Employee Portal: the remembered one, whatever it is (an employee always keeps the Employee features there,
+  // see can()), else the first portal role. So every permission given to a role shows wherever it applies.
   const activeRole = useMemo(() => {
     if (!perRole) return null;
     const remembered = roles.find((r) => r.key === stored);
+    if (area === "portal") return remembered ?? roles.find((r) => r.area === "portal") ?? roles[0];
     if (remembered && roleFits(remembered, area)) return remembered;
     return roles.find((r) => roleFits(r, area)) ?? remembered ?? roles[0];
   }, [perRole, roles, stored, area]);
+  // In the Employee Portal an employee always has the Employee role's features too.
+  const employeeRole = area === "portal" ? roles.find((r) => r.key === "employee") : null;
 
   const setActiveRole = useCallback(
     (key) => {
@@ -95,14 +100,14 @@ export function AccessProvider({ userId, area = "admin", children }) {
       if (a.legacy) return true;
       if (activeRole) {
         if (activeRole.key === "super_admin") return true;
-        const perms = activeRole.permissions;
+        const perms = employeeRole ? [...activeRole.permissions, ...employeeRole.permissions] : activeRole.permissions;
         return perms.includes(key) || perms.some((p) => p.startsWith(`${key}.`));
       }
       if (a.is_super_admin) return true;
       const perms = a.permissions ?? [];
       return perms.includes(key) || perms.some((p) => p.startsWith(`${key}.`));
     },
-    [state.access, activeRole],
+    [state.access, activeRole, employeeRole],
   );
   const canAny = useCallback((keys) => keys.some((k) => can(k)), [can]);
   const refresh = useCallback(() => setReload((n) => n + 1), []);

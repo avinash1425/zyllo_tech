@@ -32,7 +32,7 @@ import {
   ShieldCheck,
   UserCog as UserCog2,
 } from "lucide-react";
-import { roleFits, useAccess } from "@/lib/access";
+import { useAccess } from "@/lib/access";
 import RoleSwitcher from "@/components/portal/RoleSwitcher";
 import { useAuth } from "@/lib/auth";
 import AdminSearch from "./AdminSearch";
@@ -101,6 +101,9 @@ const NAV_SECTIONS = [
     ],
   },
 ];
+
+/** The admin menu, also listed in the Employee Portal sidebar for roles that have admin pages. */
+export const ADMIN_NAV_SECTIONS = NAV_SECTIONS;
 
 /** First menu page the user may open (used when they may not see the website dashboard). */
 export function firstAllowedHref(can) {
@@ -232,11 +235,9 @@ export default function AdminShell({ children }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, signOut } = useAuth();
-  const { can, access, roles, activeRole } = useAccess();
-  const hasSwitcher = !!activeRole && roles.length > 1;
-  // "Employee Portal" button: for employees; with several roles only while the active role is a portal role
-  // (e.g. a Team Lead who opened admin pages like Project Tracker) — admin roles switch with the Role button.
-  const isEmployee = (access?.roles ?? []).some((r) => r.key === "employee") && (!hasSwitcher || roleFits(activeRole, "portal"));
+  const { can, access, activeRole } = useAccess();
+  // "Employee Portal" button: for everyone who has an Employee Portal account.
+  const isEmployee = (access?.roles ?? []).some((r) => r.key === "employee");
   const canInbox = can("portal.inbox");
   const inboxUnread = useInboxUnread(canInbox);
   const visibleSections = NAV_SECTIONS.map((section) => ({ ...section, items: section.items.filter((item) => !item.perm || can(item.perm)) })).filter(

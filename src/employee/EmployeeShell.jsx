@@ -22,6 +22,7 @@ import {
 import { formatTime } from "./attendanceFormat";
 import { useAccess } from "@/lib/access";
 import RoleSwitcher from "@/components/portal/RoleSwitcher";
+import { ADMIN_NAV_SECTIONS } from "@/admin/AdminShell";
 
 const NAV_SECTIONS = [
   {
@@ -128,7 +129,17 @@ export default function EmployeeShell({ me, busy, message, onPunchOut, onSignOut
   const hasSwitcher = !!activeRole && roles.length > 1;
   // "Admin pages" button: when the active role may open admin pages (e.g. a Team Lead given Project Tracker).
   const showAdminPages = hasSwitcher ? activeRole.key === "super_admin" || !!activeRole.admin_pages : !!access?.is_admin;
-  const visibleSections = NAV_SECTIONS.map((section) => ({
+  // Admin pages the active role may open (e.g. Project Tracker for a Team Lead): listed in the sidebar too,
+  // so every permission given to a role shows up, also on phones.
+  const adminSection = {
+    label: "Admin pages",
+    items: showAdminPages
+      ? ADMIN_NAV_SECTIONS.flatMap((s) => s.items)
+          .filter((i) => i.perm && canAny([i.perm]))
+          .map(({ badge: _badge, perm, ...i }) => ({ ...i, perms: [perm], exact: true }))
+      : [],
+  };
+  const visibleSections = [...NAV_SECTIONS, adminSection].map((section) => ({
     ...section,
     items: section.items.filter((i) => !i.perms || canAny(i.perms)),
   })).filter((section) => section.items.length > 0);
